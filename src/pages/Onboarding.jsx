@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   BookOpen, 
@@ -246,12 +246,14 @@ export default function Onboarding() {
                   onboardingSteps[currentStep].color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20' :
                   'bg-orange-100 dark:bg-orange-900/20'
                 }`}>
-                  <onboardingSteps[currentStep].icon className={`w-12 h-12 ${
-                    onboardingSteps[currentStep].color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                    onboardingSteps[currentStep].color === 'green' ? 'text-green-600 dark:text-green-400' :
-                    onboardingSteps[currentStep].color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                    'text-orange-600 dark:text-orange-400'
-                  }`} />
+                  {React.createElement(onboardingSteps[currentStep].icon, {
+                    className: `w-12 h-12 ${
+                      onboardingSteps[currentStep].color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                      onboardingSteps[currentStep].color === 'green' ? 'text-green-600 dark:text-green-400' :
+                      onboardingSteps[currentStep].color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                      'text-orange-600 dark:text-orange-400'
+                    }`
+                  })}
                 </div>
               </motion.div>
 

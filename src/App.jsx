@@ -63,51 +63,8 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Simple test component without context
-function SimpleTest() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-blue-600 mb-4">Simple Test Working!</h1>
-        <p className="text-blue-500">Basic React rendering is working.</p>
-      </div>
-    </div>
-  );
-}
-
-// Test component with ThemeProvider only
-function ThemeTest() {
-  return (
-    <ThemeProvider>
-      <div className="min-h-screen flex items-center justify-center bg-green-50">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-green-600 mb-4">Theme Provider Working!</h1>
-          <p className="text-green-500">ThemeProvider is working.</p>
-        </div>
-      </div>
-    </ThemeProvider>
-  );
-}
-
-// Test component with both providers
-function ContextTest() {
-  return (
-    <ThemeProvider>
-      <AppProvider>
-        <div className="min-h-screen flex items-center justify-center bg-purple-50">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-purple-600 mb-4">Context Providers Working!</h1>
-            <p className="text-purple-500">Both ThemeProvider and AppProvider are working.</p>
-          </div>
-        </div>
-      </AppProvider>
-    </ThemeProvider>
-  );
-}
-
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [testMode, setTestMode] = useState('simple'); // 'simple', 'theme', 'context', 'full'
 
   useEffect(() => {
     console.log("App component mounted");
@@ -125,32 +82,6 @@ export default function App() {
     );
   }
 
-  // Test different modes
-  if (testMode === 'simple') {
-    return (
-      <ErrorBoundary>
-        <SimpleTest />
-      </ErrorBoundary>
-    );
-  }
-
-  if (testMode === 'theme') {
-    return (
-      <ErrorBoundary>
-        <ThemeTest />
-      </ErrorBoundary>
-    );
-  }
-
-  if (testMode === 'context') {
-    return (
-      <ErrorBoundary>
-        <ContextTest />
-      </ErrorBoundary>
-    );
-  }
-
-  // Full app
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 text-gray-900">
