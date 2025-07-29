@@ -517,9 +517,9 @@ export default function Notebook() {
                       )}
                     </div>
                     
-                    {(note.tags || []).length > 0 && (
+                    {Array.isArray(note.tags) && note.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {(note.tags || []).map((tag, i) => (
+                        {note.tags.map((tag, i) => (
                           <span
                             key={i}
                             className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-full"
