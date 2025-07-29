@@ -22,7 +22,6 @@ import UpcomingTasks from "../components/dashboard/UpcomingTasks";
 import WeekProgress from "../components/dashboard/WeekProgress";
 import AchievementsSummary from "../components/dashboard/AchievementsSummary";
 import { getPhases } from "../services/dataService";
-import { useCyberPlan } from "../hooks/useCyberPlan";
 import SkeletonCard from "../components/ui/SkeletonCard";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -31,8 +30,7 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 export default function Dashboard() {
   console.log("Dashboard component rendering - START");
   const { t } = useTranslation();
-  const { lang, addNotification } = useApp();
-  const { plan, progress, loading } = useCyberPlan();
+  const { lang, addNotification, plan, progress, loading } = useApp();
   const [phases, setPhases] = useState([]);
   const [greeting, setGreeting] = useState("");
   const navigate = useNavigate();
