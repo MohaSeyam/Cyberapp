@@ -455,8 +455,10 @@ const ReportGenerator = () => {
     
     // Add stats
     doc.setFontSize(12);
-    const totalTasks = plan.reduce((acc, week) => 
-      acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0);
+    const totalTasks = plan.reduce(
+      (acc, week) => acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0),
+      0
+    );
     const doneTasks = (progress || []).filter(p => p.done).length;
     const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
     
