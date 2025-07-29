@@ -74,7 +74,8 @@ function Breadcrumbs({ weekId, dayTitle, phaseId }) {
 
 function DayHeader({ day, weekId, phaseId, onTaskComplete }) {
   const { t, i18n } = useTranslation();
-  const { appState } = useApp();
+  const { appState, lang: contextLang } = useApp();
+  const lang = contextLang || "ar";
   const navigate = useNavigate();
   
   const dayTitle = day.day?.[lang] || day.day?.ar || day.day?.en;
