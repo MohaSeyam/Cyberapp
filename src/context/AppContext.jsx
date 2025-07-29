@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import i18n from "../i18n/i18n";
 import { getPlanData } from "../services/dataService";
 import { FaCheck, FaEdit, FaClock } from "react-icons/fa";
-import { useCyberPlan } from "../hooks/useCyberPlan";
 import * as db from "../services/dbService";
 
 const AppContext = createContext();
@@ -20,6 +19,8 @@ export function AppProvider({ children }) {
     compactMode: false
   });
   const [planData, setPlanData] = useState(null);
+  const [plan, setPlan] = useState([]);
+  const [progress, setProgress] = useState([]);
   const [appState, setAppState] = useState({
     progress: {},
     notes: {},
@@ -30,6 +31,65 @@ export function AppProvider({ children }) {
   const [globalPomodoro, setGlobalPomodoro] = useState(null); // { title, minutes, running }
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // جلب كل البيانات من القاعدة
+  const fetchAll = useCallback(async () => {
+    console.log("AppContext fetchAll called");
+    setLoading(true);
+    try {
+      // استورد البيانات من PlanData.json إذا كانت قاعدة البيانات فارغة
+      const plan = await db.getPlan();
+      if (!plan || plan.length === 0) {
+        console.log("Plan is empty, importing from PlanData.json");
+        const res = await fetch("/PlanData.json");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            await db.savePlan(data);
+          }
+        }
+      }
+      
+      const [planData, notesData, journalData, progressData] = await Promise.all([
+        db.getPlan(),
+        db.getNotes(),
+        db.getJournalEntries(),
+        db.getProgress()
+      ]);
+      
+      console.log("AppContext data fetched:", { planData: planData.length, progressData: progressData.length });
+      
+      // تهيئة كل مهمة بـ done: false إذا لم تكن موجودة
+      const normalizedPlan = planData.map(week => ({
+        ...week,
+        days: (week.days || []).map(day => ({
+          ...day,
+          tasks: (day.tasks || []).map(task => {
+            const t = { ...task, done: typeof task.done === 'boolean' ? task.done : false };
+            return t;
+          })
+        }))
+      }));
+      
+      setPlan(normalizedPlan);
+      setProgress(progressData);
+      setAppState(prev => ({
+        ...prev,
+        notes: notesData,
+        journal: journalData
+      }));
+    } catch (error) {
+      console.error("AppContext fetchAll error:", error);
+    } finally {
+      setLoading(false);
+      console.log("AppContext loading set to false");
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("AppContext useEffect running");
+    fetchAll();
+  }, [fetchAll]);
 
   const Icons = {
     check: FaCheck,
@@ -128,51 +188,9 @@ export function AppProvider({ children }) {
     document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
   }, [lang]);
 
-  // تحميل بيانات الخطة عند بدء التطبيق
-  useEffect(() => {
-    async function fetchPlan() {
-      try {
-        setLoading(true);
-        const data = await getPlanData();
-        setPlanData(data);
-      } catch (error) {
-        console.error('Error loading plan data:', error);
-        // Show error notification
-        if (addNotification) {
-          addNotification('error', 'خطأ في تحميل البيانات', 'فشل في تحميل بيانات الخطة، يرجى المحاولة مرة أخرى');
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPlan();
-  }, []);
 
-  // تحميل جميع الملاحظات والمدونات من dbService عند بدء التطبيق
-  useEffect(() => {
-    async function loadUserData() {
-      try {
-        const [notes, journal, userSettings] = await Promise.all([
-          db.getNotes(),
-          db.getJournalEntries(),
-          db.getSetting('userSettings')
-        ]);
-        
-        setAppState(prev => ({
-          ...prev,
-          notes,
-          journal
-        }));
-        
-        if (userSettings) {
-          setSettings(prev => ({ ...prev, ...userSettings }));
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-      }
-    }
-    loadUserData();
-  }, []);
+
+
 
   // حفظ الإعدادات في قاعدة البيانات
   const updateSettings = useCallback(async (newSettings) => {
@@ -267,6 +285,8 @@ export function AppProvider({ children }) {
     settings,
     updateSettings,
     planData,
+    plan,
+    progress,
     appState,
     setAppState,
     modal,
