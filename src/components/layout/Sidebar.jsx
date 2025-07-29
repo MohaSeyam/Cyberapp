@@ -33,6 +33,8 @@ export default function Sidebar() {
     );
   }
 
+  console.log("Sidebar showing main content");
+
   // استخرج جميع المراحل الفريدة
   const phases = Array.from(new Set(plan.map(w => w.phase)));
   

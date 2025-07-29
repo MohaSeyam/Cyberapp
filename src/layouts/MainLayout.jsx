@@ -47,6 +47,9 @@ export default function MainLayout() {
       <div className="flex-1 flex flex-col">
         <Navbar />
         <main className="flex-1 p-4 pb-20 md:pb-4">
+          <div className="bg-red-100 p-4 mb-4">
+            <p>MainLayout Outlet area - content should appear here</p>
+          </div>
           <Outlet />
         </main>
         <BottomNavigation />

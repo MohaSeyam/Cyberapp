@@ -81,7 +81,7 @@ export default function Dashboard() {
     );
   }
 
-  console.log("Dashboard rendering main content");
+  console.log("Dashboard rendering main content - about to render quickActions");
 
   const quickActions = [
     {
