@@ -76,7 +76,6 @@ export default function Notebook() {
   const { appState, plan, loading, lang, addNotification } = useApp();
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -184,14 +183,14 @@ export default function Notebook() {
 
   async function loadNotes() {
     try {
-      setLoading(true);
+      // setLoading(true); // REMOVED
       const extractedNotes = extractAllNotes(appState, plan, lang);
       setNotes(extractedNotes);
     } catch (error) {
       console.error('Error loading notes:', error);
       addNotification('error', 'خطأ في تحميل الملاحظات', 'فشل في تحميل الملاحظات');
     } finally {
-      setLoading(false);
+      // setLoading(false); // REMOVED
     }
   }
 
