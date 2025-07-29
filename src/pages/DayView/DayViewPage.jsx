@@ -340,45 +340,14 @@ export default function DayViewPage(props) {
                     <div>
                         <h4 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">{t.activeTasks}</h4>
                         <div className="space-y-3">
-                            {dayData.tasks.map((task, taskIndex) => {
-                                const note = appState.notes[weekId]?.days[dayIndex]?.[task.id];
-                                return (
-                                    <div key={task.id} className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-2">
-                                            <TaskItem
-                                                task={task}
-                                                weekId={weekId}
-                                                dayKey={dayKey}
-                                                checked={!!progress.find(p => p.weekId == weekId && p.dayKey == dayKey && p.taskId == task.id)?.done}
-                                                onToggle={() => handleTaskToggle(taskIndex)}
-                                            />
-                                            <button
-                                                className="p-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800 transition"
-                                                onClick={() => openNoteModal(task.id, task.description?.ar || task.description?.en || "")}
-                                                title="إضافة ملاحظة"
-                                            >
-                                                <FaRegStickyNote className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                        {/* عرض الملاحظة أسفل المهمة */}
-                                        {note && (
-                                            <div className="mt-2 mb-2 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3 shadow-sm animate-fade-in">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-bold text-yellow-800 dark:text-yellow-200">{note.title}</span>
-                                                    {Array.isArray(note.tags) && note.tags.length > 0 && (
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {note.tags.map(tag => (
-                                                                <span key={tag} className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-700">{tag}</span>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="prose prose-sm dark:prose-invert max-w-none text-black dark:text-white" dangerouslySetInnerHTML={{ __html: note.content }} />
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                            {(dayData.tasks || []).length > 0 ? (
+                              (dayData.tasks || []).map((task, i) => {
+                                console.log('task:', task);
+                                return <TaskItem key={task.id || i} task={task} weekId={weekId} dayKey={dayKey} checked={false} onToggle={() => {}} />;
+                              })
+                            ) : (
+                              <div className="text-center text-yellow-500">لا توجد مهام لهذا اليوم</div>
+                            )}
                         </div>
                     </div>
                     {/* قسم المراجع */}

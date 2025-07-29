@@ -295,6 +295,10 @@ export default function DayView() {
     );
   }
 
+  if (day) {
+    console.log('day.tasks:', day.tasks);
+  }
+
   return (
     <motion.div 
       className="max-w-6xl mx-auto py-8 px-4"
