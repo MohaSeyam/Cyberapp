@@ -231,33 +231,21 @@ function DayHeader({ day, weekId, phaseId, onTaskComplete }) {
 
 export default function DayView() {
   const { t, i18n } = useTranslation();
-  const { lang: contextLang, appState } = useApp();
-  const lang = contextLang || "ar";
+  const { plan, loading } = useApp();
+  const lang = i18n.language === "ar" ? "ar" : "en"; // Use i18n.language directly
   const { weekId, dayKey } = useParams();
   const [day, setDay] = useState(null);
   const [phaseId, setPhaseId] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("list"); // list or grid
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCompleted, setFilterCompleted] = useState("all"); // all, completed, pending
 
   useEffect(() => {
-    async function fetchDay() {
-      try {
-        setLoading(true);
-        const planData = await getPlanData();
-        const week = planData.find(w => String(w.week) === String(weekId));
-        setPhaseId(week?.phase || null);
-        const d = week?.days?.find(d => d.key === dayKey);
-        setDay(d);
-      } catch (error) {
-        console.error('Error fetching day data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchDay();
-  }, [weekId, dayKey]);
+    const week = plan?.find(w => String(w.week) === String(weekId));
+    setPhaseId(week?.phase || null);
+    const d = week?.days?.find(d => d.key === dayKey);
+    setDay(d);
+  }, [plan, weekId, dayKey]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -280,17 +268,8 @@ export default function DayView() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {t("loadingDay", "جاري تحميل بيانات اليوم...")}
-          </p>
-        </div>
-      </div>
-    );
+  if (loading || !plan || plan.length === 0) {
+    return <LoadingSpinner />;
   }
 
   if (!day) {

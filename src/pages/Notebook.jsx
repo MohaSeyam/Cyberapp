@@ -38,7 +38,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 
-function extractAllNotes(appState, planData, lang) {
+function extractAllNotes(appState, plan, lang) {
   const notes = [];
   for (const weekId in appState.notes) {
     const week = appState.notes[weekId];
@@ -47,7 +47,7 @@ function extractAllNotes(appState, planData, lang) {
       if (!dayNotes) return;
       for (const taskId in dayNotes) {
         const note = dayNotes[taskId];
-        const weekObj = planData.find(w => String(w.week) === String(weekId));
+        const weekObj = plan.find(w => String(w.week) === String(weekId));
         const dayObj = weekObj?.days?.[dayIdx];
         const taskObj = dayObj?.tasks?.find(t => String(t.id) === String(taskId));
         notes.push({
@@ -73,7 +73,7 @@ function extractAllNotes(appState, planData, lang) {
 
 export default function Notebook() {
   const { t, i18n } = useTranslation();
-  const { appState, planData, lang, addNotification } = useApp();
+  const { appState, plan, loading, lang, addNotification } = useApp();
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +185,7 @@ export default function Notebook() {
   async function loadNotes() {
     try {
       setLoading(true);
-      const extractedNotes = extractAllNotes(appState, planData, lang);
+      const extractedNotes = extractAllNotes(appState, plan, lang);
       setNotes(extractedNotes);
     } catch (error) {
       console.error('Error loading notes:', error);
@@ -302,17 +302,8 @@ export default function Notebook() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {t("loadingNotes", "جاري تحميل الملاحظات...")}
-          </p>
-        </div>
-      </div>
-    );
+  if (loading || !plan || plan.length === 0) {
+    return <LoadingSpinner />;
   }
 
   return (

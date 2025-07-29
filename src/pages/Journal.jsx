@@ -32,10 +32,9 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 export default function Journal() {
   const { t, i18n } = useTranslation();
-  const { lang, planData, addNotification } = useApp();
+  const { lang, plan, loading, addNotification } = useApp();
   const [entries, setEntries] = useState([]);
   const [filteredEntries, setFilteredEntries] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
   const [editing, setEditing] = useState(null);
   const [editTitle, setEditTitle] = useState("");
@@ -193,8 +192,8 @@ export default function Journal() {
   }
 
   // Helper to get day title from planData
-  function getDayTitle(entry, lang, planData) {
-    const day = planData?.find(w => w.week === entry.week)?.days?.find(d => d.key === entry.dayKey);
+  function getDayTitle(entry, lang, plan) {
+    const day = plan?.find(w => w.week === entry.week)?.days?.find(d => d.key === entry.dayKey);
     return day?.day?.[lang] || day?.day?.ar || day?.day?.en || null;
   }
 
@@ -228,17 +227,8 @@ export default function Journal() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {t("loading", "جاري تحميل المدونة...")}
-          </p>
-        </div>
-      </div>
-    );
+  if (loading || !plan || plan.length === 0) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -400,10 +390,10 @@ export default function Journal() {
                         <Calendar className="w-4 h-4" />
                         {formatDate(entry.date)}
                       </div>
-                      {getDayTitle(entry, lang, planData) && (
+                      {getDayTitle(entry, lang, plan) && (
                         <div className="flex items-center gap-1">
                           <BookOpen className="w-4 h-4" />
-                          {getDayTitle(entry, lang, planData)}
+                          {getDayTitle(entry, lang, plan)}
                         </div>
                       )}
                     </div>

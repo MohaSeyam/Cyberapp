@@ -103,7 +103,7 @@ const StatsSummary = () => {
   
   // Calculate achievements
   const totalTasks = plan.reduce((acc, week) => 
-    acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0), 0);
+    acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0);
   const doneTasks = (progress || []).filter(p => p.done).length;
   const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
   
@@ -454,7 +454,7 @@ const ReportGenerator = () => {
     // Add stats
     doc.setFontSize(12);
     const totalTasks = plan.reduce((acc, week) => 
-      acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0), 0);
+      acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0);
     const doneTasks = (progress || []).filter(p => p.done).length;
     const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
     
@@ -490,25 +490,9 @@ const ReportGenerator = () => {
 
 export default function Achievements() {
   const { t } = useTranslation();
-  const { plan, progress, journal, lang } = useApp();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {t("loadingAchievements", "جاري تحميل الإنجازات...")}
-          </p>
-        </div>
-      </div>
-    );
+  const { plan, progress, journal, lang, loading } = useApp();
+  if (loading || !plan || plan.length === 0) {
+    return <LoadingSpinner />;
   }
 
   return (
