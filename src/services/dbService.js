@@ -14,11 +14,17 @@ db.version(2).stores({
 
 // --- دوال CRUD للخطة ---
 export async function getPlan() {
-  return await db.plan.toArray();
+  console.log("dbService: getPlan called");
+  const plan = await db.plan.toArray();
+  console.log("dbService: getPlan result:", plan.length, "items");
+  return plan;
 }
 export async function savePlan(planArr) {
+  console.log("dbService: savePlan called with", planArr.length, "items");
   await db.plan.clear();
-  return await db.plan.bulkAdd(planArr);
+  const result = await db.plan.bulkAdd(planArr);
+  console.log("dbService: savePlan result:", result);
+  return result;
 }
 
 // --- دوال CRUD للملاحظات ---

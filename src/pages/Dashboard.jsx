@@ -29,6 +29,7 @@ import Button from "../components/ui/Button";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 export default function Dashboard() {
+  console.log("Dashboard component rendering");
   const { t } = useTranslation();
   const { lang, addNotification } = useApp();
   const { plan, progress, loading } = useCyberPlan();
@@ -37,10 +38,14 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const isRTL = lang === "ar";
 
+  console.log("Dashboard state:", { plan, progress, loading, phases, greeting });
+
   useEffect(() => {
+    console.log("Dashboard useEffect running");
     async function loadDashboard() {
       try {
         const phasesData = await getPhases();
+        console.log("Phases data loaded:", phasesData);
         setPhases(phasesData);
         
         // Set greeting based on time
@@ -59,6 +64,24 @@ export default function Dashboard() {
     }
     loadDashboard();
   }, [addNotification]);
+
+  console.log("Dashboard before render check:", { loading, phases });
+
+  if (loading) {
+    console.log("Dashboard showing loading state");
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="xl" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            {t("loading", "جاري تحميل لوحة التحكم...")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  console.log("Dashboard rendering main content");
 
   const quickActions = [
     {
@@ -104,19 +127,6 @@ export default function Dashboard() {
       }
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {t("loading", "جاري تحميل لوحة التحكم...")}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <motion.div 

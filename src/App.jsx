@@ -63,6 +63,21 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// Debug component to test each part
+function DebugComponent({ name, children }) {
+  console.log(`Rendering ${name}`);
+  try {
+    return children;
+  } catch (error) {
+    console.error(`Error in ${name}:`, error);
+    return (
+      <div className="p-4 bg-red-100 text-red-700 border border-red-300 rounded">
+        Error rendering {name}: {error.message}
+      </div>
+    );
+  }
+}
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -85,72 +100,126 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 text-gray-900">
-        <ThemeProvider>
-          <AppProvider>
-            <BrowserRouter>
-              <Toaster
-                position="top-center"
-                toastOptions={{
-                  style: { fontFamily: 'Tajawal, sans-serif', fontSize: 16 },
-                  duration: 2500,
-                }}
-              />
-              <Routes>
-                <Route path="/" element={
-                  <MainLayout>
-                    <Dashboard />
-                  </MainLayout>
-                } />
-                <Route path="/plan" element={
-                  <MainLayout>
-                    <CyberPlan />
-                  </MainLayout>
-                } />
-                <Route path="/journal" element={
-                  <MainLayout>
-                    <Journal />
-                  </MainLayout>
-                } />
-                <Route path="/phase/:phaseId" element={
-                  <MainLayout>
-                    <PhaseView />
-                  </MainLayout>
-                } />
-                <Route path="/week/:weekId" element={
-                  <MainLayout>
-                    <WeekView />
-                  </MainLayout>
-                } />
-                <Route path="/day/:weekId/:dayKey" element={
-                  <MainLayout>
-                    <DayView />
-                  </MainLayout>
-                } />
-                <Route path="/notebook" element={
-                  <MainLayout>
-                    <Notebook />
-                  </MainLayout>
-                } />
-                <Route path="/achievements" element={
-                  <MainLayout>
-                    <Achievements />
-                  </MainLayout>
-                } />
-                <Route path="/phases" element={
-                  <MainLayout>
-                    <PlanPhases />
-                  </MainLayout>
-                } />
-                <Route path="/settings" element={
-                  <MainLayout>
-                    <Settings />
-                  </MainLayout>
-                } />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </AppProvider>
-        </ThemeProvider>
+        <DebugComponent name="ThemeProvider">
+          <ThemeProvider>
+            <DebugComponent name="AppProvider">
+              <AppProvider>
+                <DebugComponent name="BrowserRouter">
+                  <BrowserRouter>
+                    <DebugComponent name="Toaster">
+                      <Toaster
+                        position="top-center"
+                        toastOptions={{
+                          style: { fontFamily: 'Tajawal, sans-serif', fontSize: 16 },
+                          duration: 2500,
+                        }}
+                      />
+                    </DebugComponent>
+                    <DebugComponent name="Routes">
+                      <Routes>
+                        <Route path="/" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="Dashboard">
+                                <Dashboard />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/plan" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="CyberPlan">
+                                <CyberPlan />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/journal" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="Journal">
+                                <Journal />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/phase/:phaseId" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="PhaseView">
+                                <PhaseView />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/week/:weekId" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="WeekView">
+                                <WeekView />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/day/:weekId/:dayKey" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="DayView">
+                                <DayView />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/notebook" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="Notebook">
+                                <Notebook />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/achievements" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="Achievements">
+                                <Achievements />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/phases" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="PlanPhases">
+                                <PlanPhases />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="/settings" element={
+                          <DebugComponent name="MainLayout">
+                            <MainLayout>
+                              <DebugComponent name="Settings">
+                                <Settings />
+                              </DebugComponent>
+                            </MainLayout>
+                          </DebugComponent>
+                        } />
+                        <Route path="*" element={
+                          <DebugComponent name="NotFound">
+                            <NotFound />
+                          </DebugComponent>
+                        } />
+                      </Routes>
+                    </DebugComponent>
+                  </BrowserRouter>
+                </DebugComponent>
+              </AppProvider>
+            </DebugComponent>
+          </ThemeProvider>
+        </DebugComponent>
       </div>
     </ErrorBoundary>
   );
