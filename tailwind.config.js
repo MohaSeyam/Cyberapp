@@ -33,34 +33,76 @@ module.exports = {
       colors: {
         // Light mode
         light: {
-          background: '#F3F3EF', // خلفية رئيسية أغمق قليلاً
-          card: '#F8F8F5', // بطاقات أبيض مائل للرمادي
-          text: '#222', // نص أسود داكن
-          textSecondary: '#23395d', // أزرق داكن للنصوص الثانوية
-          border: '#FFD700', // حدود ذهبية واضحة فقط
+          background: '#F8FAFC', // خلفية فاتحة أكثر
+          card: '#FFFFFF', // بطاقات بيضاء نقية
+          text: '#1E293B', // نص داكن
+          textSecondary: '#64748B', // رمادي للنصوص الثانوية
+          border: '#E2E8F0', // حدود رمادية فاتحة
           accent: '#FFD700', // ذهبي أساسي
-          danger: '#FF5252',
-          success: '#69F0AE',
-          info: '#40C4FF',
-          soft: '#FFF9C4',
-          policy: '#AE81FF',
-          blue: '#23395d', // أزرق داكن متناسق
+          danger: '#EF4444',
+          success: '#10B981',
+          info: '#3B82F6',
+          warning: '#F59E0B',
+          soft: '#FEF3C7',
+          policy: '#8B5CF6',
+          blue: '#1E40AF',
         },
         // Dark mode
         dark: {
-          background: '#111', // أسود عميق
-          card: '#18181b', // بطاقات رمادي غامق جدًا
-          text: '#fff', // نص أبيض
-          textSecondary: '#7ca7e6', // أزرق فاتح مائل للرمادي للنصوص الثانوية
-          border: '#FFD700', // حدود ذهبية واضحة
+          background: '#0F172A', // خلفية داكنة عميقة
+          card: '#1E293B', // بطاقات رمادية داكنة
+          text: '#F1F5F9', // نص فاتح
+          textSecondary: '#94A3B8', // رمادي فاتح للنصوص الثانوية
+          border: '#334155', // حدود رمادية داكنة
           accent: '#FFD700', // ذهبي أساسي
-          danger: '#FF5252',
-          success: '#69F0AE',
-          info: '#40C4FF',
-          soft: '#222',
-          policy: '#AE81FF',
-          blue: '#23395d', // أزرق داكن متناسق
+          danger: '#EF4444',
+          success: '#10B981',
+          info: '#3B82F6',
+          warning: '#F59E0B',
+          soft: '#1E293B',
+          policy: '#8B5CF6',
+          blue: '#1E40AF',
         },
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'slide-down': 'slideDown 0.3s ease-out',
+        'scale-in': 'scaleIn 0.2s ease-out',
+        'bounce-in': 'bounceIn 0.6s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        bounceIn: {
+          '0%': { transform: 'scale(0.3)', opacity: '0' },
+          '50%': { transform: 'scale(1.05)' },
+          '70%': { transform: 'scale(0.9)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+      boxShadow: {
+        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+        'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'large': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.05)',
       },
     },
   },

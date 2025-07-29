@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import i18n from "../i18n/i18n";
 import { getPlanData } from "../services/dataService";
 import { FaCheck, FaEdit, FaClock } from "react-icons/fa";
@@ -10,7 +10,14 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [lang, setLangState] = useState("ar");
-  const [settings, setSettings] = useState({});
+  const [settings, setSettings] = useState({
+    notifications: true,
+    sound: true,
+    autoSave: true,
+    theme: "light",
+    fontSize: "medium",
+    compactMode: false
+  });
   const [planData, setPlanData] = useState(null);
   const [appState, setAppState] = useState({
     progress: {},
@@ -20,6 +27,8 @@ export function AppProvider({ children }) {
   const [modal, setModal] = useState({ isOpen: false, content: null });
   const [theme, setTheme] = useState("light");
   const [globalPomodoro, setGlobalPomodoro] = useState(null); // { title, minutes, running }
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
   const cyberPlan = useCyberPlan();
 
   const Icons = {
@@ -54,6 +63,22 @@ export function AppProvider({ children }) {
       link: "رابط",
       deleteResource: "حذف المرجع",
       saveResource: "حفظ المرجع",
+      taskCompleted: "تم إكمال المهمة بنجاح!",
+      taskAdded: "تم إضافة المهمة بنجاح!",
+      noteSaved: "تم حفظ الملاحظة بنجاح!",
+      resourceAdded: "تم إضافة المرجع بنجاح!",
+      progressUpdated: "تم تحديث التقدم بنجاح!",
+      errorOccurred: "حدث خطأ، يرجى المحاولة مرة أخرى",
+      loading: "جاري التحميل...",
+      saving: "جاري الحفظ...",
+      noData: "لا توجد بيانات متاحة",
+      searchPlaceholder: "البحث في المهام والمراجع...",
+      filterAll: "الكل",
+      filterCompleted: "مكتمل",
+      filterPending: "قيد التنفيذ",
+      sortByDate: "ترتيب حسب التاريخ",
+      sortByName: "ترتيب حسب الاسم",
+      sortByProgress: "ترتيب حسب التقدم",
     },
     en: {
       activeTasks: "Active Tasks",
@@ -78,6 +103,22 @@ export function AppProvider({ children }) {
       link: "Link",
       deleteResource: "Delete Resource",
       saveResource: "Save Resource",
+      taskCompleted: "Task completed successfully!",
+      taskAdded: "Task added successfully!",
+      noteSaved: "Note saved successfully!",
+      resourceAdded: "Resource added successfully!",
+      progressUpdated: "Progress updated successfully!",
+      errorOccurred: "An error occurred, please try again",
+      loading: "Loading...",
+      saving: "Saving...",
+      noData: "No data available",
+      searchPlaceholder: "Search in tasks and resources...",
+      filterAll: "All",
+      filterCompleted: "Completed",
+      filterPending: "Pending",
+      sortByDate: "Sort by Date",
+      sortByName: "Sort by Name",
+      sortByProgress: "Sort by Progress",
     }
   };
 
@@ -90,119 +131,170 @@ export function AppProvider({ children }) {
   // تحميل بيانات الخطة عند بدء التطبيق
   useEffect(() => {
     async function fetchPlan() {
-      const data = await getPlanData();
-      setPlanData(data);
+      try {
+        setLoading(true);
+        const data = await getPlanData();
+        setPlanData(data);
+      } catch (error) {
+        console.error('Error loading plan data:', error);
+        // Show error notification
+        addNotification('error', 'خطأ في تحميل البيانات', 'فشل في تحميل بيانات الخطة، يرجى المحاولة مرة أخرى');
+      } finally {
+        setLoading(false);
+      }
     }
     fetchPlan();
   }, []);
 
   // تحميل جميع الملاحظات والمدونات من dbService عند بدء التطبيق
   useEffect(() => {
-    async function fetchNotesAndJournal() {
-      const notesArr = await db.getNotes();
-      const journalArr = await db.getJournalEntries();
-      // تحويل الملاحظات إلى بنية appState.notes
-      const notesObj = {};
-      for (const n of notesArr) {
-        if (!notesObj[n.weekId]) notesObj[n.weekId] = { days: [] };
-        const dayIdx = n.dayIndex ?? n.dayIdx ?? n.dayKey ?? n.day; // دعم جميع الاحتمالات
-        if (!notesObj[n.weekId].days[dayIdx]) notesObj[n.weekId].days[dayIdx] = {};
-        notesObj[n.weekId].days[dayIdx][n.taskId] = n;
-      }
-      // تحويل المدونات إلى بنية appState.journal
-      const journalObj = {};
-      for (const j of journalArr) {
-        if (!journalObj[j.weekId]) journalObj[j.weekId] = {};
-        journalObj[j.weekId][j.dayKey] = j;
-      }
-      setAppState(prev => ({ ...prev, notes: notesObj, journal: journalObj }));
-    }
-    fetchNotesAndJournal();
-  }, []);
-
-  // عند كل تعديل على الملاحظات، احفظها في dbService
-  useEffect(() => {
-    async function saveNotesToDB() {
-      const notes = appState.notes;
-      for (const weekId in notes) {
-        notes[weekId].days.forEach((dayNotes, dayIdx) => {
-          if (!dayNotes) return;
-          for (const taskId in dayNotes) {
-            const note = dayNotes[taskId];
-            if (note && note.title) {
-              db.addOrUpdateNote({ ...note, weekId, dayIdx, taskId });
-            }
-          }
-        });
-      }
-    }
-    saveNotesToDB();
-  }, [appState.notes]);
-
-  // عند كل تعديل على المدونة اليومية، احفظها في dbService
-  useEffect(() => {
-    async function saveJournalToDB() {
-      const journal = appState.journal;
-      for (const weekId in journal) {
-        for (const dayKey in journal[weekId]) {
-          const entry = journal[weekId][dayKey];
-          if (entry && entry.content) {
-            db.addOrUpdateJournalEntry({ ...entry, weekId, dayKey });
-          }
+    async function loadUserData() {
+      try {
+        const [notes, journal, userSettings] = await Promise.all([
+          db.getNotes(),
+          db.getJournalEntries(),
+          db.getSetting('userSettings')
+        ]);
+        
+        setAppState(prev => ({
+          ...prev,
+          notes,
+          journal
+        }));
+        
+        if (userSettings) {
+          setSettings(prev => ({ ...prev, ...userSettings }));
         }
+      } catch (error) {
+        console.error('Error loading user data:', error);
       }
     }
-    saveJournalToDB();
-  }, [appState.journal]);
-
-  // استعادة اللغة والثيم من localStorage عند بدء التطبيق
-  useEffect(() => {
-    const storedLang = localStorage.getItem("lang");
-    if (storedLang) setLangState(storedLang);
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme) setTheme(storedTheme);
+    loadUserData();
   }, []);
 
-  // حفظ اللغة والثيم في localStorage عند التغيير
-  useEffect(() => {
-    localStorage.setItem("lang", lang);
-  }, [lang]);
-  useEffect(() => {
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+  // حفظ الإعدادات في قاعدة البيانات
+  const updateSettings = useCallback(async (newSettings) => {
+    try {
+      const updatedSettings = { ...settings, ...newSettings };
+      setSettings(updatedSettings);
+      await db.setSetting('userSettings', updatedSettings);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      addNotification('error', 'خطأ في حفظ الإعدادات', 'فشل في حفظ الإعدادات، يرجى المحاولة مرة أخرى');
+    }
+  }, [settings]);
 
-  // عند تغيير اللغة، حدث i18n دومًا
+  // إضافة إشعار جديد
+  const addNotification = useCallback((type, title, message, duration = 5000) => {
+    const id = Date.now();
+    const notification = { id, type, title, message, duration };
+    setNotifications(prev => [...prev, notification]);
+    
+    // إزالة الإشعار تلقائياً
+    setTimeout(() => {
+      removeNotification(id);
+    }, duration);
+  }, []);
+
+  // إزالة إشعار
+  const removeNotification = useCallback((id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  // تحديث التقدم
+  const updateProgress = useCallback(async (weekId, dayKey, taskId, done) => {
+    try {
+      await db.setTaskProgress(weekId, dayKey, taskId, done);
+      setAppState(prev => ({
+        ...prev,
+        progress: {
+          ...prev.progress,
+          [`${weekId}-${dayKey}-${taskId}`]: done
+        }
+      }));
+      addNotification('success', 'تم تحديث التقدم', 'تم تحديث حالة المهمة بنجاح');
+    } catch (error) {
+      console.error('Error updating progress:', error);
+      addNotification('error', 'خطأ في تحديث التقدم', 'فشل في تحديث حالة المهمة');
+    }
+  }, [addNotification]);
+
+  // حفظ ملاحظة
+  const saveNote = useCallback(async (note) => {
+    try {
+      const savedNote = await db.addNote(note);
+      setAppState(prev => ({
+        ...prev,
+        notes: [...prev.notes, savedNote]
+      }));
+      addNotification('success', 'تم حفظ الملاحظة', 'تم حفظ الملاحظة بنجاح');
+      return savedNote;
+    } catch (error) {
+      console.error('Error saving note:', error);
+      addNotification('error', 'خطأ في حفظ الملاحظة', 'فشل في حفظ الملاحظة');
+      throw error;
+    }
+  }, [addNotification]);
+
+  // حذف ملاحظة
+  const deleteNote = useCallback(async (noteId) => {
+    try {
+      await db.deleteNote(noteId);
+      setAppState(prev => ({
+        ...prev,
+        notes: prev.notes.filter(n => n.id !== noteId)
+      }));
+      addNotification('success', 'تم حذف الملاحظة', 'تم حذف الملاحظة بنجاح');
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      addNotification('error', 'خطأ في حذف الملاحظة', 'فشل في حذف الملاحظة');
+    }
+  }, [addNotification]);
+
   const setLang = (lng) => {
     setLangState(lng);
+    i18n.changeLanguage(lng);
+    document.documentElement.setAttribute("dir", lng === "ar" ? "rtl" : "ltr");
   };
 
-  useEffect(() => {
-    document.documentElement.classList.remove("dark", "light");
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    }
-    console.log('theme:', theme);
-    console.log('document.documentElement.className:', document.documentElement.className);
-  }, [theme]);
+  const value = {
+    user,
+    setUser,
+    lang,
+    setLang,
+    settings,
+    updateSettings,
+    planData,
+    appState,
+    setAppState,
+    modal,
+    setModal,
+    theme,
+    setTheme,
+    globalPomodoro,
+    setGlobalPomodoro,
+    notifications,
+    addNotification,
+    removeNotification,
+    updateProgress,
+    saveNote,
+    deleteNote,
+    loading,
+    Icons,
+    translations
+  };
 
   return (
-    <AppContext.Provider value={{ user, setUser, lang, setLang, settings, setSettings, planData, setPlanData, appState, setAppState, Icons, translations, modal, setModal, theme, setTheme,
-      globalPomodoro, setGlobalPomodoro, plan: cyberPlan.plan, savePlan: cyberPlan.savePlan, progress: cyberPlan.progress, setTaskProgress: cyberPlan.setTaskProgress, journal: cyberPlan.journal }}>
+    <AppContext.Provider value={value}>
       {children}
-      {modal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xl p-6 max-w-lg w-full relative">
-            <button className="absolute top-3 right-3 text-slate-400 hover:text-red-500 text-xl" onClick={() => setModal({ isOpen: false, content: null })}>&times;</button>
-            {modal.content}
-          </div>
-        </div>
-      )}
     </AppContext.Provider>
   );
 }
 
-export { AppContext };
-
 export function useApp() {
-  return useContext(AppContext);
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useApp must be used within an AppProvider");
+  }
+  return context;
 }
