@@ -8,6 +8,7 @@ import * as db from "../services/dbService";
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
+  console.log("AppProvider rendering");
   const [user, setUser] = useState(null);
   const [lang, setLangState] = useState("ar");
   const [settings, setSettings] = useState({
@@ -294,6 +295,7 @@ export function AppProvider({ children }) {
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) {
+    console.error("useApp must be used within an AppProvider");
     throw new Error("useApp must be used within an AppProvider");
   }
   return context;
