@@ -1,5 +1,4 @@
-import React, { useContext, useState } from "react";
-import { AppContext } from "../../context/AppContext";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import TaskItem from "./TaskItem";
 import NotesPrompt from "./NotesPrompt";
@@ -10,7 +9,7 @@ import { FaVideo, FaRegFileAlt, FaBook, FaWrench, FaPodcast, FaChalkboardTeacher
 
 // NoteEditor component
 function NoteEditor({ note, taskDescription, onSave, onDelete }) {
-    const { lang, translations, setModal, ReactQuill, setAppState, appState } = useContext(AppContext);
+    const { lang, translations, setModal, ReactQuill, setAppState, appState } = useApp();
     const t = translations[lang];
     const [title, setTitle] = useState(note.title || '');
     const [content, setContent] = useState(note.content || '');
@@ -104,7 +103,7 @@ function NoteEditor({ note, taskDescription, onSave, onDelete }) {
 
 // ResourcesSection component
 function ResourcesSection({ weekId, dayIndex }) {
-    const { lang, appState, setAppState, setModal, translations, Icons, planData } = useContext(AppContext);
+    const { lang, appState, setAppState, setModal, translations, Icons, planData } = useApp();
     const t = translations[lang];
     // جلب المراجع من الخطة الأصلية (planData)
     let planResources = [];
@@ -175,7 +174,7 @@ const RESOURCE_TYPES = [
 
 // ResourceEditorModal component (placeholder for actual ResourceEditor UI)
 function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource }) {
-    const { lang, setAppState, appState, setModal, translations } = useContext(AppContext);
+    const { lang, setAppState, appState, setModal, translations } = useApp();
     const t = translations[lang];
     const [title, setTitle] = useState(resource?.title || '');
     const [url, setUrl] = useState(resource?.url || '');
@@ -260,9 +259,7 @@ const NOTE_TAGS = [
 
 // DayView main component
 export default function DayViewPage(props) {
-    const { plan, progress, setTaskProgress } = useApp();
-    const ctx = useContext(AppContext);
-    const { planData, lang, appState, setAppState, translations, Icons, setModal } = ctx || {};
+    const { plan, progress, setTaskProgress, planData, lang, appState, setAppState, translations, Icons, setModal } = useApp();
     const params = useParams();
     const weekId = props.weekId || params.weekId;
     const dayKey = props.dayKey || params.dayKey;
