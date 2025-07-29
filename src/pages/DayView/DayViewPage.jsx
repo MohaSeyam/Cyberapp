@@ -340,14 +340,15 @@ export default function DayViewPage(props) {
                     <div>
                         <h4 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">{t.activeTasks}</h4>
                         <div className="space-y-3">
-                            {(dayData.tasks || []).length > 0 ? (
-                              (dayData.tasks || []).map((task, i) => {
-                                console.log('task:', task);
-                                return <TaskItem key={task.id || i} task={task} weekId={weekId} dayKey={dayKey} checked={false} onToggle={() => {}} />;
-                              })
-                            ) : (
-                              <div className="text-center text-yellow-500">لا توجد مهام لهذا اليوم</div>
-                            )}
+                            {(dayData.tasks || []).map((task, i) => (
+                              <div key={task.id || i} style={{border: '1px solid green', margin: 8, padding: 8}}>
+                                <div>id: {task.id}</div>
+                                <div>type: {task.type}</div>
+                                <div>duration: {task.duration}</div>
+                                <div>description: {task.description?.ar || task.description?.en || JSON.stringify(task.description)}</div>
+                                <div>done: {String(task.done)}</div>
+                              </div>
+                            ))}
                         </div>
                     </div>
                     {/* قسم المراجع */}
