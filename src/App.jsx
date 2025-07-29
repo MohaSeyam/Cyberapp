@@ -63,23 +63,51 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// Debug wrapper component
-function DebugWrapper({ children, name }) {
-  console.log(`Rendering ${name}`);
-  try {
-    return children;
-  } catch (error) {
-    console.error(`Error in ${name}:`, error);
-    return (
-      <div className="p-4 bg-red-100 text-red-700">
-        Error rendering {name}: {error.message}
+// Simple test component without context
+function SimpleTest() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-blue-50">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-blue-600 mb-4">Simple Test Working!</h1>
+        <p className="text-blue-500">Basic React rendering is working.</p>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+// Test component with ThemeProvider only
+function ThemeTest() {
+  return (
+    <ThemeProvider>
+      <div className="min-h-screen flex items-center justify-center bg-green-50">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-green-600 mb-4">Theme Provider Working!</h1>
+          <p className="text-green-500">ThemeProvider is working.</p>
+        </div>
+      </div>
+    </ThemeProvider>
+  );
+}
+
+// Test component with both providers
+function ContextTest() {
+  return (
+    <ThemeProvider>
+      <AppProvider>
+        <div className="min-h-screen flex items-center justify-center bg-purple-50">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-purple-600 mb-4">Context Providers Working!</h1>
+            <p className="text-purple-500">Both ThemeProvider and AppProvider are working.</p>
+          </div>
+        </div>
+      </AppProvider>
+    </ThemeProvider>
+  );
 }
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [testMode, setTestMode] = useState('simple'); // 'simple', 'theme', 'context', 'full'
 
   useEffect(() => {
     console.log("App component mounted");
@@ -97,129 +125,101 @@ export default function App() {
     );
   }
 
+  // Test different modes
+  if (testMode === 'simple') {
+    return (
+      <ErrorBoundary>
+        <SimpleTest />
+      </ErrorBoundary>
+    );
+  }
+
+  if (testMode === 'theme') {
+    return (
+      <ErrorBoundary>
+        <ThemeTest />
+      </ErrorBoundary>
+    );
+  }
+
+  if (testMode === 'context') {
+    return (
+      <ErrorBoundary>
+        <ContextTest />
+      </ErrorBoundary>
+    );
+  }
+
+  // Full app
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 text-gray-900">
-        <DebugWrapper name="ThemeProvider">
-          <ThemeProvider>
-            <DebugWrapper name="AppProvider">
-              <AppProvider>
-                <DebugWrapper name="BrowserRouter">
-                  <BrowserRouter>
-                    <DebugWrapper name="Toaster">
-                      <Toaster
-                        position="top-center"
-                        toastOptions={{
-                          style: { fontFamily: 'Tajawal, sans-serif', fontSize: 16 },
-                          duration: 2500,
-                        }}
-                      />
-                    </DebugWrapper>
-                    <DebugWrapper name="Routes">
-                      <Routes>
-                        <Route path="/" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="Dashboard">
-                                <Dashboard />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/plan" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="CyberPlan">
-                                <CyberPlan />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/journal" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="Journal">
-                                <Journal />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/phase/:phaseId" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="PhaseView">
-                                <PhaseView />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/week/:weekId" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="WeekView">
-                                <WeekView />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/day/:weekId/:dayKey" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="DayView">
-                                <DayView />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/notebook" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="Notebook">
-                                <Notebook />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/achievements" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="Achievements">
-                                <Achievements />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/phases" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="PlanPhases">
-                                <PlanPhases />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="/settings" element={
-                          <DebugWrapper name="MainLayout">
-                            <MainLayout>
-                              <DebugWrapper name="Settings">
-                                <Settings />
-                              </DebugWrapper>
-                            </MainLayout>
-                          </DebugWrapper>
-                        } />
-                        <Route path="*" element={
-                          <DebugWrapper name="NotFound">
-                            <NotFound />
-                          </DebugWrapper>
-                        } />
-                      </Routes>
-                    </DebugWrapper>
-                  </BrowserRouter>
-                </DebugWrapper>
-              </AppProvider>
-            </DebugWrapper>
-          </ThemeProvider>
-        </DebugWrapper>
+        <ThemeProvider>
+          <AppProvider>
+            <BrowserRouter>
+              <Toaster
+                position="top-center"
+                toastOptions={{
+                  style: { fontFamily: 'Tajawal, sans-serif', fontSize: 16 },
+                  duration: 2500,
+                }}
+              />
+              <Routes>
+                <Route path="/" element={
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                } />
+                <Route path="/plan" element={
+                  <MainLayout>
+                    <CyberPlan />
+                  </MainLayout>
+                } />
+                <Route path="/journal" element={
+                  <MainLayout>
+                    <Journal />
+                  </MainLayout>
+                } />
+                <Route path="/phase/:phaseId" element={
+                  <MainLayout>
+                    <PhaseView />
+                  </MainLayout>
+                } />
+                <Route path="/week/:weekId" element={
+                  <MainLayout>
+                    <WeekView />
+                  </MainLayout>
+                } />
+                <Route path="/day/:weekId/:dayKey" element={
+                  <MainLayout>
+                    <DayView />
+                  </MainLayout>
+                } />
+                <Route path="/notebook" element={
+                  <MainLayout>
+                    <Notebook />
+                  </MainLayout>
+                } />
+                <Route path="/achievements" element={
+                  <MainLayout>
+                    <Achievements />
+                  </MainLayout>
+                } />
+                <Route path="/phases" element={
+                  <MainLayout>
+                    <PlanPhases />
+                  </MainLayout>
+                } />
+                <Route path="/settings" element={
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AppProvider>
+        </ThemeProvider>
       </div>
     </ErrorBoundary>
   );
