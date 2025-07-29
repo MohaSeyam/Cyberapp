@@ -193,8 +193,7 @@ export default function Journal() {
   }
 
   // Helper to get day title from planData
-  function getDayTitle(entry) {
-    const { lang } = useApp();
+  function getDayTitle(entry, lang, planData) {
     const day = planData?.find(w => w.week === entry.week)?.days?.find(d => d.key === entry.dayKey);
     return day?.day?.[lang] || day?.day?.ar || day?.day?.en || null;
   }
@@ -401,10 +400,10 @@ export default function Journal() {
                         <Calendar className="w-4 h-4" />
                         {formatDate(entry.date)}
                       </div>
-                      {getDayTitle(entry) && (
+                      {getDayTitle(entry, lang, planData) && (
                         <div className="flex items-center gap-1">
                           <BookOpen className="w-4 h-4" />
-                          {getDayTitle(entry)}
+                          {getDayTitle(entry, lang, planData)}
                         </div>
                       )}
                     </div>
