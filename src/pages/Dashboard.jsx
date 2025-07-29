@@ -29,7 +29,7 @@ import Button from "../components/ui/Button";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 export default function Dashboard() {
-  console.log("Dashboard component rendering");
+  console.log("Dashboard component rendering - START");
   const { t } = useTranslation();
   const { lang, addNotification } = useApp();
   const { plan, progress, loading } = useCyberPlan();
@@ -128,6 +128,7 @@ export default function Dashboard() {
     }
   };
 
+  console.log("Dashboard about to return JSX");
   return (
     <motion.div 
       className={`max-w-7xl mx-auto py-8 px-4 bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text font-tajawal ${isRTL ? "rtl" : "ltr"}`}
