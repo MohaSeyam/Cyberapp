@@ -1,25 +1,55 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getJournalEntries, updateJournalEntry, deleteJournalEntry } from "../services/dbService";
-import { FaBookOpen, FaEdit, FaTrash, FaTag } from "react-icons/fa";
-import { Dialog } from "../components/ui/Dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  BookOpen, 
+  Edit, 
+  Trash2, 
+  Tag, 
+  Plus, 
+  Search, 
+  Filter,
+  Calendar,
+  Clock,
+  Star,
+  Heart,
+  Share2,
+  MoreVertical,
+  ChevronDown,
+  ChevronUp
+} from "lucide-react";
+import { getJournalEntries, updateJournalEntry, deleteJournalEntry, addJournalEntry } from "../services/dbService";
 import { useApp } from "../context/AppContext";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import SearchInput from "../components/ui/SearchInput";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
-export default function Blog() {
+export default function Journal() {
   const { t, i18n } = useTranslation();
-  const { lang, planData } = useApp();
+  const { lang, planData, addNotification } = useApp();
   const [entries, setEntries] = useState([]);
+  const [filteredEntries, setFilteredEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
   const [editing, setEditing] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editTags, setEditTags] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all"); // all, favorites, recent
+  const [showNewEntry, setShowNewEntry] = useState(false);
+  const [newEntry, setNewEntry] = useState({
+    title: "",
+    content: "",
+    tags: "",
+    date: new Date().toISOString().split('T')[0]
+  });
 
   // Tiptap editor for editing
   const editEditor = useEditor({
@@ -28,18 +58,80 @@ export default function Blog() {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Link,
       Placeholder.configure({
-        placeholder: t("blogPlaceholder", "اكتب نص التدوينة...")
+        placeholder: t("journalPlaceholder", "اكتب يومياتك هنا...")
       })
     ],
     content: editContent,
     editorProps: {
       attributes: {
-        class: `min-h-[100px] w-full rounded border p-2 bg-white/80 dark:bg-zinc-900 text-gray-800 dark:text-gray-100 focus:outline-none ${i18n.language === "ar" ? "text-right" : "text-left"}`,
+        class: `min-h-[200px] w-full rounded-lg border p-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent ${i18n.language === "ar" ? "text-right" : "text-left"}`,
         dir: i18n.language === "ar" ? "rtl" : "ltr"
       }
     },
     onUpdate: ({ editor }) => setEditContent(editor.getHTML())
   });
+
+  // Tiptap editor for new entry
+  const newEntryEditor = useEditor({
+    extensions: [
+      StarterKit,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Link,
+      Placeholder.configure({
+        placeholder: t("newJournalPlaceholder", "ابدأ كتابة يومياتك...")
+      })
+    ],
+    content: newEntry.content,
+    editorProps: {
+      attributes: {
+        class: `min-h-[200px] w-full rounded-lg border p-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent ${i18n.language === "ar" ? "text-right" : "text-left"}`,
+        dir: i18n.language === "ar" ? "rtl" : "ltr"
+      }
+    },
+    onUpdate: ({ editor }) => setNewEntry(prev => ({ ...prev, content: editor.getHTML() }))
+  });
+
+  useEffect(() => {
+    fetchEntries();
+  }, []);
+
+  // Filter entries based on search and filter
+  useEffect(() => {
+    let filtered = entries;
+    
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(entry => 
+        entry.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+    
+    // Type filter
+    if (filterType === "favorites") {
+      filtered = filtered.filter(entry => entry.favorite);
+    } else if (filterType === "recent") {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      filtered = filtered.filter(entry => new Date(entry.date) > oneWeekAgo);
+    }
+    
+    setFilteredEntries(filtered);
+  }, [entries, searchQuery, filterType]);
+
+  async function fetchEntries() {
+    try {
+      setLoading(true);
+      const data = await getJournalEntries();
+      setEntries(data);
+    } catch (error) {
+      console.error('Error fetching entries:', error);
+      addNotification('error', 'خطأ في تحميل المدونة', 'فشل في تحميل المدونات');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function openEdit(entry) {
     setEditing(entry);
@@ -53,30 +145,51 @@ export default function Blog() {
 
   async function saveEdit() {
     if (!editing) return;
-    await updateJournalEntry(editing.id, {
-      title: editTitle,
-      tags: editTags,
-      content: editContent,
-    });
-    setEditing(null);
-    setExpanded({ ...editing, title: editTitle, tags: editTags, content: editContent });
-    console.log('After save, expanded:', { ...editing, title: editTitle, tags: editTags, content: editContent });
-    fetchEntries();
-  }
-
-  useEffect(() => {
-    fetchEntries();
-  }, []);
-
-  async function fetchEntries() {
-    setLoading(true);
-    setEntries(await getJournalEntries());
-    setLoading(false);
+    
+    try {
+      await updateJournalEntry(editing.id, {
+        title: editTitle,
+        tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        content: editContent,
+      });
+      setEditing(null);
+      addNotification('success', 'تم حفظ التعديلات', 'تم تحديث المدونة بنجاح');
+      fetchEntries();
+    } catch (error) {
+      console.error('Error saving entry:', error);
+      addNotification('error', 'خطأ في حفظ التعديلات', 'فشل في تحديث المدونة');
+    }
   }
 
   async function handleDelete(id) {
-    await deleteJournalEntry(id);
-    fetchEntries();
+    try {
+      await deleteJournalEntry(id);
+      addNotification('success', 'تم حذف المدونة', 'تم حذف المدونة بنجاح');
+      fetchEntries();
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      addNotification('error', 'خطأ في حذف المدونة', 'فشل في حذف المدونة');
+    }
+  }
+
+  async function handleCreateEntry() {
+    try {
+      await addJournalEntry({
+        title: newEntry.title,
+        content: newEntry.content,
+        tags: newEntry.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        date: newEntry.date,
+        favorite: false
+      });
+      setShowNewEntry(false);
+      setNewEntry({ title: "", content: "", tags: "", date: new Date().toISOString().split('T')[0] });
+      if (newEntryEditor) newEntryEditor.commands.setContent("");
+      addNotification('success', 'تم إنشاء المدونة', 'تم إضافة المدونة الجديدة بنجاح');
+      fetchEntries();
+    } catch (error) {
+      console.error('Error creating entry:', error);
+      addNotification('error', 'خطأ في إنشاء المدونة', 'فشل في إضافة المدونة الجديدة');
+    }
   }
 
   // Helper to get day title from planData
@@ -87,180 +200,360 @@ export default function Blog() {
     return day?.day?.[lang] || day?.day?.ar || day?.day?.en || null;
   }
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="xl" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            {t("loading", "جاري تحميل المدونة...")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto py-8 px-2" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
-      <h1 className="text-3xl font-bold mb-6 flex items-center justify-center gap-2">
-        <FaBookOpen className="inline w-9 h-9 text-emerald-400" />
-        {t("blogTitle", "المدونة")}
-      </h1>
-      <div>
-        {loading ? (
-          <div className="text-center text-gray-400">{t("loading", "جاري التحميل...")}</div>
-        ) : entries.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[40vh] text-center text-gray-400">
-            <FaBookOpen className="w-24 h-24 mb-4 text-emerald-200 dark:text-emerald-900" />
-            <div className="text-xl font-bold mb-2">لا توجد تدوينات</div>
-            <div className="text-base">ابدأ بكتابة تدويناتك أثناء الدراسة وستظهر هنا تلقائيًا.</div>
+    <motion.div 
+      className="max-w-6xl mx-auto py-8 px-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      dir={i18n.language === "ar" ? "rtl" : "ltr"}
+    >
+      {/* Header */}
+      <motion.div className="mb-8" variants={itemVariants}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-light-accent dark:text-dark-accent mb-2 flex items-center gap-3">
+              <BookOpen className="w-8 h-8" />
+              {t("journalTitle", "المدونة")}
+            </h1>
+            <p className="text-light-textSecondary dark:text-dark-textSecondary">
+              {t("journalDescription", "سجل يومياتك وتأملاتك في رحلة التعلم")}
+            </p>
           </div>
+          <Button
+            onClick={() => setShowNewEntry(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {t("newEntry", "مدونة جديدة")}
+          </Button>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <SearchInput
+              placeholder={t("searchJournal", "البحث في المدونة...")}
+              onSearch={setSearchQuery}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={filterType === "all" ? "primary" : "outline"}
+              size="sm"
+              onClick={() => setFilterType("all")}
+            >
+              {t("all", "الكل")}
+            </Button>
+            <Button
+              variant={filterType === "favorites" ? "primary" : "outline"}
+              size="sm"
+              onClick={() => setFilterType("favorites")}
+            >
+              <Star className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={filterType === "recent" ? "primary" : "outline"}
+              size="sm"
+              onClick={() => setFilterType("recent")}
+            >
+              <Clock className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* New Entry Form */}
+      <AnimatePresence>
+        {showNewEntry && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-8"
+          >
+            <Card>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{t("newEntry", "مدونة جديدة")}</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowNewEntry(false)}
+                >
+                  إلغاء
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder={t("entryTitle", "عنوان المدونة")}
+                  value={newEntry.title}
+                  onChange={(e) => setNewEntry(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+                />
+                
+                <input
+                  type="text"
+                  placeholder={t("entryTags", "العلامات (مفصولة بفواصل)")}
+                  value={newEntry.tags}
+                  onChange={(e) => setNewEntry(prev => ({ ...prev, tags: e.target.value }))}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+                />
+                
+                <input
+                  type="date"
+                  value={newEntry.date}
+                  onChange={(e) => setNewEntry(prev => ({ ...prev, date: e.target.value }))}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+                />
+                
+                <EditorContent editor={newEntryEditor} />
+                
+                <div className="flex gap-2">
+                  <Button onClick={handleCreateEntry}>
+                    {t("save", "حفظ")}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowNewEntry(false)}>
+                    {t("cancel", "إلغاء")}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Entries List */}
+      <div className="space-y-6">
+        {filteredEntries.length === 0 ? (
+          <motion.div 
+            className="text-center py-12"
+            variants={itemVariants}
+          >
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
+              {searchQuery ? t("noSearchResults", "لا توجد نتائج للبحث") : t("noEntries", "لا توجد مدونات")}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-500">
+              {searchQuery ? t("tryDifferentSearch", "جرب البحث بكلمات مختلفة") : t("startJournaling", "ابدأ كتابة أول مدونة")}
+            </p>
+          </motion.div>
         ) : (
-          <div className="grid gap-4 min-h-[60vh]">
-            {entries.map(entry => (
-              <div
-                key={entry.id}
-                className="rounded-2xl shadow-lg bg-white/80 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 p-5 flex flex-col gap-2 hover:shadow-2xl transition-all cursor-pointer"
-                onClick={() => setExpanded(entry)}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-lg text-emerald-900 dark:text-emerald-200">{entry.title || t("untitled", "(بدون عنوان)")}</span>
-                  {Array.isArray(entry.tags) && entry.tags.length > 0 && entry.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs ml-1 flex items-center gap-1"><FaTag />{tag}</span>
-                  ))}
-                  {typeof entry.tags === "string" && entry.tags.trim() && entry.tags.split(",").map(tag => (
-                    <span key={tag} className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs ml-1 flex items-center gap-1"><FaTag />{tag.trim()}</span>
-                  ))}
+          filteredEntries.map((entry, index) => (
+            <motion.div
+              key={entry.id}
+              variants={itemVariants}
+              whileHover={{ scale: 1.01 }}
+            >
+              <Card className="cursor-pointer" onClick={() => setExpanded(expanded === entry.id ? null : entry.id)}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-lg">{entry.title || t("untitled", "بدون عنوان")}</h3>
+                      {entry.favorite && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        {formatDate(entry.date)}
+                      </div>
+                      {getDayTitle(entry) && (
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="w-4 h-4" />
+                          {getDayTitle(entry)}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {entry.tags && entry.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {entry.tags.map((tag, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {expanded === entry.id && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4"
+                      >
+                        <div 
+                          className="prose prose-sm max-w-none dark:prose-invert"
+                          dangerouslySetInnerHTML={{ __html: entry.content }}
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {expanded === entry.id ? (
+                      <ChevronUp className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                  <span className="font-bold text-emerald-700">
-                    {getDayTitle(entry) ? getDayTitle(entry) : t("unknownDay", "يوم غير معروف")}
-                  </span>
-                  <span>|</span>
-                  <span>{new Date(entry.date).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")}</span>
-                </div>
-                <div className="text-sm text-gray-700 dark:text-gray-200 line-clamp-2 mb-2" dangerouslySetInnerHTML={{ __html: entry.content?.slice(0, 120) + (entry.content?.length > 120 ? "..." : "") }} />
-                <div className="flex gap-2 mt-2">
-                  <button
-                    className="px-3 py-1 text-xs rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center gap-1 transition"
-                    onClick={e => { e.stopPropagation(); setExpanded(entry); }}
-                    aria-label={t("expand", "عرض كامل")}
+                
+                {expanded === entry.id && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-2 mt-4 pt-4 border-t"
                   >
-                    <FaBookOpen />
-                  </button>
-                  <button
-                    className="px-3 py-1 text-xs rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 flex items-center gap-1 transition"
-                    onClick={e => { e.stopPropagation(); openEdit(entry); }}
-                    aria-label={t("edit", "تعديل")}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="px-3 py-1 text-xs rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 flex items-center gap-1 transition"
-                    onClick={e => { e.stopPropagation(); handleDelete(entry.id); }}
-                    aria-label={t("delete", "حذف")}
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {expanded && (
-          <Dialog open={!!expanded} onOpenChange={v => !v && setExpanded(null)}>
-            <div className="p-4 max-w-lg flex flex-col gap-2">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="font-bold text-2xl text-light-text dark:text-dark-text flex items-center gap-2">
-                  <FaBookOpen /> {expanded.title || t("untitled", "(بدون عنوان)")}
-                </h2>
-                <button
-                  className="px-3 py-1 text-xs rounded-lg bg-light-blue hover:bg-blue-200 text-white border border-light-blue flex items-center gap-1 transition font-bold"
-                  onClick={() => openEdit(expanded)}
-                  aria-label={t("edit", "تعديل")}
-                >
-                  <FaEdit /> تعديل
-                </button>
-              </div>
-              <div
-                className="prose prose-sm max-w-none mb-2 text-light-text dark:text-dark-text"
-                style={{
-                  color: 'inherit',
-                  '--tw-prose-body': 'inherit',
-                  '--tw-prose-headings': 'inherit',
-                  '--tw-prose-links': 'inherit',
-                  '--tw-prose-bold': 'inherit',
-                  '--tw-prose-counters': 'inherit',
-                  '--tw-prose-bullets': 'inherit',
-                  '--tw-prose-hr': 'inherit',
-                  '--tw-prose-quotes': 'inherit',
-                  '--tw-prose-quote-borders': 'inherit',
-                  '--tw-prose-captions': 'inherit',
-                  '--tw-prose-code': 'inherit',
-                  '--tw-prose-pre-code': 'inherit',
-                  '--tw-prose-pre-bg': 'inherit',
-                  '--tw-prose-th-borders': 'inherit',
-                  '--tw-prose-td-borders': 'inherit',
-                }}
-                dangerouslySetInnerHTML={{ __html: expanded.content }}
-              />
-              {console.log('Expanded dialog render:', expanded)}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {Array.isArray(expanded.tags) && expanded.tags.length > 0 && expanded.tags.map(tag => (
-                  <span key={tag} className="px-2 py-0.5 bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-full text-xs flex items-center gap-1"><FaTag />{tag}</span>
-                ))}
-                {typeof expanded.tags === "string" && expanded.tags.trim() && expanded.tags.split(",").map(tag => (
-                  <span key={tag} className="px-2 py-0.5 bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 rounded-full text-xs flex items-center gap-1"><FaTag />{tag.trim()}</span>
-                ))}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-                <span className="font-bold text-emerald-700">
-                  {getDayTitle(expanded) ? getDayTitle(expanded) : t("unknownDay", "يوم غير معروف")}
-                </span>
-                <span>|</span>
-                <span>{new Date(expanded.date).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US")}</span>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <button
-                  className="px-3 py-1 text-xs rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 flex items-center gap-1 transition"
-                  onClick={() => { handleDelete(expanded.id); setExpanded(null); }}
-                  aria-label={t("delete", "حذف")}
-                >
-                  <FaTrash /> حذف
-                </button>
-                <button
-                  className="px-3 py-1 text-xs rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 flex items-center gap-1 transition"
-                  onClick={() => setExpanded(null)}
-                  aria-label={t("close", "إغلاق")}
-                >
-                  إغلاق
-                </button>
-              </div>
-            </div>
-          </Dialog>
-        )}
-        {editing && (
-          <Dialog open={!!editing} onOpenChange={v => !v && setEditing(null)}>
-            <div className="p-4 max-w-lg flex flex-col gap-2">
-              <h2 className="font-bold text-lg mb-2">{t("editBlogEntry", "تعديل التدوينة")}</h2>
-              <input className="w-full mb-2 p-2 rounded border" value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="العنوان..." />
-              <input className="w-full mb-2 p-2 rounded border" value={editTags} onChange={e => setEditTags(e.target.value)} placeholder="تاجات (افصل بينها بفاصلة)" />
-              <TiptapToolbar editor={editEditor} lang={lang} />
-              <EditorContent editor={editEditor} />
-              <div className="flex gap-2 mt-2">
-                <button className="px-3 py-1 text-xs rounded-lg bg-light-blue hover:bg-blue-200 text-white border border-light-blue flex items-center gap-1 transition" onClick={saveEdit}><FaEdit /> {t("save", "حفظ")}</button>
-                <button className="px-3 py-1 text-xs rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 flex items-center gap-1 transition" onClick={() => setEditing(null)}>{t("close", "إغلاق")}</button>
-              </div>
-            </div>
-          </Dialog>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEdit(entry);
+                      }}
+                    >
+                      <Edit className="w-4 h-4" />
+                      {t("edit", "تعديل")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Share functionality
+                      }}
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {t("share", "مشاركة")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(entry.id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      {t("delete", "حذف")}
+                    </Button>
+                  </motion.div>
+                )}
+              </Card>
+            </motion.div>
+          ))
         )}
       </div>
-    </div>
-  );
-}
 
-function TiptapToolbar({ editor, lang }) {
-  if (!editor) return null;
-  return (
-    <div className="flex flex-wrap gap-1 mb-2 border-b pb-1">
-      <button onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive('bold') ? 'font-bold text-emerald-700' : ''}>B</button>
-      <button onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive('italic') ? 'italic text-emerald-700' : ''}>I</button>
-      <button onClick={() => editor.chain().focus().toggleStrike().run()} className={editor.isActive('strike') ? 'line-through text-emerald-700' : ''}>S</button>
-      <button onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive('heading', { level: 1 }) ? 'font-bold text-lg text-emerald-700' : ''}>H1</button>
-      <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive('heading', { level: 2 }) ? 'font-bold text-emerald-700' : ''}>H2</button>
-      <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive('bulletList') ? 'text-emerald-700' : ''}>• قائمة</button>
-      <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive('orderedList') ? 'text-emerald-700' : ''}>1. قائمة</button>
-      <button onClick={() => editor.chain().focus().setTextAlign(lang === 'ar' ? 'right' : 'left').run()} className="">{lang === 'ar' ? 'يمين' : 'Left'}</button>
-      <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className="">وسط</button>
-      <button onClick={() => editor.chain().focus().setTextAlign(lang === 'ar' ? 'left' : 'right').run()} className="">{lang === 'ar' ? 'يسار' : 'Right'}</button>
-      <button onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} className="text-gray-400">مسح</button>
-    </div>
+      {/* Edit Dialog */}
+      <AnimatePresence>
+        {editing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setEditing(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{t("editEntry", "تعديل المدونة")}</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditing(null)}
+                >
+                  إغلاق
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder={t("entryTitle", "عنوان المدونة")}
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+                />
+                
+                <input
+                  type="text"
+                  placeholder={t("entryTags", "العلامات (مفصولة بفواصل)")}
+                  value={editTags}
+                  onChange={(e) => setEditTags(e.target.value)}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+                />
+                
+                <EditorContent editor={editEditor} />
+                
+                <div className="flex gap-2">
+                  <Button onClick={saveEdit}>
+                    {t("save", "حفظ")}
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditing(null)}>
+                    {t("cancel", "إلغاء")}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

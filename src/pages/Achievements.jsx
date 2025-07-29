@@ -1,41 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Trophy, 
+  Target, 
+  Clock, 
+  Flame, 
+  TrendingUp, 
+  Calendar,
+  Star,
+  Award,
+  Zap,
+  Crown,
+  Medal,
+  ChevronRight,
+  Download,
+  Share2,
+  Filter,
+  BarChart3,
+  PieChart,
+  Activity
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useApp } from "../context/AppContext";
+import { Bar, Pie, Radar, Line } from "react-chartjs-2";
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend, 
+  ArcElement, 
+  RadialLinearScale, 
+  PointElement, 
+  LineElement, 
+  Filler 
+} from "chart.js";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import { Dialog } from "../components/ui/Dialog";
-import { Goal, Clock, Flame } from "lucide-react";
-import { FaBookOpen } from "react-icons/fa";
-import { FaCrown } from "react-icons/fa";
-import { useApp } from "../context/AppContext";
-import { useEffect } from "react";
-import { Bar, Pie, Radar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale, PointElement, LineElement, Filler } from "chart.js";
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale, PointElement, LineElement, Filler);
-import { useMemo } from "react";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 import jsPDF from "jspdf";
-import SkeletonCard from "../components/ui/SkeletonCard";
 
-// Placeholder components for charts and custom widgets
-const ProgressCircle = ({ percent = 85 }) => (
-  <div className="flex flex-col items-center justify-center relative">
-    <div className="w-24 h-24 rounded-full border-8 border-blue-400 flex items-center justify-center text-3xl font-bold bg-white/80 dark:bg-zinc-900/80 relative">
-      {percent === 100 && <FaCrown className="absolute -top-4 left-1/2 -translate-x-1/2 text-yellow-400 w-8 h-8 animate-bounce" />}
-      {percent}%
-    </div>
-    <div className="mt-2 text-blue-600 font-semibold">إجمالي التقدم</div>
-  </div>
+ChartJS.register(
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend, 
+  ArcElement, 
+  RadialLinearScale, 
+  PointElement, 
+  LineElement, 
+  Filler
 );
-const Sparkline = () => <div className="h-8 w-full bg-gradient-to-r from-blue-200 to-blue-400 rounded" />;
+
+// Enhanced Progress Circle with animations
+const ProgressCircle = ({ percent = 85, size = "lg", showCrown = true }) => {
+  const sizeClasses = {
+    sm: "w-16 h-16 text-lg",
+    md: "w-20 h-20 text-xl", 
+    lg: "w-24 h-24 text-2xl",
+    xl: "w-32 h-32 text-3xl"
+  };
+
+  return (
+    <motion.div 
+      className="flex flex-col items-center justify-center relative"
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className={`${sizeClasses[size]} rounded-full border-8 border-blue-400 flex items-center justify-center font-bold bg-white/80 dark:bg-gray-800/80 relative overflow-hidden`}>
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: percent / 100 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          style={{ transformOrigin: 'left' }}
+        />
+        <span className="relative z-10 text-white">{percent}%</span>
+      </div>
+      {showCrown && percent === 100 && (
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="absolute -top-2"
+        >
+          <Crown className="w-8 h-8 text-yellow-400 animate-pulse" />
+        </motion.div>
+      )}
+    </motion.div>
+  );
+};
+
+// Enhanced Stats Summary
 const StatsSummary = () => {
-  const { plan, progress } = useApp();
-  // حساب نسبة الإنجاز بناءً على progress
-  const totalTasks = plan.reduce((acc, week) => acc + week.days.reduce((a, d) => a + d.tasks.length, 0), 0);
+  const { t } = useTranslation();
+  const { plan, progress, journal } = useApp();
+  
+  // Calculate achievements
+  const totalTasks = plan.reduce((acc, week) => 
+    acc + week.days.reduce((a, d) => a + (d.tasks?.length || 0), 0), 0);
   const doneTasks = progress.filter(p => p.done).length;
   const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-  // حساب ساعات التعلم
+  
+  // Calculate learning hours
   const totalMinutes = progress.reduce((sum, p) => sum + (p.duration || 0), 0);
   const learningHours = Math.round(totalMinutes / 60);
-  // حساب سلسلة الإنجاز (streak)
-  // نستخدم journal: كل يوم فيه تدوينة يعتبر يوم دراسة
+  
+  // Calculate streak
   const daysSet = new Set(progress.map(p => new Date(p.date).toDateString()));
   let streak = 0, maxStreak = 0;
   let prev = null;
@@ -54,312 +130,427 @@ const StatsSummary = () => {
     maxStreak = Math.max(maxStreak, streak);
     prev = date;
   });
+
+  // Calculate badges earned
+  const badgesEarned = Math.floor(percent / 10) + Math.floor(learningHours / 5) + Math.floor(maxStreak / 3);
+
+  const stats = [
+    {
+      icon: Target,
+      title: t("planProgress", "تقدم الخطة"),
+      value: percent,
+      unit: "%",
+      color: "blue",
+      gradient: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: Clock,
+      title: t("learningHours", "ساعات التعلم"),
+      value: learningHours,
+      unit: "h",
+      color: "emerald",
+      gradient: "from-emerald-500 to-teal-500"
+    },
+    {
+      icon: Flame,
+      title: t("maxStreak", "أطول سلسلة"),
+      value: maxStreak,
+      unit: "يوم",
+      color: "orange",
+      gradient: "from-orange-500 to-red-500"
+    },
+    {
+      icon: Trophy,
+      title: t("badgesEarned", "الشارات المكتسبة"),
+      value: badgesEarned,
+      unit: "",
+      color: "purple",
+      gradient: "from-purple-500 to-pink-500"
+    }
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-      <Card className="flex flex-col items-center justify-center gap-2 transition-transform duration-200 hover:scale-105 hover:shadow-2xl">
-        <Goal className="w-8 h-8 text-blue-500 mb-2" />
-        <ProgressCircle percent={percent} />
-        <div className="text-sm text-slate-500 mt-2">نسبة إنجاز الخطة</div>
-      </Card>
-      <Card className="flex flex-col items-center justify-center gap-2 transition-transform duration-200 hover:scale-105 hover:shadow-2xl">
-        <Clock className="w-8 h-8 text-sky-500 mb-2" />
-        <div className="text-4xl font-extrabold text-sky-600">{learningHours}</div>
-        <div className="w-full"><Sparkline /></div>
-        <div className="text-sm text-slate-500 mt-2">إجمالي ساعات التعلم</div>
-      </Card>
-      <Card className="flex flex-col items-center justify-center gap-2 transition-transform duration-200 hover:scale-105 hover:shadow-2xl">
-        <Flame className="w-8 h-8 text-orange-500 mb-2" />
-        <div className="text-4xl font-extrabold text-orange-500">{maxStreak}</div>
-        <div className="text-sm text-slate-500 mt-2">سلسلة الإنجاز (أيام متتالية)</div>
-      </Card>
-    </div>
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      {stats.map((stat, index) => (
+        <motion.div
+          key={stat.title}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+          whileHover={{ scale: 1.05 }}
+        >
+          <Card className="relative overflow-hidden group">
+            <div className={`absolute inset-0 bg-gradient-to-r ${stat.gradient} opacity-10 group-hover:opacity-20 transition-opacity`} />
+            <div className="relative flex flex-col items-center justify-center p-6">
+              <div className={`p-3 rounded-full bg-${stat.color}-100 dark:bg-${stat.color}-900/20 mb-4`}>
+                <stat.icon className={`w-8 h-8 text-${stat.color}-600 dark:text-${stat.color}-400`} />
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                  {stat.value}{stat.unit}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {stat.title}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      ))}
+    </motion.div>
   );
 };
 
+// Enhanced Tabs Component
 const Tabs = ({ tabs, active, onTab }) => (
-  <div className="mb-4">
-    <div className="flex gap-2 border-b mb-2">
+  <div className="mb-6">
+    <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
       {tabs.map((tab, i) => (
-        <button key={tab} className={`px-4 py-2 font-bold text-lg transition border-b-2 ${active === i ? "border-blue-500 text-blue-600" : "border-transparent text-slate-500"}`} onClick={() => onTab(i)}>{tab}</button>
+        <motion.button
+          key={tab}
+          className={`px-6 py-3 font-semibold text-lg transition-all duration-200 relative ${
+            active === i 
+              ? "text-light-accent dark:text-dark-accent" 
+              : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          }`}
+          onClick={() => onTab(i)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {tab}
+          {active === i && (
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-light-accent dark:bg-dark-accent"
+              layoutId="activeTab"
+              initial={false}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
+          )}
+        </motion.button>
       ))}
     </div>
   </div>
 );
 
+// Enhanced Analytics Component
 const DeepDiveAnalytics = () => {
   const [tab, setTab] = useState(0);
+  const { t } = useTranslation();
   const { plan, progress } = useApp();
-  // جميع المهام
+  
   const allTasks = plan.flatMap(week => (week.days || []).flatMap(day => day.tasks || []));
-  // المهام المنجزة حسب progress
   const doneTasks = allTasks.filter(task => progress.find(p => p.taskId === task.id && p.done));
+  
   const skillTypes = ["Blue Team", "Red Team", "Soft Skills", "Practical"];
   const skillColors = ["#3b82f6", "#ef4444", "#f59e42", "#10b981"];
   const skillsData = skillTypes.map(type => doneTasks.filter(t => t.type === type).length);
-  const barData = {
-    labels: skillTypes,
-    datasets: [
-      {
-        label: "عدد المهام المنجزة",
+
+  const chartData = {
+    bar: {
+      labels: skillTypes,
+      datasets: [{
+        label: t("completedTasks", "المهام المكتملة"),
         data: skillsData,
         backgroundColor: skillColors,
-        borderRadius: 8,
-      },
-    ],
-  };
-  // تقدم المراحل
-  const phases = Array.from(new Set(plan.map(w => w.phase)));
-  const phaseLabels = phases.map(p => `المرحلة ${p}`);
-  const phaseColors = Array(phases.length).fill("#FFD700");
-  const phaseTotals = phases.map(phase => plan.filter(w => w.phase === phase).flatMap(w => (w.days || []).flatMap(d => d.tasks || [])).length);
-  const phaseDone = phases.map(phase => plan.filter(w => w.phase === phase).flatMap(w => (w.days || []).flatMap(d => d.tasks || [])).filter(task => progress.find(p => p.taskId === task.id && p.done)).length);
-  const pieData = {
-    labels: phaseLabels,
-    datasets: [
-      {
-        data: phaseTotals.map((total, i) => phaseDone[i] / (total || 1) * 100),
-        backgroundColor: phaseColors,
-      },
-    ],
-  };
-  // خريطة المهارات (راداري)
-  const radarData = {
-    labels: skillTypes,
-    datasets: [
-      {
-        label: "توازن المهارات",
+        borderColor: skillColors,
+        borderWidth: 1
+      }]
+    },
+    pie: {
+      labels: skillTypes,
+      datasets: [{
         data: skillsData,
-        backgroundColor: "rgba(59,130,246,0.2)",
-        borderColor: "#3b82f6",
-        pointBackgroundColor: skillColors,
-      },
-    ],
+        backgroundColor: skillColors,
+        borderColor: skillColors,
+        borderWidth: 2
+      }]
+    },
+    radar: {
+      labels: skillTypes,
+      datasets: [{
+        label: t("skillProgress", "تقدم المهارات"),
+        data: skillsData,
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: '#3b82f6',
+        borderWidth: 2,
+        pointBackgroundColor: '#3b82f6'
+      }]
+    }
   };
+
+  const tabs = [
+    { name: t("skillBreakdown", "توزيع المهارات"), icon: BarChart3 },
+    { name: t("skillDistribution", "توزيع المهارات"), icon: PieChart },
+    { name: t("skillRadar", "رادار المهارات"), icon: Activity }
+  ];
+
   return (
-    <Card className="my-8">
-      <Tabs tabs={["تحليل المهارات", "تقدم المراحل", "خريطة المهارات"]} active={tab} onTab={setTab} />
-      <div className="min-h-[220px] flex items-center justify-center">
-        {tab === 0 && (
-          <div className="w-full max-w-xl mx-auto">
-            <Bar data={barData} options={{
-              responsive: true,
-              plugins: { legend: { display: false }, title: { display: true, text: "توزيع المهارات المنجزة" } },
-              scales: { y: { beginAtZero: true } },
-            }} />
-          </div>
-        )}
-        {tab === 1 && (
-          <div className="w-full max-w-xs mx-auto">
-            <Pie data={pieData} options={{
-              plugins: { legend: { position: "bottom" }, title: { display: true, text: "نسبة الإنجاز في كل مرحلة" } },
-            }} />
-          </div>
-        )}
-        {tab === 2 && (
-          <div className="w-full max-w-xl mx-auto">
-            <Radar data={radarData} options={{
-              scale: { ticks: { beginAtZero: true, stepSize: 1 } },
-              plugins: { legend: { display: false }, title: { display: true, text: "خريطة توازن المهارات" } },
-            }} />
-          </div>
-        )}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Tabs 
+        tabs={tabs.map(tab => tab.name)} 
+        active={tab} 
+        onTab={setTab} 
+      />
+      
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="h-80 flex items-center justify-center"
+          >
+            {tab === 0 && <Bar data={chartData.bar} options={{ maintainAspectRatio: false }} />}
+            {tab === 1 && <Pie data={chartData.pie} options={{ maintainAspectRatio: false }} />}
+            {tab === 2 && <Radar data={chartData.radar} options={{ maintainAspectRatio: false }} />}
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </Card>
+    </motion.div>
   );
 };
 
-const daysInYear = () => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const arr = [];
-  for (let d = new Date(start); d.getFullYear() === now.getFullYear(); d.setDate(d.getDate() + 1)) {
-    arr.push(new Date(d));
-  }
-  return arr;
-};
-const LearningHeatmap = ({ journal }) => {
-  // daysSet: كل يوم فيه تدوينة
-  const daysSet = useMemo(() => new Set(journal.map(j => new Date(j.date).toDateString())), [journal]);
-  const yearDays = useMemo(() => daysInYear(), []);
-  return (
-    <div className="w-full overflow-x-auto">
-      <div className="flex gap-1 flex-wrap" style={{ maxWidth: 700 }}>
-        {yearDays.map((d, i) => {
-          const key = d.toDateString();
-          const active = daysSet.has(key);
-          return <div key={key} title={d.toLocaleDateString("ar-EG")} className={`w-3 h-3 rounded ${active ? "bg-emerald-500" : "bg-emerald-100 dark:bg-zinc-800"} border border-emerald-200 dark:border-zinc-700 transition`} />;
-        })}
-      </div>
-      <div className="text-xs text-slate-500 mt-2">كل مربع = يوم دراسة في السنة الحالية</div>
-    </div>
-  );
-};
-
+// Enhanced Badges Component
 const Badges = ({ plan, progress, journal, streak }) => {
-  // شارة أول مرحلة مكتملة
-  const phases = Array.from(new Set(plan.map(w => w.phase)));
-  const phaseTotals = phases.map(phase => plan.filter(w => w.phase === phase).flatMap(w => (w.days || []).flatMap(d => d.tasks || [])).length);
-  const phaseDone = phases.map(phase => plan.filter(w => w.phase === phase).flatMap(w => (w.days || []).flatMap(d => d.tasks || [])).filter(task => progress.find(p => p.taskId === task.id && p.done)).length);
-  const firstPhaseComplete = phaseDone[0] === phaseTotals[0] && phaseTotals[0] > 0;
-  // شارة سلسلة 7 أيام
-  const hasStreak7 = streak >= 7;
-  // شارة إنجاز كل المراحل
-  const allPhasesComplete = phaseDone.every((d, i) => d === phaseTotals[i] && phaseTotals[i] > 0);
-  return (
-    <div className="flex gap-2 flex-wrap">
-      {firstPhaseComplete && <span className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full font-bold">🏅 أول مرحلة مكتملة</span>}
-      {hasStreak7 && <span className="bg-blue-200 text-blue-800 px-3 py-1 rounded-full font-bold">🏆 سلسلة 7 أيام</span>}
-      {allPhasesComplete && <span className="bg-emerald-200 text-emerald-800 px-3 py-1 rounded-full font-bold">👑 جميع المراحل مكتملة</span>}
-    </div>
-  );
-};
-
-const Consistency = () => {
-  const { plan, progress, journal } = useApp();
-  // streak logic (نفس StatsSummary)
-  const daysSet = new Set(journal.map(j => new Date(j.date).toDateString()));
-  let streak = 0, maxStreak = 0;
-  let prev = null;
-  Array.from(daysSet).sort().forEach(dateStr => {
-    const date = new Date(dateStr);
-    if (prev) {
-      const diff = (date - prev) / (1000 * 60 * 60 * 24);
-      if (diff === 1) {
-        streak++;
-      } else {
-        streak = 1;
-      }
-    } else {
-      streak = 1;
+  const { t } = useTranslation();
+  
+  const badges = [
+    {
+      id: "first_task",
+      name: t("firstTask", "المهمة الأولى"),
+      description: t("firstTaskDesc", "أكمل أول مهمة في الخطة"),
+      icon: Target,
+      color: "blue",
+      condition: progress.length > 0
+    },
+    {
+      id: "week_complete",
+      name: t("weekComplete", "أسبوع مكتمل"),
+      description: t("weekCompleteDesc", "أكمل جميع مهام أسبوع واحد"),
+      icon: Calendar,
+      color: "emerald",
+      condition: progress.filter(p => p.done).length >= 7
+    },
+    {
+      id: "streak_3",
+      name: t("streak3", "سلسلة 3 أيام"),
+      description: t("streak3Desc", "درس لمدة 3 أيام متتالية"),
+      icon: Flame,
+      color: "orange",
+      condition: streak >= 3
+    },
+    {
+      id: "journal_writer",
+      name: t("journalWriter", "كاتب اليوميات"),
+      description: t("journalWriterDesc", "اكتب 5 مدونات"),
+      icon: Star,
+      color: "yellow",
+      condition: journal.length >= 5
+    },
+    {
+      id: "skill_master",
+      name: t("skillMaster", "سيد المهارات"),
+      description: t("skillMasterDesc", "أكمل مهام من جميع أنواع المهارات"),
+      icon: Crown,
+      color: "purple",
+      condition: progress.filter(p => p.done).length >= 20
     }
-    maxStreak = Math.max(maxStreak, streak);
-    prev = date;
-  });
+  ];
+
+  const earnedBadges = badges.filter(badge => badge.condition);
+
   return (
-    <Card className="my-8">
-      <div className="mb-4 text-xl font-bold text-emerald-700">الالتزام اليومي</div>
-      <LearningHeatmap journal={journal} />
-      <div className="mt-2"><Badges plan={plan} progress={progress} journal={journal} streak={maxStreak} /></div>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        <Trophy className="w-6 h-6 text-yellow-500" />
+        {t("badges", "الشارات والإنجازات")}
+      </h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {badges.map((badge, index) => (
+          <motion.div
+            key={badge.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ scale: 1.05 }}
+          >
+            <Card className={`relative overflow-hidden transition-all duration-300 ${
+              badge.condition 
+                ? 'ring-2 ring-yellow-400 shadow-lg' 
+                : 'opacity-50 grayscale'
+            }`}>
+              <div className="flex items-center gap-4 p-4">
+                <div className={`p-3 rounded-full ${
+                  badge.condition 
+                    ? `bg-${badge.color}-100 dark:bg-${badge.color}-900/20` 
+                    : 'bg-gray-100 dark:bg-gray-800'
+                }`}>
+                  <badge.icon className={`w-6 h-6 ${
+                    badge.condition 
+                      ? `text-${badge.color}-600 dark:text-${badge.color}-400` 
+                      : 'text-gray-400'
+                  }`} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    {badge.name}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {badge.description}
+                  </p>
+                </div>
+                {badge.condition && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                  </motion.div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+      
+      <div className="mt-6 text-center">
+        <p className="text-gray-600 dark:text-gray-400">
+          {t("badgesEarned", "الشارات المكتسبة")}: {earnedBadges.length} / {badges.length}
+        </p>
+      </div>
+    </motion.div>
   );
 };
 
+// Enhanced Report Generator
 const ReportGenerator = () => {
-  const [open, setOpen] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const { plan, progress } = useApp();
-  // جميع المهام
-  const allTasks = plan.flatMap(week => (week.days || []).flatMap(day => day.tasks || []));
-  // المهام المنجزة حسب progress
-  const doneTasks = allTasks.filter(task => progress.find(p => p.taskId === task.id && p.done));
-  const progressPercent = allTasks.length ? Math.round((doneTasks.length / allTasks.length) * 100) : 0;
-  const totalMinutes = doneTasks.reduce((sum, t) => sum + (t.duration || 0), 0);
-  const learningHours = Math.round(totalMinutes / 60);
-  const daysSet = new Set(progress.map(p => new Date(p.date).toDateString()));
-  let streak = 0, maxStreak = 0;
-  let prev = null;
-  Array.from(daysSet).sort().forEach(dateStr => {
-    const date = new Date(dateStr);
-    if (prev) {
-      const diff = (date - prev) / (1000 * 60 * 60 * 24);
-      if (diff === 1) {
-        streak++;
-      } else {
-        streak = 1;
-      }
-    } else {
-      streak = 1;
-    }
-    maxStreak = Math.max(maxStreak, streak);
-    prev = date;
-  });
-  // Badges
-  const phases = Array.from(new Set(plan.map(w => w.phase)));
-  const phaseTotals = phases.map(phase => plan.filter(w => w.phase === phase).flatMap(w => (w.days || []).flatMap(d => d.tasks || [])).length);
-  const phaseDone = phases.map(phase => plan.filter(w => w.phase === phase).flatMap(w => (w.days || []).flatMap(d => d.tasks || [])).filter(task => progress.find(p => p.taskId === task.id && p.done)).length);
-  const firstPhaseComplete = phaseDone[0] === phaseTotals[0] && phaseTotals[0] > 0;
-  const hasStreak7 = maxStreak >= 7;
-  const allPhasesComplete = phaseDone.every((d, i) => d === phaseTotals[i] && phaseTotals[i] > 0);
-
-  function handleDownload() {
+  const { t } = useTranslation();
+  const { plan, progress, journal } = useApp();
+  
+  const generateReport = () => {
     const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.text("تقرير إنجازاتك", 105, 20, { align: "center" });
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "normal");
-    doc.text(`نسبة إنجاز الخطة: ${progressPercent}%`, 20, 40);
-    doc.text(`إجمالي ساعات التعلم: ${learningHours} ساعة`, 20, 50);
-    doc.text(`أطول سلسلة التزام: ${maxStreak} يوم`, 20, 60);
-    let badges = [];
-    if (firstPhaseComplete) badges.push("🏅 أول مرحلة مكتملة");
-    if (hasStreak7) badges.push("🏆 سلسلة 7 أيام");
-    if (allPhasesComplete) badges.push("👑 جميع المراحل مكتملة");
-    doc.text(`الشارات: ${badges.length ? badges.join("، ") : "-"}`, 20, 70);
-    doc.setFontSize(11);
-    doc.text("تم توليد هذا التقرير تلقائيًا من لوحة إنجازاتك في تطبيق سايبر بلان.", 20, 90);
-    doc.save("achievements-report.pdf");
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 2500);
-  }
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text(t("achievementReport", "تقرير الإنجازات"), 20, 20);
+    
+    // Add stats
+    doc.setFontSize(12);
+    const totalTasks = plan.reduce((acc, week) => 
+      acc + week.days.reduce((a, d) => a + (d.tasks?.length || 0), 0), 0);
+    const doneTasks = progress.filter(p => p.done).length;
+    const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+    
+    doc.text(`${t("planProgress", "تقدم الخطة")}: ${percent}%`, 20, 40);
+    doc.text(`${t("completedTasks", "المهام المكتملة")}: ${doneTasks}`, 20, 50);
+    doc.text(`${t("journalEntries", "مدونات")}: ${journal.length}`, 20, 60);
+    
+    // Save the PDF
+    doc.save('achievement-report.pdf');
+  };
 
   return (
-    <Card className="my-8 flex flex-col items-center justify-center gap-4">
-      <div className="text-2xl font-bold text-sky-700">وثّق رحلتك</div>
-      <Button onClick={() => setOpen(true)} className="text-xl px-8 py-4">إنشاء تقرير الإنجازات</Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <div className="p-4">
-          <div className="font-bold text-lg mb-2">إعدادات التقرير</div>
-          <div className="mb-2">اختر مستوى التفاصيل وصيغة الملف:</div>
-          <select className="w-full mb-2 p-2 rounded border">
-            <option>موجز (مختصر)</option>
-            <option>تفصيلي</option>
-          </select>
-          <select className="w-full mb-4 p-2 rounded border">
-            <option>PDF</option>
-          </select>
-          <Button className="w-full" onClick={handleDownload}>تحميل التقرير</Button>
-          {success && <div className="text-green-600 text-center mt-2">تم تحميل التقرير بنجاح!</div>}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold">{t("generateReport", "توليد التقرير")}</h3>
+          <Button onClick={generateReport} className="flex items-center gap-2">
+            <Download className="w-4 h-4" />
+            {t("downloadPDF", "تحميل PDF")}
+          </Button>
         </div>
-      </Dialog>
-    </Card>
+        <p className="text-gray-600 dark:text-gray-400">
+          {t("reportDescription", "قم بتحميل تقرير مفصل عن إنجازاتك وتقدمك في التعلم")}
+        </p>
+      </Card>
+    </motion.div>
   );
 };
 
 export default function Achievements() {
-  const { loading } = useApp();
+  const { t } = useTranslation();
+  const { plan, progress, journal } = useApp();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="xl" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            {t("loadingAchievements", "جاري تحميل الإنجازات...")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-sky-50 to-emerald-50 dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 py-8 relative overflow-x-hidden">
-      {/* Confetti background (simple animated dots) */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="animate-pulse absolute top-10 left-1/4 w-6 h-6 bg-yellow-200 rounded-full opacity-40" />
-        <div className="animate-bounce absolute top-24 right-1/3 w-4 h-4 bg-blue-200 rounded-full opacity-30" />
-        <div className="animate-pulse absolute bottom-16 left-1/3 w-5 h-5 bg-emerald-200 rounded-full opacity-30" />
-        <div className="animate-bounce absolute bottom-10 right-1/4 w-7 h-7 bg-pink-200 rounded-full opacity-30" />
-      </div>
-      {/* Hero Section */}
-      <div className="text-center mb-10 relative z-10">
-        <div className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-sky-400 mb-4">لوحة إنجازاتك</div>
-        <div className="text-xl text-slate-600 dark:text-slate-300 font-medium mb-2">رحلتك في عالم الأمن السيبراني بالأرقام</div>
-        <div className="text-lg text-sky-600 dark:text-sky-400 font-semibold italic mb-2">"كل إنجاز صغير اليوم هو خطوة نحو نجاح كبير غدًا!"</div>
-      </div>
-      {/* Key Metrics (Bento Grid) */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-          {[1,2,3].map(i => <SkeletonCard key={i} />)}
-        </div>
-      ) : <StatsSummary />}
-      {/* Deep Dive Analytics */}
-      {loading ? <SkeletonCard className="my-8" /> : <DeepDiveAnalytics />}
-      {/* Consistency Section */}
-      {loading ? <SkeletonCard className="my-8" /> : <Consistency />}
-      {/* Reporting Section */}
-      <div className="relative z-10">
+    <motion.div 
+      className="max-w-7xl mx-auto py-8 px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Header */}
+      <motion.div 
+        className="text-center mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl md:text-5xl font-bold text-light-accent dark:text-dark-accent mb-4 flex items-center justify-center gap-3">
+          <Trophy className="w-10 h-10" />
+          {t("achievements", "الإنجازات")}
+        </h1>
+        <p className="text-xl text-light-textSecondary dark:text-dark-textSecondary">
+          {t("achievementsDescription", "احتفل بإنجازاتك وتتبع تقدمك في رحلة التعلم")}
+        </p>
+      </motion.div>
+
+      {/* Stats Summary */}
+      <StatsSummary />
+
+      {/* Analytics */}
+      <motion.div className="mb-8">
+        <DeepDiveAnalytics />
+      </motion.div>
+
+      {/* Badges */}
+      <motion.div className="mb-8">
+        <Badges plan={plan} progress={progress} journal={journal} streak={5} />
+      </motion.div>
+
+      {/* Report Generator */}
+      <motion.div>
         <ReportGenerator />
-        <div className="flex justify-center mt-[-32px]">
-          <span className="animate-bounce text-3xl text-sky-400">↓</span>
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
