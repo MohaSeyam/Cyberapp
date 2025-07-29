@@ -384,7 +384,7 @@ export default function Notebook() {
         </div>
 
         {/* Tags Filter */}
-        {allTags.length > 0 && (
+        {(allTags || []).length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             <Button
               variant={selectedTag === "" ? "primary" : "outline"}
@@ -393,7 +393,7 @@ export default function Notebook() {
             >
               {t("allTags", "جميع العلامات")}
             </Button>
-            {allTags.map(tag => (
+            {(allTags || []).map(tag => (
               <Button
                 key={tag}
                 variant={selectedTag === tag ? "primary" : "outline"}
@@ -475,7 +475,7 @@ export default function Notebook() {
 
       {/* Notes Grid */}
       <div className={`grid gap-6 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-1"}`}>
-        {filteredNotes.length === 0 ? (
+        {(filteredNotes || []).length === 0 ? (
           <motion.div 
             className="col-span-full text-center py-12"
             variants={itemVariants}
@@ -489,7 +489,7 @@ export default function Notebook() {
             </p>
           </motion.div>
         ) : (
-          filteredNotes.map((note, index) => (
+          (filteredNotes || []).map((note, index) => (
             <motion.div
               key={note.id}
               variants={itemVariants}
@@ -517,9 +517,9 @@ export default function Notebook() {
                       )}
                     </div>
                     
-                    {note.tags && note.tags.length > 0 && (
+                    {(note.tags || []).length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {note.tags.map((tag, i) => (
+                        {(note.tags || []).map((tag, i) => (
                           <span
                             key={i}
                             className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-full"

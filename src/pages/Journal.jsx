@@ -194,9 +194,8 @@ export default function Journal() {
 
   // Helper to get day title from planData
   function getDayTitle(entry) {
-    if (!planData || !entry.week || !entry.dayKey) return null;
-    const week = planData.find(w => String(w.week) === String(entry.week));
-    const day = week?.days?.find(d => d.key === entry.dayKey);
+    const { lang } = useApp();
+    const day = planData?.find(w => w.week === entry.week)?.days?.find(d => d.key === entry.dayKey);
     return day?.day?.[lang] || day?.day?.ar || day?.day?.en || null;
   }
 
@@ -369,7 +368,7 @@ export default function Journal() {
 
       {/* Entries List */}
       <div className="space-y-6">
-        {filteredEntries.length === 0 ? (
+        {(filteredEntries || []).length === 0 ? (
           <motion.div 
             className="text-center py-12"
             variants={itemVariants}
@@ -383,7 +382,7 @@ export default function Journal() {
             </p>
           </motion.div>
         ) : (
-          filteredEntries.map((entry, index) => (
+          (filteredEntries || []).map((entry, index) => (
             <motion.div
               key={entry.id}
               variants={itemVariants}
@@ -410,9 +409,9 @@ export default function Journal() {
                       )}
                     </div>
                     
-                    {entry.tags && entry.tags.length > 0 && (
+                    {(entry.tags || []).length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {entry.tags.map((tag, i) => (
+                        {(entry.tags || []).map((tag, i) => (
                           <span
                             key={i}
                             className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-full"

@@ -103,16 +103,16 @@ const StatsSummary = () => {
   
   // Calculate achievements
   const totalTasks = plan.reduce((acc, week) => 
-    acc + week.days.reduce((a, d) => a + (d.tasks?.length || 0), 0), 0);
-  const doneTasks = progress.filter(p => p.done).length;
+    acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0), 0);
+  const doneTasks = (progress || []).filter(p => p.done).length;
   const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
   
   // Calculate learning hours
-  const totalMinutes = progress.reduce((sum, p) => sum + (p.duration || 0), 0);
+  const totalMinutes = (progress || []).reduce((sum, p) => sum + (p.duration || 0), 0);
   const learningHours = Math.round(totalMinutes / 60);
   
   // Calculate streak
-  const daysSet = new Set(progress.map(p => new Date(p.date).toDateString()));
+  const daysSet = new Set((progress || []).map(p => new Date(p.date).toDateString()));
   let streak = 0, maxStreak = 0;
   let prev = null;
   Array.from(daysSet).sort().forEach(dateStr => {
@@ -244,11 +244,11 @@ const DeepDiveAnalytics = () => {
   const { plan, progress } = useApp();
   
   const allTasks = plan.flatMap(week => (week.days || []).flatMap(day => day.tasks || []));
-  const doneTasks = allTasks.filter(task => progress.find(p => p.taskId === task.id && p.done));
+  const doneTasks = allTasks.filter(task => (progress || []).find(p => p.taskId === task.id && p.done));
   
   const skillTypes = ["Blue Team", "Red Team", "Soft Skills", "Practical"];
   const skillColors = ["#3b82f6", "#ef4444", "#f59e42", "#10b981"];
-  const skillsData = skillTypes.map(type => doneTasks.filter(t => t.type === type).length);
+  const skillsData = skillTypes.map(type => (doneTasks || []).filter(t => t.type === type).length);
 
   const chartData = {
     bar: {
@@ -332,7 +332,7 @@ const Badges = ({ plan, progress, journal, streak }) => {
       description: t("firstTaskDesc", "أكمل أول مهمة في الخطة"),
       icon: Target,
       color: "blue",
-      condition: progress.length > 0
+      condition: (progress || []).length > 0
     },
     {
       id: "week_complete",
@@ -340,7 +340,7 @@ const Badges = ({ plan, progress, journal, streak }) => {
       description: t("weekCompleteDesc", "أكمل جميع مهام أسبوع واحد"),
       icon: Calendar,
       color: "emerald",
-      condition: progress.filter(p => p.done).length >= 7
+      condition: (progress || []).filter(p => p.done).length >= 7
     },
     {
       id: "streak_3",
@@ -356,7 +356,7 @@ const Badges = ({ plan, progress, journal, streak }) => {
       description: t("journalWriterDesc", "اكتب 5 مدونات"),
       icon: Star,
       color: "yellow",
-      condition: journal.length >= 5
+      condition: (journal || []).length >= 5
     },
     {
       id: "skill_master",
@@ -364,7 +364,7 @@ const Badges = ({ plan, progress, journal, streak }) => {
       description: t("skillMasterDesc", "أكمل مهام من جميع أنواع المهارات"),
       icon: Crown,
       color: "purple",
-      condition: progress.filter(p => p.done).length >= 20
+      condition: (progress || []).filter(p => p.done).length >= 20
     }
   ];
 
@@ -432,7 +432,7 @@ const Badges = ({ plan, progress, journal, streak }) => {
       
       <div className="mt-6 text-center">
         <p className="text-gray-600 dark:text-gray-400">
-          {t("badgesEarned", "الشارات المكتسبة")}: {earnedBadges.length} / {badges.length}
+          {t("badgesEarned", "الشارات المكتسبة")}: {(earnedBadges || []).length} / {(badges || []).length}
         </p>
       </div>
     </motion.div>
@@ -454,13 +454,13 @@ const ReportGenerator = () => {
     // Add stats
     doc.setFontSize(12);
     const totalTasks = plan.reduce((acc, week) => 
-      acc + week.days.reduce((a, d) => a + (d.tasks?.length || 0), 0), 0);
-    const doneTasks = progress.filter(p => p.done).length;
+      acc + (week.days || []).reduce((a, d) => a + ((d.tasks || []).length || 0), 0), 0);
+    const doneTasks = (progress || []).filter(p => p.done).length;
     const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
     
     doc.text(`${t("planProgress", "تقدم الخطة")}: ${percent}%`, 20, 40);
     doc.text(`${t("completedTasks", "المهام المكتملة")}: ${doneTasks}`, 20, 50);
-    doc.text(`${t("journalEntries", "مدونات")}: ${journal.length}`, 20, 60);
+    doc.text(`${t("journalEntries", "مدونات")}: ${(journal || []).length}`, 20, 60);
     
     // Save the PDF
     doc.save('achievement-report.pdf');
@@ -490,7 +490,7 @@ const ReportGenerator = () => {
 
 export default function Achievements() {
   const { t } = useTranslation();
-  const { plan, progress, journal } = useApp();
+  const { plan, progress, journal, lang } = useApp();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
