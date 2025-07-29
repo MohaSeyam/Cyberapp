@@ -6,7 +6,11 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 
 export default function MainLayout() {
+  console.log("MainLayout rendering");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  console.log("MainLayout state:", { sidebarOpen });
+  
   return (
     <div className="min-h-screen flex bg-white dark:bg-dark-background relative">
       {/* زر إظهار السايدبار */}

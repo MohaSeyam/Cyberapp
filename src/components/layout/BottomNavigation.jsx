@@ -13,6 +13,7 @@ const navs = [
 ];
 
 export default function BottomNavigation() {
+  console.log("BottomNavigation rendering");
   return (
     <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-dark-background border-t border-light-border dark:border-dark-border shadow-lg flex justify-around items-center h-16 z-50 md:hidden">
       {navs.map(({ to, icon: Icon, label }) => (

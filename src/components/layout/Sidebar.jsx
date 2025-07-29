@@ -6,13 +6,19 @@ import { useApp } from "../../context/AppContext";
 import { motion } from "framer-motion";
 
 export default function Sidebar() {
+  console.log("Sidebar rendering");
   const location = useLocation();
-  const { plan } = useApp();
+  const { plan, loading } = useApp();
+  
+  console.log("Sidebar state:", { location: location.pathname, plan: plan?.length, loading });
   
   // إذا كانت الخطة undefined أو null أو ليست مصفوفة أو كل عنصر فيها ليس له phase، اعتبرها فارغة
   const isPlanEmpty = !plan || !Array.isArray(plan) || plan.length === 0 || plan.every(w => !w.phase);
   
+  console.log("Sidebar isPlanEmpty:", isPlanEmpty);
+  
   if (isPlanEmpty) {
+    console.log("Sidebar showing loading state");
     return (
       <aside className="fixed top-0 right-0 h-full w-64 bg-light-card dark:bg-dark-card border-l border-light-border dark:border-dark-border shadow-lg flex flex-col py-6 px-4 z-40 items-center justify-center">
         <motion.div 

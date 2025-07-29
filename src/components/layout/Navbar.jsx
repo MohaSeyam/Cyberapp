@@ -7,10 +7,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  console.log("Navbar rendering");
   const { theme, setTheme, lang, setLang } = useApp();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userName = "مستخدم افتراضي";
+
+  console.log("Navbar state:", { theme, lang });
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
   const toggleLang = () => setLang(lang === "ar" ? "en" : "ar");
