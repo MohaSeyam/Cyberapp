@@ -22,6 +22,7 @@ const typeIcons = {
 export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   const { lang } = useApp();
   const { t } = useTranslation();
+  console.log('TaskItem props:', task);
   const icon = typeIcons[task.type] || typeIcons["Default"];
   const [noteOpen, setNoteOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -63,7 +64,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
       )}
       tabIndex={0}
       role="listitem"
-      aria-label={task.description?.[lang] || task.description?.ar || task.description?.en}
+      aria-label={task.description?.[lang] || task.description?.ar || task.description?.en || JSON.stringify(task.description)}
     >
       <span className="text-xl">{icon}</span>
       <input
@@ -74,10 +75,13 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         onChange={onToggle}
       />
       <div className="flex-1">
-        <div className="font-semibold text-slate-800 dark:text-slate-100 mb-0.5">{task.description?.[lang] || task.description?.ar || task.description?.en}</div>
+        <div className="font-semibold text-slate-800 dark:text-slate-100 mb-0.5">
+          {task.description?.[lang] || task.description?.ar || task.description?.en || JSON.stringify(task.description)}
+        </div>
         <div className="text-xs text-slate-500 dark:text-slate-400 flex gap-2 items-center">
           <span className="rounded px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-slate-200">{t(task.type, task.type)}</span>
           <span className="ml-2">⏱ {task.duration} {t("min", "دقيقة")}</span>
+          <span className="ml-2">id: {task.id}</span>
         </div>
       </div>
       <button
