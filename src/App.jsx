@@ -117,101 +117,19 @@ export default function App() {
                     </DebugComponent>
                     <DebugComponent name="Routes">
                       <Routes>
-                        <Route path="/" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="Dashboard">
-                                <Dashboard />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/plan" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="CyberPlan">
-                                <CyberPlan />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/journal" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="Journal">
-                                <Journal />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/phase/:phaseId" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="PhaseView">
-                                <PhaseView />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/week/:weekId" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="WeekView">
-                                <WeekView />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/day/:weekId/:dayKey" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="DayView">
-                                <DayView />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/notebook" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="Notebook">
-                                <Notebook />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/achievements" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="Achievements">
-                                <Achievements />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/phases" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="PlanPhases">
-                                <PlanPhases />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="/settings" element={
-                          <DebugComponent name="MainLayout">
-                            <MainLayout>
-                              <DebugComponent name="Settings">
-                                <Settings />
-                              </DebugComponent>
-                            </MainLayout>
-                          </DebugComponent>
-                        } />
-                        <Route path="*" element={
-                          <DebugComponent name="NotFound">
-                            <NotFound />
-                          </DebugComponent>
-                        } />
+                        <Route path="/" element={<MainLayout />}>
+                          <Route index element={<Dashboard />} />
+                          <Route path="plan" element={<CyberPlan />} />
+                          <Route path="journal" element={<Journal />} />
+                          <Route path="phase/:phaseId" element={<PhaseView />} />
+                          <Route path="week/:weekId" element={<WeekView />} />
+                          <Route path="day/:weekId/:dayKey" element={<DayView />} />
+                          <Route path="notebook" element={<Notebook />} />
+                          <Route path="achievements" element={<Achievements />} />
+                          <Route path="phases" element={<PlanPhases />} />
+                          <Route path="settings" element={<Settings />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Route>
                       </Routes>
                     </DebugComponent>
                   </BrowserRouter>
