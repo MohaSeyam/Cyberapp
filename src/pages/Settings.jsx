@@ -1,99 +1,602 @@
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Sun, 
+  Moon, 
+  User, 
+  Download, 
+  Trash2, 
+  Info,
+  Settings as SettingsIcon,
+  Bell,
+  Volume2,
+  VolumeX,
+  Palette,
+  Type,
+  Monitor,
+  Smartphone,
+  Globe,
+  Shield,
+  Database,
+  RefreshCw,
+  CheckCircle,
+  AlertCircle,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Lock,
+  Unlock
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
-import { Sun, Moon, User, Download, Trash2, Info } from "lucide-react";
-import toast from "react-hot-toast";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import { exportData, importData, clearAllData } from "../services/dbService";
 
 export default function Settings() {
-  const { theme, setTheme, lang, setLang } = useApp();
-  // اسم المستخدم وصورة رمزية افتراضية
-  const userName = "مستخدم افتراضي";
+  const { t, i18n } = useTranslation();
+  const { 
+    theme, 
+    setTheme, 
+    lang, 
+    setLang, 
+    settings, 
+    updateSettings, 
+    addNotification 
+  } = useApp();
   
-  const handleExport = () => {
-    // تصدير البيانات كـ JSON
-    const data = { plan: [], notes: [], journal: [] };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cyberplan-backup.json";
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("تم تصدير البيانات بنجاح!");
+  const [activeTab, setActiveTab] = useState("general");
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
+  const [showConfirmImport, setShowConfirmImport] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+
+  const tabs = [
+    { id: "general", label: t("general", "عام"), icon: SettingsIcon },
+    { id: "appearance", label: t("appearance", "المظهر"), icon: Palette },
+    { id: "notifications", label: t("notifications", "الإشعارات"), icon: Bell },
+    { id: "data", label: t("data", "البيانات"), icon: Database },
+    { id: "privacy", label: t("privacy", "الخصوصية"), icon: Shield }
+  ];
+
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      await exportData();
+      addNotification('success', 'تم تصدير البيانات', 'تم تصدير البيانات بنجاح');
+    } catch (error) {
+      console.error('Export error:', error);
+      addNotification('error', 'خطأ في تصدير البيانات', 'فشل في تصدير البيانات');
+    } finally {
+      setExporting(false);
+    }
   };
 
-  const handleClearData = () => {
-    if (confirm("هل أنت متأكد من حذف جميع البيانات؟")) {
-      // حذف البيانات
-      toast.success("تم حذف البيانات بنجاح!");
+  const handleImport = async () => {
+    if (!importFile) return;
+    
+    try {
+      setImporting(true);
+      await importData(importFile);
+      setShowConfirmImport(false);
+      setImportFile(null);
+      addNotification('success', 'تم استيراد البيانات', 'تم استيراد البيانات بنجاح');
+    } catch (error) {
+      console.error('Import error:', error);
+      addNotification('error', 'خطأ في استيراد البيانات', 'فشل في استيراد البيانات');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleClearData = async () => {
+    try {
+      await clearAllData();
+      setShowConfirmClear(false);
+      addNotification('success', 'تم حذف البيانات', 'تم حذف جميع البيانات بنجاح');
+    } catch (error) {
+      console.error('Clear data error:', error);
+      addNotification('error', 'خطأ في حذف البيانات', 'فشل في حذف البيانات');
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === "application/json") {
+      setImportFile(file);
+    } else {
+      addNotification('error', 'ملف غير صالح', 'يرجى اختيار ملف JSON صالح');
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-4 bg-white dark:bg-dark-card rounded-lg shadow">
-      <div className="flex flex-col items-center mb-6">
-        <span className="inline-block bg-blue-100 dark:bg-blue-900 p-4 rounded-full mb-2">
-          <User className="w-10 h-10 text-blue-500 dark:text-blue-300" />
-        </span>
-        <div className="font-bold text-lg mb-1">{userName}</div>
-        <div className="text-sm text-slate-500">عضو نشط</div>
-      </div>
-      
-      <div className="space-y-4">
-        <div>
-          <div className="font-semibold mb-2 flex items-center gap-2">
-            <Info className="w-4 h-4" />
-            معلومات الحساب
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800 rounded p-3 text-sm">
-            <div className="flex justify-between mb-1">
-              <span>البريد الإلكتروني:</span>
-              <span className="text-slate-600">user@example.com</span>
+    <motion.div 
+      className="max-w-6xl mx-auto py-8 px-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      dir={i18n.language === "ar" ? "rtl" : "ltr"}
+    >
+      {/* Header */}
+      <motion.div className="mb-8" variants={itemVariants}>
+        <h1 className="text-3xl md:text-4xl font-bold text-light-accent dark:text-dark-accent mb-2 flex items-center gap-3">
+          <SettingsIcon className="w-8 h-8" />
+          {t("settings", "الإعدادات")}
+        </h1>
+        <p className="text-light-textSecondary dark:text-dark-textSecondary">
+          {t("settingsDescription", "خصص تجربتك وحدد تفضيلاتك")}
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Sidebar */}
+        <motion.div className="lg:col-span-1" variants={itemVariants}>
+          <Card>
+            <div className="space-y-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-light-accent dark:bg-dark-accent text-white"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <tab.icon className="w-5 h-5" />
+                  <span className="font-medium">{tab.label}</span>
+                  <ChevronRight className="w-4 h-4 ml-auto" />
+                </button>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span>تاريخ الانضمام:</span>
-              <span className="text-slate-600">يناير 2024</span>
-            </div>
-          </div>
-        </div>
+          </Card>
+        </motion.div>
 
-        <div>
-          <div className="font-semibold mb-2">تغيير اللغة</div>
-          <button onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-            className="w-full px-4 py-2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-            {lang === "ar" ? "English" : "العربية"}
-          </button>
-        </div>
+        {/* Main Content */}
+        <motion.div className="lg:col-span-3" variants={itemVariants}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* General Settings */}
+              {activeTab === "general" && (
+                <Card>
+                  <h2 className="text-xl font-semibold mb-6">{t("generalSettings", "الإعدادات العامة")}</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Language */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        {t("language", "اللغة")}
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          variant={lang === "ar" ? "primary" : "outline"}
+                          onClick={() => setLang("ar")}
+                          className="flex items-center gap-2"
+                        >
+                          العربية
+                        </Button>
+                        <Button
+                          variant={lang === "en" ? "primary" : "outline"}
+                          onClick={() => setLang("en")}
+                          className="flex items-center gap-2"
+                        >
+                          English
+                        </Button>
+                      </div>
+                    </div>
 
-        <div>
-          <div className="font-semibold mb-2">تغيير الثيم</div>
-          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="w-full px-4 py-2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2">
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            {theme === "dark" ? "وضع النهار" : "وضع الليل"}
-          </button>
-        </div>
+                    {/* Theme */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        {t("theme", "المظهر")}
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <Button
+                          variant={theme === "light" ? "primary" : "outline"}
+                          onClick={() => setTheme("light")}
+                          className="flex items-center gap-2"
+                        >
+                          <Sun className="w-4 h-4" />
+                          {t("light", "فاتح")}
+                        </Button>
+                        <Button
+                          variant={theme === "dark" ? "primary" : "outline"}
+                          onClick={() => setTheme("dark")}
+                          className="flex items-center gap-2"
+                        >
+                          <Moon className="w-4 h-4" />
+                          {t("dark", "داكن")}
+                        </Button>
+                        <Button
+                          variant={theme === "auto" ? "primary" : "outline"}
+                          onClick={() => setTheme("auto")}
+                          className="flex items-center gap-2"
+                        >
+                          <Monitor className="w-4 h-4" />
+                          {t("auto", "تلقائي")}
+                        </Button>
+                      </div>
+                    </div>
 
-        <div>
-          <div className="font-semibold mb-2 flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            تصدير البيانات
-          </div>
-          <button onClick={handleExport}
-            className="w-full px-4 py-2 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition">
-            تصدير نسخة احتياطية
-          </button>
-        </div>
+                    {/* Font Size */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Type className="w-4 h-4" />
+                        {t("fontSize", "حجم الخط")}
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {["small", "medium", "large"].map((size) => (
+                          <Button
+                            key={size}
+                            variant={settings.fontSize === size ? "primary" : "outline"}
+                            onClick={() => updateSettings({ fontSize: size })}
+                          >
+                            {t(size, size)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
 
-        <div>
-          <div className="font-semibold mb-2 flex items-center gap-2">
-            <Trash2 className="w-4 h-4" />
-            حذف البيانات
-          </div>
-          <button onClick={handleClearData}
-            className="w-full px-4 py-2 rounded bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 transition">
-            حذف جميع البيانات
-          </button>
-        </div>
+                    {/* Compact Mode */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Smartphone className="w-4 h-4" />
+                        {t("compactMode", "الوضع المضغوط")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="compactMode"
+                          checked={settings.compactMode}
+                          onChange={(e) => updateSettings({ compactMode: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="compactMode" className="text-sm">
+                          {t("compactModeDescription", "تقليل المساحات والهوامش")}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Appearance Settings */}
+              {activeTab === "appearance" && (
+                <Card>
+                  <h2 className="text-xl font-semibold mb-6">{t("appearanceSettings", "إعدادات المظهر")}</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Color Scheme */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t("colorScheme", "نظام الألوان")}
+                      </label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {["blue", "green", "purple", "orange"].map((color) => (
+                          <Button
+                            key={color}
+                            variant="outline"
+                            onClick={() => updateSettings({ colorScheme: color })}
+                            className={`border-2 ${
+                              settings.colorScheme === color ? 'border-current' : ''
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full bg-${color}-500`} />
+                            {t(color, color)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Animation */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t("animations", "الحركات")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="animations"
+                          checked={settings.animations}
+                          onChange={(e) => updateSettings({ animations: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="animations" className="text-sm">
+                          {t("enableAnimations", "تفعيل الحركات والانتقالات")}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Notifications Settings */}
+              {activeTab === "notifications" && (
+                <Card>
+                  <h2 className="text-xl font-semibold mb-6">{t("notificationSettings", "إعدادات الإشعارات")}</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Enable Notifications */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Bell className="w-4 h-4" />
+                        {t("notifications", "الإشعارات")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="notifications"
+                          checked={settings.notifications}
+                          onChange={(e) => updateSettings({ notifications: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="notifications" className="text-sm">
+                          {t("enableNotifications", "تفعيل الإشعارات")}
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Sound */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        {settings.sound ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                        {t("sound", "الصوت")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="sound"
+                          checked={settings.sound}
+                          onChange={(e) => updateSettings({ sound: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="sound" className="text-sm">
+                          {t("enableSound", "تفعيل الأصوات")}
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Auto Save */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t("autoSave", "الحفظ التلقائي")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="autoSave"
+                          checked={settings.autoSave}
+                          onChange={(e) => updateSettings({ autoSave: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="autoSave" className="text-sm">
+                          {t("autoSaveDescription", "حفظ التغييرات تلقائياً")}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Data Settings */}
+              {activeTab === "data" && (
+                <Card>
+                  <h2 className="text-xl font-semibold mb-6">{t("dataSettings", "إعدادات البيانات")}</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Export Data */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Download className="w-4 h-4" />
+                        {t("exportData", "تصدير البيانات")}
+                      </label>
+                      <Button
+                        onClick={handleExport}
+                        disabled={exporting}
+                        className="flex items-center gap-2"
+                      >
+                        {exporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                        {exporting ? t("exporting", "جاري التصدير...") : t("exportBackup", "تصدير نسخة احتياطية")}
+                      </Button>
+                    </div>
+
+                    {/* Import Data */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Download className="w-4 h-4" />
+                        {t("importData", "استيراد البيانات")}
+                      </label>
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleFileChange}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-light-accent dark:file:bg-dark-accent file:text-white hover:file:bg-opacity-80"
+                      />
+                      {importFile && (
+                        <Button
+                          onClick={() => setShowConfirmImport(true)}
+                          className="mt-2 flex items-center gap-2"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          {t("importSelected", "استيراد الملف المحدد")}
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Clear Data */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Trash2 className="w-4 h-4" />
+                        {t("clearData", "حذف البيانات")}
+                      </label>
+                      <Button
+                        variant="danger"
+                        onClick={() => setShowConfirmClear(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        {t("clearAllData", "حذف جميع البيانات")}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Privacy Settings */}
+              {activeTab === "privacy" && (
+                <Card>
+                  <h2 className="text-xl font-semibold mb-6">{t("privacySettings", "إعدادات الخصوصية")}</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Data Collection */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t("dataCollection", "جمع البيانات")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="dataCollection"
+                          checked={settings.dataCollection}
+                          onChange={(e) => updateSettings({ dataCollection: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="dataCollection" className="text-sm">
+                          {t("allowDataCollection", "السماح بجمع البيانات لتحسين التجربة")}
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Analytics */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t("analytics", "التحليلات")}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="analytics"
+                          checked={settings.analytics}
+                          onChange={(e) => updateSettings({ analytics: e.target.checked })}
+                          className="w-4 h-4 text-light-accent dark:text-dark-accent"
+                        />
+                        <label htmlFor="analytics" className="text-sm">
+                          {t("enableAnalytics", "تفعيل التحليلات")}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
       </div>
-    </div>
+
+      {/* Confirm Clear Data Modal */}
+      <AnimatePresence>
+        {showConfirmClear && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowConfirmClear(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <AlertCircle className="w-6 h-6 text-red-500" />
+                <h3 className="text-lg font-semibold">{t("confirmClearData", "تأكيد حذف البيانات")}</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                {t("clearDataWarning", "هل أنت متأكد من حذف جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء.")}
+              </p>
+              <div className="flex gap-3">
+                <Button variant="danger" onClick={handleClearData}>
+                  {t("confirm", "تأكيد")}
+                </Button>
+                <Button variant="outline" onClick={() => setShowConfirmClear(false)}>
+                  {t("cancel", "إلغاء")}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Import Modal */}
+      <AnimatePresence>
+        {showConfirmImport && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowConfirmImport(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <CheckCircle className="w-6 h-6 text-green-500" />
+                <h3 className="text-lg font-semibold">{t("confirmImport", "تأكيد استيراد البيانات")}</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                {t("importDataWarning", "سيتم استبدال البيانات الحالية بالبيانات المستوردة. هل تريد المتابعة؟")}
+              </p>
+              <div className="flex gap-3">
+                <Button onClick={handleImport} disabled={importing}>
+                  {importing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                  {importing ? t("importing", "جاري الاستيراد...") : t("confirm", "تأكيد")}
+                </Button>
+                <Button variant="outline" onClick={() => setShowConfirmImport(false)}>
+                  {t("cancel", "إلغاء")}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
