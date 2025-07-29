@@ -170,8 +170,8 @@ export async function getPhaseProgress(phaseId, completedTasks = []) {
   const phase = phases.find(p => p.id === phaseId);
   if (!phase) return 0;
   
+  const planData = await fetchPlanData();
   const completedCount = completedTasks.filter(task => {
-    const planData = await fetchPlanData();
     const week = planData.find(w => w.phase === phaseId);
     return week?.days?.some(day => 
       day.tasks?.some(t => t.id === task.id)
