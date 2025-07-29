@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import { exportData, importData, clearAllData } from "../services/dbService";
+import { exportAllData, importAllData, clearAllData } from "../services/dbService";
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
@@ -63,7 +63,7 @@ export default function Settings() {
   const handleExport = async () => {
     try {
       setExporting(true);
-      await exportData();
+      await exportAllData();
       addNotification('success', 'تم تصدير البيانات', 'تم تصدير البيانات بنجاح');
     } catch (error) {
       console.error('Export error:', error);
@@ -78,7 +78,7 @@ export default function Settings() {
     
     try {
       setImporting(true);
-      await importData(importFile);
+      await importAllData(importFile);
       setShowConfirmImport(false);
       setImportFile(null);
       addNotification('success', 'تم استيراد البيانات', 'تم استيراد البيانات بنجاح');

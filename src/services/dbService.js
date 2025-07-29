@@ -97,6 +97,17 @@ export async function importAllData({ plan, notes, journal, settings }) {
   });
 }
 
+// Clear all data function
+export async function clearAllData() {
+  await db.transaction('rw', db.plan, db.notes, db.journal, db.settings, db.progress, async () => {
+    await db.plan.clear();
+    await db.notes.clear();
+    await db.journal.clear();
+    await db.settings.clear();
+    await db.progress.clear();
+  });
+}
+
 // --- دوال متقدمة للملاحظات ---
 export async function getNotesByTask(weekId, dayKey, taskId) {
   return await db.notes.where({ weekId, dayKey, taskId }).toArray();
