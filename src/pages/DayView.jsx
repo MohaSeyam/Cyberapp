@@ -81,8 +81,8 @@ function DayHeader({ day, weekId, phaseId, onTaskComplete }) {
   const dayDescription = day.description?.[lang] || day.description?.ar || day.description?.en;
   
   // Calculate progress
-  const totalTasks = day.tasks?.length || 0;
-  const completedTasks = day.tasks?.filter(task => {
+  const totalTasks = (day.tasks || []).length || 0;
+  const completedTasks = (day.tasks || []).filter(task => {
     const taskId = String(task.id);
     return appState.progress[weekId]?.[day.key]?.[taskId];
   }).length || 0;
@@ -230,7 +230,8 @@ function DayHeader({ day, weekId, phaseId, onTaskComplete }) {
 
 export default function DayView() {
   const { t, i18n } = useTranslation();
-  const { lang, appState } = useApp();
+  const { lang: contextLang, appState } = useApp();
+  const lang = contextLang || "ar";
   const { weekId, dayKey } = useParams();
   const [day, setDay] = useState(null);
   const [phaseId, setPhaseId] = useState(null);

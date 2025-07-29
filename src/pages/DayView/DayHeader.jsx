@@ -3,7 +3,8 @@ import { useApp } from "../../context/AppContext";
 import { useTranslation } from "react-i18next";
 
 export default function DayHeader({ day, weekId, phaseId }) {
-  const { lang } = useApp();
+  const { lang: contextLang } = useApp();
+  const lang = contextLang || "ar";
   const { t } = useTranslation();
   if (!day) return null;
   return (
