@@ -34,7 +34,7 @@ export function AppProvider({ children }) {
 
   // جلب كل البيانات من القاعدة
   const fetchAll = useCallback(async () => {
-    console.log("AppContext fetchAll called");
+    console.log("AppContext fetchAll called - starting");
     setLoading(true);
     try {
       // استورد البيانات من PlanData.json إذا كانت قاعدة البيانات فارغة
@@ -87,7 +87,7 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    console.log("AppContext useEffect running");
+    console.log("AppContext useEffect running - calling fetchAll");
     fetchAll();
   }, [fetchAll]);
 
