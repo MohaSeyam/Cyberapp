@@ -15,7 +15,7 @@ export default function Sidebar() {
   // إذا كانت الخطة undefined أو null أو ليست مصفوفة أو كل عنصر فيها ليس له phase، اعتبرها فارغة
   const isPlanEmpty = !plan || !Array.isArray(plan) || plan.length === 0 || plan.every(w => !w.phase);
   
-  console.log("Sidebar isPlanEmpty:", isPlanEmpty);
+  console.log("Sidebar isPlanEmpty:", isPlanEmpty, "plan type:", typeof plan, "plan length:", plan?.length);
   
   if (isPlanEmpty) {
     console.log("Sidebar showing loading state");
