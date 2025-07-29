@@ -30,7 +30,6 @@ export function AppProvider({ children }) {
   const [globalPomodoro, setGlobalPomodoro] = useState(null); // { title, minutes, running }
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const cyberPlan = useCyberPlan();
 
   const Icons = {
     check: FaCheck,
@@ -139,7 +138,9 @@ export function AppProvider({ children }) {
       } catch (error) {
         console.error('Error loading plan data:', error);
         // Show error notification
-        addNotification('error', 'خطأ في تحميل البيانات', 'فشل في تحميل بيانات الخطة، يرجى المحاولة مرة أخرى');
+        if (addNotification) {
+          addNotification('error', 'خطأ في تحميل البيانات', 'فشل في تحميل بيانات الخطة، يرجى المحاولة مرة أخرى');
+        }
       } finally {
         setLoading(false);
       }

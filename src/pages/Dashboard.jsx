@@ -30,18 +30,16 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { lang, loading, addNotification } = useApp();
+  const { lang, addNotification } = useApp();
+  const { plan, progress, loading } = useCyberPlan();
   const [phases, setPhases] = useState([]);
-  const [dashboardLoading, setDashboardLoading] = useState(true);
   const [greeting, setGreeting] = useState("");
   const navigate = useNavigate();
   const isRTL = lang === "ar";
-  const { plan, progress } = useApp();
 
   useEffect(() => {
     async function loadDashboard() {
       try {
-        setDashboardLoading(true);
         const phasesData = await getPhases();
         setPhases(phasesData);
         
@@ -57,8 +55,6 @@ export default function Dashboard() {
       } catch (error) {
         console.error('Error loading dashboard:', error);
         addNotification('error', 'خطأ في تحميل البيانات', 'فشل في تحميل بيانات لوحة التحكم');
-      } finally {
-        setDashboardLoading(false);
       }
     }
     loadDashboard();
@@ -109,7 +105,7 @@ export default function Dashboard() {
     }
   };
 
-  if (loading || dashboardLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
