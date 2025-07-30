@@ -277,7 +277,6 @@ export default function DayViewPage(props) {
     if (!lang) return <div className="text-center text-red-500 py-12">السياق غير محمل (context not loaded)</div>;
     if (!plan) return <div className="text-center text-red-500 py-12">الخطة غير محملة (plan not loaded)</div>;
     if (!weekId || !dayKey) return <div className="text-center text-red-500 py-12">weekId أو dayKey مفقود</div>;
-    if (!props.day) return <div className="text-center text-red-500 py-12">اليوم غير موجود (day prop مفقود)</div>;
     if (!appState) return <div>appState not loaded</div>;
     if (!Icons) return <div>Icons not loaded</div>;
     if (!translations) return <div>translations not loaded</div>;
@@ -305,15 +304,45 @@ export default function DayViewPage(props) {
     if (!weekData) {
       console.log("DayViewPage - week not found:", weekId);
       console.log("DayViewPage - available weeks:", plan.map(w => w.week));
-      return <div className="text-center text-red-500 py-12">الأسبوع غير موجود: {weekId}</div>;
+      return (
+        <div className="text-center text-red-500 py-12">
+          <h3 className="text-lg font-semibold mb-2">الأسبوع غير موجود</h3>
+          <p className="mb-4">الأسبوع المطلوب: {weekId}</p>
+          <p className="mb-4">الأسابيع المتاحة: {plan.map(w => w.week).join(", ")}</p>
+          <button 
+            onClick={() => navigate("/phases")}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            العودة إلى المراحل
+          </button>
+        </div>
+      );
     }
 
     const dayData = weekData.days?.find(d => String(d.key).toLowerCase() === String(dayKey).toLowerCase());
     const dayIndex = weekData.days?.findIndex(d => String(d.key).toLowerCase() === String(dayKey).toLowerCase());
+    
+    console.log("DayViewPage - searching for day:", dayKey);
+    console.log("DayViewPage - weekData.days:", weekData.days);
+    console.log("DayViewPage - dayData found:", dayData);
+    console.log("DayViewPage - dayIndex:", dayIndex);
+    
     if (!dayData || dayIndex === -1) {
       console.log("DayViewPage - day not found:", dayKey);
       console.log("DayViewPage - available days:", weekData.days?.map(d => d.key));
-      return <div className="text-center text-red-500 py-12">اليوم غير موجود: {dayKey}</div>;
+      return (
+        <div className="text-center text-red-500 py-12">
+          <h3 className="text-lg font-semibold mb-2">اليوم غير موجود</h3>
+          <p className="mb-4">اليوم المطلوب: {dayKey}</p>
+          <p className="mb-4">الأيام المتاحة: {weekData.days?.map(d => d.key).join(", ")}</p>
+          <button 
+            onClick={() => navigate(`/week/${weekId}`)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            العودة إلى الأسبوع
+          </button>
+        </div>
+      );
     }
 
     // دالة لتغيير حالة المهمة بين مكتملة وغير مكتملة
@@ -362,30 +391,32 @@ export default function DayViewPage(props) {
     const prevDay = dayIndex > 0 ? weekData.days[dayIndex - 1] : null;
     const nextDay = dayIndex < weekData.days.length - 1 ? weekData.days[dayIndex + 1] : null;
     return (
-        <div className="bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text font-tajawal rounded-xl shadow-lg p-6 border border-light-border dark:border-dark-border animate-fade-in">
+        <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-tajawal rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
             {/* أزرار اليوم السابق والتالي */}
             <div className="flex justify-between items-center mb-6">
                 <button
-                    className={`px-4 py-2 rounded bg-slate-200 dark:bg-zinc-700 text-black dark:text-white font-bold transition ${!prevDay ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-300 dark:hover:bg-zinc-600'}`}
+                    className={`px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold transition-colors duration-200 ${!prevDay ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 dark:hover:bg-gray-600'}`}
                     onClick={() => prevDay && navigate(`/day/${weekId}/${prevDay.key}`)}
                     disabled={!prevDay}
                 >
                     اليوم السابق
                 </button>
                 <button
-                    className={`px-4 py-2 rounded bg-slate-200 dark:bg-zinc-700 text-black dark:text-white font-bold transition ${!nextDay ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-300 dark:hover:bg-zinc-600'}`}
+                    className={`px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold transition-colors duration-200 ${!nextDay ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 dark:hover:bg-gray-600'}`}
                     onClick={() => nextDay && navigate(`/day/${weekId}/${nextDay.key}`)}
                     disabled={!nextDay}
                 >
                     اليوم التالي
                 </button>
             </div>
-            <h1 className="text-3xl font-bold text-light-accent dark:text-dark-accent">{dayData.day[lang]}: {dayData.topic[lang]}</h1>
+            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">
+              {dayData.day?.[lang] || dayData.day?.ar || dayData.day?.en || "اليوم"}: {dayData.topic?.[lang] || dayData.topic?.ar || dayData.topic?.en || "الموضوع"}
+            </h1>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
                 <div className="lg:col-span-2 space-y-8">
                     {/* قسم المهام */}
                     <div>
-                        <h4 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">{t.activeTasks}</h4>
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">{t.activeTasks}</h4>
                         <div className="space-y-3">
                             {(dayData.tasks || []).map((task, i) => {
                               const isChecked = !!(progress || []).find(p => 
