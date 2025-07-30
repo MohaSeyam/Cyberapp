@@ -47,6 +47,16 @@ function TiptapToolbar({ editor, lang }) {
 export default function TiptapJournalEditor({ onSave, dateKey, initialContent = "", initialTitle = "", initialTags = "" }) {
   const { lang } = useApp();
   const { t, i18n } = useTranslation();
+  
+  // Defensive check for lang
+  if (!lang) {
+    return (
+      <div className="rounded-2xl bg-white/80 dark:bg-zinc-900 border border-slate-200 dark:border-slate-800 shadow p-4 flex flex-col">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <span>جاري تحميل المحرر...</span>
+      </div>
+    );
+  }
   const [content, setContent] = useState(initialContent);
   const [title, setTitle] = useState(initialTitle);
   const [tags, setTags] = useState(initialTags);

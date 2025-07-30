@@ -24,6 +24,16 @@ const typeIcons = {
 export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   const { lang } = useApp();
   const { t } = useTranslation();
+  
+  // Defensive check for lang
+  if (!lang) {
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-xl border border-light-border dark:border-dark-border bg-light-card dark:bg-dark-card shadow">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span>جاري التحميل...</span>
+      </div>
+    );
+  }
   const fallbackT = {
     markComplete: "تم الإنجاز",
     min: "دقيقة",

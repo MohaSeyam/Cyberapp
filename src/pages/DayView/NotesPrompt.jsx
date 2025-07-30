@@ -3,6 +3,17 @@ import { useApp } from "../../context/AppContext";
 
 export default function NotesPrompt({ prompt }) {
   const { lang } = useApp();
+  
+  // Defensive check for lang
+  if (!lang) {
+    return (
+      <div className="rounded-2xl bg-violet-50 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-700 shadow p-4 mb-4">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <span>جاري تحميل التلميحات...</span>
+      </div>
+    );
+  }
+  
   if (!prompt) return null;
   return (
     <div className="rounded-2xl bg-violet-50 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-700 shadow p-4 mb-4">

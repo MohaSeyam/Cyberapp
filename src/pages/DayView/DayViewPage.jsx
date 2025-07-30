@@ -9,7 +9,13 @@ import { FaVideo, FaRegFileAlt, FaBook, FaWrench, FaPodcast, FaChalkboardTeacher
 
 // NoteEditor component
 function NoteEditor({ note, taskDescription, onSave, onDelete }) {
-    const { lang, translations, setModal, ReactQuill, setAppState, appState } = useApp();
+    const { lang, translations, setModal, setAppState, appState } = useApp();
+    
+    // Defensive check for lang
+    if (!lang) {
+        return <div className="text-center text-red-500 py-12">السياق غير محمل (context not loaded)</div>;
+    }
+    
     const t = translations[lang];
     const [title, setTitle] = useState(note.title || '');
     const [content, setContent] = useState(note.content || '');
@@ -71,22 +77,12 @@ function NoteEditor({ note, taskDescription, onSave, onDelete }) {
                 <div>
                     <label className="block text-sm font-medium mb-1 text-black dark:text-white">{t.noteContent}</label>
                     <div className="quill-container bg-white dark:bg-[#111] text-black dark:text-white">
-                        { ReactQuill ? (
-                            <ReactQuill 
-                                theme="snow" 
-                                value={content} 
-                                onChange={setContent}
-                                modules={quillModules}
-                            />
-                          ) : (
-                            <textarea
-                                className="w-full h-48 p-2 border rounded bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-black dark:text-white"
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                placeholder="Loading editor..."
-                            />
-                          )
-                        }
+                        <textarea
+                            className="w-full h-48 p-2 border rounded bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-black dark:text-white"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="اكتب محتوى الملاحظة هنا..."
+                        />
                     </div>
                 </div>
             </div>
@@ -104,6 +100,12 @@ function NoteEditor({ note, taskDescription, onSave, onDelete }) {
 // ResourcesSection component
 function ResourcesSection({ weekId, dayIndex }) {
     const { lang, appState, setAppState, setModal, translations, Icons, plan } = useApp();
+    
+    // Defensive check for lang
+    if (!lang) {
+        return <div className="text-center text-red-500 py-12">السياق غير محمل (context not loaded)</div>;
+    }
+    
     const t = translations[lang];
     // جلب المراجع من الخطة الأصلية (plan)
     let planResources = [];
@@ -175,6 +177,12 @@ const RESOURCE_TYPES = [
 // ResourceEditorModal component (placeholder for actual ResourceEditor UI)
 function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource }) {
     const { lang, setAppState, appState, setModal, translations } = useApp();
+    
+    // Defensive check for lang
+    if (!lang) {
+        return <div className="text-center text-red-500 py-12">السياق غير محمل (context not loaded)</div>;
+    }
+    
     const t = translations[lang];
     const [title, setTitle] = useState(resource?.title || '');
     const [url, setUrl] = useState(resource?.url || '');
@@ -264,6 +272,9 @@ export default function DayViewPage(props) {
     const weekId = props.weekId || params.weekId;
     const dayKey = props.dayKey || params.dayKey;
     const navigate = useNavigate();
+    
+    // Defensive checks for context values
+    if (!lang) return <div className="text-center text-red-500 py-12">السياق غير محمل (context not loaded)</div>;
     if (!plan) return <div className="text-center text-red-500 py-12">الخطة غير محملة (plan not loaded)</div>;
     if (!weekId || !dayKey) return <div className="text-center text-red-500 py-12">weekId أو dayKey مفقود</div>;
     if (!props.day) return <div className="text-center text-red-500 py-12">اليوم غير موجود (day prop مفقود)</div>;

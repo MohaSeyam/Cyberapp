@@ -40,26 +40,30 @@ export function AppProvider({ children }) {
       const plan = await db.getPlan();
       if (!plan || plan.length === 0) {
         console.log("Plan is empty, importing from PlanData.json");
-        const res = await fetch("/PlanData.json");
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            await db.savePlan(data);
+        try {
+          const res = await fetch("/PlanData.json");
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              await db.savePlan(data);
+            }
           }
+        } catch (fetchError) {
+          console.error("Error fetching PlanData.json:", fetchError);
         }
       }
       
       const [planData, notesData, journalData, progressData] = await Promise.all([
-        db.getPlan(),
-        db.getNotes(),
-        db.getJournalEntries(),
-        db.getProgress()
+        db.getPlan().catch(() => []),
+        db.getNotes().catch(() => []),
+        db.getJournalEntries().catch(() => []),
+        db.getProgress().catch(() => [])
       ]);
       
       console.log("AppContext data fetched:", { planData: planData.length, progressData: progressData.length });
       
       // تهيئة كل مهمة بـ done: false إذا لم تكن موجودة
-      const normalizedPlan = planData.map(week => ({
+      const normalizedPlan = (planData || []).map(week => ({
         ...week,
         days: (week.days || []).map(day => ({
           ...day,
@@ -71,14 +75,22 @@ export function AppProvider({ children }) {
       }));
       
       setPlan(normalizedPlan);
-      setProgress(progressData);
+      setProgress(progressData || []);
       setAppState(prev => ({
         ...prev,
-        notes: notesData,
-        journal: journalData
+        notes: notesData || [],
+        journal: journalData || []
       }));
     } catch (error) {
       console.error("AppContext fetchAll error:", error);
+      // Set default values on error
+      setPlan([]);
+      setProgress([]);
+      setAppState(prev => ({
+        ...prev,
+        notes: [],
+        journal: []
+      }));
     } finally {
       setLoading(false);
       console.log("AppContext loading set to false");
@@ -191,17 +203,10 @@ export function AppProvider({ children }) {
 
 
 
-  // حفظ الإعدادات في قاعدة البيانات
-  const updateSettings = useCallback(async (newSettings) => {
-    try {
-      const updatedSettings = { ...settings, ...newSettings };
-      setSettings(updatedSettings);
-      await db.setSetting('userSettings', updatedSettings);
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      addNotification('error', 'خطأ في حفظ الإعدادات', 'فشل في حفظ الإعدادات، يرجى المحاولة مرة أخرى');
-    }
-  }, [settings]);
+  // إزالة إشعار
+  const removeNotification = useCallback((id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
 
   // إضافة إشعار جديد
   const addNotification = useCallback((type, title, message, duration = 5000) => {
@@ -213,12 +218,19 @@ export function AppProvider({ children }) {
     setTimeout(() => {
       removeNotification(id);
     }, duration);
-  }, []);
+  }, [removeNotification]);
 
-  // إزالة إشعار
-  const removeNotification = useCallback((id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
+  // حفظ الإعدادات في قاعدة البيانات
+  const updateSettings = useCallback(async (newSettings) => {
+    try {
+      const updatedSettings = { ...settings, ...newSettings };
+      setSettings(updatedSettings);
+      await db.setSetting('userSettings', updatedSettings);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      addNotification('error', 'خطأ في حفظ الإعدادات', 'فشل في حفظ الإعدادات، يرجى المحاولة مرة أخرى');
+    }
+  }, [settings, addNotification]);
 
   // تحديث التقدم
   const updateProgress = useCallback(async (weekId, dayKey, taskId, done) => {
@@ -238,7 +250,7 @@ export function AppProvider({ children }) {
       console.error('Error updating progress:', error);
       addNotification('error', 'خطأ في تحديث التقدم', 'فشل في تحديث حالة المهمة');
     }
-  }, [addNotification, setProgress]);
+  }, [addNotification]);
 
   // حفظ ملاحظة
   const saveNote = useCallback(async (note) => {
@@ -281,14 +293,14 @@ export function AppProvider({ children }) {
   const value = {
     user,
     setUser,
-    lang,
+    lang: lang || "ar", // Fallback to Arabic
     setLang,
     settings,
     updateSettings,
     planData,
-    plan,
-    progress,
-    appState,
+    plan: plan || [], // Fallback to empty array
+    progress: progress || [], // Fallback to empty array
+    appState: appState || { progress: {}, notes: {}, resources: {} }, // Fallback to empty object
     setAppState,
     modal,
     setModal,
@@ -302,8 +314,20 @@ export function AppProvider({ children }) {
     deleteNote,
     loading,
     Icons,
-    translations
+    translations: translations || { ar: {}, en: {} } // Fallback to empty translations
   };
+
+  // Don't render children until context is fully initialized
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>جاري تحميل التطبيق...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AppContext.Provider value={value}>
@@ -318,5 +342,11 @@ export function useApp() {
     console.error("useApp must be used within an AppProvider");
     throw new Error("useApp must be used within an AppProvider");
   }
+  
+  // Ensure all required properties are available
+  if (!context.lang) {
+    console.warn("Context lang is not initialized yet");
+  }
+  
   return context;
 }

@@ -2,6 +2,7 @@
 // شريط التنقل العلوي
 
 import { useTheme } from "../../context/ThemeProvider";
+import { useApp } from "../../context/AppContext";
 import { Sun, Moon, ShieldCheck, Settings, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -9,11 +10,21 @@ import { useNavigate } from "react-router-dom";
 export default function Navbar() {
   console.log("Navbar rendering");
   const { theme, setTheme } = useTheme();
+  const { lang, setLang } = useApp();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userName = "مستخدم افتراضي";
 
   console.log("Navbar state:", { theme, lang });
+
+  // Defensive check for lang
+  if (!lang) {
+    return (
+      <header className="w-full bg-white/80 dark:bg-dark-background backdrop-blur-sm border-b border-light-border dark:border-dark-border shadow-sm text-light-text dark:text-dark-text px-4 h-16 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+      </header>
+    );
+  }
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
   const toggleLang = () => setLang(lang === "ar" ? "en" : "ar");
