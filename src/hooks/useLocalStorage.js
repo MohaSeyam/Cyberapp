@@ -15,7 +15,9 @@ export function useLocalStorage(key, initialValue) {
   useEffect(() => {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {}
+    } catch {
+      // Ignore localStorage errors
+    }
   }, [key, value]);
 
   // تحديث عند التغيير من نافذة أخرى

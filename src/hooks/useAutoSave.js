@@ -13,6 +13,5 @@ export function useAutoSave(value, onSave, delay = 1000) {
       return;
     }
     onSave(debouncedValue);
-    // eslint-disable-next-line
-  }, [debouncedValue]);
+  }, [debouncedValue, onSave]);
 }

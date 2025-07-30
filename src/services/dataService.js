@@ -107,7 +107,7 @@ export async function getAllWeekTitles(lang = "ar") {
   return planData.map(week => week.title?.[lang] || week.title?.ar || week.title?.en || "");
 }
 
-export async function getAllPhaseTitles(lang = "ar") {
+export async function getAllPhaseTitles() {
   const phases = await getPhases();
   return phases.map(phase => phase.name);
 }
