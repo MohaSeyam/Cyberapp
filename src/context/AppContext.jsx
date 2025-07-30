@@ -27,7 +27,6 @@ export function AppProvider({ children }) {
     resources: {},
   });
   const [modal, setModal] = useState({ isOpen: false, content: null });
-  const [theme, setTheme] = useState("light");
   const [globalPomodoro, setGlobalPomodoro] = useState(null); // { title, minutes, running }
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -293,8 +292,6 @@ export function AppProvider({ children }) {
     setAppState,
     modal,
     setModal,
-    theme,
-    setTheme,
     globalPomodoro,
     setGlobalPomodoro,
     notifications,

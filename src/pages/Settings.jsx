@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
+import { useTheme } from "../context/ThemeProvider";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { exportAllData, importAllData, clearAllData } from "../services/dbService";
@@ -36,14 +37,13 @@ import { exportAllData, importAllData, clearAllData } from "../services/dbServic
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const { 
-    theme, 
-    setTheme, 
     lang, 
     setLang, 
     settings, 
     updateSettings, 
     addNotification 
   } = useApp();
+  const { theme, setTheme } = useTheme();
   
   const [activeTab, setActiveTab] = useState("general");
   const [showConfirmClear, setShowConfirmClear] = useState(false);

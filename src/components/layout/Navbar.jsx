@@ -1,14 +1,14 @@
 // Navbar.jsx
 // شريط التنقل العلوي
 
-import { useApp } from "../../context/AppContext";
+import { useTheme } from "../../context/ThemeProvider";
 import { Sun, Moon, ShieldCheck, Settings, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   console.log("Navbar rendering");
-  const { theme, setTheme, lang, setLang } = useApp();
+  const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userName = "مستخدم افتراضي";
