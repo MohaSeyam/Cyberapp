@@ -15,22 +15,38 @@ const navs = [
 export default function BottomNavigation() {
   console.log("BottomNavigation rendering");
   return (
-    <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-dark-background border-t border-light-border dark:border-dark-border shadow-lg flex justify-around items-center h-16 z-50 md:hidden">
+    <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg flex justify-around items-center h-16 z-50 md:hidden backdrop-blur-sm bg-white/95 dark:bg-gray-900/95">
       {navs.map(({ to, icon: Icon, label }) => (
         <NavLink
           key={to}
           to={to}
           className={({ isActive }) =>
-            `flex flex-col items-center justify-center flex-1 h-full transition relative ${isActive ? "bg-blue-50 dark:bg-slate-800" : ""}`
+            `flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
+              isActive 
+                ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" 
+                : "text-gray-600 dark:text-gray-300"
+            }`
           }
           aria-label={label}
         >
           {({ isActive }) => (
-            <span className={`rounded-full p-2 transition ${isActive ? "bg-blue-100 dark:bg-blue-900 text-blue-600" : "text-slate-600"}`}>
-              <Icon className="w-6 h-6 mx-auto" />
-            </span>
+            <>
+              <div className={`rounded-full p-2 transition-all duration-200 active:scale-95 ${
+                isActive 
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm" 
+                  : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              }`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <span className={`text-xs mt-1 font-semibold transition-colors duration-200 ${
+                isActive 
+                  ? "text-blue-600 dark:text-blue-400" 
+                  : "text-gray-700 dark:text-gray-300"
+              }`}>
+                {label}
+              </span>
+            </>
           )}
-          <span className="text-xs mt-1">{label}</span>
         </NavLink>
       ))}
     </nav>

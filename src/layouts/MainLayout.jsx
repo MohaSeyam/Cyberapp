@@ -46,7 +46,7 @@ export default function MainLayout() {
       </div>
       <div className="flex-1 flex flex-col">
         <Navbar />
-        <main className="flex-1 p-4 pb-20 md:pb-4">
+        <main className="flex-1 p-4 pb-20 md:pb-4 min-h-screen">
           <Outlet />
         </main>
         <BottomNavigation />
