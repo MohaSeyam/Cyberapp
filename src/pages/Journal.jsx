@@ -91,8 +91,10 @@ export default function Journal() {
   });
 
   useEffect(() => {
-    fetchEntries();
-  }, []);
+    if (plan && lang) {
+      fetchEntries();
+    }
+  }, [plan, lang]);
 
   // Filter entries based on search and filter
   useEffect(() => {
@@ -121,8 +123,17 @@ export default function Journal() {
 
   async function fetchEntries() {
     try {
+      console.log("Fetching journal entries from database...");
       setLoading(true);
       const data = await getJournalEntries();
+      console.log("Raw journal entries from database:", data);
+      
+      if (!data || data.length === 0) {
+        console.log("No journal entries found in database");
+        setEntries([]);
+        return;
+      }
+      
       setEntries(data);
     } catch (error) {
       console.error('Error fetching entries:', error);
@@ -357,7 +368,17 @@ export default function Journal() {
 
       {/* Entries List */}
       <div className="space-y-6">
-        {(filteredEntries || []).length === 0 ? (
+        {loading ? (
+          <motion.div 
+            className="text-center py-12"
+            variants={itemVariants}
+          >
+            <LoadingSpinner size="lg" />
+            <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mt-4">
+              جاري تحميل المدونات...
+            </h3>
+          </motion.div>
+        ) : (filteredEntries || []).length === 0 ? (
           <motion.div 
             className="text-center py-12"
             variants={itemVariants}

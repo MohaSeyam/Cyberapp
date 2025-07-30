@@ -40,9 +40,17 @@ import Placeholder from "@tiptap/extension-placeholder";
 
 async function loadAllNotes(plan, lang) {
   try {
+    console.log("Loading notes from database...");
     const notes = await getNotes();
+    console.log("Raw notes from database:", notes);
+    
+    if (!notes || notes.length === 0) {
+      console.log("No notes found in database");
+      return [];
+    }
+    
     return notes.map(note => {
-      const weekObj = plan.find(w => String(w.week) === String(note.weekId));
+      const weekObj = plan?.find(w => String(w.week) === String(note.weekId));
       const dayObj = weekObj?.days?.find(d => String(d.key) === String(note.dayKey));
       const taskObj = dayObj?.tasks?.find(t => String(t.id) === String(note.taskId));
       
@@ -73,6 +81,7 @@ export default function Notebook() {
   const { appState, plan, loading, lang, addNotification } = useApp();
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -132,8 +141,10 @@ export default function Notebook() {
   });
 
   useEffect(() => {
-    loadNotes();
-  }, []);
+    if (plan && lang) {
+      loadNotes();
+    }
+  }, [plan, lang]);
 
   // Filter and sort notes
   useEffect(() => {
@@ -180,15 +191,17 @@ export default function Notebook() {
 
   async function loadNotes() {
     try {
-      // setLoading(true); // REMOVED
+      setNotesLoading(true);
+      console.log("loadNotes called with plan:", plan?.length, "lang:", lang);
       const extractedNotes = await loadAllNotes(plan, lang);
+      console.log("Extracted notes:", extractedNotes);
       setNotes(extractedNotes);
       setFilteredNotes(extractedNotes);
     } catch (error) {
       console.error('Error loading notes:', error);
       addNotification('error', 'خطأ في تحميل الملاحظات', 'فشل في تحميل الملاحظات من قاعدة البيانات');
     } finally {
-      // setLoading(false); // REMOVED
+      setNotesLoading(false);
     }
   }
 
@@ -454,7 +467,17 @@ export default function Notebook() {
 
       {/* Notes Grid */}
       <div className={`grid gap-6 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-1"}`}>
-        {(filteredNotes || []).length === 0 ? (
+        {notesLoading ? (
+          <motion.div 
+            className="col-span-full text-center py-12"
+            variants={itemVariants}
+          >
+            <LoadingSpinner size="lg" />
+            <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mt-4">
+              جاري تحميل الملاحظات...
+            </h3>
+          </motion.div>
+        ) : (filteredNotes || []).length === 0 ? (
           <motion.div 
             className="col-span-full text-center py-12"
             variants={itemVariants}
