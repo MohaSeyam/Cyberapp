@@ -300,70 +300,69 @@ export default function DayView() {
   }
 
   return (
-      <motion.div 
-        className="max-w-6xl mx-auto py-8 px-4"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        dir={i18n.language === "ar" ? "rtl" : "ltr"}
-      >
-        <Breadcrumbs weekId={weekId} dayTitle={day.day?.[lang] || day.day?.ar || day.day?.en} phaseId={phaseId} />
-        
-        <DayHeader day={day} weekId={weekId} phaseId={phaseId} />
-        
-        {/* Filters and Search */}
-        <motion.div className="mb-6" variants={itemVariants}>
-          <Card>
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder={t("searchTasks", "البحث في المهام...")}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <select
-                  value={filterCompleted}
-                  onChange={(e) => setFilterCompleted(e.target.value)}
-                  className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
-                >
-                  <option value="all">{t("allTasks", "جميع المهام")}</option>
-                  <option value="completed">{t("completed", "مكتملة")}</option>
-                  <option value="pending">{t("pending", "قيد التنفيذ")}</option>
-                </select>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
-                >
-                  {viewMode === "list" ? <Grid3X3 className="w-4 h-4" /> : <List className="w-4 h-4" />}
-                </Button>
+    <motion.div 
+      className="max-w-6xl mx-auto py-8 px-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      dir={i18n.language === "ar" ? "rtl" : "ltr"}
+    >
+      <Breadcrumbs weekId={weekId} dayTitle={day.day?.[lang] || day.day?.ar || day.day?.en} phaseId={phaseId} />
+      
+      <DayHeader day={day} weekId={weekId} phaseId={phaseId} />
+      
+      {/* Filters and Search */}
+      <motion.div className="mb-6" variants={itemVariants}>
+        <Card>
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder={t("searchTasks", "البحث في المهام...")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+                />
               </div>
             </div>
-          </Card>
-        </motion.div>
-
-        {/* Day Content */}
-        <motion.div variants={itemVariants}>
-          <DayViewPage 
-            day={day} 
-            weekId={weekId} 
-            dayKey={dayKey}
-            phaseId={phaseId}
-            viewMode={viewMode}
-            searchQuery={searchQuery}
-            filterCompleted={filterCompleted}
-          />
-        </motion.div>
+            
+            <div className="flex gap-2">
+              <select
+                value={filterCompleted}
+                onChange={(e) => setFilterCompleted(e.target.value)}
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent"
+              >
+                <option value="all">{t("allTasks", "جميع المهام")}</option>
+                <option value="completed">{t("completed", "مكتملة")}</option>
+                <option value="pending">{t("pending", "قيد التنفيذ")}</option>
+              </select>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
+              >
+                {viewMode === "list" ? <Grid3X3 className="w-4 h-4" /> : <List className="w-4 h-4" />}
+              </Button>
+            </div>
+          </div>
+        </Card>
       </motion.div>
-    </>
+
+      {/* Day Content */}
+      <motion.div variants={itemVariants}>
+        <DayViewPage 
+          day={day} 
+          weekId={weekId} 
+          dayKey={dayKey}
+          phaseId={phaseId}
+          viewMode={viewMode}
+          searchQuery={searchQuery}
+          filterCompleted={filterCompleted}
+        />
+      </motion.div>
+    </motion.div>
   );
 }
