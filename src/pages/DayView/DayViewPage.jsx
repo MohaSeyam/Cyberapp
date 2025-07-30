@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import TaskItem from "./TaskItem";
 import NotesPrompt from "./NotesPrompt";
-import TiptapJournalEditor from "./TiptapJournalEditor";
+import JournalEditor from "./JournalEditor";
 import { useApp } from "../../context/AppContext";
 import toast from "react-hot-toast";
 import { FaVideo, FaRegFileAlt, FaBook, FaWrench, FaPodcast, FaChalkboardTeacher, FaQuestionCircle, FaProjectDiagram, FaUsers, FaNewspaper, FaLink, FaRegStickyNote, FaEdit } from "react-icons/fa";
@@ -265,31 +265,37 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
             return; 
         }
         
-        setAppState(prev => {
-            const newState = JSON.parse(JSON.stringify(prev));
+        try {
+            setAppState(prev => {
+                const newState = JSON.parse(JSON.stringify(prev));
+                
+                // تهيئة resources إذا لم تكن موجودة
+                if (!newState.resources) newState.resources = {};
+                if (!newState.resources[weekId]) newState.resources[weekId] = { days: {} };
+                if (!newState.resources[weekId].days[dayIndex]) newState.resources[weekId].days[dayIndex] = [];
+                
+                const arr = newState.resources[weekId].days[dayIndex];
+                
+                if (isPlanResource) {
+                    // إذا كان المرجع من الخطة الأصلية، أضف نسخة معدلة في appState
+                    arr.push({ title, url, type });
+                } else if (index === null || index === undefined) {
+                    // إضافة مرجع جديد
+                    arr.push({ title, url, type });
+                } else {
+                    // تعديل مرجع موجود
+                    arr[index] = { title, url, type };
+                }
+                
+                return newState;
+            });
             
-            // تهيئة resources إذا لم تكن موجودة
-            if (!newState.resources) newState.resources = {};
-            if (!newState.resources[weekId]) newState.resources[weekId] = { days: {} };
-            if (!newState.resources[weekId].days[dayIndex]) newState.resources[weekId].days[dayIndex] = [];
-            
-            const arr = newState.resources[weekId].days[dayIndex];
-            
-            if (isPlanResource) {
-                // إذا كان المرجع من الخطة الأصلية، أضف نسخة معدلة في appState
-                arr.push({ title, url, type });
-            } else if (index === null || index === undefined) {
-                // إضافة مرجع جديد
-                arr.push({ title, url, type });
-            } else {
-                // تعديل مرجع موجود
-                arr[index] = { title, url, type };
-            }
-            
-            return newState;
-        });
-        
-        setModal({ isOpen: false, content: null });
+            toast.success(resource ? "تم تحديث المرجع بنجاح" : "تم إضافة المرجع بنجاح");
+            setModal({ isOpen: false, content: null });
+        } catch (error) {
+            console.error("Error saving resource:", error);
+            setError("خطأ في حفظ المرجع، يرجى المحاولة مرة أخرى");
+        }
     };
     
     const handleDelete = () => {
@@ -298,17 +304,23 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
             return;
         }
         
-        setAppState(prev => {
-            const newState = JSON.parse(JSON.stringify(prev));
+        try {
+            setAppState(prev => {
+                const newState = JSON.parse(JSON.stringify(prev));
+                
+                if (newState.resources?.[weekId]?.days?.[dayIndex]) {
+                    newState.resources[weekId].days[dayIndex].splice(index, 1);
+                }
+                
+                return newState;
+            });
             
-            if (newState.resources?.[weekId]?.days?.[dayIndex]) {
-                newState.resources[weekId].days[dayIndex].splice(index, 1);
-            }
-            
-            return newState;
-        });
-        
-        setModal({ isOpen: false, content: null });
+            toast.success("تم حذف المرجع بنجاح");
+            setModal({ isOpen: false, content: null });
+        } catch (error) {
+            console.error("Error deleting resource:", error);
+            setError("خطأ في حذف المرجع، يرجى المحاولة مرة أخرى");
+        }
     };
     
     return (
@@ -659,21 +671,19 @@ export default function DayViewPage(props) {
                     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
                       <NotesPrompt prompt={dayData.notes_prompt} />
                     </div>
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                      <TiptapJournalEditor
-                        onSave={content => {
-                          setAppState(prev => {
-                            const newState = JSON.parse(JSON.stringify(prev));
-                            if (!newState.journal) newState.journal = {};
-                            if (!newState.journal[weekId]) newState.journal[weekId] = {};
-                            newState.journal[weekId][dayKey] = content;
-                            return newState;
-                          });
-                        }}
-                        dateKey={`${weekId}-${dayKey}`}
-                        initialContent={appState.journal?.[weekId]?.[dayKey] || ""}
-                      />
-                    </div>
+                    <JournalEditor
+                      onSave={content => {
+                        setAppState(prev => {
+                          const newState = JSON.parse(JSON.stringify(prev));
+                          if (!newState.journal) newState.journal = {};
+                          if (!newState.journal[weekId]) newState.journal[weekId] = {};
+                          newState.journal[weekId][dayKey] = content;
+                          return newState;
+                        });
+                      }}
+                      dateKey={`${weekId}-${dayKey}`}
+                      initialContent={appState.journal?.[weekId]?.[dayKey] || ""}
+                    />
                   </motion.div>
                 )}
             </div>
