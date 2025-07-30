@@ -200,15 +200,6 @@ function ResourcesSection({ weekId, dayIndex }) {
         });
     };
     
-    // دالة إعادة تحميل المراجع
-    const fetchResources = async () => {
-        try {
-            const resources = await getResourcesByDay(weekId, dayIndex);
-            setUserResources(resources);
-        } catch (error) {
-            console.error("Error fetching resources:", error);
-        }
-    };
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
