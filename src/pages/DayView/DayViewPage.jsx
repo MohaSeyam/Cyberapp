@@ -337,59 +337,74 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
     };
     
     return (
-        <div className="p-6 space-y-4 max-w-md mx-auto">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                {resource ? t.editResource : t.addResource}
-            </h3>
+        <div className="p-8 space-y-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl">
+            {/* Header */}
+            <div className="text-center border-b border-gray-200 dark:border-gray-700 pb-4">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    {resource ? t.editResource : t.addResource}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    {resource ? "تعديل المرجع المحدد" : "إضافة مرجع جديد للموضوع"}
+                </p>
+            </div>
             
+            {/* Error Display */}
             {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-6 py-4 rounded-xl text-sm font-medium flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                     {error}
                 </div>
             )}
             
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                        {t.resourceTitle}
+            {/* Form Fields */}
+            <div className="space-y-6">
+                {/* Title Field */}
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        عنوان المرجع *
                     </label>
                     <input 
-                        className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                        className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base" 
                         value={title} 
                         onChange={e => setTitle(e.target.value)}
-                        placeholder="أدخل عنوان المرجع"
+                        placeholder="أدخل عنوان المرجع المميز"
                     />
                 </div>
                 
-                <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                        {t.resourceUrl}
+                {/* URL Field */}
+                <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        رابط المرجع *
                     </label>
                     <input 
-                        className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                        className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-base" 
                         value={url} 
                         onChange={e => setUrl(e.target.value)}
                         placeholder="https://example.com"
                     />
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        يجب أن يبدأ الرابط بـ https:// أو http://
+                    </p>
                 </div>
                 
-                <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                        {t.resourceType}
+                {/* Type Selection */}
+                <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        نوع المرجع
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                         {RESOURCE_TYPES.map(rt => (
                             <button
                                 key={rt.value}
                                 type="button"
                                 onClick={() => setType(rt.value)}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
+                                className={`flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-sm border-2 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
                                     ${type === rt.value
-                                        ? 'bg-blue-600 text-white border-blue-700 shadow-lg'
-                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600'}
+                                        ? 'bg-blue-600 text-white border-blue-700 shadow-lg transform scale-105'
+                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 hover:scale-105'}
                                 `}
                             >
-                                {rt.icon}
+                                <span className="text-lg">{rt.icon}</span>
                                 <span>{rt.label}</span>
                             </button>
                         ))}
@@ -397,26 +412,27 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
                 </div>
             </div>
             
-            <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                {resource && index !== null && index !== undefined && (
+            {/* Action Buttons */}
+            <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                {resource && resource.id && (
                     <button 
                         onClick={handleDelete} 
-                        className="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 transition-colors"
+                        className="flex-1 px-6 py-3 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 transition-all duration-200 hover:scale-105"
                     >
-                        {t.deleteResource}
+                        حذف المرجع
                     </button>
                 )}
                 <button 
                     onClick={() => setModal({ isOpen: false, content: null })} 
-                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+                    className="flex-1 px-6 py-3 text-sm font-semibold rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-200 hover:scale-105"
                 >
-                    {t.cancel}
+                    إلغاء
                 </button>
                 <button 
                     onClick={handleSave} 
-                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-colors"
+                    className="flex-1 px-6 py-3 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all duration-200 hover:scale-105 transform"
                 >
-                    {t.saveResource}
+                    {resource ? "تحديث المرجع" : "إضافة المرجع"}
                 </button>
             </div>
         </div>
