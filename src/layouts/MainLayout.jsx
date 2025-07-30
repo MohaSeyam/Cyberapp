@@ -4,15 +4,17 @@ import BottomNavigation from "../components/layout/BottomNavigation";
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import { Menu } from "lucide-react";
+import { useApp } from "../context/AppContext";
 
 export default function MainLayout() {
   console.log("MainLayout rendering");
+  const { settings } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   console.log("MainLayout state:", { sidebarOpen });
   
   return (
-    <div className="min-h-screen flex bg-white dark:bg-dark-background relative">
+    <div className={`min-h-screen flex bg-white dark:bg-dark-background relative text-size-${settings.fontSize} ${settings.compactMode ? 'compact-mode' : ''}`}>
       {/* زر إظهار السايدبار */}
       <button
         className="hidden md:block fixed top-4 right-4 z-50 bg-white dark:bg-dark-card border border-light-border dark:border-dark-border shadow p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition"

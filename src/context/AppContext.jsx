@@ -9,14 +9,21 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   console.log("AppProvider rendering");
   const [user, setUser] = useState(null);
-  const [lang, setLangState] = useState("ar");
-  const [settings, setSettings] = useState({
-    notifications: true,
-    sound: true,
-    autoSave: true,
-    theme: "light",
-    fontSize: "medium",
-    compactMode: false
+  const [lang, setLangState] = useState(() => {
+    // تحميل اللغة من localStorage أو استخدام العربية كافتراضي
+    return localStorage.getItem('app_language') || "ar";
+  });
+  const [settings, setSettings] = useState(() => {
+    // تحميل الإعدادات من localStorage أو استخدام القيم الافتراضية
+    const savedSettings = localStorage.getItem('app_settings');
+    return savedSettings ? JSON.parse(savedSettings) : {
+      notifications: true,
+      sound: true,
+      autoSave: true,
+      theme: "light",
+      fontSize: "medium",
+      compactMode: false
+    };
   });
   const [planData, setPlanData] = useState(null);
   const [plan, setPlan] = useState([]);
@@ -104,6 +111,11 @@ export function AppProvider({ children }) {
   useEffect(() => {
     console.log("AppContext useEffect running - calling fetchAll");
     fetchAll();
+    
+    // تحميل اللغة المحفوظة في i18n
+    const savedLang = localStorage.getItem('app_language') || "ar";
+    i18n.changeLanguage(savedLang);
+    document.documentElement.setAttribute("dir", savedLang === "ar" ? "rtl" : "ltr");
   }, [fetchAll]);
 
   const Icons = {
@@ -229,6 +241,8 @@ export function AppProvider({ children }) {
     try {
       const updatedSettings = { ...settings, ...newSettings };
       setSettings(updatedSettings);
+      // حفظ الإعدادات في localStorage
+      localStorage.setItem('app_settings', JSON.stringify(updatedSettings));
       await db.setSetting('userSettings', updatedSettings);
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -292,6 +306,8 @@ export function AppProvider({ children }) {
     setLangState(lng);
     i18n.changeLanguage(lng);
     document.documentElement.setAttribute("dir", lng === "ar" ? "rtl" : "ltr");
+    // حفظ اللغة في localStorage
+    localStorage.setItem('app_language', lng);
   };
 
   const value = {

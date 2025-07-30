@@ -1,0 +1,83 @@
+/* Font Size Classes */
+.text-size-small {
+  font-size: 0.875rem; /* 14px */
+}
+
+.text-size-medium {
+  font-size: 1rem; /* 16px */
+}
+
+.text-size-large {
+  font-size: 1.125rem; /* 18px */
+}
+
+.text-size-extra-large {
+  font-size: 1.25rem; /* 20px */
+}
+
+/* Apply to specific elements */
+.text-size-small h1 { font-size: 1.5rem; }
+.text-size-small h2 { font-size: 1.25rem; }
+.text-size-small h3 { font-size: 1.125rem; }
+.text-size-small h4 { font-size: 1rem; }
+.text-size-small h5 { font-size: 0.875rem; }
+.text-size-small h6 { font-size: 0.75rem; }
+
+.text-size-medium h1 { font-size: 1.875rem; }
+.text-size-medium h2 { font-size: 1.5rem; }
+.text-size-medium h3 { font-size: 1.25rem; }
+.text-size-medium h4 { font-size: 1.125rem; }
+.text-size-medium h5 { font-size: 1rem; }
+.text-size-medium h6 { font-size: 0.875rem; }
+
+.text-size-large h1 { font-size: 2.25rem; }
+.text-size-large h2 { font-size: 1.875rem; }
+.text-size-large h3 { font-size: 1.5rem; }
+.text-size-large h4 { font-size: 1.25rem; }
+.text-size-large h5 { font-size: 1.125rem; }
+.text-size-large h6 { font-size: 1rem; }
+
+.text-size-extra-large h1 { font-size: 2.5rem; }
+.text-size-extra-large h2 { font-size: 2rem; }
+.text-size-extra-large h3 { font-size: 1.75rem; }
+.text-size-extra-large h4 { font-size: 1.5rem; }
+.text-size-extra-large h5 { font-size: 1.25rem; }
+.text-size-extra-large h6 { font-size: 1.125rem; }
+
+/* Compact Mode */
+.compact-mode {
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.25rem;
+  --spacing-2xl: 1.5rem;
+}
+
+.compact-mode .p-1 { padding: var(--spacing-xs); }
+.compact-mode .p-2 { padding: var(--spacing-sm); }
+.compact-mode .p-3 { padding: var(--spacing-md); }
+.compact-mode .p-4 { padding: var(--spacing-lg); }
+.compact-mode .p-5 { padding: var(--spacing-xl); }
+.compact-mode .p-6 { padding: var(--spacing-2xl); }
+
+.compact-mode .m-1 { margin: var(--spacing-xs); }
+.compact-mode .m-2 { margin: var(--spacing-sm); }
+.compact-mode .m-3 { margin: var(--spacing-md); }
+.compact-mode .m-4 { margin: var(--spacing-lg); }
+.compact-mode .m-5 { margin: var(--spacing-xl); }
+.compact-mode .m-6 { margin: var(--spacing-2xl); }
+
+.compact-mode .gap-1 { gap: var(--spacing-xs); }
+.compact-mode .gap-2 { gap: var(--spacing-sm); }
+.compact-mode .gap-3 { gap: var(--spacing-md); }
+.compact-mode .gap-4 { gap: var(--spacing-lg); }
+.compact-mode .gap-5 { gap: var(--spacing-xl); }
+.compact-mode .gap-6 { gap: var(--spacing-2xl); }
+
+.compact-mode .space-y-1 > * + * { margin-top: var(--spacing-xs); }
+.compact-mode .space-y-2 > * + * { margin-top: var(--spacing-sm); }
+.compact-mode .space-y-3 > * + * { margin-top: var(--spacing-md); }
+.compact-mode .space-y-4 > * + * { margin-top: var(--spacing-lg); }
+.compact-mode .space-y-5 > * + * { margin-top: var(--spacing-xl); }
+.compact-mode .space-y-6 > * + * { margin-top: var(--spacing-2xl); }
