@@ -229,6 +229,6 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }
