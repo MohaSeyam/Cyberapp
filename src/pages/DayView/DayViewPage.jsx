@@ -116,12 +116,25 @@ function ResourcesSection({ weekId, dayIndex }) {
       }
     }
     // جلب المراجع المضافة من appState
-    const userResources = appState.resources[weekId]?.days[dayIndex] || [];
+    const userResources = appState.resources?.[weekId]?.days?.[dayIndex] || [];
+    
+    console.log("ResourcesSection - planResources:", planResources);
+    console.log("ResourcesSection - userResources:", userResources);
+    console.log("ResourcesSection - appState.resources:", appState.resources);
     // دالة لفتح نافذة تعديل أو إضافة مرجع
     const openResourceModal = (resource, index, isPlanResource) => {
+        console.log("Opening resource modal:", { resource, index, isPlanResource, weekId, dayIndex });
         setModal({
             isOpen: true,
-            content: <ResourceEditorModal resource={resource} index={isPlanResource ? null : index} weekId={weekId} dayIndex={dayIndex} isPlanResource={isPlanResource} />
+            content: (
+                <ResourceEditorModal 
+                    resource={resource} 
+                    index={isPlanResource ? null : index} 
+                    weekId={weekId} 
+                    dayIndex={dayIndex} 
+                    isPlanResource={isPlanResource} 
+                />
+            )
         });
     };
     return (
@@ -132,7 +145,10 @@ function ResourcesSection({ weekId, dayIndex }) {
                     {t.suggestedResources}
                 </h4>
                 <motion.button 
-                    onClick={() => openResourceModal(null, null, false)} 
+                    onClick={() => {
+                        console.log("Adding new resource for weekId:", weekId, "dayIndex:", dayIndex);
+                        openResourceModal(null, null, false);
+                    }} 
                     className="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg font-medium hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -214,7 +230,7 @@ const RESOURCE_TYPES = [
   { value: "link", label: "رابط آخر", icon: <FaLink className="inline mr-1 text-slate-500" /> },
 ];
 
-// ResourceEditorModal component (placeholder for actual ResourceEditor UI)
+// ResourceEditorModal component
 function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource }) {
     const { lang, setAppState, appState, setModal, translations } = useApp();
     
@@ -228,74 +244,154 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
     const [url, setUrl] = useState(resource?.url || '');
     const [type, setType] = useState(resource?.type || 'link');
     const [error, setError] = useState("");
+    
     function isValidUrl(str) {
-      try { new URL(str); return true; } catch { return false; }
+      try { 
+        new URL(str); 
+        return true; 
+      } catch { 
+        return false; 
+      }
     }
+    
     const handleSave = () => {
-        if (!title.trim()) { setError("يجب إدخال عنوان المرجع"); return; }
-        if (!isValidUrl(url)) { setError("يجب إدخال رابط صحيح يبدأ بـ https:// أو http://"); return; }
+        if (!title.trim()) { 
+            setError("يجب إدخال عنوان المرجع"); 
+            return; 
+        }
+        if (!isValidUrl(url)) { 
+            setError("يجب إدخال رابط صحيح يبدأ بـ https:// أو http://"); 
+            return; 
+        }
+        
         setAppState(prev => {
             const newState = JSON.parse(JSON.stringify(prev));
-            const arr = newState.resources[weekId]?.days[dayIndex] || [];
+            
+            // تهيئة resources إذا لم تكن موجودة
+            if (!newState.resources) newState.resources = {};
+            if (!newState.resources[weekId]) newState.resources[weekId] = { days: {} };
+            if (!newState.resources[weekId].days[dayIndex]) newState.resources[weekId].days[dayIndex] = [];
+            
+            const arr = newState.resources[weekId].days[dayIndex];
+            
             if (isPlanResource) {
-              // إذا كان المرجع من الخطة الأصلية، أضف نسخة معدلة في appState
-              arr.push({ title, url, type });
+                // إذا كان المرجع من الخطة الأصلية، أضف نسخة معدلة في appState
+                arr.push({ title, url, type });
             } else if (index === null || index === undefined) {
+                // إضافة مرجع جديد
                 arr.push({ title, url, type });
             } else {
+                // تعديل مرجع موجود
                 arr[index] = { title, url, type };
             }
-            if (!newState.resources[weekId]) newState.resources[weekId] = { days: [] };
-            newState.resources[weekId].days[dayIndex] = arr;
+            
             return newState;
         });
+        
         setModal({ isOpen: false, content: null });
     };
+    
     const handleDelete = () => {
+        if (index === null || index === undefined) {
+            setModal({ isOpen: false, content: null });
+            return;
+        }
+        
         setAppState(prev => {
             const newState = JSON.parse(JSON.stringify(prev));
-            const arr = newState.resources[weekId]?.days[dayIndex] || [];
-            if (index !== null && index !== undefined) arr.splice(index, 1);
-            newState.resources[weekId].days[dayIndex] = arr;
+            
+            if (newState.resources?.[weekId]?.days?.[dayIndex]) {
+                newState.resources[weekId].days[dayIndex].splice(index, 1);
+            }
+            
             return newState;
         });
+        
         setModal({ isOpen: false, content: null });
     };
+    
     return (
-        <div className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">{t.editResource}</h3>
-            {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-            <div>
-                <label className="block text-sm font-medium mb-1 text-black dark:text-white">{t.resourceTitle}</label>
-                <input className="w-full p-2 rounded border text-black dark:text-white bg-white dark:bg-gray-900" value={title} onChange={e => setTitle(e.target.value)} />
-            </div>
-            <div>
-                <label className="block text-sm font-medium mb-1 text-black dark:text-white">{t.resourceUrl}</label>
-                <input className="w-full p-2 rounded border text-black dark:text-white bg-white dark:bg-gray-900" value={url} onChange={e => setUrl(e.target.value)} />
-            </div>
-            <div>
-                <label className="block text-sm font-medium mb-1 text-black dark:text-white">{t.resourceType}</label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {RESOURCE_TYPES.map(rt => (
-                    <button
-                      key={rt.value}
-                      type="button"
-                      onClick={() => setType(rt.value)}
-                      className={`inline-flex items-center gap-1 px-3 py-2 rounded text-sm border transition font-medium focus:outline-none
-                        ${type === rt.value
-                          ? 'bg-blue-600 text-white border-blue-700 shadow'
-                          : 'bg-gray-50 text-black dark:bg-gray-800 dark:text-white border-gray-200 dark:border-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/40'}
-                      `}
-                    >
-                      {rt.icon}{rt.label}
-                    </button>
-                  ))}
+        <div className="p-6 space-y-4 max-w-md mx-auto">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                {resource ? t.editResource : t.addResource}
+            </h3>
+            
+            {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                </div>
+            )}
+            
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        {t.resourceTitle}
+                    </label>
+                    <input 
+                        className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                        value={title} 
+                        onChange={e => setTitle(e.target.value)}
+                        placeholder="أدخل عنوان المرجع"
+                    />
+                </div>
+                
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        {t.resourceUrl}
+                    </label>
+                    <input 
+                        className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                        value={url} 
+                        onChange={e => setUrl(e.target.value)}
+                        placeholder="https://example.com"
+                    />
+                </div>
+                
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        {t.resourceType}
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {RESOURCE_TYPES.map(rt => (
+                            <button
+                                key={rt.value}
+                                type="button"
+                                onClick={() => setType(rt.value)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
+                                    ${type === rt.value
+                                        ? 'bg-blue-600 text-white border-blue-700 shadow-lg'
+                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600'}
+                                `}
+                            >
+                                {rt.icon}
+                                <span>{rt.label}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
-            <div className="flex gap-2 mt-4">
-                <button onClick={handleDelete} className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-md">{t.deleteResource}</button>
-                <button onClick={() => setModal({ isOpen: false, content: null })} className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-black dark:text-white">{t.cancel}</button>
-                <button onClick={handleSave} className="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">{t.saveResource}</button>
+            
+            <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                {resource && index !== null && index !== undefined && (
+                    <button 
+                        onClick={handleDelete} 
+                        className="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 transition-colors"
+                    >
+                        {t.deleteResource}
+                    </button>
+                )}
+                <button 
+                    onClick={() => setModal({ isOpen: false, content: null })} 
+                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+                >
+                    {t.cancel}
+                </button>
+                <button 
+                    onClick={handleSave} 
+                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-colors"
+                >
+                    {t.saveResource}
+                </button>
             </div>
         </div>
     );
