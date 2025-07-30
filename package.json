@@ -1,25 +1,39 @@
 {
-  "name": "workspace",
+  "name": "cyberplan",
   "version": "1.0.0",
+  "description": "تطبيق React متقدم لتعلم الأمن السيبراني مع نظام إدارة المهام واليوميات والتقدم",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext js,jsx --fix",
+    "format": "prettier --write src/**/*.{js,jsx,json,css,md}",
+    "clean": "rm -rf dist node_modules/.vite",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist/assets",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MohSeyam/vue.git"
+    "url": "git+https://github.com/MohSeyam/cyberplan.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "react",
+    "cybersecurity",
+    "learning",
+    "pwa",
+    "typescript",
+    "tailwindcss",
+    "vite"
+  ],
+  "author": "MohSeyam",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MohSeyam/vue/issues"
+    "url": "https://github.com/MohSeyam/cyberplan/issues"
   },
-  "homepage": "https://github.com/MohSeyam/vue#readme",
-  "description": "",
+  "homepage": "https://github.com/MohSeyam/cyberplan#readme",
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@tiptap/extension-code": "^3.0.7",
