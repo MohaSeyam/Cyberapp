@@ -7,6 +7,7 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import Code from "@tiptap/extension-code";
+import CodeBlock from "@tiptap/extension-code-block";
 import { Table } from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
@@ -14,6 +15,9 @@ import TableHeader from "@tiptap/extension-table-header";
 import Highlight from "@tiptap/extension-highlight";
 import Color from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
 import { useApp } from "../../context/AppContext";
 import { addJournalEntry, getJournalByDay, updateJournalEntry } from "../../services/dbService";
 import { motion } from "framer-motion";
@@ -178,7 +182,18 @@ function TiptapToolbar({ editor, lang }) {
                 ? 'bg-red-500 text-white shadow-md' 
                 : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
             }`}
-            title="كود"
+            title="كود سطر"
+          >
+            <CodeIcon size={16} />
+          </button>
+          <button 
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()} 
+            className={`p-2 rounded-md transition-all duration-200 ${
+              editor.isActive('codeBlock') 
+                ? 'bg-red-600 text-white shadow-md' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="كود بلوك"
           >
             <CodeIcon size={16} />
           </button>
@@ -263,7 +278,12 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+        codeBlock: false,
+      }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Link,
       Placeholder.configure({
@@ -271,6 +291,10 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
       }),
       Underline,
       Code,
+      CodeBlock,
+      BulletList,
+      OrderedList,
+      ListItem,
       Table.configure({ resizable: true }),
       TableRow,
       TableCell,

@@ -65,7 +65,10 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   useEffect(() => {
     async function fetchNote() {
       try {
+        console.log("Fetching note for task:", task.id, "weekId:", weekId, "dayKey:", dayKey);
         const found = await getNotesByTask(weekId, dayKey, task.id);
+        console.log("Found notes:", found);
+        
         if (found && found.length > 0) {
           const noteData = found[0]; // Get the first note for this task
           setNote(noteData.content || "");
@@ -80,7 +83,11 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         }
       } catch (error) {
         console.error("Error fetching note:", error);
-        toast.error("خطأ في تحميل الملاحظة");
+        // Don't show error toast for empty notes
+        setNote("");
+        setNoteTitle("");
+        setNoteId(null);
+        setHasNote(false);
       }
     }
     fetchNote();

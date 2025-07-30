@@ -152,19 +152,29 @@ function ResourcesSection({ weekId, dayIndex }) {
       }
     }
     
+    // دالة إعادة تحميل المراجع
+    const fetchResources = async () => {
+        try {
+            const resources = await getResourcesByDay(weekId, dayIndex);
+            setUserResources(resources);
+        } catch (error) {
+            console.error("Error fetching resources:", error);
+        }
+    };
+
     // جلب المراجع المضافة من قاعدة البيانات
     useEffect(() => {
-        async function fetchResources() {
+        async function loadResources() {
             try {
-                const resources = await getResourcesByDay(weekId, dayIndex);
-                setUserResources(resources);
+                setLoading(true);
+                await fetchResources();
             } catch (error) {
-                console.error("Error fetching resources:", error);
+                console.error("Error loading resources:", error);
             } finally {
                 setLoading(false);
             }
         }
-        fetchResources();
+        loadResources();
     }, [weekId, dayIndex]);
     
     console.log("ResourcesSection - planResources:", planResources);
