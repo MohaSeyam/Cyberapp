@@ -5,7 +5,14 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
+const http = require('http');
 require('dotenv').config();
+
+// Import services
+const WebSocketService = require('./services/websocket');
+const EmailService = require('./services/emailService');
+const CacheService = require('./services/cacheService');
+const CronService = require('./services/cronService');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -21,8 +28,25 @@ const analyticsRoutes = require('./routes/analytics');
 const { authenticateToken } = require('./middleware/auth');
 const { errorHandler } = require('./middleware/errorHandler');
 
+// Swagger documentation
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
+
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
+
+// Initialize services
+const websocketService = new WebSocketService(server);
+const emailService = new EmailService();
+const cacheService = new CacheService();
+const cronService = new CronService(websocketService);
+
+// Make services available globally
+global.websocketService = websocketService;
+global.emailService = emailService;
+global.cacheService = cacheService;
+global.cronService = cronService;
 
 // Security middleware
 app.use(helmet({
@@ -71,9 +95,22 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      websocket: websocketService ? 'active' : 'inactive',
+      email: emailService.transporter ? 'ready' : 'not_configured',
+      cache: cacheService.isConnected ? 'connected' : 'disconnected',
+      cron: cronService.jobs.size + ' jobs active'
+    }
   });
 });
+
+// API Documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'CyberPlan API Documentation',
+  customfavIcon: '/favicon.ico'
+}));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -107,22 +144,48 @@ app.use('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 CyberPlan Backend Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   console.log(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
+  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
+  console.log(`📧 Email Service: ${emailService.transporter ? 'Ready' : 'Not configured'}`);
+  console.log(`💾 Cache Service: ${cacheService.isConnected ? 'Connected' : 'Not connected'}`);
+  console.log(`⏰ Cron Jobs: ${cronService.jobs.size} jobs active`);
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
-  process.exit(0);
+  
+  // Stop cron jobs
+  cronService.stopAll();
+  
+  // Close cache connection
+  await cacheService.close();
+  
+  // Close server
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully');
-  process.exit(0);
+  
+  // Stop cron jobs
+  cronService.stopAll();
+  
+  // Close cache connection
+  await cacheService.close();
+  
+  // Close server
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });
 
 module.exports = app;

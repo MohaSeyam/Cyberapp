@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مرحباً بك في CyberPlan</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 2.5em;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .title {
+            color: #1f2937;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        .welcome-message {
+            font-size: 1.1em;
+            color: #4b5563;
+            margin-bottom: 25px;
+        }
+        .features {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .feature-icon {
+            font-size: 1.5em;
+            margin-left: 15px;
+            color: #2563eb;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #1d4ed8;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚀</div>
+            <h1 class="title">مرحباً بك في CyberPlan!</h1>
+        </div>
+
+        <div class="welcome-message">
+            <p>مرحباً <strong>{{firstName}}</strong>! 🎉</p>
+            <p>نحن متحمسون لانضمامك إلى رحلة تعلم الأمن السيبراني. أنت الآن جزء من مجتمع متنامي من المتعلمين المتحمسين.</p>
+        </div>
+
+        <div class="features">
+            <h3 style="color: #1f2937; margin-bottom: 20px;">ما يمكنك توقعه من CyberPlan:</h3>
+            
+            <div class="feature">
+                <span class="feature-icon">📚</span>
+                <span>خطة تعليمية شاملة لمدة 50 أسبوع</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">🎯</span>
+                <span>مهام عملية ومشاريع واقعية</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">📊</span>
+                <span>تتبع التقدم والإنجازات</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">💡</span>
+                <span>ملاحظات شخصية ومدونات</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">🏆</span>
+                <span>نظام إنجازات وجوائز</span>
+            </div>
+            
+            <div class="feature">
+                <span class="feature-icon">🤝</span>
+                <span>مجتمع داعم من المتعلمين</span>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{loginUrl}}" class="cta-button">
+                ابدأ رحلتك الآن! 🚀
+            </a>
+        </div>
+
+        <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <h4 style="color: #92400e; margin-top: 0;">💡 نصيحة سريعة:</h4>
+            <p style="color: #92400e; margin-bottom: 0;">
+                ابدأ بالأسبوع الأول وخذ وقتك في فهم المفاهيم الأساسية. 
+                التقدم المستمر أفضل من التسرع!
+            </p>
+        </div>
+
+        <div class="social-links">
+            <p style="text-align: center; color: #6b7280;">تابعنا على:</p>
+            <div style="text-align: center;">
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">LinkedIn</a>
+                <a href="#" class="social-link">GitHub</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© {{currentYear}} CyberPlan. جميع الحقوق محفوظة.</p>
+            <p>إذا لم تقم بإنشاء هذا الحساب، يمكنك تجاهل هذا البريد الإلكتروني.</p>
+        </div>
+    </div>
+</body>
+</html>
