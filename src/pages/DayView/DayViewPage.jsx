@@ -259,10 +259,11 @@ const NOTE_TAGS = [
 
 // DayView main component
 export default function DayViewPage(props) {
-    const { plan, progress, setTaskProgress, planData, lang, appState, setAppState, translations, Icons, setModal } = useApp();
+    const { plan, progress, setTaskProgress, planData, lang, appState, setAppState, translations, Icons, setModal, loading } = useApp();
     const params = useParams();
     const weekId = props.weekId || params.weekId;
     const dayKey = props.dayKey || params.dayKey;
+    if (loading) return <div className="text-center py-12">جاري تحميل البيانات...</div>;
     if (!planData) return <div className="text-center text-red-500 py-12">الخطة غير محملة (planData not loaded)</div>;
     if (!weekId || !dayKey) return <div className="text-center text-red-500 py-12">weekId أو dayKey مفقود</div>;
     if (!props.day) return <div className="text-center text-red-500 py-12">اليوم غير موجود (day prop مفقود)</div>;

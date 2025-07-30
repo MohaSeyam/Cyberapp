@@ -41,7 +41,7 @@ export function AppProvider({ children }) {
       
       let planData = await db.getPlan();
       if (!planData || planData.length === 0) {
-        console.log("Plan is empty, importing from planData.json");
+        console.log("Plan is empty, importing from PlanData.json");
         try {
           planData = await getPlanData();
           if (Array.isArray(planData) && planData.length > 0) {
