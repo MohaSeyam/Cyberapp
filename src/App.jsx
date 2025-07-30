@@ -17,6 +17,7 @@ import Onboarding from "./pages/Onboarding";
 import { Toaster } from "react-hot-toast";
 import PlanPhases from "./pages/PlanPhases";
 import Settings from "./pages/Settings";
+import InstallPrompt from "./components/InstallPrompt";
 import { useState, useEffect } from "react";
 
 // Error Boundary Component
@@ -111,6 +112,7 @@ export default function App() {
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Routes>
+                <InstallPrompt />
               </BrowserRouter>
             </AppProvider>
           </ThemeProvider>
