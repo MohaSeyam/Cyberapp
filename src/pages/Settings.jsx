@@ -33,6 +33,7 @@ import { useTheme } from "../context/ThemeProvider";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { exportAllData, importAllData, clearAllData } from "../services/dbService";
+import toast from "react-hot-toast";
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
@@ -52,6 +53,48 @@ export default function Settings() {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
 
+  // تطبيق الإعدادات فورياً عند التغيير
+  const handleSettingChange = async (newSettings) => {
+    try {
+      await updateSettings(newSettings);
+      
+      // تطبيق الإعدادات فورياً
+      if (newSettings.fontSize) {
+        document.documentElement.className = document.documentElement.className
+          .replace(/font-size-\w+/g, `font-size-${newSettings.fontSize}`);
+        document.documentElement.classList.add(`font-size-${newSettings.fontSize}`);
+      }
+      
+      if (newSettings.compactMode !== undefined) {
+        if (newSettings.compactMode) {
+          document.body.classList.add('compact-mode');
+        } else {
+          document.body.classList.remove('compact-mode');
+        }
+      }
+      
+      toast.success("تم حفظ الإعدادات بنجاح");
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      toast.error("خطأ في حفظ الإعدادات");
+    }
+  };
+
+  // تطبيق الإعدادات عند تحميل الصفحة
+  useEffect(() => {
+    if (settings.fontSize) {
+      document.documentElement.className = document.documentElement.className
+        .replace(/font-size-\w+/g, `font-size-${settings.fontSize}`);
+      document.documentElement.classList.add(`font-size-${settings.fontSize}`);
+    }
+    
+    if (settings.compactMode) {
+      document.body.classList.add('compact-mode');
+    } else {
+      document.body.classList.remove('compact-mode');
+    }
+  }, [settings]);
+
   const tabs = [
     { id: "general", label: t("general", "عام"), icon: SettingsIcon },
     { id: "appearance", label: t("appearance", "المظهر"), icon: Palette },
@@ -65,9 +108,11 @@ export default function Settings() {
       setExporting(true);
       await exportAllData();
       addNotification('success', 'تم تصدير البيانات', 'تم تصدير البيانات بنجاح');
+      toast.success("تم تصدير البيانات بنجاح");
     } catch (error) {
       console.error('Export error:', error);
       addNotification('error', 'خطأ في تصدير البيانات', 'فشل في تصدير البيانات');
+      toast.error("خطأ في تصدير البيانات");
     } finally {
       setExporting(false);
     }
@@ -82,11 +127,26 @@ export default function Settings() {
       setShowConfirmImport(false);
       setImportFile(null);
       addNotification('success', 'تم استيراد البيانات', 'تم استيراد البيانات بنجاح');
+      toast.success("تم استيراد البيانات بنجاح");
     } catch (error) {
       console.error('Import error:', error);
       addNotification('error', 'خطأ في استيراد البيانات', 'فشل في استيراد البيانات');
+      toast.error("خطأ في استيراد البيانات");
     } finally {
       setImporting(false);
+    }
+  };
+
+  const handleClearData = async () => {
+    try {
+      await clearAllData();
+      setShowConfirmClear(false);
+      addNotification('success', 'تم مسح البيانات', 'تم مسح جميع البيانات بنجاح');
+      toast.success("تم مسح جميع البيانات بنجاح");
+    } catch (error) {
+      console.error('Clear data error:', error);
+      addNotification('error', 'خطأ في مسح البيانات', 'فشل في مسح البيانات');
+      toast.error("خطأ في مسح البيانات");
     }
   };
 
@@ -94,8 +154,10 @@ export default function Settings() {
     const file = event.target.files[0];
     if (file && file.type === "application/json") {
       setImportFile(file);
+      toast.success("تم اختيار الملف بنجاح");
     } else {
       addNotification('error', 'ملف غير صالح', 'يرجى اختيار ملف JSON صالح');
+      toast.error("يرجى اختيار ملف JSON صالح");
     }
   };
 
@@ -244,13 +306,17 @@ export default function Settings() {
                         {t("fontSize", "حجم الخط")}
                       </label>
                       <div className="grid grid-cols-3 gap-3">
-                        {["small", "medium", "large"].map((size) => (
+                        {[
+                          { value: "small", label: "صغير" },
+                          { value: "medium", label: "متوسط" },
+                          { value: "large", label: "كبير" }
+                        ].map((size) => (
                           <Button
-                            key={size}
-                            variant={settings.fontSize === size ? "primary" : "outline"}
-                            onClick={() => updateSettings({ fontSize: size })}
+                            key={size.value}
+                            variant={settings.fontSize === size.value ? "primary" : "outline"}
+                            onClick={() => handleSettingChange({ fontSize: size.value })}
                           >
-                            {t(size, size)}
+                            {size.label}
                           </Button>
                         ))}
                       </div>
@@ -266,8 +332,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="compactMode"
-                          checked={settings.compactMode}
-                          onChange={(e) => updateSettings({ compactMode: e.target.checked })}
+                          checked={settings.compactMode || false}
+                          onChange={(e) => handleSettingChange({ compactMode: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="compactMode" className="text-sm">
@@ -291,17 +357,22 @@ export default function Settings() {
                         {t("colorScheme", "نظام الألوان")}
                       </label>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {["blue", "green", "purple", "orange"].map((color) => (
+                        {[
+                          { value: "blue", label: "أزرق", color: "bg-blue-500" },
+                          { value: "green", label: "أخضر", color: "bg-green-500" },
+                          { value: "purple", label: "بنفسجي", color: "bg-purple-500" },
+                          { value: "orange", label: "برتقالي", color: "bg-orange-500" }
+                        ].map((color) => (
                           <Button
-                            key={color}
+                            key={color.value}
                             variant="outline"
-                            onClick={() => updateSettings({ colorScheme: color })}
+                            onClick={() => handleSettingChange({ colorScheme: color.value })}
                             className={`border-2 ${
-                              settings.colorScheme === color ? 'border-current' : ''
+                              settings.colorScheme === color.value ? 'border-current' : ''
                             }`}
                           >
-                            <div className={`w-4 h-4 rounded-full bg-${color}-500`} />
-                            {t(color, color)}
+                            <div className={`w-4 h-4 rounded-full ${color.color}`} />
+                            {color.label}
                           </Button>
                         ))}
                       </div>
@@ -316,8 +387,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="animations"
-                          checked={settings.animations}
-                          onChange={(e) => updateSettings({ animations: e.target.checked })}
+                          checked={settings.animations || false}
+                          onChange={(e) => handleSettingChange({ animations: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="animations" className="text-sm">
@@ -345,8 +416,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="notifications"
-                          checked={settings.notifications}
-                          onChange={(e) => updateSettings({ notifications: e.target.checked })}
+                          checked={settings.notifications || false}
+                          onChange={(e) => handleSettingChange({ notifications: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="notifications" className="text-sm">
@@ -365,8 +436,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="sound"
-                          checked={settings.sound}
-                          onChange={(e) => updateSettings({ sound: e.target.checked })}
+                          checked={settings.sound || false}
+                          onChange={(e) => handleSettingChange({ sound: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="sound" className="text-sm">
@@ -384,8 +455,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="autoSave"
-                          checked={settings.autoSave}
-                          onChange={(e) => updateSettings({ autoSave: e.target.checked })}
+                          checked={settings.autoSave || false}
+                          onChange={(e) => handleSettingChange({ autoSave: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="autoSave" className="text-sm">
@@ -441,6 +512,22 @@ export default function Settings() {
                         </Button>
                       )}
                     </div>
+
+                    {/* Clear Data */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                        {t("clearData", "مسح البيانات")}
+                      </label>
+                      <Button
+                        onClick={() => setShowConfirmClear(true)}
+                        variant="outline"
+                        className="flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        {t("clearAllData", "مسح جميع البيانات")}
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               )}
@@ -460,8 +547,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="dataCollection"
-                          checked={settings.dataCollection}
-                          onChange={(e) => updateSettings({ dataCollection: e.target.checked })}
+                          checked={settings.dataCollection || false}
+                          onChange={(e) => handleSettingChange({ dataCollection: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="dataCollection" className="text-sm">
@@ -479,8 +566,8 @@ export default function Settings() {
                         <input
                           type="checkbox"
                           id="analytics"
-                          checked={settings.analytics}
-                          onChange={(e) => updateSettings({ analytics: e.target.checked })}
+                          checked={settings.analytics || false}
+                          onChange={(e) => handleSettingChange({ analytics: e.target.checked })}
                           className="w-4 h-4 text-light-accent dark:text-dark-accent"
                         />
                         <label htmlFor="analytics" className="text-sm">
@@ -526,6 +613,44 @@ export default function Settings() {
                   {importing ? t("importing", "جاري الاستيراد...") : t("confirm", "تأكيد")}
                 </Button>
                 <Button variant="outline" onClick={() => setShowConfirmImport(false)}>
+                  {t("cancel", "إلغاء")}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Clear Data Modal */}
+      <AnimatePresence>
+        {showConfirmClear && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowConfirmClear(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <AlertCircle className="w-6 h-6 text-red-500" />
+                <h3 className="text-lg font-semibold">{t("confirmClearData", "تأكيد مسح البيانات")}</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                {t("clearDataWarning", "سيتم مسح جميع البيانات نهائياً. هذا الإجراء لا يمكن التراجع عنه. هل تريد المتابعة؟")}
+              </p>
+              <div className="flex gap-3">
+                <Button onClick={handleClearData} variant="outline" className="text-red-600 border-red-300 hover:bg-red-50">
+                  <Trash2 className="w-4 h-4" />
+                  {t("confirm", "تأكيد")}
+                </Button>
+                <Button onClick={() => setShowConfirmClear(false)}>
                   {t("cancel", "إلغاء")}
                 </Button>
               </div>
