@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -143,6 +143,19 @@ function ResourcesSection({ weekId, dayIndex }) {
     
     const t = translations[lang];
     
+    // دالة إعادة تحميل المراجع
+    const fetchResources = useCallback(async () => {
+        try {
+            console.log("Fetching resources for weekId:", weekId, "dayIndex:", dayIndex);
+            const resources = await getResourcesByDay(weekId, dayIndex);
+            console.log("Fetched resources:", resources);
+            setUserResources(resources);
+        } catch (error) {
+            console.error("Error fetching resources:", error);
+            toast.error("خطأ في تحميل المراجع");
+        }
+    }, [weekId, dayIndex]);
+
     // جلب المراجع من الخطة الأصلية (plan)
     let planResources = [];
     if (plan && plan.find) {
@@ -151,16 +164,6 @@ function ResourcesSection({ weekId, dayIndex }) {
         planResources = week.days[dayIndex].resources || [];
       }
     }
-    
-    // دالة إعادة تحميل المراجع
-    const fetchResources = async () => {
-        try {
-            const resources = await getResourcesByDay(weekId, dayIndex);
-            setUserResources(resources);
-        } catch (error) {
-            console.error("Error fetching resources:", error);
-        }
-    };
 
     // جلب المراجع المضافة من قاعدة البيانات
     useEffect(() => {
@@ -175,7 +178,7 @@ function ResourcesSection({ weekId, dayIndex }) {
             }
         }
         loadResources();
-    }, [weekId, dayIndex]);
+    }, [fetchResources]);
     
     console.log("ResourcesSection - planResources:", planResources);
     console.log("ResourcesSection - userResources:", userResources);

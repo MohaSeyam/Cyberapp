@@ -60,14 +60,20 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   const [noteTitle, setNoteTitle] = useState("");
   const [noteId, setNoteId] = useState(null);
   const [hasNote, setHasNote] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch note for this task
+  // Fetch note for this task - only when component mounts or task changes
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchNote() {
       try {
         console.log("Fetching note for task:", task.id, "weekId:", weekId, "dayKey:", dayKey);
         const found = await getNotesByTask(weekId, dayKey, task.id);
         console.log("Found notes:", found);
+        
+        // Only update state if component is still mounted
+        if (!isMounted) return;
         
         if (found && found.length > 0) {
           const noteData = found[0]; // Get the first note for this task
@@ -84,14 +90,22 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
       } catch (error) {
         console.error("Error fetching note:", error);
         // Don't show error toast for empty notes
-        setNote("");
-        setNoteTitle("");
-        setNoteId(null);
-        setHasNote(false);
+        if (isMounted) {
+          setNote("");
+          setNoteTitle("");
+          setNoteId(null);
+          setHasNote(false);
+        }
       }
     }
+    
     fetchNote();
-  }, [task.id, weekId, dayKey]); // Removed noteOpen dependency
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [task.id, weekId, dayKey]); // Only depend on these values, not noteOpen
 
   async function handleSaveNote() {
     try {
@@ -105,6 +119,10 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         return;
       }
 
+      // Prevent multiple saves
+      if (isSaving) return;
+      setIsSaving(true);
+
       if (noteId) {
         await updateNote(noteId, { 
           content: note, 
@@ -115,20 +133,24 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         });
         toast.success("تم تحديث الملاحظة بنجاح");
       } else {
-        await addNote({ 
+        const newNoteId = await addNote({ 
           content: note, 
           title: noteTitle, 
           weekId, 
           dayKey, 
           taskId: task.id 
         });
+        setNoteId(newNoteId);
         toast.success("تم إضافة الملاحظة بنجاح");
       }
-      setNoteOpen(false);
+      
       setHasNote(true);
+      setNoteOpen(false);
     } catch (error) {
       console.error("Error saving note:", error);
       toast.error("خطأ في حفظ الملاحظة");
+    } finally {
+      setIsSaving(false);
     }
   }
 
