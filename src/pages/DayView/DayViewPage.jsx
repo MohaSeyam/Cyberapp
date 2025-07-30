@@ -259,7 +259,7 @@ const NOTE_TAGS = [
 
 // DayView main component
 export default function DayViewPage(props) {
-    const { plan, progress, setTaskProgress, planData, lang, appState, setAppState, translations, Icons, setModal } = useApp();
+    const { plan, progress, updateProgress, planData, lang, appState, setAppState, translations, Icons, setModal } = useApp();
     const params = useParams();
     const weekId = props.weekId || params.weekId;
     const dayKey = props.dayKey || params.dayKey;
@@ -271,7 +271,24 @@ export default function DayViewPage(props) {
     if (!translations) return <div>translations not loaded</div>;
     if (!setModal) return <div>setModal not loaded</div>;
     if (!setAppState) return <div>setAppState not loaded</div>;
-    const t = translations[lang];
+    const t = translations?.[lang] || {
+      activeTasks: "المهام النشطة",
+      suggestedResources: "المراجع المقترحة",
+      addResource: "إضافة مرجع",
+      editNote: "تعديل الملاحظة",
+      noteOnTask: "ملاحظة على المهمة",
+      noteTitle: "عنوان الملاحظة",
+      noteContent: "محتوى الملاحظة",
+      deleteNote: "حذف الملاحظة",
+      cancel: "إلغاء",
+      saveNote: "حفظ الملاحظة",
+      editResource: "تعديل المرجع",
+      resourceTitle: "عنوان المرجع",
+      resourceUrl: "رابط المرجع",
+      resourceType: "نوع المرجع",
+      deleteResource: "حذف المرجع",
+      saveResource: "حفظ المرجع"
+    };
     const weekData = planData.find(w => String(w.week) === String(weekId));
     if (!weekData) return <div>Week not found: {weekId}</div>;
     console.log('weekData.days:', weekData.days);
@@ -284,13 +301,13 @@ export default function DayViewPage(props) {
     // دالة لتغيير حالة المهمة بين مكتملة وغير مكتملة
     const handleTaskToggle = (taskIndex) => {
       const task = dayData.tasks[taskIndex];
-      const wasDone = !!progress.find(p => p.weekId == weekId && p.dayKey == dayKey && p.taskId == task.id)?.done;
-      setTaskProgress(weekId, dayKey, task.id, !wasDone);
+      const wasDone = !!(progress || []).find(p => p.weekId == weekId && p.dayKey == dayKey && p.taskId == task.id)?.done;
+      updateProgress(weekId, dayKey, task.id, !wasDone);
       if (!wasDone) {
         toast.success("تم إنجاز المهمة!");
         // تحقق إذا كل المهام في الأسبوع أو المرحلة منجزة
         const week = plan.find(w => String(w.week) === String(weekId));
-        const allWeekDone = week && week.days.every(day => day.tasks.every(t => progress.find(p => p.taskId === t.id && p.done) || (t.id === task.id)));
+        const allWeekDone = week && week.days.every(day => day.tasks.every(t => (progress || []).find(p => p.taskId === t.id && p.done) || (t.id === task.id)));
         if (allWeekDone) toast.success("مبروك! أنجزت أسبوعًا كاملًا!");
       }
     };
@@ -340,15 +357,24 @@ export default function DayViewPage(props) {
                     <div>
                         <h4 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">{t.activeTasks}</h4>
                         <div className="space-y-3">
-                            {(dayData.tasks || []).map((task, i) => (
-                              <div key={task.id || i} style={{border: '1px solid green', margin: 8, padding: 8}}>
-                                <div>id: {task.id}</div>
-                                <div>type: {task.type}</div>
-                                <div>duration: {task.duration}</div>
-                                <div>description: {task.description?.ar || task.description?.en || JSON.stringify(task.description)}</div>
-                                <div>done: {String(task.done)}</div>
-                              </div>
-                            ))}
+                            {(dayData.tasks || []).map((task, i) => {
+                              const isChecked = !!(progress || []).find(p => 
+                                p.weekId == weekId && 
+                                p.dayKey == dayKey && 
+                                p.taskId == task.id
+                              )?.done;
+                              
+                              return (
+                                <TaskItem
+                                  key={task.id || i}
+                                  task={task}
+                                  weekId={weekId}
+                                  dayKey={dayKey}
+                                  checked={isChecked}
+                                  onToggle={() => handleTaskToggle(i)}
+                                />
+                              );
+                            })}
                         </div>
                     </div>
                     {/* قسم المراجع */}

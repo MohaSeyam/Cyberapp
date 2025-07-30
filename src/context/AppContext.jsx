@@ -225,19 +225,21 @@ export function AppProvider({ children }) {
   const updateProgress = useCallback(async (weekId, dayKey, taskId, done) => {
     try {
       await db.setTaskProgress(weekId, dayKey, taskId, done);
-      setAppState(prev => ({
-        ...prev,
-        progress: {
-          ...prev.progress,
-          [`${weekId}-${dayKey}-${taskId}`]: done
+      // تحديث progress في state
+      setProgress(prev => {
+        const existing = prev.find(p => p.weekId == weekId && p.dayKey == dayKey && p.taskId == taskId);
+        if (existing) {
+          return prev.map(p => p.id === existing.id ? { ...p, done } : p);
+        } else {
+          return [...prev, { weekId, dayKey, taskId, done }];
         }
-      }));
+      });
       addNotification('success', 'تم تحديث التقدم', 'تم تحديث حالة المهمة بنجاح');
     } catch (error) {
       console.error('Error updating progress:', error);
       addNotification('error', 'خطأ في تحديث التقدم', 'فشل في تحديث حالة المهمة');
     }
-  }, [addNotification]);
+  }, [addNotification, setProgress]);
 
   // حفظ ملاحظة
   const saveNote = useCallback(async (note) => {
