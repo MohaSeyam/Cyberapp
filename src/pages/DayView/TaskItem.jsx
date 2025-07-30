@@ -31,7 +31,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
     cancel: "إلغاء",
     save: "حفظ"
   };
-  console.log('TaskItem props:', task);
+
   const icon = typeIcons[task.type] || typeIcons["Default"];
   const [noteOpen, setNoteOpen] = useState(false);
   const [note, setNote] = useState("");

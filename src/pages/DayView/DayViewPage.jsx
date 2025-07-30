@@ -103,12 +103,12 @@ function NoteEditor({ note, taskDescription, onSave, onDelete }) {
 
 // ResourcesSection component
 function ResourcesSection({ weekId, dayIndex }) {
-    const { lang, appState, setAppState, setModal, translations, Icons, planData } = useApp();
+    const { lang, appState, setAppState, setModal, translations, Icons, plan } = useApp();
     const t = translations[lang];
-    // جلب المراجع من الخطة الأصلية (planData)
+    // جلب المراجع من الخطة الأصلية (plan)
     let planResources = [];
-    if (planData && planData.find) {
-      const week = planData.find(w => String(w.week) === String(weekId));
+    if (plan && plan.find) {
+      const week = plan.find(w => String(w.week) === String(weekId));
       if (week && week.days && week.days[dayIndex]) {
         planResources = week.days[dayIndex].resources || [];
       }
@@ -259,11 +259,11 @@ const NOTE_TAGS = [
 
 // DayView main component
 export default function DayViewPage(props) {
-    const { plan, progress, updateProgress, planData, lang, appState, setAppState, translations, Icons, setModal } = useApp();
+    const { plan, progress, updateProgress, lang, appState, setAppState, translations, Icons, setModal } = useApp();
     const params = useParams();
     const weekId = props.weekId || params.weekId;
     const dayKey = props.dayKey || params.dayKey;
-    if (!planData) return <div className="text-center text-red-500 py-12">الخطة غير محملة (planData not loaded)</div>;
+    if (!plan) return <div className="text-center text-red-500 py-12">الخطة غير محملة (plan not loaded)</div>;
     if (!weekId || !dayKey) return <div className="text-center text-red-500 py-12">weekId أو dayKey مفقود</div>;
     if (!props.day) return <div className="text-center text-red-500 py-12">اليوم غير موجود (day prop مفقود)</div>;
     if (!appState) return <div>appState not loaded</div>;
@@ -289,11 +289,9 @@ export default function DayViewPage(props) {
       deleteResource: "حذف المرجع",
       saveResource: "حفظ المرجع"
     };
-    const weekData = planData.find(w => String(w.week) === String(weekId));
+    const weekData = plan.find(w => String(w.week) === String(weekId));
     if (!weekData) return <div>Week not found: {weekId}</div>;
-    console.log('weekData.days:', weekData.days);
-    console.log('dayKey:', dayKey, typeof dayKey);
-    console.log('all day keys:', weekData.days?.map(d => d.key));
+
     const dayData = weekData.days?.find(d => String(d.key).toLowerCase() === String(dayKey).toLowerCase());
     const dayIndex = weekData.days?.findIndex(d => String(d.key).toLowerCase() === String(dayKey).toLowerCase());
     if (!dayData || dayIndex === -1) return <div>Day not found: {dayKey}</div>;
@@ -340,14 +338,6 @@ export default function DayViewPage(props) {
                     />
         });
     };
-    // Debug: log plan and checked state
-    console.log('DayViewPage plan (first week):', plan && plan[0]);
-    if (plan && weekData && typeof dayIndex === 'number') {
-      dayData.tasks.forEach((task, taskIndex) => {
-        const checked = !!plan.find(w => String(w.week) === String(weekId))?.days?.[dayIndex]?.tasks?.[taskIndex]?.done;
-        console.log(`Task ${task.id} checked:`, checked);
-      });
-    }
     return (
         <div className="bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text font-tajawal rounded-xl shadow-lg p-6 border border-light-border dark:border-dark-border animate-fade-in">
             <h1 className="text-3xl font-bold text-light-accent dark:text-dark-accent">{dayData.day[lang]}: {dayData.topic[lang]}</h1>
