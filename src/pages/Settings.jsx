@@ -90,17 +90,6 @@ export default function Settings() {
     }
   };
 
-  const handleClearData = async () => {
-    try {
-      await clearAllData();
-      setShowConfirmClear(false);
-      addNotification('success', 'تم حذف البيانات', 'تم حذف جميع البيانات بنجاح');
-    } catch (error) {
-      console.error('Clear data error:', error);
-      addNotification('error', 'خطأ في حذف البيانات', 'فشل في حذف البيانات');
-    }
-  };
-
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file && file.type === "application/json") {
@@ -452,22 +441,6 @@ export default function Settings() {
                         </Button>
                       )}
                     </div>
-
-                    {/* Clear Data */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                        <Trash2 className="w-4 h-4" />
-                        {t("clearData", "حذف البيانات")}
-                      </label>
-                      <Button
-                        variant="danger"
-                        onClick={() => setShowConfirmClear(true)}
-                        className="flex items-center gap-2"
-                      >
-                        <AlertCircle className="w-4 h-4" />
-                        {t("clearAllData", "حذف جميع البيانات")}
-                      </Button>
-                    </div>
                   </div>
                 </Card>
               )}
@@ -522,43 +495,6 @@ export default function Settings() {
           </AnimatePresence>
         </motion.div>
       </div>
-
-      {/* Confirm Clear Data Modal */}
-      <AnimatePresence>
-        {showConfirmClear && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowConfirmClear(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <AlertCircle className="w-6 h-6 text-red-500" />
-                <h3 className="text-lg font-semibold">{t("confirmClearData", "تأكيد حذف البيانات")}</h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                {t("clearDataWarning", "هل أنت متأكد من حذف جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء.")}
-              </p>
-              <div className="flex gap-3">
-                <Button variant="danger" onClick={handleClearData}>
-                  {t("confirm", "تأكيد")}
-                </Button>
-                <Button variant="outline" onClick={() => setShowConfirmClear(false)}>
-                  {t("cancel", "إلغاء")}
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Confirm Import Modal */}
       <AnimatePresence>
