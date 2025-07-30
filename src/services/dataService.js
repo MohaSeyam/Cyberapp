@@ -12,13 +12,18 @@ export async function fetchPlanData() {
   }
 
   try {
-    const res = await fetch('/data/PlanData.json');
+    const res = await fetch('/PlanData.json');
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
     const data = await res.json();
     planDataCache = Array.isArray(data[0]) ? data.flat() : data;
     cacheTimestamp = Date.now();
+    
+    console.log("dataService - fetched data length:", planDataCache.length);
+    console.log("dataService - first item:", planDataCache[0]);
+    console.log("dataService - phases found:", Array.from(new Set(planDataCache.map(w => w.phase))));
+    
     return planDataCache;
   } catch (error) {
     console.error('Error fetching plan data:', error);
@@ -33,6 +38,8 @@ export async function fetchPlanData() {
 
 export async function getPhases() {
   const planData = await fetchPlanData();
+  console.log("getPhases - planData length:", planData.length);
+  
   const phasesMap = {};
   planData.forEach(item => {
     if (!phasesMap[item.phase]) {
@@ -52,7 +59,10 @@ export async function getPhases() {
         sum + (day.tasks?.length || 0), 0);
     }
   });
-  return Object.values(phasesMap);
+  
+  const phases = Object.values(phasesMap);
+  console.log("getPhases - phases found:", phases);
+  return phases;
 }
 
 export async function getWeeksByPhase(phaseId) {

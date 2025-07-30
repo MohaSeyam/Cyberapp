@@ -302,11 +302,19 @@ export default function DayViewPage(props) {
       saveResource: "حفظ المرجع"
     };
     const weekData = plan.find(w => String(w.week) === String(weekId));
-    if (!weekData) return <div>Week not found: {weekId}</div>;
+    if (!weekData) {
+      console.log("DayViewPage - week not found:", weekId);
+      console.log("DayViewPage - available weeks:", plan.map(w => w.week));
+      return <div className="text-center text-red-500 py-12">الأسبوع غير موجود: {weekId}</div>;
+    }
 
     const dayData = weekData.days?.find(d => String(d.key).toLowerCase() === String(dayKey).toLowerCase());
     const dayIndex = weekData.days?.findIndex(d => String(d.key).toLowerCase() === String(dayKey).toLowerCase());
-    if (!dayData || dayIndex === -1) return <div>Day not found: {dayKey}</div>;
+    if (!dayData || dayIndex === -1) {
+      console.log("DayViewPage - day not found:", dayKey);
+      console.log("DayViewPage - available days:", weekData.days?.map(d => d.key));
+      return <div className="text-center text-red-500 py-12">اليوم غير موجود: {dayKey}</div>;
+    }
 
     // دالة لتغيير حالة المهمة بين مكتملة وغير مكتملة
     const handleTaskToggle = (taskIndex) => {

@@ -324,6 +324,9 @@ export default function WeekView() {
         const w = planData.find(w => String(w.week) === String(weekId));
         setWeek(w);
         
+        console.log("WeekView - weekId:", weekId);
+        console.log("WeekView - week found:", w ? "yes" : "no");
+        
         // Calculate week progress
         if (w) {
           const totalTasks = w.days?.reduce((sum, day) => 

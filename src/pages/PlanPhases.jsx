@@ -103,7 +103,11 @@ export default function PlanPhases() {
   }
 
   // استخرج أرقام المراحل الفريدة فقط
-  const phases = Array.from(new Set(plan.map(week => week.phase).filter(Boolean)));
+  const phases = Array.from(new Set(plan.map(week => week.phase).filter(Boolean))).sort((a, b) => a - b);
+  
+  console.log("PlanPhases - plan length:", plan.length);
+  console.log("PlanPhases - phases found:", phases);
+  
   if (phases.length === 0) {
     return (
       <motion.div 

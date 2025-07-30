@@ -298,9 +298,12 @@ export default function PhaseView() {
           setPhase({
             id: phaseWeeks[0].phase,
             name: phaseWeeks[0].phaseTitle || phaseWeeks[0].title,
-            description: phaseWeeks[0].phaseDescription || ""
+            description: phaseWeeks[0].phaseDescription || phaseWeeks[0].objective || ""
           });
         }
+        
+        console.log("PhaseView - phaseId:", phaseId);
+        console.log("PhaseView - phaseWeeks found:", phaseWeeks.length);
         
         // Calculate phase progress
         if (phaseWeeks.length > 0) {

@@ -74,6 +74,10 @@ export function AppProvider({ children }) {
         }))
       }));
       
+      console.log("AppContext - normalized plan length:", normalizedPlan.length);
+      console.log("AppContext - first week:", normalizedPlan[0]);
+      console.log("AppContext - phases found:", Array.from(new Set(normalizedPlan.map(w => w.phase))));
+      
       setPlan(normalizedPlan);
       setProgress(progressData || []);
       setAppState(prev => ({
