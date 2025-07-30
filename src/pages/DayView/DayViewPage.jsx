@@ -299,7 +299,7 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         try {
             const { addResource, updateResource } = await import("../../services/dbService");
             
-            if (resource && index !== null && index !== undefined) {
+            if (resource && resource.id) {
                 // تعديل مرجع موجود
                 await updateResource(resource.id, { title, url, type, weekId, dayIndex });
                 toast.success("تم تحديث المرجع بنجاح");

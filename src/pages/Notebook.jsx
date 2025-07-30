@@ -38,37 +38,34 @@ import TextAlign from "@tiptap/extension-text-align";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 
-function extractAllNotes(appState, plan, lang) {
-  const notes = [];
-  for (const weekId in appState.notes) {
-    const week = appState.notes[weekId];
-    if (!week?.days) continue;
-    week.days.forEach((dayNotes, dayIdx) => {
-      if (!dayNotes) return;
-      for (const taskId in dayNotes) {
-        const note = dayNotes[taskId];
-        const weekObj = plan.find(w => String(w.week) === String(weekId));
-        const dayObj = weekObj?.days?.[dayIdx];
-        const taskObj = dayObj?.tasks?.find(t => String(t.id) === String(taskId));
-        notes.push({
-          id: `${weekId}-${dayIdx}-${taskId}`,
-          title: note.title || taskObj?.description?.[lang] || "(بدون عنوان)",
-          tags: (note.keywords || "").split(",").map(t => t.trim()).filter(Boolean),
-          content: note.content,
-          weekId,
-          dayIdx,
-          dayTitle: dayObj?.day?.[lang] || dayObj?.day?.ar || dayObj?.day?.en,
-          taskTitle: taskObj?.description?.[lang] || taskObj?.description?.ar || taskObj?.description?.en,
-          favorite: note.favorite || false,
-          pinned: note.pinned || false,
-          category: note.category || "general",
-          createdAt: note.createdAt || new Date().toISOString(),
-          updatedAt: note.updatedAt || new Date().toISOString()
-        });
-      }
+async function loadAllNotes(plan, lang) {
+  try {
+    const notes = await getNotes();
+    return notes.map(note => {
+      const weekObj = plan.find(w => String(w.week) === String(note.weekId));
+      const dayObj = weekObj?.days?.find(d => String(d.key) === String(note.dayKey));
+      const taskObj = dayObj?.tasks?.find(t => String(t.id) === String(note.taskId));
+      
+      return {
+        id: note.id,
+        title: note.title || taskObj?.description?.[lang] || "(بدون عنوان)",
+        tags: (note.tags || "").split(",").map(t => t.trim()).filter(Boolean),
+        content: note.content,
+        weekId: note.weekId,
+        dayKey: note.dayKey,
+        dayTitle: dayObj?.day?.[lang] || dayObj?.day?.ar || dayObj?.day?.en,
+        taskTitle: taskObj?.description?.[lang] || taskObj?.description?.ar || taskObj?.description?.en,
+        favorite: note.favorite || false,
+        pinned: note.pinned || false,
+        category: note.category || "general",
+        createdAt: note.createdAt || new Date().toISOString(),
+        updatedAt: note.updatedAt || new Date().toISOString()
+      };
     });
+  } catch (error) {
+    console.error("Error loading notes:", error);
+    return [];
   }
-  return notes;
 }
 
 export default function Notebook() {
@@ -184,11 +181,12 @@ export default function Notebook() {
   async function loadNotes() {
     try {
       // setLoading(true); // REMOVED
-      const extractedNotes = extractAllNotes(appState, plan, lang);
+      const extractedNotes = await loadAllNotes(plan, lang);
       setNotes(extractedNotes);
+      setFilteredNotes(extractedNotes);
     } catch (error) {
       console.error('Error loading notes:', error);
-      addNotification('error', 'خطأ في تحميل الملاحظات', 'فشل في تحميل الملاحظات');
+      addNotification('error', 'خطأ في تحميل الملاحظات', 'فشل في تحميل الملاحظات من قاعدة البيانات');
     } finally {
       // setLoading(false); // REMOVED
     }
@@ -209,15 +207,12 @@ export default function Notebook() {
     
     try {
       const updatedNote = {
-        ...editing,
         title: editTitle,
-        tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        content: editContent,
-        updatedAt: new Date().toISOString()
+        tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag).join(', '),
+        content: editContent
       };
       
-      // Update in app state
-      // This would need to be implemented based on your state management
+      await updateNote(editing.id, updatedNote);
       
       setEditing(null);
       addNotification('success', 'تم حفظ التعديلات', 'تم تحديث الملاحظة بنجاح');
@@ -230,8 +225,7 @@ export default function Notebook() {
 
   async function handleDelete(id) {
     try {
-      // Delete from database
-      // This would need to be implemented based on your data service
+      await deleteNote(id);
       
       addNotification('success', 'تم حذف الملاحظة', 'تم حذف الملاحظة بنجاح');
       loadNotes();
@@ -246,16 +240,11 @@ export default function Notebook() {
       const noteData = {
         title: newNote.title,
         content: newNote.content,
-        tags: newNote.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        category: newNote.category,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        favorite: false,
-        pinned: false
+        tags: newNote.tags.split(',').map(tag => tag.trim()).filter(tag => tag).join(', '),
+        category: newNote.category
       };
       
-      // Add to database
-      // This would need to be implemented based on your data service
+      await addNote(noteData);
       
       setShowNewNote(false);
       setNewNote({ title: "", content: "", tags: "", category: "general" });
