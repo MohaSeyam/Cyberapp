@@ -15,10 +15,11 @@ import Highlight from "@tiptap/extension-highlight";
 import Color from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { useApp } from "../../context/AppContext";
-import { addJournalEntry, getJournalEntries, updateJournalEntry } from "../../services/dbService";
+import { addJournalEntry, getJournalByDay, updateJournalEntry } from "../../services/dbService";
 import { motion } from "framer-motion";
 import { Edit3, Save, X, Eye, FileText } from "lucide-react";
 import toast from "react-hot-toast";
+import TagSelector from "../../components/ui/TagSelector";
 
 function TiptapToolbar({ editor, lang }) {
   if (!editor) return null;
@@ -145,7 +146,7 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
 
   const [content, setContent] = useState(initialContent);
   const [title, setTitle] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState([]);
   const [error, setError] = useState("");
   const [entryId, setEntryId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -155,18 +156,20 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
   useEffect(() => {
     async function fetchJournal() {
       try {
-        const entries = await getJournalEntries();
-        const found = entries.find(e => e.date === dateKey);
+        // استخراج weekId و dayKey من dateKey
+        const [weekId, dayKey] = dateKey.split('-');
+        const found = await getJournalByDay(weekId, dayKey);
+        
         if (found) {
           setContent(found.content || "");
           setTitle(found.title || "");
-          setTags(found.tags || "");
+          setTags(Array.isArray(found.tags) ? found.tags : (found.tags ? found.tags.split(',').map(t => t.trim()) : []));
           setEntryId(found.id);
           setIsEditing(false); // Show in view mode
         } else {
           setContent("");
           setTitle("");
-          setTags("");
+          setTags([]);
           setEntryId(null);
           setIsEditing(true); // Show in edit mode for new entry
         }
@@ -216,11 +219,14 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
     setError("");
     
     try {
+      // استخراج weekId و dayKey من dateKey
+      const [weekId, dayKey] = dateKey.split('-');
+      
       if (entryId) {
-        await updateJournalEntry(entryId, { content, title, tags });
+        await updateJournalEntry(entryId, { content, title, tags: tags.join(', ') });
         toast.success("تم تحديث المدونة بنجاح");
       } else {
-        await addJournalEntry({ content, title, tags, date: dateKey });
+        await addJournalEntry({ content, title, tags: tags.join(', '), weekId, dayKey });
         toast.success("تم حفظ المدونة بنجاح");
       }
       
@@ -245,7 +251,7 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
     } else {
       setContent("");
       setTitle("");
-      setTags("");
+      setTags([]);
     }
   }
 
@@ -276,15 +282,15 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
           </motion.button>
         </div>
 
-        {tags && (
+        {tags.length > 0 && (
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
-              {tags.split(',').map((tag, index) => (
+              {tags.map((tag, index) => (
                 <span 
                   key={index}
                   className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full"
                 >
-                  {tag.trim()}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -360,17 +366,11 @@ export default function JournalEditor({ onSave, dateKey, initialContent = "" }) 
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            التاجات (اختياري)
-          </label>
-          <input
-            className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="تاجات (افصل بينها بفاصلة)..."
-            value={tags}
-            onChange={e => setTags(e.target.value)}
-          />
-        </div>
+        <TagSelector
+          selectedTags={tags}
+          onTagsChange={setTags}
+          maxTags={5}
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

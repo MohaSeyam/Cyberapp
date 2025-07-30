@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import TaskItem from "./TaskItem";
@@ -100,7 +100,9 @@ function NoteEditor({ note, taskDescription, onSave, onDelete }) {
 
 // ResourcesSection component
 function ResourcesSection({ weekId, dayIndex }) {
-    const { lang, appState, setAppState, setModal, translations, Icons, plan } = useApp();
+    const { lang, setModal, translations, Icons, plan } = useApp();
+    const [userResources, setUserResources] = useState([]);
+    const [loading, setLoading] = useState(true);
     
     // Defensive check for lang
     if (!lang) {
@@ -108,6 +110,7 @@ function ResourcesSection({ weekId, dayIndex }) {
     }
     
     const t = translations[lang];
+    
     // جلب المراجع من الخطة الأصلية (plan)
     let planResources = [];
     if (plan && plan.find) {
@@ -116,12 +119,25 @@ function ResourcesSection({ weekId, dayIndex }) {
         planResources = week.days[dayIndex].resources || [];
       }
     }
-    // جلب المراجع المضافة من appState
-    const userResources = appState.resources?.[weekId]?.days?.[dayIndex] || [];
+    
+    // جلب المراجع المضافة من قاعدة البيانات
+    useEffect(() => {
+        async function fetchResources() {
+            try {
+                const { getResourcesByDay } = await import("../../services/dbService");
+                const resources = await getResourcesByDay(weekId, dayIndex);
+                setUserResources(resources);
+            } catch (error) {
+                console.error("Error fetching resources:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchResources();
+    }, [weekId, dayIndex]);
     
     console.log("ResourcesSection - planResources:", planResources);
     console.log("ResourcesSection - userResources:", userResources);
-    console.log("ResourcesSection - appState.resources:", appState.resources);
     // دالة لفتح نافذة تعديل أو إضافة مرجع
     const openResourceModal = (resource, index, isPlanResource) => {
         console.log("Opening resource modal:", { resource, index, isPlanResource, weekId, dayIndex });
@@ -133,10 +149,25 @@ function ResourcesSection({ weekId, dayIndex }) {
                     index={isPlanResource ? null : index} 
                     weekId={weekId} 
                     dayIndex={dayIndex} 
-                    isPlanResource={isPlanResource} 
+                    isPlanResource={isPlanResource}
+                    onSave={() => {
+                        // إعادة تحميل المراجع بعد الحفظ
+                        fetchResources();
+                    }}
                 />
             )
         });
+    };
+    
+    // دالة إعادة تحميل المراجع
+    const fetchResources = async () => {
+        try {
+            const { getResourcesByDay } = await import("../../services/dbService");
+            const resources = await getResourcesByDay(weekId, dayIndex);
+            setUserResources(resources);
+        } catch (error) {
+            console.error("Error fetching resources:", error);
+        }
     };
     return (
         <div>
@@ -232,7 +263,7 @@ const RESOURCE_TYPES = [
 ];
 
 // ResourceEditorModal component
-function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource }) {
+function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource, onSave }) {
     const { lang, setAppState, appState, setModal, translations } = useApp();
     
     // Defensive check for lang
@@ -255,7 +286,7 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
       }
     }
     
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!title.trim()) { 
             setError("يجب إدخال عنوان المرجع"); 
             return; 
@@ -266,31 +297,19 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         }
         
         try {
-            setAppState(prev => {
-                const newState = JSON.parse(JSON.stringify(prev));
-                
-                // تهيئة resources إذا لم تكن موجودة
-                if (!newState.resources) newState.resources = {};
-                if (!newState.resources[weekId]) newState.resources[weekId] = { days: {} };
-                if (!newState.resources[weekId].days[dayIndex]) newState.resources[weekId].days[dayIndex] = [];
-                
-                const arr = newState.resources[weekId].days[dayIndex];
-                
-                if (isPlanResource) {
-                    // إذا كان المرجع من الخطة الأصلية، أضف نسخة معدلة في appState
-                    arr.push({ title, url, type });
-                } else if (index === null || index === undefined) {
-                    // إضافة مرجع جديد
-                    arr.push({ title, url, type });
-                } else {
-                    // تعديل مرجع موجود
-                    arr[index] = { title, url, type };
-                }
-                
-                return newState;
-            });
+            const { addResource, updateResource } = await import("../../services/dbService");
             
-            toast.success(resource ? "تم تحديث المرجع بنجاح" : "تم إضافة المرجع بنجاح");
+            if (resource && index !== null && index !== undefined) {
+                // تعديل مرجع موجود
+                await updateResource(resource.id, { title, url, type, weekId, dayIndex });
+                toast.success("تم تحديث المرجع بنجاح");
+            } else {
+                // إضافة مرجع جديد
+                await addResource({ title, url, type, weekId, dayIndex });
+                toast.success("تم إضافة المرجع بنجاح");
+            }
+            
+            onSave?.(); // استدعاء onSave لإعادة تحميل المراجع
             setModal({ isOpen: false, content: null });
         } catch (error) {
             console.error("Error saving resource:", error);
@@ -298,24 +317,18 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         }
     };
     
-    const handleDelete = () => {
-        if (index === null || index === undefined) {
+    const handleDelete = async () => {
+        if (!resource || !resource.id) {
             setModal({ isOpen: false, content: null });
             return;
         }
         
         try {
-            setAppState(prev => {
-                const newState = JSON.parse(JSON.stringify(prev));
-                
-                if (newState.resources?.[weekId]?.days?.[dayIndex]) {
-                    newState.resources[weekId].days[dayIndex].splice(index, 1);
-                }
-                
-                return newState;
-            });
+            const { deleteResource } = await import("../../services/dbService");
+            await deleteResource(resource.id);
             
             toast.success("تم حذف المرجع بنجاح");
+            onSave?.(); // استدعاء onSave لإعادة تحميل المراجع
             setModal({ isOpen: false, content: null });
         } catch (error) {
             console.error("Error deleting resource:", error);

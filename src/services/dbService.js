@@ -4,10 +4,11 @@ import Dexie from "dexie";
 
 // تعريف قاعدة البيانات والجداول
 export const db = new Dexie("cyberPlanDB");
-db.version(2).stores({
+db.version(3).stores({
   plan: "++id, week, phase", // بيانات الخطة (مراحل، أسابيع)
-  notes: "++id, title, tags, createdAt, updatedAt",
-  journal: "++id, date, content, tags",
+  notes: "++id, weekId, dayKey, taskId, title, tags, createdAt, updatedAt",
+  journal: "++id, weekId, dayKey, title, content, tags, createdAt, updatedAt",
+  resources: "++id, weekId, dayIndex, title, url, type, createdAt, updatedAt",
   settings: "key, value",
   progress: "++id, weekId, dayKey, taskId, done"
 });
@@ -31,11 +32,24 @@ export async function savePlan(planArr) {
 export async function getNotes() {
   return await db.notes.orderBy('updatedAt').reverse().toArray();
 }
+export async function getNotesByDay(weekId, dayKey) {
+  return await db.notes.where({ weekId, dayKey }).orderBy('updatedAt').reverse().toArray();
+}
+export async function getNotesByTask(weekId, dayKey, taskId) {
+  return await db.notes.where({ weekId, dayKey, taskId }).orderBy('updatedAt').reverse().toArray();
+}
 export async function addNote(note) {
-  return await db.notes.add({ ...note, createdAt: Date.now(), updatedAt: Date.now() });
+  return await db.notes.add({ 
+    ...note, 
+    createdAt: Date.now(), 
+    updatedAt: Date.now() 
+  });
 }
 export async function updateNote(id, updates) {
-  return await db.notes.update(id, { ...updates, updatedAt: Date.now() });
+  return await db.notes.update(id, { 
+    ...updates, 
+    updatedAt: Date.now() 
+  });
 }
 export async function deleteNote(id) {
   return await db.notes.delete(id);
@@ -43,16 +57,50 @@ export async function deleteNote(id) {
 
 // --- دوال CRUD لليوميات ---
 export async function getJournalEntries() {
-  return await db.journal.orderBy('date').reverse().toArray();
+  return await db.journal.orderBy('updatedAt').reverse().toArray();
+}
+export async function getJournalByDay(weekId, dayKey) {
+  return await db.journal.where({ weekId, dayKey }).first();
 }
 export async function addJournalEntry(entry) {
-  return await db.journal.add({ ...entry, date: entry.date || Date.now() });
+  return await db.journal.add({ 
+    ...entry, 
+    createdAt: Date.now(), 
+    updatedAt: Date.now() 
+  });
 }
 export async function updateJournalEntry(id, updates) {
-  return await db.journal.update(id, updates);
+  return await db.journal.update(id, { 
+    ...updates, 
+    updatedAt: Date.now() 
+  });
 }
 export async function deleteJournalEntry(id) {
   return await db.journal.delete(id);
+}
+
+// --- دوال CRUD للمراجع ---
+export async function getResources() {
+  return await db.resources.orderBy('updatedAt').reverse().toArray();
+}
+export async function getResourcesByDay(weekId, dayIndex) {
+  return await db.resources.where({ weekId, dayIndex }).orderBy('updatedAt').reverse().toArray();
+}
+export async function addResource(resource) {
+  return await db.resources.add({ 
+    ...resource, 
+    createdAt: Date.now(), 
+    updatedAt: Date.now() 
+  });
+}
+export async function updateResource(id, updates) {
+  return await db.resources.update(id, { 
+    ...updates, 
+    updatedAt: Date.now() 
+  });
+}
+export async function deleteResource(id) {
+  return await db.resources.delete(id);
 }
 
 // --- دوال CRUD للتقدم ---
@@ -87,40 +135,38 @@ export async function exportAllData() {
   const plan = await getPlan();
   const notes = await getNotes();
   const journal = await getJournalEntries();
+  const resources = await getResources();
   const settings = await db.settings.toArray();
-  return { plan, notes, journal, settings };
+  return { plan, notes, journal, resources, settings };
 }
-export async function importAllData({ plan, notes, journal, settings }) {
-  await db.transaction('rw', db.plan, db.notes, db.journal, db.settings, async () => {
+export async function importAllData({ plan, notes, journal, resources, settings }) {
+  await db.transaction('rw', db.plan, db.notes, db.journal, db.resources, db.settings, async () => {
     await db.plan.clear();
     await db.notes.clear();
     await db.journal.clear();
+    await db.resources.clear();
     await db.settings.clear();
     if (plan) await db.plan.bulkAdd(plan);
     if (notes) await db.notes.bulkAdd(notes);
     if (journal) await db.journal.bulkAdd(journal);
+    if (resources) await db.resources.bulkAdd(resources);
     if (settings) await db.settings.bulkAdd(settings);
   });
 }
 
 // Clear all data function
 export async function clearAllData() {
-  await db.transaction('rw', db.plan, db.notes, db.journal, db.settings, db.progress, async () => {
+  await db.transaction('rw', db.plan, db.notes, db.journal, db.resources, db.settings, db.progress, async () => {
     await db.plan.clear();
     await db.notes.clear();
     await db.journal.clear();
+    await db.resources.clear();
     await db.settings.clear();
     await db.progress.clear();
   });
 }
 
 // --- دوال متقدمة للملاحظات ---
-export async function getNotesByTask(weekId, dayKey, taskId) {
-  return await db.notes.where({ weekId, dayKey, taskId }).toArray();
-}
-export async function getNotesByDay(weekId, dayKey) {
-  return await db.notes.where({ weekId, dayKey }).toArray();
-}
 export async function getNotesByWeek(weekId) {
   return await db.notes.where({ weekId }).toArray();
 }
@@ -132,15 +178,23 @@ export async function addOrUpdateNote(note) {
     return await addNote(note);
   }
 }
+
 // --- دوال متقدمة للمدونة اليومية ---
-export async function getJournalByDay(weekId, dayKey) {
-  return await db.journal.where({ weekId, dayKey }).toArray();
-}
 export async function addOrUpdateJournalEntry(entry) {
   // إذا كان هناك id استخدم update، وإلا أضف جديد
   if (entry.id) {
     return await updateJournalEntry(entry.id, entry);
   } else {
     return await addJournalEntry(entry);
+  }
+}
+
+// --- دوال متقدمة للمراجع ---
+export async function addOrUpdateResource(resource) {
+  // إذا كان هناك id استخدم update، وإلا أضف جديد
+  if (resource.id) {
+    return await updateResource(resource.id, resource);
+  } else {
+    return await addResource(resource);
   }
 }
