@@ -55,8 +55,8 @@ const PHASE_ICONS = {
 
 const PHASE_RANGES = {
   1: "من الأسبوع 1 إلى 17",
-  2: "من الأسبوع 18 إلى 34", 
-  3: "من الأسبوع 35 إلى 50"
+  2: "من الأسبوع 18 إلى 37", 
+  3: "من الأسبوع 38 إلى 50"
 };
 
 export default function PlanPhases() {
