@@ -3,6 +3,8 @@ import i18n from "../i18n/i18n";
 import { getPlanData } from "../services/dataService";
 import { FaCheck, FaEdit, FaClock } from "react-icons/fa";
 import * as db from "../services/dbService";
+import apiService from "../services/apiService";
+import websocketService from "../services/websocketService";
 
 const AppContext = createContext();
 
@@ -37,11 +39,48 @@ export function AppProvider({ children }) {
   const [globalPomodoro, setGlobalPomodoro] = useState(null); // { title, minutes, running }
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [backendConnected, setBackendConnected] = useState(false);
 
   // جلب كل البيانات من القاعدة
   const fetchAll = useCallback(async () => {
     console.log("AppContext fetchAll called - starting");
     setLoading(true);
+    
+    try {
+      // فحص الاتصال بالباك اند
+      const healthCheck = await apiService.healthCheck();
+      if (healthCheck.status === 'OK') {
+        setBackendConnected(true);
+        console.log("✅ Backend connected successfully");
+        
+        // محاولة تسجيل الدخول التلقائي إذا كان هناك توكن
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          try {
+            const profile = await apiService.getProfile();
+            setUser(profile);
+            setIsAuthenticated(true);
+            
+            // توصيل WebSocket
+            websocketService.connect(token);
+            
+            console.log("✅ Auto-login successful");
+          } catch (error) {
+            console.log("Auto-login failed, clearing token");
+            localStorage.removeItem('auth_token');
+            setIsAuthenticated(false);
+          }
+        }
+      } else {
+        setBackendConnected(false);
+        console.log("❌ Backend not available, using local storage only");
+      }
+    } catch (error) {
+      console.log("❌ Backend connection failed, using local storage only");
+      setBackendConnected(false);
+    }
+
     try {
       // استورد البيانات من PlanData.json إذا كانت قاعدة البيانات فارغة
       const plan = await db.getPlan();
@@ -117,6 +156,13 @@ export function AppProvider({ children }) {
     i18n.changeLanguage(savedLang);
     document.documentElement.setAttribute("dir", savedLang === "ar" ? "rtl" : "ltr");
   }, [fetchAll]);
+
+  // Cleanup WebSocket on unmount
+  useEffect(() => {
+    return () => {
+      websocketService.disconnect();
+    };
+  }, []);
 
   const Icons = {
     check: FaCheck,
@@ -333,8 +379,14 @@ export function AppProvider({ children }) {
     saveNote,
     deleteNote,
     loading,
+    isAuthenticated,
+    setIsAuthenticated,
+    backendConnected,
+    setBackendConnected,
     Icons,
-    translations: translations || { ar: {}, en: {} } // Fallback to empty translations
+    translations: translations || { ar: {}, en: {} }, // Fallback to empty translations
+    apiService,
+    websocketService,
   };
 
   // Don't render children until context is fully initialized
