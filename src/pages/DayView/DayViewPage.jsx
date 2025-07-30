@@ -289,8 +289,11 @@ export default function DayViewPage(props) {
       if (!wasDone) {
         toast.success("تم إنجاز المهمة!");
         // تحقق إذا كل المهام في الأسبوع أو المرحلة منجزة
-        const week = plan.find(w => String(w.week) === String(weekId));
-        const allWeekDone = week && week.days.every(day => day.tasks.every(t => progress.find(p => p.taskId === t.id && p.done) || (t.id === task.id)));
+        const week = planData.find(w => String(w.week) === String(weekId));
+        const allWeekDone = week && week.days.every(day => day.tasks.every(t => {
+          const taskProgress = progress.find(p => p.weekId == weekId && p.dayKey == day.key && p.taskId == t.id);
+          return taskProgress?.done || (t.id === task.id);
+        }));
         if (allWeekDone) toast.success("مبروك! أنجزت أسبوعًا كاملًا!");
       }
     };
@@ -324,10 +327,10 @@ export default function DayViewPage(props) {
         });
     };
     // Debug: log plan and checked state
-    console.log('DayViewPage plan (first week):', plan && plan[0]);
-    if (plan && weekData && typeof dayIndex === 'number') {
+    console.log('DayViewPage planData (first week):', planData && planData[0]);
+    if (planData && weekData && typeof dayIndex === 'number') {
       dayData.tasks.forEach((task, taskIndex) => {
-        const checked = !!plan.find(w => String(w.week) === String(weekId))?.days?.[dayIndex]?.tasks?.[taskIndex]?.done;
+        const checked = !!planData.find(w => String(w.week) === String(weekId))?.days?.[dayIndex]?.tasks?.[taskIndex]?.done;
         console.log(`Task ${task.id} checked:`, checked);
       });
     }
@@ -340,15 +343,19 @@ export default function DayViewPage(props) {
                     <div>
                         <h4 className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">{t.activeTasks}</h4>
                         <div className="space-y-3">
-                            {(dayData.tasks || []).map((task, i) => (
-                              <div key={task.id || i} style={{border: '1px solid green', margin: 8, padding: 8}}>
-                                <div>id: {task.id}</div>
-                                <div>type: {task.type}</div>
-                                <div>duration: {task.duration}</div>
-                                <div>description: {task.description?.ar || task.description?.en || JSON.stringify(task.description)}</div>
-                                <div>done: {String(task.done)}</div>
-                              </div>
-                            ))}
+                            {(dayData.tasks || []).map((task, i) => {
+                              const checked = !!progress.find(p => p.weekId == weekId && p.dayKey == dayKey && p.taskId == task.id)?.done;
+                              return (
+                                <TaskItem
+                                  key={task.id || i}
+                                  task={task}
+                                  weekId={weekId}
+                                  dayKey={dayKey}
+                                  checked={checked}
+                                  onToggle={() => handleTaskToggle(i)}
+                                />
+                              );
+                            })}
                         </div>
                     </div>
                     {/* قسم المراجع */}

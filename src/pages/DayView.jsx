@@ -231,7 +231,7 @@ function DayHeader({ day, weekId, phaseId, onTaskComplete }) {
 
 export default function DayView() {
   const { t, i18n } = useTranslation();
-  const { plan, loading } = useApp();
+  const { plan, planData, loading } = useApp();
   const lang = i18n.language === "ar" ? "ar" : "en"; // Use i18n.language directly
   const { weekId, dayKey } = useParams();
   const [day, setDay] = useState(null);
@@ -241,11 +241,11 @@ export default function DayView() {
   const [filterCompleted, setFilterCompleted] = useState("all"); // all, completed, pending
 
   useEffect(() => {
-    const week = plan?.find(w => String(w.week) === String(weekId));
+    const week = planData?.find(w => String(w.week) === String(weekId));
     setPhaseId(week?.phase || null);
     const d = week?.days?.find(d => d.key === dayKey);
     setDay(d);
-  }, [plan, weekId, dayKey]);
+  }, [planData, weekId, dayKey]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -268,7 +268,7 @@ export default function DayView() {
     }
   };
 
-  if (loading || !plan || plan.length === 0) {
+  if (loading || !planData || planData.length === 0) {
     return <LoadingSpinner />;
   }
 
@@ -300,19 +300,6 @@ export default function DayView() {
   }
 
   return (
-    <>
-      <div style={{background: 'yellow', padding: 16}}>
-        <div>عدد المهام: {(day?.tasks || []).length}</div>
-        {(day?.tasks || []).map((task, i) => (
-          <div key={task.id || i} style={{border: '1px solid red', margin: 8, padding: 8}}>
-            <div>id: {task.id}</div>
-            <div>type: {task.type}</div>
-            <div>duration: {task.duration}</div>
-            <div>description: {JSON.stringify(task.description)}</div>
-            <div>done: {String(task.done)}</div>
-          </div>
-        ))}
-      </div>
       <motion.div 
         className="max-w-6xl mx-auto py-8 px-4"
         variants={containerVariants}
@@ -369,6 +356,7 @@ export default function DayView() {
           <DayViewPage 
             day={day} 
             weekId={weekId} 
+            dayKey={dayKey}
             phaseId={phaseId}
             viewMode={viewMode}
             searchQuery={searchQuery}

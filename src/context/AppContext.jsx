@@ -72,6 +72,7 @@ export function AppProvider({ children }) {
       }));
       
       setPlan(normalizedPlan);
+      setPlanData(normalizedPlan); // إضافة هذا السطر
       setProgress(progressData);
       setAppState(prev => ({
         ...prev,
@@ -239,6 +240,23 @@ export function AppProvider({ children }) {
     }
   }, [addNotification]);
 
+  // تحديث تقدم المهمة (مختصر)
+  const setTaskProgress = useCallback(async (weekId, dayKey, taskId, done) => {
+    try {
+      await db.setTaskProgress(weekId, dayKey, taskId, done);
+      setProgress(prev => {
+        const existing = prev.find(p => p.weekId === weekId && p.dayKey === dayKey && p.taskId === taskId);
+        if (existing) {
+          return prev.map(p => p.id === existing.id ? { ...p, done } : p);
+        } else {
+          return [...prev, { weekId, dayKey, taskId, done }];
+        }
+      });
+    } catch (error) {
+      console.error('Error setting task progress:', error);
+    }
+  }, []);
+
   // حفظ ملاحظة
   const saveNote = useCallback(async (note) => {
     try {
@@ -285,6 +303,7 @@ export function AppProvider({ children }) {
     settings,
     updateSettings,
     planData,
+    setPlanData,
     plan,
     progress,
     appState,
@@ -299,6 +318,7 @@ export function AppProvider({ children }) {
     addNotification,
     removeNotification,
     updateProgress,
+    setTaskProgress,
     saveNote,
     deleteNote,
     loading,
