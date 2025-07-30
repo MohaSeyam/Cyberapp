@@ -1,12 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useApp } from "../../context/AppContext";
+import { FaLink, FaEdit, FaTrash, FaEye, FaEyeSlash } from "react-icons/fa";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Calendar, 
+  Clock, 
+  CheckCircle,
+  Edit3,
+  Save,
+  X,
+  Eye,
+  FileText,
+  Plus,
+  BookOpen,
+  Video,
+  FileText as FileTextIcon,
+  Globe,
+  Download
+} from "lucide-react";
+import toast from "react-hot-toast";
+import TagSelector from "../../components/ui/TagSelector";
 import TaskItem from "./TaskItem";
 import NotesPrompt from "./NotesPrompt";
 import JournalEditor from "./JournalEditor";
-import { useApp } from "../../context/AppContext";
-import toast from "react-hot-toast";
-import { FaVideo, FaRegFileAlt, FaBook, FaWrench, FaPodcast, FaChalkboardTeacher, FaQuestionCircle, FaProjectDiagram, FaUsers, FaNewspaper, FaLink, FaRegStickyNote, FaEdit } from "react-icons/fa";
 
 // NoteEditor component
 function NoteEditor({ note, taskDescription, onSave, onDelete }) {
@@ -249,17 +269,17 @@ function ResourcesSection({ weekId, dayIndex }) {
 }
 
 const RESOURCE_TYPES = [
-  { value: "video", label: "فيديو", icon: <FaVideo className="inline mr-1 text-blue-500" /> },
-  { value: "article", label: "مقالة", icon: <FaRegFileAlt className="inline mr-1 text-emerald-500" /> },
-  { value: "book", label: "كتاب", icon: <FaBook className="inline mr-1 text-violet-500" /> },
-  { value: "tool", label: "أداة", icon: <FaWrench className="inline mr-1 text-orange-500" /> },
-  { value: "podcast", label: "بودكاست", icon: <FaPodcast className="inline mr-1 text-pink-500" /> },
-  { value: "course", label: "دورة", icon: <FaChalkboardTeacher className="inline mr-1 text-cyan-500" /> },
-  { value: "quiz", label: "اختبار", icon: <FaQuestionCircle className="inline mr-1 text-yellow-500" /> },
-  { value: "project", label: "مشروع", icon: <FaProjectDiagram className="inline mr-1 text-indigo-500" /> },
-  { value: "community", label: "مجتمع", icon: <FaUsers className="inline mr-1 text-green-500" /> },
-  { value: "news", label: "خبر", icon: <FaNewspaper className="inline mr-1 text-gray-500" /> },
-  { value: "link", label: "رابط آخر", icon: <FaLink className="inline mr-1 text-slate-500" /> },
+  { value: "video", label: "فيديو", icon: <Video className="inline mr-1 text-blue-500" /> },
+  { value: "article", label: "مقالة", icon: <FileTextIcon className="inline mr-1 text-emerald-500" /> },
+  { value: "book", label: "كتاب", icon: <BookOpen className="inline mr-1 text-violet-500" /> },
+  { value: "tool", label: "أداة", icon: <Globe className="inline mr-1 text-orange-500" /> },
+  { value: "podcast", label: "بودكاست", icon: <Download className="inline mr-1 text-pink-500" /> },
+  { value: "course", label: "دورة", icon: <Calendar className="inline mr-1 text-cyan-500" /> },
+  { value: "quiz", label: "اختبار", icon: <Clock className="inline mr-1 text-yellow-500" /> },
+  { value: "project", label: "مشروع", icon: <Edit3 className="inline mr-1 text-indigo-500" /> },
+  { value: "community", label: "مجتمع", icon: <CheckCircle className="inline mr-1 text-green-500" /> },
+  { value: "news", label: "خبر", icon: <FileTextIcon className="inline mr-1 text-gray-500" /> },
+  { value: "link", label: "رابط آخر", icon: <Eye className="inline mr-1 text-slate-500" /> },
 ];
 
 // ResourceEditorModal component
@@ -276,6 +296,7 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
     const [url, setUrl] = useState(resource?.url || '');
     const [type, setType] = useState(resource?.type || 'link');
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     
     function isValidUrl(str) {
       try { 
@@ -296,6 +317,9 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
             return; 
         }
         
+        setIsLoading(true);
+        setError("");
+        
         try {
             const { addResource, updateResource } = await import("../../services/dbService");
             
@@ -314,6 +338,9 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         } catch (error) {
             console.error("Error saving resource:", error);
             setError("خطأ في حفظ المرجع، يرجى المحاولة مرة أخرى");
+            toast.error("خطأ في حفظ المرجع");
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -322,6 +349,9 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
             setModal({ isOpen: false, content: null });
             return;
         }
+        
+        setIsLoading(true);
+        setError("");
         
         try {
             const { deleteResource } = await import("../../services/dbService");
@@ -333,6 +363,9 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         } catch (error) {
             console.error("Error deleting resource:", error);
             setError("خطأ في حذف المرجع، يرجى المحاولة مرة أخرى");
+            toast.error("خطأ في حذف المرجع");
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -368,6 +401,7 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
                         value={title} 
                         onChange={e => setTitle(e.target.value)}
                         placeholder="أدخل عنوان المرجع المميز"
+                        disabled={isLoading}
                     />
                 </div>
                 
@@ -381,6 +415,7 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
                         value={url} 
                         onChange={e => setUrl(e.target.value)}
                         placeholder="https://example.com"
+                        disabled={isLoading}
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                         يجب أن يبدأ الرابط بـ https:// أو http://
@@ -398,10 +433,12 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
                                 key={rt.value}
                                 type="button"
                                 onClick={() => setType(rt.value)}
+                                disabled={isLoading}
                                 className={`flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-sm border-2 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
                                     ${type === rt.value
                                         ? 'bg-blue-600 text-white border-blue-700 shadow-lg transform scale-105'
                                         : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 hover:scale-105'}
+                                    ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
                                 `}
                             >
                                 <span className="text-lg">{rt.icon}</span>
@@ -417,22 +454,25 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
                 {resource && resource.id && (
                     <button 
                         onClick={handleDelete} 
-                        className="flex-1 px-6 py-3 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 transition-all duration-200 hover:scale-105"
+                        disabled={isLoading}
+                        className="flex-1 px-6 py-3 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        حذف المرجع
+                        {isLoading ? "جاري الحذف..." : "حذف المرجع"}
                     </button>
                 )}
                 <button 
                     onClick={() => setModal({ isOpen: false, content: null })} 
-                    className="flex-1 px-6 py-3 text-sm font-semibold rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-200 hover:scale-105"
+                    disabled={isLoading}
+                    className="flex-1 px-6 py-3 text-sm font-semibold rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     إلغاء
                 </button>
                 <button 
                     onClick={handleSave} 
-                    className="flex-1 px-6 py-3 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all duration-200 hover:scale-105 transform"
+                    disabled={isLoading}
+                    className="flex-1 px-6 py-3 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all duration-200 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {resource ? "تحديث المرجع" : "إضافة المرجع"}
+                    {isLoading ? "جاري الحفظ..." : (resource ? "تحديث المرجع" : "إضافة المرجع")}
                 </button>
             </div>
         </div>

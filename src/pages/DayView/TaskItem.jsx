@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../../context/AppContext";
 import { useState, useEffect } from "react";
-import { addNote, updateNote, getNotes } from "../../services/dbService";
+import { addNote, updateNote, getNotesByTask } from "../../services/dbService";
 import { Dialog, DialogContent, DialogTitle } from "../../components/ui/Dialog";
 import { ShieldCheck, Flame, User, Cpu, List, Check, Clock, Edit3, X, Save } from "lucide-react";
 import toast from "react-hot-toast";
@@ -49,43 +49,80 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
     taskNote: "ملاحظة المهمة",
     writeTaskNote: "اكتب ملاحظتك حول هذه المهمة...",
     cancel: "إلغاء",
-    save: "حفظ"
+    save: "حفظ",
+    noteTitle: "عنوان الملاحظة",
+    enterNoteTitle: "أدخل عنوان الملاحظة"
   };
 
   const icon = typeIcons[task.type] || typeIcons["Default"];
   const [noteOpen, setNoteOpen] = useState(false);
   const [note, setNote] = useState("");
+  const [noteTitle, setNoteTitle] = useState("");
   const [noteId, setNoteId] = useState(null);
   const [hasNote, setHasNote] = useState(false);
 
   // Fetch note for this task
   useEffect(() => {
     async function fetchNote() {
-      const notes = await getNotes();
-      const found = notes.find(n => n.taskId === task.id && n.weekId === weekId && n.dayKey === dayKey);
-      if (found) {
-        setNote(found.content || "");
-        setNoteId(found.id);
-        setHasNote(true);
-      } else {
-        setNote("");
-        setNoteId(null);
-        setHasNote(false);
+      try {
+        const found = await getNotesByTask(weekId, dayKey, task.id);
+        if (found && found.length > 0) {
+          const noteData = found[0]; // Get the first note for this task
+          setNote(noteData.content || "");
+          setNoteTitle(noteData.title || "");
+          setNoteId(noteData.id);
+          setHasNote(true);
+        } else {
+          setNote("");
+          setNoteTitle("");
+          setNoteId(null);
+          setHasNote(false);
+        }
+      } catch (error) {
+        console.error("Error fetching note:", error);
+        toast.error("خطأ في تحميل الملاحظة");
       }
     }
     fetchNote();
   }, [task.id, weekId, dayKey, noteOpen]);
 
   async function handleSaveNote() {
-    const noteTitle = task.description?.[lang] || task.description?.ar || task.description?.en || "ملاحظة على المهمة";
-    if (noteId) {
-      await updateNote(noteId, { content: note, title: noteTitle, weekId, dayKey, taskId: task.id });
-    } else {
-      await addNote({ content: note, title: noteTitle, weekId, dayKey, taskId: task.id });
+    try {
+      if (!noteTitle.trim()) {
+        toast.error("يرجى إدخال عنوان للملاحظة");
+        return;
+      }
+
+      if (!note.trim()) {
+        toast.error("يرجى إدخال محتوى الملاحظة");
+        return;
+      }
+
+      if (noteId) {
+        await updateNote(noteId, { 
+          content: note, 
+          title: noteTitle, 
+          weekId, 
+          dayKey, 
+          taskId: task.id 
+        });
+        toast.success("تم تحديث الملاحظة بنجاح");
+      } else {
+        await addNote({ 
+          content: note, 
+          title: noteTitle, 
+          weekId, 
+          dayKey, 
+          taskId: task.id 
+        });
+        toast.success("تم إضافة الملاحظة بنجاح");
+      }
+      setNoteOpen(false);
+      setHasNote(true);
+    } catch (error) {
+      console.error("Error saving note:", error);
+      toast.error("خطأ في حفظ الملاحظة");
     }
-    setNoteOpen(false);
-    setHasNote(!!note);
-    toast.success("تم حفظ الملاحظة بنجاح");
   }
 
   const taskColor = typeColors[task.type] || typeColors["Default"];
@@ -221,10 +258,25 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
               </p>
             </div>
 
-            {/* Note Editor */}
+            {/* Note Title */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                ملاحظتك على هذه المهمة:
+                {t("noteTitle", fallbackT.noteTitle)} *
+              </label>
+              <input
+                type="text"
+                className="w-full p-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                value={noteTitle}
+                onChange={e => setNoteTitle(e.target.value)}
+                placeholder={t("enterNoteTitle", fallbackT.enterNoteTitle)}
+                dir={lang === "ar" ? "rtl" : "ltr"}
+              />
+            </div>
+
+            {/* Note Content */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                محتوى الملاحظة *
               </label>
               <textarea
                 className="w-full min-h-[150px] rounded-lg border-2 border-gray-300 dark:border-gray-600 p-4 text-sm resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-gray-100 transition-all duration-200"
