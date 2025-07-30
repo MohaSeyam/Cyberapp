@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import TaskItem from "./TaskItem";
 import NotesPrompt from "./NotesPrompt";
 import TiptapJournalEditor from "./TiptapJournalEditor";
@@ -263,6 +263,7 @@ export default function DayViewPage(props) {
     const params = useParams();
     const weekId = props.weekId || params.weekId;
     const dayKey = props.dayKey || params.dayKey;
+    const navigate = useNavigate();
     if (!plan) return <div className="text-center text-red-500 py-12">الخطة غير محملة (plan not loaded)</div>;
     if (!weekId || !dayKey) return <div className="text-center text-red-500 py-12">weekId أو dayKey مفقود</div>;
     if (!props.day) return <div className="text-center text-red-500 py-12">اليوم غير موجود (day prop مفقود)</div>;
@@ -338,8 +339,28 @@ export default function DayViewPage(props) {
                     />
         });
     };
+    // منطق اليوم السابق والتالي:
+    const prevDay = dayIndex > 0 ? weekData.days[dayIndex - 1] : null;
+    const nextDay = dayIndex < weekData.days.length - 1 ? weekData.days[dayIndex + 1] : null;
     return (
         <div className="bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text font-tajawal rounded-xl shadow-lg p-6 border border-light-border dark:border-dark-border animate-fade-in">
+            {/* أزرار اليوم السابق والتالي */}
+            <div className="flex justify-between items-center mb-6">
+                <button
+                    className={`px-4 py-2 rounded bg-slate-200 dark:bg-zinc-700 text-black dark:text-white font-bold transition ${!prevDay ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-300 dark:hover:bg-zinc-600'}`}
+                    onClick={() => prevDay && navigate(`/day/${weekId}/${prevDay.key}`)}
+                    disabled={!prevDay}
+                >
+                    اليوم السابق
+                </button>
+                <button
+                    className={`px-4 py-2 rounded bg-slate-200 dark:bg-zinc-700 text-black dark:text-white font-bold transition ${!nextDay ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-300 dark:hover:bg-zinc-600'}`}
+                    onClick={() => nextDay && navigate(`/day/${weekId}/${nextDay.key}`)}
+                    disabled={!nextDay}
+                >
+                    اليوم التالي
+                </button>
+            </div>
             <h1 className="text-3xl font-bold text-light-accent dark:text-dark-accent">{dayData.day[lang]}: {dayData.topic[lang]}</h1>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
                 <div className="lg:col-span-2 space-y-8">

@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { addNote, updateNote, getNotes } from "../../services/dbService";
 import { Dialog, DialogContent, DialogTitle } from "../../components/ui/Dialog";
 import { ShieldCheck, Flame, User, Cpu, List } from "lucide-react";
+import toast from "react-hot-toast";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Utility to join class names
 function cn(...args) {
@@ -57,13 +59,15 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   }, [task.id, weekId, dayKey, noteOpen]);
 
   async function handleSaveNote() {
+    const noteTitle = task.description?.[lang] || task.description?.ar || task.description?.en || "ملاحظة على المهمة";
     if (noteId) {
-      await updateNote(noteId, { content: note });
+      await updateNote(noteId, { content: note, title: noteTitle, weekId, dayKey, taskId: task.id });
     } else {
-      await addNote({ content: note, taskId: task.id, weekId, dayKey });
+      await addNote({ content: note, title: noteTitle, weekId, dayKey, taskId: task.id });
     }
     setNoteOpen(false);
     setHasNote(!!note);
+    toast.success("تم حفظ الملاحظة بنجاح");
   }
 
   return (
@@ -76,6 +80,20 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
       aria-label={task.description?.[lang] || task.description?.ar || task.description?.en || JSON.stringify(task.description)}
     >
       <span className="text-xl">{icon}</span>
+      <AnimatePresence>
+        {checked && (
+          <motion.div
+            key="check-anim"
+            initial={{ scale: 0.5, opacity: 0, rotate: -30 }}
+            animate={{ scale: 1.4, opacity: 1, rotate: 0 }}
+            exit={{ scale: 0.5, opacity: 0, rotate: 30 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            className="absolute left-2 top-2 z-10 pointer-events-none"
+          >
+            <span role="img" aria-label="نجمة" className="text-yellow-400 text-3xl drop-shadow-lg">⭐</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <input
         type="checkbox"
         className="accent-blue-500 w-5 h-5"
