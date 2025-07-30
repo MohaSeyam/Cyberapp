@@ -84,7 +84,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
       }
     }
     fetchNote();
-  }, [task.id, weekId, dayKey, noteOpen]);
+  }, [task.id, weekId, dayKey]); // Removed noteOpen dependency
 
   async function handleSaveNote() {
     try {

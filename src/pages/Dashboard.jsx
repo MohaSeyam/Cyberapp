@@ -21,6 +21,9 @@ import PhaseCard from "../components/plan/PhaseCard";
 import UpcomingTasks from "../components/dashboard/UpcomingTasks";
 import WeekProgress from "../components/dashboard/WeekProgress";
 import AchievementsSummary from "../components/dashboard/AchievementsSummary";
+import ProgressIndicator from "../components/dashboard/ProgressIndicator";
+import AdvancedFilters from "../components/plan/AdvancedFilters";
+import ReportExporter from "../components/reports/ReportExporter";
 import { getPhases } from "../services/dataService";
 import SkeletonCard from "../components/ui/SkeletonCard";
 import Card from "../components/ui/Card";
@@ -310,6 +313,20 @@ export default function Dashboard() {
             </div>
           )}
         </AnimatePresence>
+      </motion.div>
+
+      {/* Progress Indicator */}
+      <motion.div className="mb-8" variants={itemVariants}>
+        <ProgressIndicator />
+      </motion.div>
+
+      {/* Advanced Features */}
+      <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" variants={itemVariants}>
+        {/* Advanced Filters */}
+        <AdvancedFilters onFiltersChange={(filters) => console.log("Filters changed:", filters)} />
+        
+        {/* Report Exporter */}
+        <ReportExporter />
       </motion.div>
 
       {/* Main Dashboard Grid */}

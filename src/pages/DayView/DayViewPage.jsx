@@ -27,6 +27,18 @@ import TagSelector from "../../components/ui/TagSelector";
 import TaskItem from "./TaskItem";
 import NotesPrompt from "./NotesPrompt";
 import JournalEditor from "./JournalEditor";
+import { 
+  getResourcesByDay, 
+  addResource, 
+  updateResource, 
+  deleteResource,
+  getNotesByTask, 
+  addNote, 
+  updateNote,
+  getJournalByDay, 
+  addJournalEntry, 
+  updateJournalEntry 
+} from "../../services/dbService";
 
 // NoteEditor component
 function NoteEditor({ note, taskDescription, onSave, onDelete }) {
@@ -144,7 +156,6 @@ function ResourcesSection({ weekId, dayIndex }) {
     useEffect(() => {
         async function fetchResources() {
             try {
-                const { getResourcesByDay } = await import("../../services/dbService");
                 const resources = await getResourcesByDay(weekId, dayIndex);
                 setUserResources(resources);
             } catch (error) {
@@ -182,7 +193,6 @@ function ResourcesSection({ weekId, dayIndex }) {
     // دالة إعادة تحميل المراجع
     const fetchResources = async () => {
         try {
-            const { getResourcesByDay } = await import("../../services/dbService");
             const resources = await getResourcesByDay(weekId, dayIndex);
             setUserResources(resources);
         } catch (error) {
@@ -321,8 +331,6 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         setError("");
         
         try {
-            const { addResource, updateResource } = await import("../../services/dbService");
-            
             if (resource && resource.id) {
                 // تعديل مرجع موجود
                 await updateResource(resource.id, { title, url, type, weekId, dayIndex });
@@ -354,7 +362,6 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
         setError("");
         
         try {
-            const { deleteResource } = await import("../../services/dbService");
             await deleteResource(resource.id);
             
             toast.success("تم حذف المرجع بنجاح");
