@@ -37,21 +37,24 @@ export function AppProvider({ children }) {
     console.log("AppContext fetchAll called - starting");
     setLoading(true);
     try {
-      // استورد البيانات من PlanData.json إذا كانت قاعدة البيانات فارغة
-      const plan = await db.getPlan();
-      if (!plan || plan.length === 0) {
-        console.log("Plan is empty, importing from PlanData.json");
-        const res = await fetch("/PlanData.json");
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            await db.savePlan(data);
+
+      
+      let planData = await db.getPlan();
+      if (!planData || planData.length === 0) {
+        console.log("Plan is empty, importing from planData.json");
+        try {
+          planData = await getPlanData();
+          if (Array.isArray(planData) && planData.length > 0) {
+            await db.savePlan(planData);
+            console.log("Plan data imported successfully:", planData.length, "weeks");
           }
+        } catch (error) {
+          console.error("Error importing plan data:", error);
+          planData = [];
         }
       }
       
-      const [planData, notesData, journalData, progressData] = await Promise.all([
-        db.getPlan(),
+      const [notesData, journalData, progressData] = await Promise.all([
         db.getNotes(),
         db.getJournalEntries(),
         db.getProgress()

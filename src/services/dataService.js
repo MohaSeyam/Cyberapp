@@ -12,7 +12,7 @@ export async function fetchPlanData() {
   }
 
   try {
-    const res = await fetch('/data/PlanData.json');
+    const res = await fetch('/data/planData.json');
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
