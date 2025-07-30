@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import TaskItem from "./TaskItem";
 import NotesPrompt from "./NotesPrompt";
 import TiptapJournalEditor from "./TiptapJournalEditor";
