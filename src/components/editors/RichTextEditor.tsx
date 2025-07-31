@@ -12,11 +12,12 @@ import Highlight from "@tiptap/extension-highlight";
 import { BulletList } from "@tiptap/extension-bullet-list";
 import { OrderedList } from "@tiptap/extension-ordered-list";
 import { ListItem } from "@tiptap/extension-list-item";
+import Blockquote from "@tiptap/extension-blockquote";
 import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
-  Code as CodeIcon, Highlighter
+  Code as CodeIcon, Highlighter, Quote
 } from "lucide-react";
 import type { Language } from "../../types";
 
@@ -214,6 +215,21 @@ function EditorToolbar({ editor, lang = 'ar' }: { editor: any; lang?: Language }
             <Highlighter size={14} />
           </button>
         </div>
+
+        {/* Quote */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => editor.chain().focus().toggleBlockquote().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('blockquote') 
+                ? 'bg-indigo-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="اقتباس"
+          >
+            <Quote size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -233,9 +249,10 @@ export default function RichTextEditor({
       StarterKit.configure({
         // تم إزالة تعطيل القوائم لضمان عمل النقاط والأرقام
         codeBlock: false,
+        blockquote: false, // تعطيل الاقتباس من StarterKit لاستخدام إعدادات مخصصة
       }),
       TextAlign.configure({ 
-        types: ["heading", "paragraph"],
+        types: ["heading", "paragraph", "blockquote"],
         alignments: ['left', 'center', 'right']
       }),
       Link.configure({
@@ -272,6 +289,11 @@ export default function RichTextEditor({
       ListItem.configure({
         HTMLAttributes: {
           class: 'marker:text-gray-600 dark:marker:text-gray-400'
+        }
+      }),
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: 'border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-2 bg-gray-50 dark:bg-gray-700 italic'
         }
       }),
       Highlight.configure({

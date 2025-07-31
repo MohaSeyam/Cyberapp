@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BookOpen, Search, Filter, Plus, Edit, Trash2,
-  Calendar, Clock, MessageSquare, Star, TrendingUp
+  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -21,6 +21,7 @@ export default function JournalPage() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
+  const [selectedTag, setSelectedTag] = useState<string>('');
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as JournalEntry | null });
   const [journalForm, setJournalForm] = useState({
     title: '',
@@ -34,7 +35,8 @@ export default function JournalPage() {
     const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          entry.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWeek = !selectedWeek || entry.weekId.toString() === selectedWeek;
-    return matchesSearch && matchesWeek;
+    const matchesTag = !selectedTag || entry.tags.includes(selectedTag);
+    return matchesSearch && matchesWeek && matchesTag;
   });
 
   // Get unique weeks
@@ -97,11 +99,18 @@ export default function JournalPage() {
     setJournalForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
+  const handleTagClick = (tag: string) => {
+    setSelectedTag(selectedTag === tag ? '' : tag);
+  };
+
+  // Get unique tags
+  const allTags = Array.from(new Set(allEntries.flatMap(entry => entry.tags)));
+
   // Calculate statistics
   const totalEntries = allEntries.length;
-  const thisWeekEntries = allEntries.filter(entry => entry.weekId === 1).length;
-  const totalWords = allEntries.reduce((total, entry) => 
-    total + entry.content.replace(/<[^>]*>/g, '').split(' ').length, 0
+  const thisWeekEntries = allEntries.filter(entry => entry.weekId === 1).length; // Current week
+  const totalWords = allEntries.reduce((sum, entry) => 
+    sum + entry.content.replace(/<[^>]*>/g, '').split(' ').length, 0
   );
 
   const stats = [
@@ -114,7 +123,7 @@ export default function JournalPage() {
     },
     {
       icon: TrendingUp,
-      label: t('thisWeek'),
+      label: t('thisWeekEntries'),
       value: thisWeekEntries,
       color: 'text-green-600',
       bg: 'bg-green-50'
@@ -122,7 +131,7 @@ export default function JournalPage() {
     {
       icon: MessageSquare,
       label: t('totalWords'),
-      value: totalWords.toLocaleString(),
+      value: totalWords,
       color: 'text-purple-600',
       bg: 'bg-purple-50'
     }

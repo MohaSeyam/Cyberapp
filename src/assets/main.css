@@ -92,6 +92,24 @@
   color: #2563eb;
 }
 
+/* أنماط الاقتباس */
+.ProseMirror blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background-color: #f9fafb;
+  font-style: italic;
+  margin: 0.5rem 0;
+}
+
+/* أنماط الاقتباس في الوضع المظلم */
+.dark .ProseMirror blockquote {
+  border-left-color: #4b5563;
+  background-color: #374151;
+  color: #d1d5db;
+}
+
 /* أنماط المحاذاة */
 .ProseMirror[style*="text-align: center"] {
   text-align: center;
