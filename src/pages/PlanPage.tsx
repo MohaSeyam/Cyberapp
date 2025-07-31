@@ -11,6 +11,7 @@ export default function PlanPage() {
   const { t } = useLocalization();
   const navigate = useNavigate();
   const location = useLocation();
+  const safePlan = plan || [];
   const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set());
   const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set());
 
