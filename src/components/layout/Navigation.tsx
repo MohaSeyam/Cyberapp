@@ -110,14 +110,25 @@ export default function Navigation({ className = '' }: NavigationProps) {
                 );
               })}
               
-              {/* Theme Toggle Button */}
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-                title={theme === 'dark' ? t('switchToLight') : t('switchToDark')}
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
+              {/* Theme & Language Buttons */}
+              <div className="flex items-center space-x-2">
+                {/* Theme Toggle Button */}
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title={theme === 'dark' ? t('switchToLight') : t('switchToDark')}
+                >
+                  {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </button>
+                {/* Language Switch Button */}
+                <button
+                  onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title={lang === 'ar' ? 'English' : 'العربية'}
+                >
+                  {lang === 'ar' ? 'EN' : 'ع'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -33,16 +33,7 @@ export default function BottomBar() {
           </Link>
         );
       })}
-      
-      {/* Theme Toggle Button */}
-      <button
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className={`flex flex-col items-center justify-center px-2 py-1 transition-all text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300`}
-        title={theme === 'dark' ? t('switchToLight') : t('switchToDark')}
-      >
-        {theme === 'dark' ? <Sun className="w-6 h-6 mb-1" /> : <Moon className="w-6 h-6 mb-1" />}
-        <span className="text-xs">{theme === 'dark' ? t('light') : t('dark')}</span>
-      </button>
+      {/* تم إزالة زر الثيم */}
     </nav>
   );
 }
