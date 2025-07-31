@@ -37,6 +37,38 @@ type ViewMode = 'phases' | 'weeks' | 'days';
 export default function PlanPageEnhanced() {
   const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
+  
+  // فحص البيانات الأساسية
+  if (!plan || !Array.isArray(plan) || plan.length === 0) {
+    return (
+      <PageLayout title={t('plan')} subtitle={t('learningPlan')} showHeader={true}>
+        <div className="text-center py-12">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            {t('loading')}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            {t('loadingPlanData')}
+          </p>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  // فحص phaseService
+  if (!phaseService) {
+    return (
+      <PageLayout title={t('plan')} subtitle={t('learningPlan')} showHeader={true}>
+        <div className="text-center py-12">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            {t('error')}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            {t('serviceNotAvailable')}
+          </p>
+        </div>
+      </PageLayout>
+    );
+  }
   const [viewMode, setViewMode] = useState<ViewMode>('phases');
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<any>(null);
@@ -47,26 +79,30 @@ export default function PlanPageEnhanced() {
 
   // حساب الأسابيع المنجزة
   const completedWeeks = useMemo(() => {
+    if (!safePlan || !progress) return [];
+    
     return safePlan
       .filter(week => {
+        if (!week || !week.week) return false;
         const weekProgress = progress.filter(p => p.weekId === week.week.toString());
         const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
         const completedTasks = weekProgress.filter(p => p.done).length;
         return totalTasks > 0 && completedTasks === totalTasks;
       })
-      .map(week => week.week);
+      .map(week => week.week)
+      .filter(Boolean);
   }, [safePlan, progress]);
 
   // إجمالي التقدم
-  const totalWeeks = safePlan.length;
-  const completedCount = completedWeeks.length;
+  const totalWeeks = safePlan?.length || 0;
+  const completedCount = completedWeeks?.length || 0;
   const progressPercentage = totalWeeks > 0 ? Math.round((completedCount / totalWeeks) * 100) : 0;
 
   // المرحلة الحالية
-  const currentPhase = phaseService.getCurrentPhase(completedWeeks);
+  const currentPhase = phaseService?.getCurrentPhase?.(completedWeeks) || null;
 
   // الأسابيع للمرحلة المختارة
-  const phaseWeeks = selectedPhaseId ? phaseService.getWeeksByPhase(selectedPhaseId) : [];
+  const phaseWeeks = selectedPhaseId && phaseService?.getWeeksByPhase ? phaseService.getWeeksByPhase(selectedPhaseId) : [];
 
   // التنقل بين المستويات
   const handlePhaseClick = (phaseId: number) => {
@@ -102,21 +138,21 @@ export default function PlanPageEnhanced() {
   // Breadcrumbs items
   const breadcrumbs = [];
   breadcrumbs.push({ label: t('plan'), icon: Layers, onClick: handleBackToPhases });
-  if (selectedPhaseId) {
+  if (selectedPhaseId && phaseService?.getPhaseById) {
     const phase = phaseService.getPhaseById(selectedPhaseId);
-    breadcrumbs.push({ label: phase?.title[lang] || t('phase'), icon: Layers, onClick: handleBackToPhases });
+    breadcrumbs.push({ label: phase?.title?.[lang] || t('phase'), icon: Layers, onClick: handleBackToPhases });
   }
   if (selectedWeek) {
     breadcrumbs.push({ label: (selectedWeek.title?.[lang] || t('week') + ' ' + selectedWeek.week), icon: Calendar, onClick: handleBackToWeeks });
   }
   if (selectedDayIndex !== null && selectedWeek) {
-    const day = selectedWeek.days[selectedDayIndex];
+    const day = selectedWeek.days?.[selectedDayIndex];
     breadcrumbs.push({ label: day?.day?.[lang] || t('day'), icon: Target });
   }
 
   // عرض اليوم (DayView)
   if (selectedDayIndex !== null && selectedWeek) {
-    const day = selectedWeek.days[selectedDayIndex];
+    const day = selectedWeek.days?.[selectedDayIndex];
     return (
       <PageLayout title={t('plan')} subtitle={t('learningPlan')} showHeader={true}>
         <Breadcrumbs items={breadcrumbs} onNavigate={() => {}} />
@@ -212,7 +248,7 @@ export default function PlanPageEnhanced() {
           <div className="p-4 flex items-center space-x-2">
             <ArrowLeft className="w-5 h-5 cursor-pointer" onClick={handleBackToPhases} />
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              {phaseService.getPhaseById(selectedPhaseId)?.title[lang] || t('phase')}
+              {phaseService?.getPhaseById?.(selectedPhaseId)?.title?.[lang] || t('phase')}
             </h2>
           </div>
         </Card>
@@ -293,10 +329,10 @@ export default function PlanPageEnhanced() {
                   <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                   <div>
                     <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                      {lang === 'ar' ? 'المرحلة الحالية' : 'Current Phase'}: {currentPhase.title[lang]}
+                      {lang === 'ar' ? 'المرحلة الحالية' : 'Current Phase'}: {currentPhase.title?.[lang]}
                     </h3>
                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                      {phaseService.getPhaseStats(currentPhase.id, completedWeeks).remainingWeeks} {lang === 'ar' ? 'أسبوع متبقي' : 'weeks remaining'}
+                      {phaseService?.getPhaseStats?.(currentPhase.id, completedWeeks)?.remainingWeeks || 0} {lang === 'ar' ? 'أسبوع متبقي' : 'weeks remaining'}
                     </p>
                   </div>
                 </div>
