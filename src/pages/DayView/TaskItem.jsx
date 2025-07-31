@@ -218,17 +218,34 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         dir: lang === "ar" ? "rtl" : "ltr"
       }
     },
-    onUpdate: ({ editor }) => setNote(editor.getHTML())
+    onUpdate: ({ editor }) => {
+      // تحديث المحتوى فقط إذا كان المحرر مفتوح
+      if (noteOpen) {
+        setNote(editor.getHTML());
+      }
+    }
   });
 
-  // Update editor content when note changes
-  const prevNoteIdRef = React.useRef();
+  // إزالة useEffect الذي يسبب الاهتزاز
+  // const prevNoteIdRef = React.useRef();
+  // useEffect(() => {
+  //   if (noteOpen && noteEditor && noteId !== prevNoteIdRef.current) {
+  //     noteEditor.commands.setContent(note || "");
+  //     prevNoteIdRef.current = noteId;
+  //   }
+  // }, [noteOpen, noteEditor, noteId, note]);
+
+  // تحديث محتوى المحرر عند فتح النافذة
   useEffect(() => {
-    if (noteOpen && noteEditor && noteId !== prevNoteIdRef.current) {
-      noteEditor.commands.setContent(note || "");
-      prevNoteIdRef.current = noteId;
+    if (noteOpen && noteEditor) {
+      // تأخير بسيط لضمان تحميل النافذة
+      const timer = setTimeout(() => {
+        noteEditor.commands.setContent(note || "");
+        noteEditor.commands.focus();
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [noteOpen, noteEditor, noteId, note]);
+  }, [noteOpen, noteEditor]);
 
   // Fetch note for this task - only when component mounts or task changes
   useEffect(() => {
@@ -249,8 +266,8 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           setNoteTitle(noteData.title || "");
           setNoteId(noteData.id);
           setHasNote(true);
-          // Update editor content
-          if (noteEditor) {
+          // تحديث محتوى المحرر فقط إذا كان مفتوح
+          if (noteEditor && noteOpen) {
             noteEditor.commands.setContent(noteData.content || "");
           }
         } else {
@@ -258,8 +275,8 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           setNoteTitle("");
           setNoteId(null);
           setHasNote(false);
-          // Clear editor content
-          if (noteEditor) {
+          // مسح محتوى المحرر فقط إذا كان مفتوح
+          if (noteEditor && noteOpen) {
             noteEditor.commands.setContent("");
           }
         }
@@ -294,7 +311,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         return;
       }
 
-      // Get content from editor if available, otherwise use note state
+      // الحصول على المحتوى من المحرر
       const noteContent = noteEditor ? noteEditor.getHTML() : note;
       
       if (!noteContent.trim() || noteContent === '<p></p>') {
@@ -302,7 +319,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         return;
       }
 
-      // Prevent multiple saves
+      // منع الحفظ المتعدد
       if (isSaving) return;
       setIsSaving(true);
 
@@ -327,6 +344,8 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         toast.success("تم إضافة الملاحظة بنجاح");
       }
       
+      // تحديث state المحلي
+      setNote(noteContent);
       setHasNote(true);
       setNoteOpen(false);
     } catch (error) {
@@ -439,12 +458,6 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           onClick={(e) => {
             e.stopPropagation();
             setNoteOpen(true);
-            // Focus editor after modal opens
-            setTimeout(() => {
-              if (noteEditor) {
-                noteEditor.commands.focus();
-              }
-            }, 100);
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -452,17 +465,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           <Edit3 className="w-4 h-4" />
         </motion.button>
       </div>
-      <Dialog open={noteOpen} onOpenChange={(open) => {
-        setNoteOpen(open);
-        if (!open) {
-          // Reset editor content when closing
-          setTimeout(() => {
-            if (noteEditor) {
-              noteEditor.commands.setContent(note);
-            }
-          }, 100);
-        }
-      }}>
+      <Dialog open={noteOpen} onOpenChange={setNoteOpen}>
         <DialogContent className="max-w-lg">
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
             <Edit3 className="w-5 h-5 text-purple-600" />
@@ -514,15 +517,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <motion.button 
               className="px-6 py-2.5 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 flex items-center gap-2"
-              onClick={() => {
-                setNoteOpen(false);
-                // Reset editor content when canceling
-                setTimeout(() => {
-                  if (noteEditor) {
-                    noteEditor.commands.setContent(note);
-                  }
-                }, 100);
-              }}
+              onClick={() => setNoteOpen(false)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
