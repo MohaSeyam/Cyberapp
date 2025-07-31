@@ -76,6 +76,17 @@ function LoadingScreen() {
 // App Routes Component
 function AppRoutes() {
   const { loading, plan, progress } = useApp();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   // Show loading screen while data is being loaded
   if (loading) {
@@ -96,7 +107,7 @@ function AppRoutes() {
     <>
       <Navigation />
       <div className="flex lg:flex-row flex-col">
-        <Sidebar />
+        {!isMobile && <Sidebar />}
         <div className="flex-1 min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:ml-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
