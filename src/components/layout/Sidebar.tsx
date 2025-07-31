@@ -26,7 +26,7 @@ export default function Sidebar() {
     : [];
 
   return (
-    <aside className="hidden md:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto p-4">
+    <aside className="hidden lg:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto p-4">
       <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">{t('phases')}</h2>
       <ul>
         {phases.map(phase => (
