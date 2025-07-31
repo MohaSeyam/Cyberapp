@@ -24,6 +24,10 @@ export default function ProgressPage() {
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
+  // استخراج مهمة بناءً على id
+  const getTaskById = (taskId: string) =>
+    safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === taskId);
+
   // Calculate statistics with safety checks
   const totalWeeks = safePlan.length;
   const totalTasks = safePlan.reduce((total, week) => 
@@ -986,7 +990,7 @@ export default function ProgressPage() {
           <div className="space-y-4">
             {recentProgress.length > 0 ? (
               recentProgress.map((item, index) => {
-                const task = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === item.taskId);
+                const task = getTaskById(item.taskId);
                 return (
                   <motion.div
                     key={item.id}
