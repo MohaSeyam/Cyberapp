@@ -19,8 +19,6 @@ export default function HomePage() {
   const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
-  const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
-
   // Comprehensive safety checks for data
   const safePlan = Array.isArray(plan) ? plan : [];
   const safeProgress = Array.isArray(progress) ? progress : [];
@@ -37,9 +35,6 @@ export default function HomePage() {
   
   const completedTasks = safeProgress.filter(p => p && p.done).length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-
-  // Get unique phases with safety check
-  const phases = Array.from(new Set(safePlan.map(week => week?.phase).filter(Boolean))).sort();
 
   // Get current week (you can implement your own logic)
   const currentWeek = 1; // This should be calculated based on user progress
@@ -99,14 +94,7 @@ export default function HomePage() {
     }
   ];
 
-  const handlePhaseClick = (phase: number) => {
-    setSelectedPhase(phase);
-    // يمكن إضافة منطق إضافي هنا للانتقال إلى صفحة المرحلة
-  };
 
-  const handleViewAllPhases = () => {
-    navigate('/progress');
-  };
 
   return (
     <PageLayout
@@ -190,7 +178,7 @@ export default function HomePage() {
         </Card>
       </motion.div>
 
-      {/* Learning Phases */}
+      {/* Current Task */}
       <motion.div
         {...animations.fadeIn}
         transition={{ delay: 0.3 }}
@@ -198,37 +186,59 @@ export default function HomePage() {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t('learningPhases')}
+            {t('currentTask')}
           </h2>
           <Button
             variant="outline"
             icon={<ArrowRight className="w-4 h-4" />}
             iconPosition="right"
-            onClick={handleViewAllPhases}
+            onClick={() => navigate('/plan')}
           >
-            {t('viewAll')}
+            {t('viewPlan')}
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {phases.map((phase, index) => {
-            const phaseWeeks = safePlan.filter(week => week?.phase === phase);
-            return (
-              <motion.div
-                key={phase}
-                {...animations.stagger(0.4 + index * 0.1)}
-              >
-                <PhaseCard
-                  phase={phase}
-                  weeks={phaseWeeks}
-                  isActive={selectedPhase === phase}
-                  onClick={() => handlePhaseClick(phase)}
-                  variant="detailed"
-                />
-              </motion.div>
-            );
-          })}
-        </div>
+        <Card
+          variant="elevated"
+          className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+          onClick={() => navigate('/day/1/0')}
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                {t('currentTaskTitle')}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">
+                {t('currentTaskDescription')}
+              </p>
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                <span className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{t('week')} 1</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{t('day')} 1</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>0/5 {t('tasks')}</span>
+                </span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                {t('progress')}
+              </div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                0%
+              </div>
+            </div>
+          </div>
+        </Card>
       </motion.div>
 
       {/* Quick Actions */}

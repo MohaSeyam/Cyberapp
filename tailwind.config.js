@@ -49,17 +49,17 @@ module.exports = {
         },
         // Dark mode
         dark: {
-          background: '#0F172A', // خلفية داكنة عميقة
-          card: '#1E293B', // بطاقات رمادية داكنة
-          text: '#F1F5F9', // نص فاتح
-          textSecondary: '#94A3B8', // رمادي فاتح للنصوص الثانوية
-          border: '#334155', // حدود رمادية داكنة
+          background: '#020617', // خلفية داكنة أكثر قتامة
+          card: '#0F172A', // بطاقات داكنة أكثر
+          text: '#F8FAFC', // نص فاتح أكثر تبايناً
+          textSecondary: '#CBD5E1', // رمادي فاتح أكثر تبايناً
+          border: '#1E293B', // حدود داكنة أكثر
           accent: '#FFD700', // ذهبي أساسي
           danger: '#EF4444',
           success: '#10B981',
           info: '#3B82F6',
           warning: '#F59E0B',
-          soft: '#1E293B',
+          soft: '#0F172A',
           policy: '#8B5CF6',
           blue: '#1E40AF',
         },

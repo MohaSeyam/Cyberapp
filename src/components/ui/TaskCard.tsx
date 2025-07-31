@@ -33,7 +33,7 @@ export default function TaskCard({
   onNoteClick,
   className = ''
 }: TaskCardProps) {
-  const { progress, updateProgress } = useApp();
+  const { progress, updateProgress, plan } = useApp();
   const { t } = useLocalization();
   
   const colors = taskTypeColors[task.type] || taskTypeColors['Blue Team'];
@@ -41,25 +41,64 @@ export default function TaskCard({
     p.weekId === weekId && p.dayKey === dayKey && p.taskId === task.id && p.done
   );
 
+  // التحقق من إمكانية إكمال المهمة (نظام القفل)
+  const canCompleteTask = () => {
+    const currentWeek = plan?.find(w => w.week === weekId);
+    if (!currentWeek) return false;
+    
+    const currentDay = currentWeek.days?.find(d => d.key === dayKey);
+    if (!currentDay) return false;
+    
+    const currentTaskIndex = currentDay.tasks?.findIndex(t => t.id === task.id);
+    if (currentTaskIndex === undefined || currentTaskIndex === -1) return false;
+    
+    // إذا كانت المهمة الأولى، يمكن إكمالها
+    if (currentTaskIndex === 0) return true;
+    
+    // التحقق من إكمال جميع المهام السابقة
+    for (let i = 0; i < currentTaskIndex; i++) {
+      const previousTask = currentDay.tasks?.[i];
+      if (!previousTask) continue;
+      
+      const isPreviousCompleted = progress.some(p => 
+        p.weekId === weekId && p.dayKey === dayKey && p.taskId === previousTask.id && p.done
+      );
+      
+      if (!isPreviousCompleted) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  const isLocked = !canCompleteTask() && !isCompleted;
+
   const handleToggleComplete = () => {
+    if (isLocked) return;
     updateProgress(weekId, dayKey, task.id, !isCompleted);
   };
 
   if (variant === 'compact') {
     return (
       <motion.div
-        whileHover={{ scale: 1.01 }}
+        whileHover={{ scale: isLocked ? 1 : 1.01 }}
         className={`p-3 rounded-lg border transition-all duration-200 ${
-          isCompleted ? 'bg-gray-50 border-gray-200' : colors.bg + ' ' + colors.border
+          isCompleted ? 'bg-gray-50 border-gray-200' : 
+          isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
+          colors.bg + ' ' + colors.border
         } ${className}`}
       >
         <div className="flex items-center space-x-3">
           <button
             onClick={handleToggleComplete}
-            className="flex-shrink-0"
+            className={`flex-shrink-0 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            disabled={isLocked}
           >
             {isCompleted ? (
               <CheckCircle className="w-5 h-5 text-green-600" />
+            ) : isLocked ? (
+              <Circle className="w-5 h-5 text-gray-300" />
             ) : (
               <Circle className="w-5 h-5 text-gray-400 hover:text-gray-600" />
             )}
@@ -67,9 +106,16 @@ export default function TaskCard({
           
           <div className="flex-1 min-w-0">
             <p className={`text-sm font-medium ${
-              isCompleted ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'
+              isCompleted ? 'text-gray-500 line-through' : 
+              isLocked ? 'text-gray-400' : 
+              'text-gray-900 dark:text-gray-100'
             }`}>
               {task.description[useApp().lang]}
+              {isLocked && (
+                <span className="ml-2 text-xs text-gray-400">
+                  🔒 {t('locked')}
+                </span>
+              )}
             </p>
             <div className="flex items-center space-x-2 mt-1">
               <span className="text-xs text-gray-500">{colors.icon}</span>
@@ -94,19 +140,24 @@ export default function TaskCard({
   if (variant === 'detailed') {
     return (
       <motion.div
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ scale: isLocked ? 1 : 1.02 }}
         className={`p-6 rounded-xl border-2 transition-all duration-200 shadow-lg ${
-          isCompleted ? 'bg-gray-50 border-gray-200' : colors.bg + ' ' + colors.border
+          isCompleted ? 'bg-gray-50 border-gray-200' : 
+          isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
+          colors.bg + ' ' + colors.border
         } ${className}`}
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-4">
             <button
               onClick={handleToggleComplete}
-              className="flex-shrink-0"
+              className={`flex-shrink-0 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              disabled={isLocked}
             >
               {isCompleted ? (
                 <CheckCircle className="w-8 h-8 text-green-600" />
+              ) : isLocked ? (
+                <Circle className="w-8 h-8 text-gray-300" />
               ) : (
                 <Circle className="w-8 h-8 text-gray-400 hover:text-gray-600" />
               )}
@@ -120,9 +171,16 @@ export default function TaskCard({
                 </span>
               </div>
               <h3 className={`text-lg font-semibold ${
-                isCompleted ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'
+                isCompleted ? 'text-gray-500 line-through' : 
+                isLocked ? 'text-gray-400' : 
+                'text-gray-900 dark:text-gray-100'
               }`}>
                 {task.description[useApp().lang]}
+                {isLocked && (
+                  <span className="ml-2 text-sm text-gray-400">
+                    🔒 {t('locked')}
+                  </span>
+                )}
               </h3>
             </div>
           </div>
@@ -165,18 +223,23 @@ export default function TaskCard({
   // Default variant
   return (
     <motion.div
-      whileHover={{ scale: 1.01 }}
+      whileHover={{ scale: isLocked ? 1 : 1.01 }}
       className={`p-4 rounded-lg border transition-all duration-200 ${
-        isCompleted ? 'bg-gray-50 border-gray-200' : colors.bg + ' ' + colors.border
+        isCompleted ? 'bg-gray-50 border-gray-200' : 
+        isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
+        colors.bg + ' ' + colors.border
       } ${className}`}
     >
       <div className="flex items-start space-x-3">
         <button
           onClick={handleToggleComplete}
-          className="flex-shrink-0 mt-1"
+          className={`flex-shrink-0 mt-1 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          disabled={isLocked}
         >
           {isCompleted ? (
             <CheckCircle className="w-5 h-5 text-green-600" />
+          ) : isLocked ? (
+            <Circle className="w-5 h-5 text-gray-300" />
           ) : (
             <Circle className="w-5 h-5 text-gray-400 hover:text-gray-600" />
           )}
@@ -191,9 +254,16 @@ export default function TaskCard({
           </div>
           
           <p className={`text-sm ${
-            isCompleted ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'
+            isCompleted ? 'text-gray-500 line-through' : 
+            isLocked ? 'text-gray-400' : 
+            'text-gray-900 dark:text-gray-100'
           }`}>
             {task.description[useApp().lang]}
+            {isLocked && (
+              <span className="ml-2 text-xs text-gray-400">
+                🔒 {t('locked')}
+              </span>
+            )}
           </p>
           
           <div className="flex items-center justify-between mt-3">

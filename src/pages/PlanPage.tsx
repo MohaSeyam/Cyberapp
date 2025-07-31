@@ -54,6 +54,66 @@ export default function PlanPage() {
     return location.pathname === `/day/${weekNumber}/${dayIndex}`;
   };
 
+  // الحصول على عنوان المرحلة
+  const getPhaseTitle = (phase: number) => {
+    const phaseTitles: { [key: number]: string } = {
+      1: lang === 'ar' ? 'أساسيات الأمن السيبراني' : 'Cybersecurity Fundamentals',
+      2: lang === 'ar' ? 'الشبكات والأمان' : 'Networking & Security',
+      3: lang === 'ar' ? 'البرمجة والاختراق الأخلاقي' : 'Programming & Ethical Hacking',
+      4: lang === 'ar' ? 'الدفاع والحماية' : 'Defense & Protection',
+      5: lang === 'ar' ? 'التحليل الجنائي' : 'Digital Forensics',
+      6: lang === 'ar' ? 'الأمن السحابي' : 'Cloud Security',
+      7: lang === 'ar' ? 'أمن التطبيقات' : 'Application Security',
+      8: lang === 'ar' ? 'إدارة الأمن' : 'Security Management'
+    };
+    return phaseTitles[phase] || `${t('phase')} ${phase}`;
+  };
+
+  // الحصول على وصف المرحلة
+  const getPhaseDescription = (phase: number) => {
+    const phaseDescriptions: { [key: number]: string } = {
+      1: lang === 'ar' ? 'تعلم المفاهيم الأساسية' : 'Learn fundamental concepts',
+      2: lang === 'ar' ? 'فهم الشبكات والحماية' : 'Understand networks & protection',
+      3: lang === 'ar' ? 'البرمجة والاختراق' : 'Programming & hacking',
+      4: lang === 'ar' ? 'تقنيات الدفاع' : 'Defense techniques',
+      5: lang === 'ar' ? 'التحليل الجنائي الرقمي' : 'Digital forensics analysis',
+      6: lang === 'ar' ? 'أمن الحوسبة السحابية' : 'Cloud computing security',
+      7: lang === 'ar' ? 'أمان التطبيقات' : 'Application security',
+      8: lang === 'ar' ? 'إدارة الأمن السيبراني' : 'Cybersecurity management'
+    };
+    return phaseDescriptions[phase] || '';
+  };
+
+  // الحصول على عنوان الأسبوع
+  const getWeekTitle = (week: number) => {
+    const weekTitles: { [key: number]: string } = {
+      1: lang === 'ar' ? 'مقدمة في الأمن السيبراني' : 'Introduction to Cybersecurity',
+      2: lang === 'ar' ? 'التهديدات والهجمات' : 'Threats & Attacks',
+      3: lang === 'ar' ? 'أدوات الحماية' : 'Protection Tools',
+      4: lang === 'ar' ? 'أفضل الممارسات' : 'Best Practices',
+      5: lang === 'ar' ? 'المراقبة والكشف' : 'Monitoring & Detection',
+      6: lang === 'ar' ? 'الاستجابة للحوادث' : 'Incident Response',
+      7: lang === 'ar' ? 'التقييم والتحسين' : 'Assessment & Improvement',
+      8: lang === 'ar' ? 'التطبيق العملي' : 'Practical Application'
+    };
+    return weekTitles[week] || `${t('week')} ${week}`;
+  };
+
+  // الحصول على وصف الأسبوع
+  const getWeekDescription = (week: number) => {
+    const weekDescriptions: { [key: number]: string } = {
+      1: lang === 'ar' ? 'أساسيات ومفاهيم' : 'Basics & concepts',
+      2: lang === 'ar' ? 'أنواع التهديدات' : 'Types of threats',
+      3: lang === 'ar' ? 'أدوات وتقنيات' : 'Tools & techniques',
+      4: lang === 'ar' ? 'ممارسات آمنة' : 'Safe practices',
+      5: lang === 'ar' ? 'المراقبة المستمرة' : 'Continuous monitoring',
+      6: lang === 'ar' ? 'الاستجابة السريعة' : 'Quick response',
+      7: lang === 'ar' ? 'التقييم المستمر' : 'Continuous assessment',
+      8: lang === 'ar' ? 'التطبيق العملي' : 'Practical application'
+    };
+    return weekDescriptions[week] || '';
+  };
+
   return (
     <PageLayout title={t('plan')} subtitle={t('planSubtitle')} showHeader={true}>
       <div className="max-w-4xl mx-auto">
@@ -86,10 +146,10 @@ export default function PlanPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {t('phase')} {phase}
+                        {t('phase')} {phase}: {getPhaseTitle(phase)}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {weeks.length} {t('weeks')}
+                        {weeks.length} {t('weeks')} • {getPhaseDescription(phase)}
                       </p>
                     </div>
                   </div>
@@ -125,10 +185,10 @@ export default function PlanPage() {
                               </div>
                               <div>
                                 <h4 className="font-medium text-gray-900 dark:text-white">
-                                  {t('week')} {week.week}
+                                  {t('week')} {week.week}: {getWeekTitle(week.week)}
                                 </h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {days.length} {t('days')}
+                                  {days.length} {t('days')} • {getWeekDescription(week.week)}
                                 </p>
                               </div>
                             </div>
