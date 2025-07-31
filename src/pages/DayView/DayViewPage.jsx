@@ -96,7 +96,7 @@ function NoteEditor({ note, taskDescription, onSave, onDelete }) {
                     <div className="flex flex-wrap gap-2 mt-1">
                       {NOTE_TAGS.map(tag => (
                         <button
-                          key={tag}
+                          key={`note-tag-${tag}`}
                           type="button"
                           onClick={() => toggleTag(tag)}
                           className={`px-3 py-1 rounded-full border text-xs font-medium transition focus:outline-none
@@ -162,20 +162,21 @@ function ResourcesSection({ weekId, dayIndex }) {
             setError(""); // مسح الأخطاء السابقة
             const resources = await getResourcesByDay(numericWeekId, numericDayIndex);
             console.log("Fetched resources:", resources);
-            setUserResources(resources);
+            setUserResources(Array.isArray(resources) ? resources : []);
         } catch (error) {
             console.error("Error fetching resources:", error);
-            setError("خطأ في تحميل المراجع: " + error.message);
+            const errorMessage = error?.message || "خطأ في تحميل المراجع";
+            setError(errorMessage);
             setUserResources([]);
         }
     }, [weekId, dayIndex]);
 
     // جلب المراجع من الخطة الأصلية (plan)
     let planResources = [];
-    if (plan && plan.find) {
+    if (plan && plan.find && Array.isArray(plan)) {
       const numericWeekId = parseInt(weekId, 10);
-      const week = plan.find(w => w.week === numericWeekId);
-      if (week && week.days && week.days[dayIndex]) {
+      const week = plan.find(w => w && w.week === numericWeekId);
+      if (week && week.days && Array.isArray(week.days) && week.days[dayIndex]) {
         planResources = week.days[dayIndex].resources || [];
       }
     }
@@ -189,7 +190,8 @@ function ResourcesSection({ weekId, dayIndex }) {
                 await fetchResources();
             } catch (error) {
                 console.error("Error loading resources:", error);
-                setError("خطأ في تحميل المراجع: " + error.message);
+                const errorMessage = error?.message || "خطأ في تحميل المراجع";
+                setError(errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -262,7 +264,7 @@ function ResourcesSection({ weekId, dayIndex }) {
                 {/* مراجع الخطة الأصلية */}
                 {planResources.map((res, index) => (
                     <motion.div 
-                        key={index} 
+                        key={`plan-${res.title}-${index}`} 
                         className="flex items-center group bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 0.8, x: 0 }}
@@ -289,7 +291,7 @@ function ResourcesSection({ weekId, dayIndex }) {
                 {/* مراجع المستخدم */}
                 {userResources.map((res, index) => (
                     <motion.div 
-                        key={"user-"+index} 
+                        key={`user-${res.id || res.title}-${index}`} 
                         className="flex items-center group bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all duration-200"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -385,7 +387,8 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
             setModal({ isOpen: false, content: null });
         } catch (error) {
             console.error("Error saving resource:", error);
-            setError("خطأ في حفظ المرجع، يرجى المحاولة مرة أخرى");
+            const errorMessage = error?.message || "خطأ في حفظ المرجع، يرجى المحاولة مرة أخرى";
+            setError(errorMessage);
             toast.error("خطأ في حفظ المرجع");
         } finally {
             setIsLoading(false);
@@ -409,7 +412,8 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
             setModal({ isOpen: false, content: null });
         } catch (error) {
             console.error("Error deleting resource:", error);
-            setError("خطأ في حذف المرجع، يرجى المحاولة مرة أخرى");
+            const errorMessage = error?.message || "خطأ في حذف المرجع، يرجى المحاولة مرة أخرى";
+            setError(errorMessage);
             toast.error("خطأ في حذف المرجع");
         } finally {
             setIsLoading(false);
@@ -477,7 +481,7 @@ function ResourceEditorModal({ resource, index, weekId, dayIndex, isPlanResource
                     <div className="grid grid-cols-2 gap-3">
                         {RESOURCE_TYPES.map(rt => (
                             <button
-                                key={rt.value}
+                                key={`resource-type-${rt.value}`}
                                 type="button"
                                 onClick={() => setType(rt.value)}
                                 disabled={isLoading}
@@ -749,7 +753,7 @@ export default function DayViewPage(props) {
                               
                               return (
                                 <motion.div
-                                  key={task.id || i}
+                                  key={`task-${task.id || task.description?.[lang] || i}`}
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ duration: 0.3, delay: i * 0.1 }}

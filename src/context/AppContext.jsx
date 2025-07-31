@@ -40,43 +40,32 @@ export function AppProvider({ children }) {
 
   // جلب كل البيانات من القاعدة
   const fetchAll = useCallback(async () => {
-    console.log("AppContext fetchAll called - starting");
-    setLoading(true);
-
     try {
-      // استورد البيانات من PlanData.json إذا كانت قاعدة البيانات فارغة
-      const plan = await db.getPlan();
-      if (!plan || plan.length === 0) {
-        console.log("Plan is empty, importing from PlanData.json");
-        try {
-          const res = await fetch("/PlanData.json");
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              await db.savePlan(data);
-            }
-          }
-        } catch (fetchError) {
-          console.error("Error fetching PlanData.json:", fetchError);
-        }
-      }
+      setLoading(true);
+      console.log("AppContext fetchAll starting");
       
-      const [planData, notesData, journalData, progressData] = await Promise.all([
-        db.getPlan().catch(() => []),
-        db.getNotes().catch(() => []),
-        db.getJournalEntries().catch(() => []),
-        db.getProgress().catch(() => [])
+      const [planData, progressData, notesData, journalData] = await Promise.all([
+        getPlan(),
+        getProgress(),
+        getNotes(),
+        getJournalEntries()
       ]);
       
-      console.log("AppContext data fetched:", { planData: planData.length, progressData: progressData.length });
+      console.log("AppContext - planData length:", planData?.length);
+      console.log("AppContext - progressData length:", progressData?.length);
+      console.log("AppContext - notesData length:", notesData?.length);
+      console.log("AppContext - journalData length:", journalData?.length);
       
-      // تهيئة كل مهمة بـ done: false إذا لم تكن موجودة
+      // Normalize plan data
       const normalizedPlan = (planData || []).map(week => ({
         ...week,
         days: (week.days || []).map(day => ({
           ...day,
           tasks: (day.tasks || []).map(task => {
-            const t = { ...task, done: typeof task.done === 'boolean' ? task.done : false };
+            const t = { ...task };
+            if (typeof t.description === 'string') {
+              t.description = { ar: t.description, en: t.description };
+            }
             return t;
           })
         }))
@@ -107,7 +96,7 @@ export function AppProvider({ children }) {
       setLoading(false);
       console.log("AppContext loading set to false");
     }
-  }, []);
+  }, []); // إزالة dependencies لتجنب re-render لا نهائي
 
   useEffect(() => {
     console.log("AppContext useEffect running - calling fetchAll");
@@ -117,7 +106,7 @@ export function AppProvider({ children }) {
     const savedLang = localStorage.getItem('app_language') || "ar";
     i18n.changeLanguage(savedLang);
     document.documentElement.setAttribute("dir", savedLang === "ar" ? "rtl" : "ltr");
-  }, [fetchAll]);
+  }, []); // إزالة fetchAll من dependencies
 
   const Icons = {
     check: FaCheck,
