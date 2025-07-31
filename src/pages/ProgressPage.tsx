@@ -78,6 +78,63 @@ export default function ProgressPage() {
     .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
     .slice(0, 5);
 
+  // Calculate streak information
+  const calculateStreak = () => {
+    if (safeProgress.length === 0) return { currentStreak: 0, longestStreak: 0 };
+    
+    const completedDates = safeProgress
+      .filter(p => p.done)
+      .map(p => new Date(p.updatedAt || 0).toDateString())
+      .filter((date, index, arr) => arr.indexOf(date) === index) // Remove duplicates
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    
+    if (completedDates.length === 0) return { currentStreak: 0, longestStreak: 0 };
+    
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
+    
+    for (let i = 0; i < completedDates.length; i++) {
+      const currentDate = new Date(completedDates[i]);
+      const nextDate = i < completedDates.length - 1 ? new Date(completedDates[i + 1]) : null;
+      
+      if (nextDate) {
+        const dayDiff = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (dayDiff === 1) {
+          tempStreak++;
+        } else {
+          longestStreak = Math.max(longestStreak, tempStreak + 1);
+          tempStreak = 0;
+        }
+      } else {
+        tempStreak++;
+      }
+      
+      // Calculate current streak
+      if (i === 0) {
+        const daysSinceLastActivity = Math.floor((Date.now() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysSinceLastActivity === 0 || daysSinceLastActivity === 1) {
+          currentStreak = tempStreak;
+        } else if (daysSinceLastActivity === 2 && completedDates.includes(yesterday)) {
+          currentStreak = tempStreak;
+        } else {
+          currentStreak = 0;
+        }
+      }
+    }
+    
+    longestStreak = Math.max(longestStreak, tempStreak);
+    
+    return { currentStreak, longestStreak };
+  };
+  
+  const { currentStreak, longestStreak } = calculateStreak();
+
   // Smart Suggestions System
   const suggestions = useMemo(() => {
     const suggestionsList = [];
@@ -259,6 +316,61 @@ export default function ProgressPage() {
       });
     }
 
+    // اقتراحات بناءً على الاستمرارية
+    if (currentStreak >= 3 && currentStreak < 7) {
+      suggestionsList.push({
+        icon: Coffee,
+        title: lang === 'ar' ? 'استمر في الاستمرارية' : 'Keep the Streak',
+        description: lang === 'ar' ? `أنت على ${currentStreak} أيام متتالية! استمر لتحقيق إنجاز الاستمرارية` : `You're on a ${currentStreak}-day streak! Keep going to unlock the consistency achievement`,
+        type: 'motivation',
+        priority: 'high',
+        color: 'text-pink-600',
+        bg: 'bg-pink-50'
+      });
+    }
+
+    if (currentStreak === 0 && completedTasks > 0) {
+      suggestionsList.push({
+        icon: Heart,
+        title: lang === 'ar' ? 'ابدأ سلسلة جديدة' : 'Start a New Streak',
+        description: lang === 'ar' ? 'اكمل مهمة اليوم لتبدأ سلسلة تعلم جديدة' : 'Complete today\'s task to start a new learning streak',
+        type: 'motivation',
+        priority: 'medium',
+        color: 'text-pink-600',
+        bg: 'bg-pink-50'
+      });
+    }
+
+    // اقتراحات بناءً على التوازن
+    const totalCompleted = blueTeamTasks + redTeamTasks + practicalTasks;
+    if (totalCompleted > 10) {
+      const bluePercentage = (blueTeamTasks / totalCompleted) * 100;
+      const redPercentage = (redTeamTasks / totalCompleted) * 100;
+      const practicalPercentage = (practicalTasks / totalCompleted) * 100;
+      
+      if (bluePercentage > 60) {
+        suggestionsList.push({
+          icon: Shield,
+          title: lang === 'ar' ? 'جرب الهجوم' : 'Try Offense',
+          description: lang === 'ar' ? 'أنت تركز على الدفاع، جرب مهام Red Team' : 'You\'re focusing on defense, try Red Team tasks',
+          type: 'skill-balance',
+          priority: 'medium',
+          color: 'text-red-600',
+          bg: 'bg-red-50'
+        });
+      } else if (redPercentage > 60) {
+        suggestionsList.push({
+          icon: Shield,
+          title: lang === 'ar' ? 'تعلم الدفاع' : 'Learn Defense',
+          description: lang === 'ar' ? 'أنت تركز على الهجوم، تعلم تقنيات الدفاع' : 'You\'re focusing on offense, learn defense techniques',
+          type: 'skill-balance',
+          priority: 'medium',
+          color: 'text-blue-600',
+          bg: 'bg-blue-50'
+        });
+      }
+    }
+
     // ترتيب الاقتراحات حسب الأولوية
     const priorityOrder = { high: 3, medium: 2, low: 1 };
     return suggestionsList.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]).slice(0, 6);
@@ -363,10 +475,37 @@ export default function ProgressPage() {
       icon: Heart,
       title: lang === 'ar' ? 'متسق' : 'Consistent',
       description: lang === 'ar' ? 'تعلم لمدة 7 أيام متتالية' : 'Learn for 7 consecutive days',
-      unlocked: false, // سيتم حسابها لاحقاً
+      unlocked: currentStreak >= 7,
       color: 'text-pink-600',
       bg: 'bg-pink-50',
-      progress: 0
+      progress: Math.min(currentStreak, 7)
+    },
+    {
+      icon: Coffee,
+      title: lang === 'ar' ? 'متعلم مثابر' : 'Persistent Learner',
+      description: lang === 'ar' ? 'تعلم لمدة 30 يوم متتالية' : 'Learn for 30 consecutive days',
+      unlocked: currentStreak >= 30,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+      progress: Math.min(currentStreak, 30)
+    },
+    {
+      icon: Gift,
+      title: lang === 'ar' ? 'مستكشف' : 'Explorer',
+      description: lang === 'ar' ? 'أكمل مهام من جميع الأنواع' : 'Complete tasks from all types',
+      unlocked: blueTeamTasks > 0 && redTeamTasks > 0 && practicalTasks > 0,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+      progress: [blueTeamTasks, redTeamTasks, practicalTasks].filter(t => t > 0).length
+    },
+    {
+      icon: Sparkles,
+      title: lang === 'ar' ? 'متعلم متوازن' : 'Balanced Learner',
+      description: lang === 'ar' ? 'أكمل 5 مهام من كل نوع' : 'Complete 5 tasks from each type',
+      unlocked: blueTeamTasks >= 5 && redTeamTasks >= 5 && practicalTasks >= 5,
+      color: 'text-violet-600',
+      bg: 'bg-violet-50',
+      progress: Math.min(Math.min(blueTeamTasks, redTeamTasks), practicalTasks)
     }
   ];
 
@@ -589,11 +728,11 @@ export default function ProgressPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span>{lang === 'ar' ? 'أطول سلسلة' : 'Longest Streak'}</span>
-                  <span>0 {lang === 'ar' ? 'يوم' : 'days'}</span>
+                  <span>{longestStreak} {lang === 'ar' ? 'يوم' : 'days'}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>{lang === 'ar' ? 'السلسلة الحالية' : 'Current Streak'}</span>
-                  <span>0 {lang === 'ar' ? 'يوم' : 'days'}</span>
+                  <span>{currentStreak} {lang === 'ar' ? 'يوم' : 'days'}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>{lang === 'ar' ? 'آخر نشاط' : 'Last Activity'}</span>
@@ -602,26 +741,30 @@ export default function ProgressPage() {
               </div>
             </div>
 
-            {/* Performance Metrics */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
-                {lang === 'ar' ? 'مقاييس الأداء' : 'Performance Metrics'}
-              </h4>
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span>{lang === 'ar' ? 'معدل الإنجاز' : 'Completion Rate'}</span>
-                  <span>{completionRate}%</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span>{lang === 'ar' ? 'كفاءة التعلم' : 'Learning Efficiency'}</span>
-                  <span>{completionRate > 0 ? Math.round((completionRate / (completedDuration / 60)) * 100) : 0}%</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span>{lang === 'ar' ? 'نقاط التقدم' : 'Progress Points'}</span>
-                  <span>{completedTasks * 10}</span>
-                </div>
+                      {/* Performance Metrics */}
+          <div className="space-y-3">
+            <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+              {lang === 'ar' ? 'مقاييس الأداء' : 'Performance Metrics'}
+            </h4>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span>{lang === 'ar' ? 'معدل الإنجاز' : 'Completion Rate'}</span>
+                <span>{completionRate}%</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>{lang === 'ar' ? 'كفاءة التعلم' : 'Learning Efficiency'}</span>
+                <span>{completionRate > 0 ? Math.round((completionRate / (completedDuration / 60)) * 100) : 0}%</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>{lang === 'ar' ? 'نقاط التقدم' : 'Progress Points'}</span>
+                <span>{completedTasks * 10}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>{lang === 'ar' ? 'معدل الاستمرارية' : 'Streak Rate'}</span>
+                <span>{completedTasks > 0 ? Math.round((currentStreak / completedTasks) * 100) : 0}%</span>
               </div>
             </div>
+          </div>
           </div>
         </Card>
       </motion.div>
@@ -773,6 +916,59 @@ export default function ProgressPage() {
               <p className="text-sm">{lang === 'ar' ? 'استمر في التعلم لرؤية اقتراحات مخصصة' : 'Continue learning to see personalized suggestions'}</p>
             </div>
           )}
+        </Card>
+      </motion.div>
+
+      {/* Weekly Performance Analysis */}
+      <motion.div
+        {...animations.fadeIn}
+        transition={{ delay: 0.55 }}
+        className="mb-8"
+      >
+        <Card
+          title={lang === 'ar' ? 'تحليل الأداء الأسبوعي' : 'Weekly Performance Analysis'}
+          subtitle={lang === 'ar' ? 'مقارنة أدائك عبر الأسابيع' : 'Compare your performance across weeks'}
+        >
+          <div className="space-y-6">
+            {phaseStats.slice(0, 4).map((phase, index) => (
+              <div key={phase.phase} className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {lang === 'ar' ? 'المرحلة' : 'Phase'} {phase.phase}
+                  </h4>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {phase.completedTasks}/{phase.totalTasks}
+                    </span>
+                    <span className={`text-sm font-medium ${
+                      phase.completionRate >= 80 ? 'text-green-600' :
+                      phase.completionRate >= 50 ? 'text-yellow-600' :
+                      'text-red-600'
+                    }`}>
+                      {phase.completionRate}%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${phase.completionRate}%` }}
+                    transition={{ duration: 1, delay: 1.2 + index * 0.1 }}
+                    className={`h-3 rounded-full ${
+                      phase.completionRate >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
+                      phase.completionRate >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-600' :
+                      'bg-gradient-to-r from-red-500 to-pink-600'
+                    }`}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <span>{lang === 'ar' ? 'ممتاز' : 'Excellent'}</span>
+                  <span>{lang === 'ar' ? 'جيد' : 'Good'}</span>
+                  <span>{lang === 'ar' ? 'يحتاج تحسين' : 'Needs Improvement'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
       </motion.div>
 
