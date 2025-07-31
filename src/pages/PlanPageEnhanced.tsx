@@ -153,6 +153,21 @@ export default function PlanPageEnhanced() {
   // عرض اليوم (DayView)
   if (selectedDayIndex !== null && selectedWeek) {
     const day = selectedWeek.days?.[selectedDayIndex];
+    if (!day) {
+      return (
+        <PageLayout title={t('plan')} subtitle={t('learningPlan')} showHeader={true}>
+          <Breadcrumbs items={breadcrumbs} onNavigate={() => {}} />
+          <Card className="mb-6">
+            <div className="p-4 flex items-center space-x-2">
+              <ArrowLeft className="w-5 h-5 cursor-pointer" onClick={handleBackToDays} />
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                {t('loadingDayContent') || 'جاري تحميل محتوى اليوم...'}
+              </h2>
+            </div>
+          </Card>
+        </PageLayout>
+      );
+    }
     return (
       <PageLayout title={t('plan')} subtitle={t('learningPlan')} showHeader={true}>
         <Breadcrumbs items={breadcrumbs} onNavigate={() => {}} />
