@@ -32,20 +32,20 @@ export default function Sidebar() {
       {/* Toggle Button for Large Screens */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg lg:block xl:hidden"
+        className="fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden md:block xl:hidden"
       >
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
       {/* Sidebar */}
-      <aside className={`fixed lg:static lg:block xl:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto p-4 transition-transform duration-300 z-40 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      <aside className={`hidden md:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto p-4 transition-transform duration-300 z-40 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('phases')}</h2>
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            className="md:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
           >
             <X className="w-5 h-5" />
           </button>
