@@ -56,6 +56,12 @@ export default function Navigation({ className = '' }: NavigationProps) {
       path: '/settings',
       icon: Settings,
       description: t('appSettings')
+    },
+    {
+      name: t('plan'),
+      path: '/plan',
+      icon: Calendar,
+      description: t('plan')
     }
   ];
 

@@ -703,6 +703,22 @@ const translations: TranslationData = {
   loadingDayContent: {
     ar: "جاري تحميل محتوى اليوم...",
     en: "Loading day content..."
+  },
+  plan: {
+    ar: "الخطة",
+    en: "Plan"
+  },
+  planSubtitle: {
+    ar: "تصفح المراحل والأسابيع والأيام بسهولة",
+    en: "Browse phases, weeks, and days easily"
+  },
+  weeks: {
+    ar: "الأسابيع",
+    en: "Weeks"
+  },
+  days: {
+    ar: "الأيام",
+    en: "Days"
   }
 };
 
