@@ -1,23 +1,16 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "./context/ThemeProvider";
 import { AppProvider } from "./context/AppContext";
 import "./styles/fontSizes.css";
-import MainLayout from "./layouts/MainLayout";
-import Dashboard from "./pages/Dashboard";
-import CyberPlan from "./pages/CyberPlan";
-import Journal from "./pages/Journal";
-import Notebook from "./pages/Notebook";
-import Achievements from "./pages/Achievements";
-import DayViewPage from "./pages/DayView/DayViewPage";
-import WeekView from "./pages/WeekView";
-import PhaseView from "./pages/PhaseView";
+import HomePage from "./pages/HomePage";
+import DayViewPage from "./pages/DayViewPage";
+import NotesPage from "./pages/NotesPage";
+import JournalPage from "./pages/JournalPage";
+import ProgressPage from "./pages/ProgressPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import { Toaster } from "react-hot-toast";
-import PlanPhases from "./pages/PlanPhases";
-import Settings from "./pages/Settings";
-import InstallPrompt from "./components/InstallPrompt";
 import { useState, useEffect } from "react";
 
 // Error Boundary Component
@@ -64,8 +57,6 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-
-
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -87,35 +78,27 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 text-gray-900">
-          <ThemeProvider>
-            <AppProvider>
-              <BrowserRouter>
-                <Toaster
-                  position="top-center"
-                  toastOptions={{
-                    style: { fontFamily: 'Tajawal, sans-serif', fontSize: 16 },
-                    duration: 2500,
-                  }}
-                />
-                <Routes>
-                  <Route path="/" element={<MainLayout />}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="plan" element={<CyberPlan />} />
-                    <Route path="journal" element={<Journal />} />
-                    <Route path="phase/:phaseId" element={<PhaseView />} />
-                    <Route path="week/:weekId" element={<WeekView />} />
-                    <Route path="day/:weekId/:dayKey" element={<DayViewPage />} />
-                    <Route path="notebook" element={<Notebook />} />
-                    <Route path="achievements" element={<Achievements />} />
-                    <Route path="phases" element={<PlanPhases />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
-                </Routes>
-                <InstallPrompt />
-              </BrowserRouter>
-            </AppProvider>
-          </ThemeProvider>
+        <AppProvider>
+          <BrowserRouter>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: { fontFamily: 'Tajawal, sans-serif', fontSize: 16 },
+                duration: 2500,
+              }}
+            />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+              <Route path="/notes" element={<NotesPage />} />
+              <Route path="/journal" element={<JournalPage />} />
+              <Route path="/progress" element={<ProgressPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AppProvider>
       </div>
     </ErrorBoundary>
   );

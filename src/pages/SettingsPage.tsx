@@ -1,0 +1,415 @@
+// Settings Page - Unified Design
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Settings, Globe, Moon, Sun, Bell, Volume2, VolumeX,
+  Save, RotateCcw, Download, Upload, Trash2, Eye, EyeOff
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { useLocalization } from '../hooks/useLocalization';
+import PageLayout from '../components/layout/PageLayout';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import { animations } from '../constants/theme';
+
+export default function SettingsPage() {
+  const { settings, updateSettings, lang, setLang, theme, setTheme, refreshData } = useApp();
+  const { t } = useLocalization();
+  
+  const [localSettings, setLocalSettings] = useState(settings);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const handleSettingChange = (key: keyof typeof settings, value: any) => {
+    setLocalSettings(prev => ({ ...prev, [key]: value }));
+    setHasChanges(true);
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      await updateSettings(localSettings);
+      setHasChanges(false);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    }
+  };
+
+  const handleResetSettings = () => {
+    setLocalSettings(settings);
+    setHasChanges(false);
+  };
+
+  const handleExportData = () => {
+    const data = {
+      settings: localSettings,
+      timestamp: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cyber-security-journey-settings-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+          if (data.settings) {
+            setLocalSettings(data.settings);
+            setHasChanges(true);
+          }
+        } catch (error) {
+          console.error('Error importing settings:', error);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleClearData = () => {
+    if (confirm(t('confirmClearData'))) {
+      // Implement data clearing logic
+      console.log('Clearing all data...');
+    }
+  };
+
+  const settingSections = [
+    {
+      title: t('appearance'),
+      icon: theme === 'dark' ? Moon : Sun,
+      settings: [
+        {
+          key: 'theme',
+          label: t('theme'),
+          type: 'select',
+          options: [
+            { value: 'light', label: t('light') },
+            { value: 'dark', label: t('dark') }
+          ],
+          value: theme,
+          onChange: (value: string) => setTheme(value as 'light' | 'dark')
+        },
+        {
+          key: 'fontSize',
+          label: t('fontSize'),
+          type: 'select',
+          options: [
+            { value: 'small', label: t('small') },
+            { value: 'medium', label: t('medium') },
+            { value: 'large', label: t('large') }
+          ],
+          value: localSettings.fontSize,
+          onChange: (value: string) => handleSettingChange('fontSize', value)
+        },
+        {
+          key: 'compactMode',
+          label: t('compactMode'),
+          type: 'toggle',
+          value: localSettings.compactMode,
+          onChange: (value: boolean) => handleSettingChange('compactMode', value)
+        }
+      ]
+    },
+    {
+      title: t('notifications'),
+      icon: Bell,
+      settings: [
+        {
+          key: 'notifications',
+          label: t('enableNotifications'),
+          type: 'toggle',
+          value: localSettings.notifications,
+          onChange: (value: boolean) => handleSettingChange('notifications', value)
+        },
+        {
+          key: 'sound',
+          label: t('soundEffects'),
+          type: 'toggle',
+          value: localSettings.sound,
+          onChange: (value: boolean) => handleSettingChange('sound', value)
+        }
+      ]
+    },
+    {
+      title: t('data'),
+      icon: Save,
+      settings: [
+        {
+          key: 'autoSave',
+          label: t('autoSave'),
+          type: 'toggle',
+          value: localSettings.autoSave,
+          onChange: (value: boolean) => handleSettingChange('autoSave', value)
+        }
+      ]
+    }
+  ];
+
+  return (
+    <PageLayout
+      title={t('settings')}
+      subtitle={t('customizeYourExperience')}
+      header={
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+              <Settings className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                {t('settings')}
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                {t('customizeYourExperience')}
+              </p>
+            </div>
+          </div>
+          {hasChanges && (
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                icon={<RotateCcw className="w-4 h-4" />}
+                onClick={handleResetSettings}
+              >
+                {t('reset')}
+              </Button>
+              <Button
+                variant="primary"
+                icon={<Save className="w-4 h-4" />}
+                onClick={handleSaveSettings}
+              >
+                {t('save')}
+              </Button>
+            </div>
+          )}
+        </div>
+      }
+    >
+      {/* Language and Theme Quick Settings */}
+      <motion.div
+        {...animations.fadeIn}
+        className="mb-8"
+      >
+        <Card
+          title={t('quickSettings')}
+          subtitle={t('mostUsedSettings')}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Language */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('language')}
+              </label>
+              <div className="flex space-x-2">
+                <Button
+                  variant={lang === 'ar' ? 'primary' : 'outline'}
+                  onClick={() => setLang('ar')}
+                  className="flex-1"
+                >
+                  العربية
+                </Button>
+                <Button
+                  variant={lang === 'en' ? 'primary' : 'outline'}
+                  onClick={() => setLang('en')}
+                  className="flex-1"
+                >
+                  English
+                </Button>
+              </div>
+            </div>
+
+            {/* Theme */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('theme')}
+              </label>
+              <div className="flex space-x-2">
+                <Button
+                  variant={theme === 'light' ? 'primary' : 'outline'}
+                  icon={<Sun className="w-4 h-4" />}
+                  onClick={() => setTheme('light')}
+                  className="flex-1"
+                >
+                  {t('light')}
+                </Button>
+                <Button
+                  variant={theme === 'dark' ? 'primary' : 'outline'}
+                  icon={<Moon className="w-4 h-4" />}
+                  onClick={() => setTheme('dark')}
+                  className="flex-1"
+                >
+                  {t('dark')}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Settings Sections */}
+      <div className="space-y-8">
+        {settingSections.map((section, sectionIndex) => (
+          <motion.div
+            key={section.title}
+            {...animations.fadeIn}
+            transition={{ delay: 0.2 + sectionIndex * 0.1 }}
+          >
+            <Card
+              title={section.title}
+              subtitle={t(`${section.title.toLowerCase()}Settings`)}
+            >
+              <div className="space-y-6">
+                {section.settings.map((setting, settingIndex) => (
+                  <motion.div
+                    key={setting.key}
+                    {...animations.stagger(settingIndex * 0.05)}
+                    className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        {setting.type === 'toggle' && (setting.value ? 
+                          <Bell className="w-4 h-4 text-green-600" /> : 
+                          <Bell className="w-4 h-4 text-gray-400" />
+                        )}
+                        {setting.type === 'select' && <Globe className="w-4 h-4 text-blue-600" />}
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-900 dark:text-white">
+                          {setting.label}
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {t(`${setting.key}Description`)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      {setting.type === 'toggle' && (
+                        <button
+                          onClick={() => setting.onChange(!setting.value)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            setting.value ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              setting.value ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      )}
+
+                      {setting.type === 'select' && (
+                        <select
+                          value={setting.value}
+                          onChange={(e) => setting.onChange(e.target.value)}
+                          className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+                        >
+                          {setting.options?.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Data Management */}
+      <motion.div
+        {...animations.fadeIn}
+        transition={{ delay: 0.6 }}
+        className="mt-8"
+      >
+        <Card
+          title={t('dataManagement')}
+          subtitle={t('manageYourData')}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Button
+              variant="outline"
+              icon={<Download className="w-4 h-4" />}
+              onClick={handleExportData}
+            >
+              {t('exportSettings')}
+            </Button>
+
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportData}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                icon={<Upload className="w-4 h-4" />}
+                className="w-full"
+              >
+                {t('importSettings')}
+              </Button>
+            </label>
+
+            <Button
+              variant="outline"
+              icon={<RotateCcw className="w-4 h-4" />}
+              onClick={refreshData}
+            >
+              {t('refreshData')}
+            </Button>
+
+            <Button
+              variant="danger"
+              icon={<Trash2 className="w-4 h-4" />}
+              onClick={handleClearData}
+            >
+              {t('clearData')}
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* About Section */}
+      <motion.div
+        {...animations.fadeIn}
+        transition={{ delay: 0.7 }}
+        className="mt-8"
+      >
+        <Card
+          title={t('about')}
+          subtitle={t('appInformation')}
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('appName')}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                Cyber Security Journey
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('version')}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">1.0.0</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('lastUpdated')}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                {new Date().toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+    </PageLayout>
+  );
+}
