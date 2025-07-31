@@ -231,31 +231,69 @@ export default function RichTextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        bulletList: false,
-        orderedList: false,
-        listItem: false,
+        // تم إزالة تعطيل القوائم لضمان عمل النقاط والأرقام
         codeBlock: false,
       }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      Link,
-      Placeholder.configure({ placeholder }),
+      TextAlign.configure({ 
+        types: ["heading", "paragraph"],
+        alignments: ['left', 'center', 'right']
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-600 underline hover:text-blue-800'
+        }
+      }),
+      Placeholder.configure({ 
+        placeholder,
+        emptyEditorClass: 'is-editor-empty'
+      }),
       Underline,
-      Code,
-      CodeBlock,
-      BulletList,
-      OrderedList,
-      ListItem,
-      Highlight,
+      Code.configure({
+        HTMLAttributes: {
+          class: 'bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono'
+        }
+      }),
+      CodeBlock.configure({
+        HTMLAttributes: {
+          class: 'bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto'
+        }
+      }),
+      BulletList.configure({
+        HTMLAttributes: {
+          class: 'list-disc pl-6 space-y-1'
+        }
+      }),
+      OrderedList.configure({
+        HTMLAttributes: {
+          class: 'list-decimal pl-6 space-y-1'
+        }
+      }),
+      ListItem.configure({
+        HTMLAttributes: {
+          class: 'marker:text-gray-600 dark:marker:text-gray-400'
+        }
+      }),
+      Highlight.configure({
+        HTMLAttributes: {
+          class: 'bg-yellow-200 dark:bg-yellow-800 px-1 rounded'
+        }
+      }),
     ],
     content,
     editorProps: {
       attributes: {
         class: `min-h-[${minHeight}] w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition-all duration-200 ${lang === "ar" ? "text-right" : "text-left"} ${className}`,
-        dir: lang === "ar" ? "rtl" : "ltr"
+        dir: lang === "ar" ? "rtl" : "ltr",
+        spellcheck: 'true'
       }
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+    },
+    onCreate: ({ editor }) => {
+      // إضافة دعم اختصارات لوحة المفاتيح
+      editor.commands.setContent(content);
     }
   });
 
@@ -266,10 +304,54 @@ export default function RichTextEditor({
     }
   }, [content, editor]);
 
+  // إضافة دعم اختصارات لوحة المفاتيح
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // اختصار للقائمة النقطية: Ctrl/Cmd + Shift + 8
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === '8') {
+        event.preventDefault();
+        editor.chain().focus().toggleBulletList().run();
+      }
+      
+      // اختصار للقائمة المرقمة: Ctrl/Cmd + Shift + 7
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === '7') {
+        event.preventDefault();
+        editor.chain().focus().toggleOrderedList().run();
+      }
+      
+      // اختصار للعريض: Ctrl/Cmd + B
+      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+        event.preventDefault();
+        editor.chain().focus().toggleBold().run();
+      }
+      
+      // اختصار للمائل: Ctrl/Cmd + I
+      if ((event.ctrlKey || event.metaKey) && event.key === 'i') {
+        event.preventDefault();
+        editor.chain().focus().toggleItalic().run();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [editor]);
+
   return (
     <div className="w-full">
       {showToolbar && <EditorToolbar editor={editor} lang={lang} />}
       <EditorContent editor={editor} />
+      
+      {/* إضافة تلميحات للاختصارات */}
+      {showToolbar && (
+        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <span className="mr-4">Ctrl+B: عريض</span>
+          <span className="mr-4">Ctrl+I: مائل</span>
+          <span className="mr-4">Ctrl+Shift+8: قائمة نقطية</span>
+          <span className="mr-4">Ctrl+Shift+7: قائمة مرقمة</span>
+        </div>
+      )}
     </div>
   );
 }
