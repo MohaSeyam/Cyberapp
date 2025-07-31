@@ -7,6 +7,18 @@ import { Dialog, DialogContent, DialogTitle } from "../../components/ui/Dialog";
 import { ShieldCheck, Flame, User, Cpu, List, Check, Clock, Edit3, X, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextAlign from "@tiptap/extension-text-align";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
+import Code from "@tiptap/extension-code";
+import CodeBlock from "@tiptap/extension-code-block";
+import Highlight from "@tiptap/extension-highlight";
+import { BulletList } from "@tiptap/extension-bullet-list";
+import { OrderedList } from "@tiptap/extension-ordered-list";
+import { ListItem } from "@tiptap/extension-list-item";
 
 // Utility to join class names
 function cn(...args) {
@@ -28,6 +40,121 @@ const typeColors = {
   "Practical": "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20",
   "Default": "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/20"
 };
+
+// Task Note Editor Toolbar
+function TaskNoteToolbar({ editor, lang }) {
+  if (!editor) return null;
+  
+  return (
+    <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-3">
+      <div className="flex flex-wrap gap-1 items-center">
+        {/* Text Formatting */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => editor.chain().focus().toggleBold().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('bold') 
+                ? 'bg-blue-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="عريض"
+          >
+            B
+          </button>
+          <button 
+            onClick={() => editor.chain().focus().toggleItalic().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('italic') 
+                ? 'bg-blue-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="مائل"
+          >
+            I
+          </button>
+          <button 
+            onClick={() => editor.chain().focus().toggleUnderline().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('underline') 
+                ? 'bg-blue-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="تحت خط"
+          >
+            U
+          </button>
+        </div>
+
+        {/* Lists */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => editor.chain().focus().toggleBulletList().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('bulletList') 
+                ? 'bg-purple-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="قائمة نقطية"
+          >
+            •
+          </button>
+          <button 
+            onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('orderedList') 
+                ? 'bg-purple-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="قائمة مرقمة"
+          >
+            1.
+          </button>
+        </div>
+
+        {/* Code */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => editor.chain().focus().toggleCode().run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('code') 
+                ? 'bg-red-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="كود"
+          >
+            &lt;&gt;
+          </button>
+        </div>
+
+        {/* Text Alignment */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => editor.chain().focus().setTextAlign(lang === 'ar' ? 'right' : 'left').run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive({ textAlign: lang === 'ar' ? 'right' : 'left' }) 
+                ? 'bg-orange-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title={lang === 'ar' ? 'يمين' : 'يسار'}
+          >
+            {lang === 'ar' ? 'يم' : 'يس'}
+          </button>
+          <button 
+            onClick={() => editor.chain().focus().setTextAlign('center').run()} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive({ textAlign: 'center' }) 
+                ? 'bg-orange-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="وسط"
+          >
+            وسط
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   const { lang } = useApp();
@@ -62,6 +189,45 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   const [hasNote, setHasNote] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Tiptap editor for note content
+  const noteEditor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+        codeBlock: false,
+      }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Link,
+      Placeholder.configure({
+        placeholder: t("writeTaskNote", fallbackT.writeTaskNote)
+      }),
+      Underline,
+      Code,
+      CodeBlock,
+      BulletList,
+      OrderedList,
+      ListItem,
+      Highlight,
+    ],
+    content: note,
+    editorProps: {
+      attributes: {
+        class: `min-h-[150px] w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 p-4 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-gray-100 transition-all duration-200 ${lang === "ar" ? "text-right" : "text-left"}`,
+        dir: lang === "ar" ? "rtl" : "ltr"
+      }
+    },
+    onUpdate: ({ editor }) => setNote(editor.getHTML())
+  });
+
+  // Update editor content when note changes
+  useEffect(() => {
+    if (noteEditor && note !== noteEditor.getHTML()) {
+      noteEditor.commands.setContent(note);
+    }
+  }, [note, noteEditor]);
+
   // Fetch note for this task - only when component mounts or task changes
   useEffect(() => {
     let isMounted = true;
@@ -81,11 +247,19 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           setNoteTitle(noteData.title || "");
           setNoteId(noteData.id);
           setHasNote(true);
+          // Update editor content
+          if (noteEditor) {
+            noteEditor.commands.setContent(noteData.content || "");
+          }
         } else {
           setNote("");
           setNoteTitle("");
           setNoteId(null);
           setHasNote(false);
+          // Clear editor content
+          if (noteEditor) {
+            noteEditor.commands.setContent("");
+          }
         }
       } catch (error) {
         console.error("Error fetching note:", error);
@@ -95,6 +269,10 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           setNoteTitle("");
           setNoteId(null);
           setHasNote(false);
+          // Clear editor content
+          if (noteEditor) {
+            noteEditor.commands.setContent("");
+          }
         }
       }
     }
@@ -114,7 +292,10 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         return;
       }
 
-      if (!note.trim()) {
+      // Get content from editor if available, otherwise use note state
+      const noteContent = noteEditor ? noteEditor.getHTML() : note;
+      
+      if (!noteContent.trim() || noteContent === '<p></p>') {
         toast.error("يرجى إدخال محتوى الملاحظة");
         return;
       }
@@ -125,7 +306,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
 
       if (noteId) {
         await updateNote(noteId, { 
-          content: note, 
+          content: noteContent, 
           title: noteTitle, 
           weekId, 
           dayKey, 
@@ -134,7 +315,7 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
         toast.success("تم تحديث الملاحظة بنجاح");
       } else {
         const newNoteId = await addNote({ 
-          content: note, 
+          content: noteContent, 
           title: noteTitle, 
           weekId, 
           dayKey, 
@@ -256,6 +437,12 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           onClick={(e) => {
             e.stopPropagation();
             setNoteOpen(true);
+            // Focus editor after modal opens
+            setTimeout(() => {
+              if (noteEditor) {
+                noteEditor.commands.focus();
+              }
+            }, 100);
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -263,7 +450,17 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           <Edit3 className="w-4 h-4" />
         </motion.button>
       </div>
-      <Dialog open={noteOpen} onOpenChange={setNoteOpen}>
+      <Dialog open={noteOpen} onOpenChange={(open) => {
+        setNoteOpen(open);
+        if (!open) {
+          // Reset editor content when closing
+          setTimeout(() => {
+            if (noteEditor) {
+              noteEditor.commands.setContent(note);
+            }
+          }, 100);
+        }
+      }}>
         <DialogContent className="max-w-lg">
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
             <Edit3 className="w-5 h-5 text-purple-600" />
@@ -307,20 +504,23 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 محتوى الملاحظة *
               </label>
-              <textarea
-                className="w-full min-h-[150px] rounded-lg border-2 border-gray-300 dark:border-gray-600 p-4 text-sm resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:text-gray-100 transition-all duration-200"
-                value={note}
-                onChange={e => setNote(e.target.value)}
-                placeholder={t("writeTaskNote", fallbackT.writeTaskNote)}
-                dir={lang === "ar" ? "rtl" : "ltr"}
-              />
+              <TaskNoteToolbar editor={noteEditor} lang={lang} />
+              <EditorContent editor={noteEditor} />
             </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <motion.button 
               className="px-6 py-2.5 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 flex items-center gap-2"
-              onClick={() => setNoteOpen(false)}
+              onClick={() => {
+                setNoteOpen(false);
+                // Reset editor content when canceling
+                setTimeout(() => {
+                  if (noteEditor) {
+                    noteEditor.commands.setContent(note);
+                  }
+                }, 100);
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -328,13 +528,18 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
               {t("cancel", fallbackT.cancel)}
             </motion.button>
             <motion.button 
-              className="px-6 py-2.5 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+              className="px-6 py-2.5 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleSaveNote}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={isSaving}
+              whileHover={{ scale: isSaving ? 1 : 1.02 }}
+              whileTap={{ scale: isSaving ? 1 : 0.98 }}
             >
-              <Save className="w-4 h-4" />
-              {t("save", fallbackT.save)}
+              {isSaving ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {isSaving ? "جاري الحفظ..." : t("save", fallbackT.save)}
             </motion.button>
           </div>
         </DialogContent>
