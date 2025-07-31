@@ -222,11 +222,13 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
   });
 
   // Update editor content when note changes
+  const prevNoteIdRef = React.useRef();
   useEffect(() => {
-    if (noteEditor && note !== noteEditor.getHTML()) {
-      noteEditor.commands.setContent(note);
+    if (noteOpen && noteEditor && noteId !== prevNoteIdRef.current) {
+      noteEditor.commands.setContent(note || "");
+      prevNoteIdRef.current = noteId;
     }
-  }, [note, noteEditor]);
+  }, [noteOpen, noteEditor, noteId, note]);
 
   // Fetch note for this task - only when component mounts or task changes
   useEffect(() => {
