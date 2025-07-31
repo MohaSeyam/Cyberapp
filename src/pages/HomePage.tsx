@@ -19,20 +19,25 @@ export default function HomePage() {
   const { t } = useLocalization();
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
 
-  // Safety checks for data
-  const safePlan = plan || [];
-  const safeProgress = progress || [];
+  // Comprehensive safety checks for data
+  const safePlan = Array.isArray(plan) ? plan : [];
+  const safeProgress = Array.isArray(progress) ? progress : [];
 
-  // Calculate statistics with safety checks
+  // Calculate statistics with comprehensive safety checks
   const totalWeeks = safePlan.length;
-  const totalTasks = safePlan.reduce((total, week) =>
-    total + (week.days || []).reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
-  );
-  const completedTasks = safeProgress.filter(p => p.done).length;
+  const totalTasks = safePlan.reduce((total, week) => {
+    if (!week || !Array.isArray(week.days)) return total;
+    return total + week.days.reduce((dayTotal, day) => {
+      if (!day || !Array.isArray(day.tasks)) return dayTotal;
+      return dayTotal + day.tasks.length;
+    }, 0);
+  }, 0);
+  
+  const completedTasks = safeProgress.filter(p => p && p.done).length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   // Get unique phases with safety check
-  const phases = Array.from(new Set(safePlan.map(week => week.phase))).sort();
+  const phases = Array.from(new Set(safePlan.map(week => week?.phase).filter(Boolean))).sort();
 
   // Get current week (you can implement your own logic)
   const currentWeek = 1; // This should be calculated based on user progress
@@ -95,7 +100,7 @@ export default function HomePage() {
   return (
     <PageLayout
       title={lang === 'ar' ? 'رحلة الأمن السيبراني' : 'Cyber Security Journey'}
-      subtitle={lang === 'ar'
+      subtitle={lang === 'ar' 
         ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
         : 'A comprehensive journey in cybersecurity - from basics to professional'
       }
@@ -109,7 +114,7 @@ export default function HomePage() {
               {lang === 'ar' ? 'رحلة الأمن السيبراني' : 'Cyber Security Journey'}
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              {lang === 'ar'
+              {lang === 'ar' 
                 ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
                 : 'A comprehensive journey in cybersecurity - from basics to professional'
               }
@@ -202,20 +207,23 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {phases.map((phase, index) => (
-            <motion.div
-              key={phase}
-              {...animations.stagger(0.4 + index * 0.1)}
-            >
-              <PhaseCard
-                phase={phase}
-                weeks={safePlan.filter(week => week.phase === phase)}
-                isActive={selectedPhase === phase}
-                onClick={() => setSelectedPhase(phase)}
-                variant="detailed"
-              />
-            </motion.div>
-          ))}
+          {phases.map((phase, index) => {
+            const phaseWeeks = safePlan.filter(week => week?.phase === phase);
+            return (
+              <motion.div
+                key={phase}
+                {...animations.stagger(0.4 + index * 0.1)}
+              >
+                <PhaseCard
+                  phase={phase}
+                  weeks={phaseWeeks}
+                  isActive={selectedPhase === phase}
+                  onClick={() => setSelectedPhase(phase)}
+                  variant="detailed"
+                />
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
 

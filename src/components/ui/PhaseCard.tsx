@@ -44,13 +44,21 @@ export default function PhaseCard({
   const { lang } = useApp();
   const { t } = useLocalization();
   
-  const colors = phaseColors[phase as keyof typeof phaseColors] || phaseColors[1];
-  const icon = phaseIcons[phase as keyof typeof phaseIcons] || '📚';
+  // Safety checks
+  const safeWeeks = Array.isArray(weeks) ? weeks : [];
+  const safePhase = typeof phase === 'number' ? phase : 1;
   
-  const phaseWeeks = weeks.filter(week => week.phase === phase);
-  const totalTasks = phaseWeeks.reduce((total, week) => 
-    total + week.days.reduce((dayTotal, day) => dayTotal + day.tasks.length, 0), 0
-  );
+  const colors = phaseColors[safePhase as keyof typeof phaseColors] || phaseColors[1];
+  const icon = phaseIcons[safePhase as keyof typeof phaseIcons] || '📚';
+  
+  const phaseWeeks = safeWeeks.filter(week => week && week.phase === safePhase);
+  const totalTasks = phaseWeeks.reduce((total, week) => {
+    if (!week || !Array.isArray(week.days)) return total;
+    return total + week.days.reduce((dayTotal, day) => {
+      if (!day || !Array.isArray(day.tasks)) return dayTotal;
+      return dayTotal + day.tasks.length;
+    }, 0);
+  }, 0);
 
   if (variant === 'compact') {
     return (
@@ -67,7 +75,7 @@ export default function PhaseCard({
             <span className="text-2xl">{icon}</span>
             <div>
               <h3 className={`font-semibold ${colors.text}`}>
-                {t('phase')} {phase}
+                {t('phase')} {safePhase}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {phaseWeeks.length} {t('week')}
@@ -97,60 +105,36 @@ export default function PhaseCard({
             </div>
             <div>
               <h2 className={`text-xl font-bold ${colors.text}`}>
-                {t('phase')} {phase}
+                {t('phase')} {safePhase}
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {phaseWeeks[0]?.title?.[lang] || `Phase ${phase} Title`}
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {phaseWeeks.length} {t('weeks')} • {totalTasks} {t('tasks')}
               </p>
             </div>
           </div>
-          <ChevronRight className="w-6 h-6 text-gray-400 mt-2" />
+          <ChevronRight className="w-6 h-6 text-gray-400" />
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <Calendar className="w-4 h-4 text-gray-500" />
-            </div>
-            <div className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-              {phaseWeeks.length}
-            </div>
-            <div className="text-xs text-gray-500">{t('week')}</div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">{t('totalWeeks')}</span>
+            <span className="font-semibold">{phaseWeeks.length}</span>
           </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <Target className="w-4 h-4 text-gray-500" />
-            </div>
-            <div className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-              {totalTasks}
-            </div>
-            <div className="text-xs text-gray-500">{t('tasks')}</div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">{t('totalTasks')}</span>
+            <span className="font-semibold">{totalTasks}</span>
           </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <Users className="w-4 h-4 text-gray-500" />
-            </div>
-            <div className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-              {phaseWeeks.length * 7}
-            </div>
-            <div className="text-xs text-gray-500">{t('days')}</div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">{t('estimatedTime')}</span>
+            <span className="font-semibold">{Math.round(totalTasks * 30 / 60)} {t('hours')}</span>
           </div>
         </div>
 
-        <div className="space-y-2">
-          {phaseWeeks.slice(0, 3).map((week, index) => (
-            <div key={week.week} className="flex items-center space-x-2 text-sm">
-              <div className={`w-2 h-2 rounded-full ${colors.icon.replace('bg-', 'bg-').replace('-100', '-500')}`} />
-              <span className="text-gray-700 dark:text-gray-300">
-                {t('week')} {week.week}: {week.title?.[lang]}
-              </span>
-            </div>
-          ))}
-          {phaseWeeks.length > 3 && (
-            <div className="text-xs text-gray-500">
-              +{phaseWeeks.length - 3} {t('moreWeeks')}
-            </div>
-          )}
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <Target className="w-4 h-4" />
+            <span>{t('phaseDescription')}</span>
+          </div>
         </div>
       </motion.div>
     );
@@ -162,32 +146,21 @@ export default function PhaseCard({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`cursor-pointer p-5 rounded-lg border-2 transition-all duration-200 ${
+      className={`cursor-pointer p-4 rounded-lg border-2 transition-all duration-200 ${
         isActive ? 'ring-2 ring-blue-500' : ''
       } ${colors.bg} ${colors.border} ${className}`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-3">
-          <span className="text-2xl">{icon}</span>
-          <div>
-            <h3 className={`font-semibold text-lg ${colors.text}`}>
-              {t('phase')} {phase}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {phaseWeeks[0]?.title?.[lang] || `Phase ${phase} Title`}
-            </p>
-          </div>
+      <div className="flex items-center space-x-3">
+        <span className="text-2xl">{icon}</span>
+        <div className="flex-1">
+          <h3 className={`font-semibold ${colors.text}`}>
+            {t('phase')} {safePhase}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {phaseWeeks.length} {t('weeks')} • {totalTasks} {t('tasks')}
+          </p>
         </div>
         <ChevronRight className="w-5 h-5 text-gray-400" />
-      </div>
-
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-600 dark:text-gray-400">
-          {phaseWeeks.length} {t('week')}
-        </span>
-        <span className="text-gray-600 dark:text-gray-400">
-          {totalTasks} {t('tasks')}
-        </span>
       </div>
     </motion.div>
   );

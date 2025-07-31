@@ -71,15 +71,20 @@ function LoadingScreen() {
 
 // App Routes Component
 function AppRoutes() {
-  const { loading, plan } = useApp();
+  const { loading, plan, progress } = useApp();
 
   // Show loading screen while data is being loaded
   if (loading) {
     return <LoadingScreen />;
   }
 
-  // Show loading screen if plan is not loaded yet
-  if (!plan || plan.length === 0) {
+  // Show loading screen if plan is not loaded yet or is undefined
+  if (!plan || !Array.isArray(plan) || plan.length === 0) {
+    return <LoadingScreen />;
+  }
+
+  // Show loading screen if progress is not loaded yet or is undefined
+  if (!progress || !Array.isArray(progress)) {
     return <LoadingScreen />;
   }
 

@@ -51,7 +51,7 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  // State
+  // State with proper initialization
   const [plan, setPlan] = useState<Week[]>([]);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [appState, setAppState] = useState<AppState>({
@@ -82,47 +82,73 @@ export function AppProvider({ children }: AppProviderProps) {
       setLangState(savedLang);
       setThemeState(savedTheme);
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        try {
+          setSettings(JSON.parse(savedSettings));
+        } catch (error) {
+          console.error("Error parsing settings:", error);
+          setSettings(DEFAULT_SETTINGS);
+        }
       }
       
-      // Load data from database with safety checks
-      const [planData, progressData, notesData, journalData] = await Promise.all([
-        planService.getAll().catch(() => []),
-        progressService.getAll().catch(() => []),
-        notesService.getAll().catch(() => []),
-        journalService.getAll().catch(() => [])
-      ]);
+      // Load data from database with comprehensive safety checks
+      let planData: Week[] = [];
+      let progressData: Progress[] = [];
+      let notesData: Note[] = [];
+      let journalData: JournalEntry[] = [];
+      
+      try {
+        [planData, progressData, notesData, journalData] = await Promise.all([
+          planService.getAll().catch(() => []),
+          progressService.getAll().catch(() => []),
+          notesService.getAll().catch(() => []),
+          journalService.getAll().catch(() => [])
+        ]);
+      } catch (error) {
+        console.error("Error loading data from database:", error);
+        // Continue with empty arrays
+      }
+      
+      // Ensure all data are arrays
+      planData = Array.isArray(planData) ? planData : [];
+      progressData = Array.isArray(progressData) ? progressData : [];
+      notesData = Array.isArray(notesData) ? notesData : [];
+      journalData = Array.isArray(journalData) ? journalData : [];
       
       // Import plan if empty
-      if (!planData || planData.length === 0) {
+      if (planData.length === 0) {
         try {
           const importedPlan = await planService.importFromFile();
-          setPlan(importedPlan || []);
+          planData = Array.isArray(importedPlan) ? importedPlan : [];
+          console.log("Imported plan:", planData.length, "weeks");
         } catch (error) {
           console.error("Failed to import plan:", error);
           toast.error("فشل في تحميل الخطة");
-          setPlan([]);
+          planData = [];
         }
-      } else {
-        setPlan(planData || []);
       }
       
-      setProgress(progressData || []);
+      // Set state with validated data
+      setPlan(planData);
+      setProgress(progressData);
       
       // Organize notes and journal by week/day with safety checks
       const organizedNotes: Record<string, Note[]> = {};
       const organizedJournal: Record<string, JournalEntry[]> = {};
       
-      (notesData || []).forEach(note => {
-        const key = `${note.weekId}-${note.dayKey}`;
-        if (!organizedNotes[key]) organizedNotes[key] = [];
-        organizedNotes[key].push(note);
+      notesData.forEach(note => {
+        if (note && typeof note.weekId === 'number' && note.dayKey) {
+          const key = `${note.weekId}-${note.dayKey}`;
+          if (!organizedNotes[key]) organizedNotes[key] = [];
+          organizedNotes[key].push(note);
+        }
       });
       
-      (journalData || []).forEach(entry => {
-        const key = `${entry.weekId}-${entry.dayKey}`;
-        if (!organizedJournal[key]) organizedJournal[key] = [];
-        organizedJournal[key].push(entry);
+      journalData.forEach(entry => {
+        if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
+          const key = `${entry.weekId}-${entry.dayKey}`;
+          if (!organizedJournal[key]) organizedJournal[key] = [];
+          organizedJournal[key].push(entry);
+        }
       });
       
       setAppState(prev => ({
@@ -130,6 +156,13 @@ export function AppProvider({ children }: AppProviderProps) {
         notes: organizedNotes,
         journal: organizedJournal
       }));
+      
+      console.log("Data loaded successfully:", {
+        planWeeks: planData.length,
+        progressItems: progressData.length,
+        notesCount: notesData.length,
+        journalCount: journalData.length
+      });
       
     } catch (error) {
       console.error("Error loading initial data:", error);
