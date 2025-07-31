@@ -33,10 +33,10 @@ export async function getNotes() {
   return await db.notes.orderBy('updatedAt').reverse().toArray();
 }
 export async function getNotesByDay(weekId, dayKey) {
-  return await db.notes.where({ weekId, dayKey }).orderBy('updatedAt').reverse().toArray();
+  return await db.notes.where({ weekId, dayKey }).toArray();
 }
 export async function getNotesByTask(weekId, dayKey, taskId) {
-  return await db.notes.where({ weekId, dayKey, taskId }).orderBy('updatedAt').reverse().toArray();
+  return await db.notes.where({ weekId, dayKey, taskId }).toArray();
 }
 export async function addNote(note) {
   return await db.notes.add({ 
@@ -84,7 +84,7 @@ export async function getResources() {
   return await db.resources.orderBy('updatedAt').reverse().toArray();
 }
 export async function getResourcesByDay(weekId, dayIndex) {
-  return await db.resources.where({ weekId, dayIndex }).orderBy('updatedAt').reverse().toArray();
+  return await db.resources.where({ weekId, dayIndex }).toArray();
 }
 export async function addResource(resource) {
   return await db.resources.add({ 
