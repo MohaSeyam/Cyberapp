@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider, useApp } from "./context/AppContext";
 import "./styles/fontSizes.css";
 import Navigation from "./components/layout/Navigation";
+import Sidebar from "./components/layout/Sidebar";
+import BottomBar from "./components/layout/BottomBar";
 import HomePage from "./pages/HomePage";
 import DayViewPage from "./pages/DayViewPage";
 import NotesPage from "./pages/NotesPage";
@@ -92,16 +94,22 @@ function AppRoutes() {
   return (
     <>
       <Navigation />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-        <Route path="/notes" element={<NotesPage />} />
-        <Route path="/journal" element={<JournalPage />} />
-        <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/journal" element={<JournalPage />} />
+            <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </div>
+      <BottomBar />
     </>
   );
 }
