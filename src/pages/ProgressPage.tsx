@@ -82,11 +82,6 @@ export default function ProgressPage() {
     .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
     .slice(0, 5);
 
-  // Get last activity
-  const lastActivity = safeProgress
-    .filter(p => p.done)
-    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
-
   // Calculate streak information
   const calculateStreak = () => {
     if (safeProgress.length === 0) return { currentStreak: 0, longestStreak: 0 };
@@ -143,6 +138,11 @@ export default function ProgressPage() {
   };
   
   const { currentStreak, longestStreak } = calculateStreak();
+
+  // Get last activity
+  const lastActivity = safeProgress
+    .filter(p => p.done)
+    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
 
   // Calculate task types distribution
   const completedTaskTypes = safeProgress
