@@ -82,6 +82,11 @@ export default function ProgressPage() {
     .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
     .slice(0, 5);
 
+  // Get last activity
+  const lastActivity = safeProgress
+    .filter(p => p.done)
+    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
+
   // Calculate streak information
   const calculateStreak = () => {
     if (safeProgress.length === 0) return { currentStreak: 0, longestStreak: 0 };
@@ -245,10 +250,6 @@ export default function ProgressPage() {
     }
 
     // اقتراحات بناءً على الوقت
-    const lastActivity = safeProgress
-      .filter(p => p.done)
-      .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
-
     if (lastActivity) {
       const daysSinceLastActivity = Math.floor((Date.now() - new Date(lastActivity.updatedAt || 0).getTime()) / (1000 * 60 * 60 * 24));
       
