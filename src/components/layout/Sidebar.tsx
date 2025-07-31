@@ -24,6 +24,7 @@ export default function Sidebar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Hide sidebar on mobile screens
   if (!showSidebar) return null;
 
   // استخراج المراحل
@@ -61,7 +62,7 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside className={`hidden lg:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto transition-transform duration-300 z-40 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="p-4">
           {/* Navigation Items */}

@@ -18,7 +18,7 @@ export default function BottomBar() {
     { icon: Settings, label: t('settings'), path: '/settings' },
   ];
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center h-16 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center h-16 lg:hidden">
       {items.map(item => {
         const Icon = item.icon;
         const active = location.pathname === item.path;
