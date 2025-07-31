@@ -185,6 +185,21 @@ export function AppProvider({ children }: AppProviderProps) {
     loadInitialData();
   }, [loadInitialData]);
 
+  // Apply saved theme and language on mount
+  useEffect(() => {
+    // Apply saved theme
+    if (themeState === 'dark') {
+      document.body.classList.add('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Apply saved language
+    document.documentElement.setAttribute('dir', langState === 'ar' ? 'rtl' : 'ltr');
+  }, [themeState, langState]);
+
   // Language management
   const setLang = useCallback((newLang: Language) => {
     setLangState(newLang);

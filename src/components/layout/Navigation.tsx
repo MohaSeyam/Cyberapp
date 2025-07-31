@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Calendar, FileText, BookOpen, TrendingUp, Settings,
-  Menu, X, ChevronDown
+  Menu, X, ChevronDown, Sun, Moon
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -15,7 +15,7 @@ interface NavigationProps {
 }
 
 export default function Navigation({ className = '' }: NavigationProps) {
-  const { lang, theme } = useApp();
+  const { lang, theme, setTheme } = useApp();
   const { t } = useLocalization();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -109,6 +109,15 @@ export default function Navigation({ className = '' }: NavigationProps) {
                   </Link>
                 );
               })}
+              
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                title={theme === 'dark' ? t('switchToLight') : t('switchToDark')}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
             </div>
           </div>
         </div>

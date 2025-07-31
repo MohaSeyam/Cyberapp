@@ -523,11 +523,11 @@ const translations: TranslationData = {
     en: "Theme"
   },
   light: {
-    ar: "فاتح",
+    ar: "نهاري",
     en: "Light"
   },
   dark: {
-    ar: "داكن",
+    ar: "ليلي",
     en: "Dark"
   },
   appearance: {
@@ -771,6 +771,22 @@ const translations: TranslationData = {
   goalSettingTemplate: {
     ar: "<h2>أهدافي قصيرة المدى:</h2><ul><li>...</li></ul><h2>أهدافي طويلة المدى:</h2><ul><li>...</li></ul><h2>خطة العمل:</h2><ul><li>...</li></ul><h2>مؤشرات النجاح:</h2><ul><li>...</li></ul>",
     en: "<h2>Short-term Goals:</h2><ul><li>...</li></ul><h2>Long-term Goals:</h2><ul><li>...</li></ul><h2>Action Plan:</h2><ul><li>...</li></ul><h2>Success Indicators:</h2><ul><li>...</li></ul>"
+  },
+  switchToLight: {
+    ar: "التبديل للوضع النهاري",
+    en: "Switch to Light Mode"
+  },
+  switchToDark: {
+    ar: "التبديل للوضع الليلي",
+    en: "Switch to Dark Mode"
+  },
+  light: {
+    ar: "نهاري",
+    en: "Light"
+  },
+  dark: {
+    ar: "ليلي",
+    en: "Dark"
   }
 };
 
