@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "title": {
+      "ar": "أساسيات الأمن السيبراني",
+      "en": "Cybersecurity Foundations"
+    },
+    "weeks": [1, 2, 3, 4],
+    "focus": {
+      "ar": "بناء المعرفة النظرية والمفاهيم الأساسية التي يقوم عليها المجال، من الشبكات إلى مبادئ الأمن",
+      "en": "Building theoretical knowledge and fundamental concepts that form the foundation of the field, from networks to security principles"
+    },
+    "mainContent": {
+      "ar": "مقدمة في الأمن السيبراني، أساسيات الشبكات، أساسيات أمن الشبكات، والاتصال الآمن بالإنترنت",
+      "en": "Introduction to cybersecurity, network fundamentals, network security basics, and secure internet communication"
+    },
+    "duration": "4 أسابيع",
+    "difficulty": "مبتدئ",
+    "color": "blue",
+    "icon": "shield"
+  },
+  {
+    "id": 2,
+    "title": {
+      "ar": "التقنيات والأنظمة الأساسية",
+      "en": "Core Technologies & Systems"
+    },
+    "weeks": [5, 6, 7, 8],
+    "focus": {
+      "ar": "فهم وإدارة الأنظمة والتقنيات الجوهرية التي تشكل البنية التحتية لأي منظمة",
+      "en": "Understanding and managing core systems and technologies that form the infrastructure of any organization"
+    },
+    "mainContent": {
+      "ar": "أساسيات نظام لينكس، أساسيات أمان ويندوز، علم التشفير، وأساسيات الحاويات (Containers)",
+      "en": "Linux system fundamentals, Windows security basics, cryptography, and container basics"
+    },
+    "duration": "4 أسابيع",
+    "difficulty": "مبتدئ - متوسط",
+    "color": "green",
+    "icon": "server"
+  },
+  {
+    "id": 3,
+    "title": {
+      "ar": "عقلية المدافع",
+      "en": "The Defender's Mindset"
+    },
+    "weeks": [9, 10, 11, 12, 13, 14, 15, 16, 17],
+    "focus": {
+      "ar": "تعلم الأدوات والعمليات التي يستخدمها الفريق الأزرق (Blue Team) لحماية المنظمة ورصد التهديدات والاستجابة لها",
+      "en": "Learning Blue Team tools and processes for protecting organizations, threat detection, and response"
+    },
+    "mainContent": {
+      "ar": "فهم منظور المهاجم، استخبارات التهديدات، SIEM، الاستجابة للحوادث، GRC، الأمن الشخصي والفيزيائي، وينتهي بمشروع تكاملي لتحليل حادث",
+      "en": "Understanding attacker perspective, threat intelligence, SIEM, incident response, GRC, personal and physical security, ending with an integrative incident analysis project"
+    },
+    "duration": "9 أسابيع",
+    "difficulty": "متوسط",
+    "color": "indigo",
+    "icon": "eye"
+  },
+  {
+    "id": 4,
+    "title": {
+      "ar": "الدفاع والتحليل المتقدم",
+      "en": "Advanced Defense & Analysis"
+    },
+    "weeks": [18, 19, 20, 21, 22, 23, 24, 25],
+    "focus": {
+      "ar": "التعمق في تقنيات التحليل والتحقيق المتقدمة التي تتطلب مهارات متخصصة لكشف التهديدات المعقدة",
+      "en": "Deep dive into advanced analysis and investigation techniques that require specialized skills to detect complex threats"
+    },
+    "mainContent": {
+      "ar": "أمن نقاط النهاية، أمن البريد الإلكتروني، إدارة الثغرات المتقدمة، تحليل البرمجيات الخبيثة، الهندسة العكسية، التحليل الجنائي الرقمي، وتحليل سلوك المستخدم (UEBA)",
+      "en": "Endpoint security, email security, advanced vulnerability management, malware analysis, reverse engineering, digital forensics, and user behavior analysis (UEBA)"
+    },
+    "duration": "8 أسابيع",
+    "difficulty": "متقدم",
+    "color": "purple",
+    "icon": "search"
+  },
+  {
+    "id": 5,
+    "title": {
+      "ar": "تأمين البنى التحتية الحديثة",
+      "en": "Securing Modern Architectures"
+    },
+    "weeks": [26, 27, 28, 29, 30, 31, 32],
+    "focus": {
+      "ar": "بناء المهارات اللازمة لتأمين البيئات الحديثة، من البرمجة والأتمتة إلى السحابة وواجهات برمجة التطبيقات",
+      "en": "Building skills to secure modern environments, from programming and automation to cloud and API security"
+    },
+    "mainContent": {
+      "ar": "بايثون للأمن السيبراني، أتمتة الأمن، أمن الحوسبة السحابية، أمن الشبكات اللاسلكية، البرمجة الآمنة، DevSecOps، وأمن واجهات برمجة التطبيقات (API Security)",
+      "en": "Python for cybersecurity, security automation, cloud security, wireless security, secure coding, DevSecOps, and API security"
+    },
+    "duration": "7 أسابيع",
+    "difficulty": "متوسط - متقدم",
+    "color": "teal",
+    "icon": "cloud"
+  },
+  {
+    "id": 6,
+    "title": {
+      "ar": "الهجوم واختبار الاختراق",
+      "en": "Offensive Security & Pentesting"
+    },
+    "weeks": [33, 34, 35, 36, 37],
+    "focus": {
+      "ar": "تعلم التفكير مثل المهاجمين واستخدام أدواتهم وتقنياتهم لاكتشاف الثغرات بشكل استباقي (Red Team & Offensive Security)",
+      "en": "Learning to think like attackers and use their tools and techniques to proactively discover vulnerabilities"
+    },
+    "mainContent": {
+      "ar": "اختبار اختراق البنية التحتية والهندسة الاجتماعية، اختبار اختراق تطبيقات الويب، استراتيجيات مكافآت الثغرات (Bug Bounty)، وتقنيات الفريق الأحمر المتقدمة",
+      "en": "Infrastructure and social engineering pentesting, web application pentesting, bug bounty strategies, and advanced red team techniques"
+    },
+    "duration": "5 أسابيع",
+    "difficulty": "متقدم",
+    "color": "red",
+    "icon": "target"
+  },
+  {
+    "id": 7,
+    "title": {
+      "ar": "التطبيق المتقدم والتكامل",
+      "en": "Advanced Application & Integration"
+    },
+    "weeks": [38, 39, 40, 41],
+    "focus": {
+      "ar": "دمج المهارات المكتسبة من خلال مواضيع متقدمة ومشاريع عملية تمهيداً للمشروع النهائي",
+      "en": "Integrating acquired skills through advanced topics and practical projects leading to the final project"
+    },
+    "mainContent": {
+      "ar": "الفريق الأرجواني (Purple Teaming)، أمن أنظمة التحكم الصناعي (ICS/SCADA)، ومشروعان عمليان (بناء حالة استخدام SIEM، تطوير أداة أتمتة)",
+      "en": "Purple teaming, ICS/SCADA security, and two practical projects (building SIEM use case, developing automation tool)"
+    },
+    "duration": "4 أسابيع",
+    "difficulty": "خبير",
+    "color": "pink",
+    "icon": "zap"
+  },
+  {
+    "id": 8,
+    "title": {
+      "ar": "المشروع النهائي والانطلاق المهني",
+      "en": "Capstone & Career Launch"
+    },
+    "weeks": [42, 43, 44, 45, 46, 47, 48, 49, 50],
+    "focus": {
+      "ar": "تتويج الرحلة التعليمية بمشروع تخرج شامل، والتحضير الكامل للانتقال إلى سوق العمل",
+      "en": "Culminating the learning journey with a comprehensive capstone project and full preparation for career transition"
+    },
+    "mainContent": {
+      "ar": "المشروع النهائي المتكامل (تخطيط، تنفيذ، تسليم)، التطوير المهني المستمر، استكشاف التخصصات، وتخطيط المسار الوظيفي",
+      "en": "Comprehensive capstone project (planning, execution, delivery), continuous professional development, specialization exploration, and career path planning"
+    },
+    "duration": "9 أسابيع",
+    "difficulty": "خبير",
+    "color": "yellow",
+    "icon": "trophy"
+  }
+]
