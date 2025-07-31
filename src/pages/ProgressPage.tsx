@@ -135,6 +135,19 @@ export default function ProgressPage() {
   
   const { currentStreak, longestStreak } = calculateStreak();
 
+  // Calculate task types distribution
+  const completedTaskTypes = safeProgress
+    .filter(p => p.done)
+    .map(p => {
+      const task = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === p.taskId);
+      return task?.type;
+    })
+    .filter(Boolean);
+
+  const blueTeamTasks = completedTaskTypes.filter(type => type === 'Blue Team').length;
+  const redTeamTasks = completedTaskTypes.filter(type => type === 'Red Team').length;
+  const practicalTasks = completedTaskTypes.filter(type => type === 'Practical').length;
+
   // Smart Suggestions System
   const suggestions = useMemo(() => {
     const suggestionsList = [];
@@ -190,17 +203,6 @@ export default function ProgressPage() {
     }
 
     // اقتراحات بناءً على نوع المهام المكتملة
-    const completedTaskTypes = safeProgress
-      .filter(p => p.done)
-      .map(p => {
-        const task = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === p.taskId);
-        return task?.type;
-      })
-      .filter(Boolean);
-
-    const blueTeamTasks = completedTaskTypes.filter(type => type === 'Blue Team').length;
-    const redTeamTasks = completedTaskTypes.filter(type => type === 'Red Team').length;
-    const practicalTasks = completedTaskTypes.filter(type => type === 'Practical').length;
 
     if (blueTeamTasks > redTeamTasks) {
       suggestionsList.push({
@@ -374,7 +376,7 @@ export default function ProgressPage() {
     // ترتيب الاقتراحات حسب الأولوية
     const priorityOrder = { high: 3, medium: 2, low: 1 };
     return suggestionsList.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]).slice(0, 6);
-  }, [completedTasks, completionRate, safeProgress, safePlan, phases, phaseStats, completedDuration, lang]);
+  }, [completedTasks, completionRate, safeProgress, safePlan, phases, phaseStats, completedDuration, blueTeamTasks, redTeamTasks, practicalTasks, currentStreak, lang]);
 
   const stats = [
     {
