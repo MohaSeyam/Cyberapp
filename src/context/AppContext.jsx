@@ -2,7 +2,18 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import i18n from "../i18n/i18n";
 import { getPlanData } from "../services/dataService";
 import { FaCheck, FaEdit, FaClock } from "react-icons/fa";
-import * as db from "../services/dbService";
+import { 
+  getPlan, 
+  getProgress, 
+  getNotes, 
+  getJournalEntries, 
+  savePlan,
+  setTaskProgress,
+  setSetting,
+  addNote as dbAddNote,
+  updateNote as dbUpdateNote,
+  deleteNote as dbDeleteNote
+} from "../services/dbService";
 
 const AppContext = createContext();
 
@@ -44,7 +55,8 @@ export function AppProvider({ children }) {
       setLoading(true);
       console.log("AppContext fetchAll starting");
       
-      const [planData, progressData, notesData, journalData] = await Promise.all([
+      // جلب البيانات من قاعدة البيانات
+      let [planData, progressData, notesData, journalData] = await Promise.all([
         getPlan(),
         getProgress(),
         getNotes(),
@@ -55,6 +67,29 @@ export function AppProvider({ children }) {
       console.log("AppContext - progressData length:", progressData?.length);
       console.log("AppContext - notesData length:", notesData?.length);
       console.log("AppContext - journalData length:", journalData?.length);
+      
+      // إذا كانت الخطة فارغة، استورد من PlanData.json
+      if (!planData || planData.length === 0) {
+        console.log("Plan is empty, importing from PlanData.json");
+        try {
+          const response = await fetch("/PlanData.json");
+          if (response.ok) {
+            const importedPlan = await response.json();
+            if (Array.isArray(importedPlan) && importedPlan.length > 0) {
+              console.log("Imported plan from PlanData.json:", importedPlan.length, "weeks");
+              // حفظ الخطة المستوردة في قاعدة البيانات
+              await savePlan(importedPlan);
+              planData = importedPlan;
+            } else {
+              console.error("Imported plan is not valid:", importedPlan);
+            }
+          } else {
+            console.error("Failed to fetch PlanData.json:", response.status, response.statusText);
+          }
+        } catch (importError) {
+          console.error("Error importing PlanData.json:", importError);
+        }
+      }
       
       // Normalize plan data
       const normalizedPlan = (planData || []).map(week => ({
@@ -92,6 +127,9 @@ export function AppProvider({ children }) {
         notes: [],
         journal: []
       }));
+      
+      // إضافة إشعار بالخطأ
+      console.error("فشل في تحميل البيانات. يرجى إعادة تحميل الصفحة.");
     } finally {
       setLoading(false);
       console.log("AppContext loading set to false");
@@ -233,7 +271,7 @@ export function AppProvider({ children }) {
       setSettings(updatedSettings);
       // حفظ الإعدادات في localStorage
       localStorage.setItem('app_settings', JSON.stringify(updatedSettings));
-      await db.setSetting('userSettings', updatedSettings);
+      await setSetting('userSettings', updatedSettings);
     } catch (error) {
       console.error('Error saving settings:', error);
       addNotification('error', 'خطأ في حفظ الإعدادات', 'فشل في حفظ الإعدادات، يرجى المحاولة مرة أخرى');
@@ -243,7 +281,7 @@ export function AppProvider({ children }) {
   // تحديث التقدم
   const updateProgress = useCallback(async (weekId, dayKey, taskId, done) => {
     try {
-      await db.setTaskProgress(weekId, dayKey, taskId, done);
+      await setTaskProgress(weekId, dayKey, taskId, done);
       // تحديث progress في state
       setProgress(prev => {
         const existing = prev.find(p => p.weekId == weekId && p.dayKey == dayKey && p.taskId == taskId);
@@ -263,7 +301,7 @@ export function AppProvider({ children }) {
   // حفظ ملاحظة
   const saveNote = useCallback(async (note) => {
     try {
-      const savedNote = await db.addNote(note);
+      const savedNote = await dbAddNote(note);
       setAppState(prev => ({
         ...prev,
         notes: [...prev.notes, savedNote]
@@ -280,7 +318,7 @@ export function AppProvider({ children }) {
   // حذف ملاحظة
   const deleteNote = useCallback(async (noteId) => {
     try {
-      await db.deleteNote(noteId);
+      await dbDeleteNote(noteId);
       setAppState(prev => ({
         ...prev,
         notes: prev.notes.filter(n => n.id !== noteId)
