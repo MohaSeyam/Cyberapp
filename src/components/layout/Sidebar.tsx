@@ -1,5 +1,5 @@
 // Sidebar Component
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, Calendar, FileText, BookOpen, TrendingUp, Settings } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -13,6 +13,18 @@ export default function Sidebar() {
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setShowSidebar(window.innerWidth >= 1024);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (!showSidebar) return null;
 
   // استخراج المراحل
   const phases = Array.from(new Set((plan || []).map(week => week?.phase).filter(Boolean))).sort();
