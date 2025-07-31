@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar, Clock, Target, BookOpen, MessageSquare,
-  ExternalLink, Plus, CheckCircle, Circle
+  ExternalLink, Plus, CheckCircle, Circle, Video, FileText, Wrench, Mic, GraduationCap, Edit2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -22,7 +22,7 @@ interface DayViewPageProps {
 }
 
 export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPageProps) {
-  const { plan, progress, addNote, addResource, lang } = useApp();
+  const { plan, progress, addNote, addResource, lang, updateResource } = useApp();
   const { t } = useLocalization();
 
   const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
@@ -95,6 +95,15 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
       </PageLayout>
     );
   }
+
+  const resourceTypeIcons = {
+    video: Video,
+    article: FileText,
+    book: BookOpen,
+    tool: Wrench,
+    podcast: Mic,
+    course: GraduationCap
+  };
 
   return (
     <PageLayout
@@ -185,34 +194,40 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
         >
           <div className="space-y-4">
             {(selectedDay.resources || []).length > 0 ? (
-              (selectedDay.resources || []).map((resource, index) => (
-                <motion.div
-                  key={index}
-                  {...animations.stagger(0.3 + index * 0.1)}
-                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                      <ExternalLink className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white">
-                        {resource.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {resource.type}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => window.open(resource.url, '_blank')}
+              (selectedDay.resources || []).map((resource, index) => {
+                const Icon = resourceTypeIcons[resource.type] || FileText;
+                return (
+                  <motion.div
+                    key={index}
+                    {...animations.stagger(0.3 + index * 0.1)}
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                    onClick={() => setResourceModal({ isOpen: true, resource })}
+                    style={{ cursor: 'pointer' }}
                   >
-                    {t('open')}
-                  </Button>
-                </motion.div>
-              ))
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                        <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                          {resource.title}
+                          <Edit2 className="w-3 h-3 text-gray-400 inline-block ml-1" />
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {resource.type}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={e => { e.stopPropagation(); window.open(resource.url, '_blank'); }}
+                    >
+                      {t('open')}
+                    </Button>
+                  </motion.div>
+                );
+              })
             ) : (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -297,7 +312,7 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
       <Modal
         isOpen={resourceModal.isOpen}
         onClose={() => setResourceModal({ isOpen: false, resource: null })}
-        title={t('addResource')}
+        title={resourceModal.resource ? t('editResource') : t('addResource')}
       >
         <div className="space-y-4">
           <div>
@@ -312,7 +327,6 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
               placeholder={t('enterTitle')}
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('resourceUrl')}
@@ -325,7 +339,6 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
               placeholder={t('enterUrl')}
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('resourceType')}
@@ -343,7 +356,6 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
               <option value="course">{t('course')}</option>
             </select>
           </div>
-
           <div className="flex justify-end space-x-3">
             <Button
               variant="outline"
@@ -353,10 +365,36 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
             </Button>
             <Button
               variant="primary"
-              onClick={handleAddResource}
+              onClick={async () => {
+                if (resourceForm.title.trim() && resourceForm.url.trim() && selectedWeek && selectedDay) {
+                  try {
+                    if (resourceModal.resource) {
+                      // تعديل مرجع
+                      await updateResource(resourceModal.resource.id!, {
+                        title: resourceForm.title,
+                        url: resourceForm.url,
+                        type: resourceForm.type
+                      });
+                    } else {
+                      // إضافة مرجع جديد
+                      await addResource({
+                        title: resourceForm.title,
+                        url: resourceForm.url,
+                        type: resourceForm.type,
+                        weekId: selectedWeek.week,
+                        dayIndex: parseInt(dayIndex)
+                      });
+                    }
+                    setResourceForm({ title: '', url: '', type: 'video' });
+                    setResourceModal({ isOpen: false, resource: null });
+                  } catch (error) {
+                    console.error('Error saving resource:', error);
+                  }
+                }
+              }}
               disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
             >
-              {t('addResource')}
+              {resourceModal.resource ? t('updateResource') : t('addResource')}
             </Button>
           </div>
         </div>
