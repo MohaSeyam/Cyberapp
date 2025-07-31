@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FileText, Search, Filter, Plus, Edit, Trash2,
-  Tag, Calendar, Clock, MessageSquare
+  Tag, Calendar, Clock, MessageSquare, X
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -103,6 +103,34 @@ export default function NotesPage() {
     setNoteForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
+  const handleTagClick = (tag: string) => {
+    setSelectedTag(selectedTag === tag ? '' : tag);
+  };
+
+  const stats = [
+    {
+      icon: FileText,
+      label: t('totalNotes'),
+      value: allNotes.length,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50'
+    },
+    {
+      icon: Tag,
+      label: t('totalTags'),
+      value: allTags.length,
+      color: 'text-green-600',
+      bg: 'bg-green-50'
+    },
+    {
+      icon: MessageSquare,
+      label: t('filteredNotes'),
+      value: filteredNotes.length,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50'
+    }
+  ];
+
   return (
     <PageLayout
       title={t('notes')}
@@ -132,13 +160,44 @@ export default function NotesPage() {
         </div>
       }
     >
+      {/* Statistics */}
+      <motion.div
+        {...animations.fadeIn}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+      >
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            {...animations.stagger(index * 0.1)}
+          >
+            <Card
+              variant="elevated"
+              className="text-center"
+            >
+              <div className="flex flex-col items-center">
+                <div className={`p-3 rounded-full ${stat.bg} mb-4`}>
+                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  {stat.value}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {stat.label}
+                </p>
+              </div>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+
       {/* Search and Filters */}
       <motion.div
         {...animations.fadeIn}
+        transition={{ delay: 0.2 }}
         className="mb-8"
       >
         <Card>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -151,7 +210,7 @@ export default function NotesPage() {
               />
             </div>
 
-            {/* Tag Filter */}
+            {/* Tags Filter */}
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <select
@@ -165,21 +224,45 @@ export default function NotesPage() {
                 ))}
               </select>
             </div>
-
-            {/* Stats */}
-            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
-              <FileText className="w-4 h-4 mr-2" />
-              {filteredNotes.length} {t('notes')}
-            </div>
           </div>
         </Card>
       </motion.div>
 
-      {/* Notes Grid */}
+      {/* Tags Cloud */}
+      {allTags.length > 0 && (
+        <motion.div
+          {...animations.fadeIn}
+          transition={{ delay: 0.3 }}
+          className="mb-8"
+        >
+          <Card>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              {t('tags')}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagClick(tag)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
+                    selectedTag === tag
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Notes List */}
       <motion.div
         {...animations.fadeIn}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        transition={{ delay: 0.4 }}
+        className="space-y-6"
       >
         {filteredNotes.map((note, index) => (
           <motion.div
@@ -190,13 +273,25 @@ export default function NotesPage() {
               variant="elevated"
               hover
               onClick={() => handleEditNote(note)}
-              className="h-full"
+              className="cursor-pointer"
             >
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-start justify-between">
-                  <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2">
-                    {note.title}
-                  </h3>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      {note.title}
+                    </h3>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{t('week')} {note.weekId}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{new Date(note.createdAt!).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex items-center space-x-1">
                     <Button
                       variant="ghost"
@@ -221,43 +316,34 @@ export default function NotesPage() {
                   </div>
                 </div>
 
-                <div 
-                  className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3"
+                <div
+                  className="text-gray-700 dark:text-gray-300 line-clamp-3"
                   dangerouslySetInnerHTML={{ __html: note.content }}
                 />
 
-                {note.keywords && (
-                  <div className="text-xs text-gray-500 dark:text-gray-500">
-                    <span className="font-medium">{t('keywords')}:</span> {note.keywords}
-                  </div>
-                )}
-
                 {note.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {note.tags.slice(0, 3).map(tag => (
+                  <div className="flex flex-wrap gap-2">
+                    {note.tags.map(tag => (
                       <span
                         key={tag}
-                        className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full"
+                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
                       >
                         {tag}
                       </span>
                     ))}
-                    {note.tags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                        +{note.tags.length - 3}
-                      </span>
-                    )}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="w-3 h-3" />
-                    <span>{new Date(note.createdAt!).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>{note.content.replace(/<[^>]*>/g, '').split(' ').length} {t('words')}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-3 h-3" />
-                    <span>{new Date(note.updatedAt!).toLocaleDateString()}</span>
+                  <div className="flex items-center space-x-1">
+                    <Tag className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {note.tags.length} {t('tags')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -270,15 +356,15 @@ export default function NotesPage() {
       {filteredNotes.length === 0 && (
         <motion.div
           {...animations.fadeIn}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.5 }}
           className="text-center py-12"
         >
           <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            {searchTerm || selectedTag ? t('noNotesFound') : t('noNotesYet')}
+            {searchTerm || selectedTag ? t('noNotesFound') : t('noNotes')}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchTerm || selectedTag ? t('tryDifferentSearch') : t('createYourFirstNote')}
+            {searchTerm || selectedTag ? t('tryDifferentSearch') : t('startTakingNotes')}
           </p>
           {!searchTerm && !selectedTag && (
             <Button
@@ -345,7 +431,7 @@ export default function NotesPage() {
                       onClick={() => removeTag(tag)}
                       className="ml-1 hover:text-blue-600"
                     >
-                      ×
+                      <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
@@ -385,9 +471,9 @@ export default function NotesPage() {
             <RichTextEditor
               content={noteForm.content}
               onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
-              placeholder={t('writeHere')}
+              placeholder={t('writeNote')}
               lang={lang}
-              minHeight="300px"
+              minHeight="400px"
             />
           </div>
 
