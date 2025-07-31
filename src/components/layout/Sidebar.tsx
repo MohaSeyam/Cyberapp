@@ -42,7 +42,7 @@ export default function Sidebar() {
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('phases')}</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('plan')}</h2>
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="md:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
