@@ -81,26 +81,63 @@ export async function deleteJournalEntry(id) {
 
 // --- دوال CRUD للمراجع ---
 export async function getResources() {
-  return await db.resources.orderBy('updatedAt').reverse().toArray();
+  try {
+    return await db.resources.orderBy('updatedAt').reverse().toArray();
+  } catch (error) {
+    console.error("Error getting resources:", error);
+    return [];
+  }
 }
 export async function getResourcesByDay(weekId, dayIndex) {
-  return await db.resources.where({ weekId, dayIndex }).toArray();
+  try {
+    console.log("getResourcesByDay called with:", { weekId, dayIndex });
+    const resources = await db.resources.where({ weekId, dayIndex }).toArray();
+    console.log("getResourcesByDay result:", resources);
+    return resources;
+  } catch (error) {
+    console.error("Error getting resources by day:", error);
+    return [];
+  }
 }
 export async function addResource(resource) {
-  return await db.resources.add({ 
-    ...resource, 
-    createdAt: Date.now(), 
-    updatedAt: Date.now() 
-  });
+  try {
+    console.log("addResource called with:", resource);
+    const result = await db.resources.add({ 
+      ...resource, 
+      createdAt: Date.now(), 
+      updatedAt: Date.now() 
+    });
+    console.log("addResource result:", result);
+    return result;
+  } catch (error) {
+    console.error("Error adding resource:", error);
+    throw error;
+  }
 }
 export async function updateResource(id, updates) {
-  return await db.resources.update(id, { 
-    ...updates, 
-    updatedAt: Date.now() 
-  });
+  try {
+    console.log("updateResource called with:", { id, updates });
+    const result = await db.resources.update(id, { 
+      ...updates, 
+      updatedAt: Date.now() 
+    });
+    console.log("updateResource result:", result);
+    return result;
+  } catch (error) {
+    console.error("Error updating resource:", error);
+    throw error;
+  }
 }
 export async function deleteResource(id) {
-  return await db.resources.delete(id);
+  try {
+    console.log("deleteResource called with:", id);
+    const result = await db.resources.delete(id);
+    console.log("deleteResource result:", result);
+    return result;
+  } catch (error) {
+    console.error("Error deleting resource:", error);
+    throw error;
+  }
 }
 
 // --- دوال CRUD للتقدم ---

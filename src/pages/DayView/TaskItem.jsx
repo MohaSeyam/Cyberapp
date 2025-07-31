@@ -226,26 +226,30 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
     }
   });
 
-  // إزالة useEffect الذي يسبب الاهتزاز
-  // const prevNoteIdRef = React.useRef();
+  // إزالة جميع useEffect المسببة للاهتزاز
   // useEffect(() => {
-  //   if (noteOpen && noteEditor && noteId !== prevNoteIdRef.current) {
-  //     noteEditor.commands.setContent(note || "");
-  //     prevNoteIdRef.current = noteId;
+  //   if (noteOpen && noteEditor) {
+  //     const timer = setTimeout(() => {
+  //       noteEditor.commands.setContent(note || "");
+  //       noteEditor.commands.focus();
+  //     }, 50);
+  //     return () => clearTimeout(timer);
   //   }
-  // }, [noteOpen, noteEditor, noteId, note]);
+  // }, [noteOpen, noteEditor]);
 
-  // تحديث محتوى المحرر عند فتح النافذة
+  // تحديث المحرر عند فتح النافذة فقط
   useEffect(() => {
     if (noteOpen && noteEditor) {
-      // تأخير بسيط لضمان تحميل النافذة
-      const timer = setTimeout(() => {
-        noteEditor.commands.setContent(note || "");
-        noteEditor.commands.focus();
-      }, 50);
-      return () => clearTimeout(timer);
+      // تحديث المحتوى عند فتح النافذة
+      noteEditor.commands.setContent(note || "");
+      // تركيز على المحرر بعد فترة قصيرة
+      setTimeout(() => {
+        if (noteEditor && noteOpen) {
+          noteEditor.commands.focus();
+        }
+      }, 100);
     }
-  }, [noteOpen, noteEditor]);
+  }, [noteOpen]); // فقط عند تغيير noteOpen
 
   // Fetch note for this task - only when component mounts or task changes
   useEffect(() => {
@@ -266,19 +270,13 @@ export default function TaskItem({ task, weekId, dayKey, checked, onToggle }) {
           setNoteTitle(noteData.title || "");
           setNoteId(noteData.id);
           setHasNote(true);
-          // تحديث محتوى المحرر فقط إذا كان مفتوح
-          if (noteEditor && noteOpen) {
-            noteEditor.commands.setContent(noteData.content || "");
-          }
+          // لا نحدث محتوى المحرر هنا لتجنب الاهتزاز
         } else {
           setNote("");
           setNoteTitle("");
           setNoteId(null);
           setHasNote(false);
-          // مسح محتوى المحرر فقط إذا كان مفتوح
-          if (noteEditor && noteOpen) {
-            noteEditor.commands.setContent("");
-          }
+          // لا نحدث محتوى المحرر هنا لتجنب الاهتزاز
         }
       } catch (error) {
         console.error("Error fetching note:", error);
