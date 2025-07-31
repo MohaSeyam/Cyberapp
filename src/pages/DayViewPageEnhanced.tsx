@@ -1,8 +1,8 @@
-// Day View Page - Enhanced with Resource Modal and Note Expansion
+// Day View Page - Enhanced with Resource Modal
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, Target, Plus, ExternalLink, Edit2, MessageSquare, X, Calendar, Clock
+  BookOpen, Target, Plus, ExternalLink, MessageSquare, Calendar, Clock
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -12,7 +12,6 @@ import Card from '../components/ui/Card';
 import TaskCard from '../components/ui/TaskCard';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
-import RichTextEditor from '../components/editors/RichTextEditor';
 import { animations } from '../constants/theme';
 
 const ResourceModal = React.memo(({ resource, open, onClose }) => (
@@ -35,25 +34,6 @@ const ResourceModal = React.memo(({ resource, open, onClose }) => (
   </Modal>
 ));
 
-const NoteCard = React.memo(({ note, expanded, onExpand, onEdit }) => (
-  <Card className={`transition-all duration-300 ${expanded ? 'ring-2 ring-blue-400 scale-105' : ''} cursor-pointer`} onClick={onExpand}>
-    <div className="flex items-center justify-between">
-      <div className="font-semibold text-gray-900 dark:text-white">{note.title}</div>
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" icon={<Edit2 />} onClick={e => { e.stopPropagation(); onEdit(); }}>
-          {lang === 'ar' ? 'تعديل' : 'Edit'}
-        </Button>
-        {expanded && <X className="w-4 h-4 cursor-pointer" onClick={e => { e.stopPropagation(); onExpand(); }} />}
-      </div>
-    </div>
-    {expanded && (
-      <div className="mt-2 text-gray-700 dark:text-gray-200 whitespace-pre-line">
-        {note.content}
-      </div>
-    )}
-  </Card>
-));
-
 export default function DayViewPageEnhanced() {
   const { weekId = "1", dayIndex = "0" } = useParams();
   const { plan, progress, addNote, lang } = useApp();
@@ -61,9 +41,6 @@ export default function DayViewPageEnhanced() {
   
   // UI State
   const [resourceModal, setResourceModal] = useState({ open: false, resource: null });
-  const [expandedNote, setExpandedNote] = useState(null);
-  const [editNote, setEditNote] = useState(null);
-  const [noteContent, setNoteContent] = useState('');
   
   // Data
   const safePlan = plan || [];
@@ -72,7 +49,7 @@ export default function DayViewPageEnhanced() {
   
   // Notes (dummy for demo)
   const notes = useMemo(() => [
-    { id: '1', title: 'ملاحظة مهمة', content: 'هذه ملاحظة موسعة مع تفاصيل كثيرة.' },
+    { id: '1', title: 'ملاحظة مهمة', content: 'هذه ملاحظة مهمة حول اليوم.' },
     { id: '2', title: 'مفهوم أساسي', content: 'شرح مختصر لمفهوم أساسي.' }
   ], []);
   
@@ -102,7 +79,7 @@ export default function DayViewPageEnhanced() {
         </div>
       </motion.div>
       
-      {/* Resources Section - Original Style */}
+      {/* Resources Section */}
       <motion.div {...animations.fadeIn} transition={{ delay: 0.2 }} className="mb-8">
         <Card title={t('suggestedResources')} subtitle={t('resourcesForToday')}>
           <div className="space-y-4">
@@ -146,18 +123,15 @@ export default function DayViewPageEnhanced() {
         onClose={() => setResourceModal({ open: false, resource: null })} 
       />
       
-      {/* Notes Section */}
+      {/* Notes Section - Simple Style */}
       <motion.div {...animations.fadeIn} transition={{ delay: 0.3 }} className="mb-8">
         <Card title={t('notes')} subtitle={t('yourNotesAndReflections')}>
           <div className="space-y-4">
             {notes.length > 0 ? notes.map(note => (
-              <NoteCard 
-                key={note.id} 
-                note={note} 
-                expanded={expandedNote === note.id} 
-                onExpand={() => setExpandedNote(expandedNote === note.id ? null : note.id)} 
-                onEdit={() => setEditNote(note)} 
-              />
+              <div key={note.id} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">{note.title}</h4>
+                <p className="text-gray-700 dark:text-gray-200 text-sm">{note.content}</p>
+              </div>
             )) : (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -168,21 +142,6 @@ export default function DayViewPageEnhanced() {
           </div>
         </Card>
       </motion.div>
-      
-      {/* Note Edit Modal */}
-      <Modal isOpen={!!editNote} onClose={() => setEditNote(null)} title={t('editNote')} size="lg">
-        <div className="space-y-4">
-          <RichTextEditor 
-            value={noteContent} 
-            onChange={setNoteContent} 
-            placeholder={t('writeYourNote')} 
-          />
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setEditNote(null)}>{t('cancel')}</Button>
-            <Button onClick={() => { /* handle save */ setEditNote(null); }}>{t('save')}</Button>
-          </div>
-        </div>
-      </Modal>
     </PageLayout>
   );
 }
