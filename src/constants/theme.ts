@@ -94,24 +94,15 @@ export const theme = {
 };
 
 export const pageLayouts = {
-  default: {
-    container: 'min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900',
-    header: 'bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700',
-    content: 'px-6 py-8 sm:px-8',
-    maxWidth: 'max-w-7xl mx-auto'
-  },
-  
+  container: 'min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900',
+  header: 'bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-6 py-6 sm:px-8',
+  main: 'px-6 py-8 sm:px-8 max-w-7xl mx-auto',
+  footer: 'bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-6 sm:px-8',
   card: {
-    base: 'bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700',
+    base: 'bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden',
     header: 'px-6 py-4 border-b border-gray-200 dark:border-gray-700',
-    body: 'p-6',
-    footer: 'px-6 py-4 border-t border-gray-200 dark:border-gray-700'
-  },
-  
-  section: {
-    title: 'text-2xl font-bold text-gray-900 dark:text-white mb-6',
-    subtitle: 'text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4',
-    description: 'text-gray-600 dark:text-gray-400 mb-6'
+    body: 'px-6 py-4',
+    footer: 'px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700'
   }
 };
 

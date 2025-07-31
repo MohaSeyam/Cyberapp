@@ -1,6 +1,7 @@
 // Home Page - Unified Design
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Shield, Target, Users, BookOpen, Calendar,
   TrendingUp, Award, ArrowRight, Play,
@@ -17,6 +18,7 @@ import { animations } from '../constants/theme';
 export default function HomePage() {
   const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
+  const navigate = useNavigate();
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
 
   // Comprehensive safety checks for data
@@ -79,23 +81,32 @@ export default function HomePage() {
       title: t('startLearning'),
       subtitle: t('beginYourJourney'),
       variant: 'primary' as const,
-      action: () => console.log('Start Learning')
+      action: () => navigate('/day/1/0')
     },
     {
       icon: Users,
       title: t('community'),
       subtitle: t('joinDiscord'),
       variant: 'outline' as const,
-      action: () => console.log('Join Community')
+      action: () => window.open('https://discord.gg/cybersecurity', '_blank')
     },
     {
       icon: Target,
       title: t('trackProgress'),
       subtitle: t('viewAnalytics'),
       variant: 'outline' as const,
-      action: () => console.log('Track Progress')
+      action: () => navigate('/progress')
     }
   ];
+
+  const handlePhaseClick = (phase: number) => {
+    setSelectedPhase(phase);
+    // يمكن إضافة منطق إضافي هنا للانتقال إلى صفحة المرحلة
+  };
+
+  const handleViewAllPhases = () => {
+    navigate('/progress');
+  };
 
   return (
     <PageLayout
@@ -104,24 +115,7 @@ export default function HomePage() {
         ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
         : 'A comprehensive journey in cybersecurity - from basics to professional'
       }
-      header={
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-            <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {lang === 'ar' ? 'رحلة الأمن السيبراني' : 'Cyber Security Journey'}
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              {lang === 'ar' 
-                ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
-                : 'A comprehensive journey in cybersecurity - from basics to professional'
-              }
-            </p>
-          </div>
-        </div>
-      }
+      showHeader={true}
     >
       {/* Statistics Cards */}
       <motion.div
@@ -135,7 +129,14 @@ export default function HomePage() {
           >
             <Card
               variant="elevated"
-              className="text-center"
+              className="text-center cursor-pointer hover:scale-105 transition-transform duration-200"
+              onClick={() => {
+                if (stat.label === t('totalTasks') || stat.label === t('completedTasks')) {
+                  navigate('/progress');
+                } else if (stat.label === t('totalWeeks')) {
+                  navigate('/day/1/0');
+                }
+              }}
             >
               <div className="flex flex-col items-center">
                 <div className={`p-3 rounded-full ${stat.bg} mb-4`}>
@@ -162,6 +163,8 @@ export default function HomePage() {
         <Card
           title={t('currentProgress')}
           subtitle={`${t('week')} ${currentWeek} - ${completionRate}% ${t('completed')}`}
+          onClick={() => navigate('/progress')}
+          className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
         >
           <div className="space-y-4">
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
@@ -201,6 +204,7 @@ export default function HomePage() {
             variant="outline"
             icon={<ArrowRight className="w-4 h-4" />}
             iconPosition="right"
+            onClick={handleViewAllPhases}
           >
             {t('viewAll')}
           </Button>
@@ -218,7 +222,7 @@ export default function HomePage() {
                   phase={phase}
                   weeks={phaseWeeks}
                   isActive={selectedPhase === phase}
-                  onClick={() => setSelectedPhase(phase)}
+                  onClick={() => handlePhaseClick(phase)}
                   variant="detailed"
                 />
               </motion.div>
@@ -246,7 +250,7 @@ export default function HomePage() {
                 variant="elevated"
                 hover
                 onClick={action.action}
-                className="h-32 flex flex-col justify-center items-center text-center"
+                className="h-32 flex flex-col justify-center items-center text-center cursor-pointer"
               >
                 <action.icon className="w-8 h-8 text-blue-600 mb-3" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
@@ -270,6 +274,8 @@ export default function HomePage() {
         <Card
           title={t('recentActivity')}
           subtitle={t('yourLatestProgress')}
+          onClick={() => navigate('/progress')}
+          className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
         >
           <div className="space-y-4">
             {completedTasks > 0 ? (
@@ -284,6 +290,13 @@ export default function HomePage() {
                 <Star className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p>{t('noActivityYet')}</p>
                 <p className="text-sm">{t('startYourJourney')}</p>
+                <Button
+                  variant="primary"
+                  className="mt-4"
+                  onClick={() => navigate('/day/1/0')}
+                >
+                  {t('startLearning')}
+                </Button>
               </div>
             )}
           </div>

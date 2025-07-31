@@ -1,6 +1,7 @@
 // Day View Page - Unified Design
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useParams } from 'react-router-dom';
 import {
   Calendar, Clock, Target, BookOpen, MessageSquare,
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, Wrench, Mic, GraduationCap, Edit2
@@ -16,12 +17,8 @@ import RichTextEditor from '../components/editors/RichTextEditor';
 import { animations } from '../constants/theme';
 import type { Week, Day, Task, Resource } from '../types';
 
-interface DayViewPageProps {
-  weekId?: string;
-  dayIndex?: string;
-}
-
-export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPageProps) {
+export default function DayViewPage() {
+  const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const { plan, progress, addNote, addResource, lang, updateResource } = useApp();
   const { t } = useLocalization();
 
@@ -108,28 +105,8 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
   return (
     <PageLayout
       title={`${t('week')} ${selectedWeek.week} - ${selectedDay.day?.[lang] || 'Unknown Day'}`}
-      subtitle={selectedDay.topic?.[lang] || 'No topic'}
-      header={
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-              <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {selectedDay.day?.[lang] || 'Unknown Day'}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                {selectedDay.topic?.[lang] || 'No topic'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Clock className="w-4 h-4" />
-            <span>{(selectedDay.tasks || []).reduce((total, task) => total + (task.duration || 0), 0)} {t('minutes')}</span>
-          </div>
-        </div>
-      }
+      subtitle={t('dailyTasksAndResources')}
+      showHeader={true}
     >
       {/* Tasks Section */}
       <motion.div

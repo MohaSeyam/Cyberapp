@@ -136,34 +136,8 @@ export default function ProgressPage() {
   return (
     <PageLayout
       title={t('progress')}
-      subtitle={t('trackYourLearningJourney')}
-      header={
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-              <TrendingUp className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {t('progress')}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                {t('trackYourLearningJourney')}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="text-right">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {completionRate}%
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {t('overallProgress')}
-              </div>
-            </div>
-          </div>
-        </div>
-      }
+      subtitle={t('trackYourLearning')}
+      showHeader={true}
     >
       {/* Main Statistics */}
       <motion.div

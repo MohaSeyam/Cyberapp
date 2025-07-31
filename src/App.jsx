@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider, useApp } from "./context/AppContext";
 import "./styles/fontSizes.css";
+import Navigation from "./components/layout/Navigation";
 import HomePage from "./pages/HomePage";
 import DayViewPage from "./pages/DayViewPage";
 import NotesPage from "./pages/NotesPage";
@@ -89,16 +90,19 @@ function AppRoutes() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-      <Route path="/notes" element={<NotesPage />} />
-      <Route path="/journal" element={<JournalPage />} />
-      <Route path="/progress" element={<ProgressPage />} />
-      <Route path="/settings" element={<SettingsPage />} />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <Navigation />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+        <Route path="/notes" element={<NotesPage />} />
+        <Route path="/journal" element={<JournalPage />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 

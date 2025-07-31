@@ -135,31 +135,22 @@ export default function NotesPage() {
     <PageLayout
       title={t('notes')}
       subtitle={t('manageYourNotes')}
-      header={
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-              <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {t('notes')}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                {t('manageYourNotes')}
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="primary"
-            icon={<Plus className="w-4 h-4" />}
-            onClick={() => setNoteModal({ isOpen: true, note: null })}
-          >
-            {t('addNote')}
-          </Button>
-        </div>
-      }
+      showHeader={true}
     >
+      {/* Add Note Button */}
+      <motion.div
+        {...animations.fadeIn}
+        className="mb-6 flex justify-end"
+      >
+        <Button
+          variant="primary"
+          icon={<Plus className="w-4 h-4" />}
+          onClick={() => setNoteModal({ isOpen: true, note: null })}
+        >
+          {t('addNote')}
+        </Button>
+      </motion.div>
+
       {/* Statistics */}
       <motion.div
         {...animations.fadeIn}

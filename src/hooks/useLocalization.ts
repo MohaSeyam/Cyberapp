@@ -94,6 +94,46 @@ const translations: TranslationData = {
     ar: "الإعدادات",
     en: "Settings"
   },
+  dashboard: {
+    ar: "لوحة التحكم",
+    en: "Dashboard"
+  },
+  dailyTasks: {
+    ar: "مهام اليوم",
+    en: "Daily Tasks"
+  },
+  manageNotes: {
+    ar: "إدارة الملاحظات",
+    en: "Manage Notes"
+  },
+  learningJournal: {
+    ar: "مدونة التعلم",
+    en: "Learning Journal"
+  },
+  trackProgress: {
+    ar: "تتبع التقدم",
+    en: "Track Progress"
+  },
+  appSettings: {
+    ar: "إعدادات التطبيق",
+    en: "App Settings"
+  },
+  cyberSecurity: {
+    ar: "الأمن السيبراني",
+    en: "Cyber Security"
+  },
+  dailyTasksAndResources: {
+    ar: "مهام ومراجع اليوم",
+    en: "Daily Tasks and Resources"
+  },
+  trackYourLearning: {
+    ar: "تتبع رحلة تعلمك",
+    en: "Track Your Learning Journey"
+  },
+  customizeYourExperience: {
+    ar: "خصص تجربتك",
+    en: "Customize Your Experience"
+  },
   
   // Tasks
   tasks: {
@@ -466,10 +506,6 @@ const translations: TranslationData = {
   },
   
   // Settings
-  customizeYourExperience: {
-    ar: "خصص تجربتك",
-    en: "Customize Your Experience"
-  },
   quickSettings: {
     ar: "الإعدادات السريعة",
     en: "Quick Settings"
@@ -619,10 +655,6 @@ const translations: TranslationData = {
   joinDiscord: {
     ar: "انضم للديسكورد",
     en: "Join Discord"
-  },
-  trackProgress: {
-    ar: "تتبع التقدم",
-    en: "Track Progress"
   },
   viewAnalytics: {
     ar: "عرض التحليلات",
