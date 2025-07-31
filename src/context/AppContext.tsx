@@ -197,6 +197,14 @@ export function AppProvider({ children }: AppProviderProps) {
     setThemeState(newTheme);
     localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
+    // عند تغيير الثيم، أضف أو أزل كلاس dark على العنصر html أو body
+    if (newTheme === 'dark') {
+      document.body.classList.add('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+      document.documentElement.classList.remove('dark');
+    }
   }, []);
 
   // Settings management

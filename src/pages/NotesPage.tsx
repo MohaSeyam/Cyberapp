@@ -25,7 +25,6 @@ export default function NotesPage() {
   const [noteForm, setNoteForm] = useState({
     title: '',
     content: '',
-    keywords: '',
     tags: [] as string[]
   });
 
@@ -33,8 +32,7 @@ export default function NotesPage() {
   const allNotes = Object.values(appState.notes).flat();
   const filteredNotes = allNotes.filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         note.keywords?.toLowerCase().includes(searchTerm.toLowerCase());
+                         note.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesTag = !selectedTag || note.tags.includes(selectedTag);
     return matchesSearch && matchesTag;
   });
@@ -50,7 +48,6 @@ export default function NotesPage() {
           await updateNote(noteModal.note.id!, {
             title: noteForm.title,
             content: noteForm.content,
-            keywords: noteForm.keywords,
             tags: noteForm.tags
           });
         } else {
@@ -58,14 +55,13 @@ export default function NotesPage() {
           await addNote({
             title: noteForm.title,
             content: noteForm.content,
-            keywords: noteForm.keywords,
             tags: noteForm.tags,
             weekId: 1, // Default week
             dayKey: 'sat', // Default day
             taskId: 'general' // General note
           });
         }
-        setNoteForm({ title: '', content: '', keywords: '', tags: [] });
+        setNoteForm({ title: '', content: '', tags: [] });
         setNoteModal({ isOpen: false, note: null });
       } catch (error) {
         console.error('Error saving note:', error);
@@ -77,7 +73,6 @@ export default function NotesPage() {
     setNoteForm({
       title: note.title,
       content: note.content,
-      keywords: note.keywords || '',
       tags: note.tags
     });
     setNoteModal({ isOpen: true, note });
@@ -388,20 +383,6 @@ export default function NotesPage() {
               onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder={t('enterTitle')}
-            />
-          </div>
-
-          {/* Keywords */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('keywords')}
-            </label>
-            <input
-              type="text"
-              value={noteForm.keywords}
-              onChange={(e) => setNoteForm(prev => ({ ...prev, keywords: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={t('enterKeywords')}
             />
           </div>
 
