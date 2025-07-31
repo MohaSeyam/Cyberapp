@@ -342,7 +342,7 @@ export default function ProgressPage() {
       progress: Math.min(blueTeamTasks, 10)
     },
     {
-      icon: Fire,
+      icon: Flame,
       title: lang === 'ar' ? 'هاكر أخلاقي' : 'Ethical Hacker',
       description: lang === 'ar' ? 'أكمل 10 مهام هجومية' : 'Complete 10 offensive tasks',
       unlocked: redTeamTasks >= 10,

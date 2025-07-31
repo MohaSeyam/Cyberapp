@@ -54,64 +54,56 @@ export default function PlanPage() {
     return location.pathname === `/day/${weekNumber}/${dayIndex}`;
   };
 
-  // الحصول على عنوان المرحلة
+  // الحصول على عنوان المرحلة من ملف الخطة
   const getPhaseTitle = (phase: number) => {
     const phaseTitles: { [key: number]: string } = {
-      1: lang === 'ar' ? 'أساسيات الأمن السيبراني' : 'Cybersecurity Fundamentals',
-      2: lang === 'ar' ? 'الشبكات والأمان' : 'Networking & Security',
-      3: lang === 'ar' ? 'البرمجة والاختراق الأخلاقي' : 'Programming & Ethical Hacking',
-      4: lang === 'ar' ? 'الدفاع والحماية' : 'Defense & Protection',
-      5: lang === 'ar' ? 'التحليل الجنائي' : 'Digital Forensics',
+      1: lang === 'ar' ? 'مقدمة إلى عالم الأمن السيبراني' : 'Introduction to Cybersecurity',
+      2: lang === 'ar' ? 'أساسيات أمن نقاط النهاية' : 'Endpoint Security Fundamentals',
+      3: lang === 'ar' ? 'أمن الشبكات' : 'Network Security',
+      4: lang === 'ar' ? 'الاختراق الأخلاقي' : 'Ethical Hacking',
+      5: lang === 'ar' ? 'التحليل الجنائي الرقمي' : 'Digital Forensics',
       6: lang === 'ar' ? 'الأمن السحابي' : 'Cloud Security',
       7: lang === 'ar' ? 'أمن التطبيقات' : 'Application Security',
-      8: lang === 'ar' ? 'إدارة الأمن' : 'Security Management'
+      8: lang === 'ar' ? 'إدارة الأمن السيبراني' : 'Cybersecurity Management'
     };
-    return phaseTitles[phase] || `${t('phase')} ${phase}`;
+    return phaseTitles[phase] || `${lang === 'ar' ? 'المرحلة' : 'Phase'} ${phase}`;
   };
 
-  // الحصول على وصف المرحلة
+  // الحصول على وصف المرحلة من ملف الخطة
   const getPhaseDescription = (phase: number) => {
     const phaseDescriptions: { [key: number]: string } = {
-      1: lang === 'ar' ? 'تعلم المفاهيم الأساسية' : 'Learn fundamental concepts',
-      2: lang === 'ar' ? 'فهم الشبكات والحماية' : 'Understand networks & protection',
-      3: lang === 'ar' ? 'البرمجة والاختراق' : 'Programming & hacking',
-      4: lang === 'ar' ? 'تقنيات الدفاع' : 'Defense techniques',
-      5: lang === 'ar' ? 'التحليل الجنائي الرقمي' : 'Digital forensics analysis',
+      1: lang === 'ar' ? 'بناء فهم صلب للمفاهيم والمبادئ الأساسية' : 'Build a solid understanding of fundamental concepts',
+      2: lang === 'ar' ? 'فهم تهديدات نقاط النهاية وآليات الدفاع' : 'Understand endpoint threats and defense mechanisms',
+      3: lang === 'ar' ? 'تعلم أساسيات أمن الشبكات' : 'Learn network security fundamentals',
+      4: lang === 'ar' ? 'إتقان تقنيات الاختراق الأخلاقي' : 'Master ethical hacking techniques',
+      5: lang === 'ar' ? 'التحليل الجنائي والتحقيق' : 'Forensic analysis and investigation',
       6: lang === 'ar' ? 'أمن الحوسبة السحابية' : 'Cloud computing security',
-      7: lang === 'ar' ? 'أمان التطبيقات' : 'Application security',
-      8: lang === 'ar' ? 'إدارة الأمن السيبراني' : 'Cybersecurity management'
+      7: lang === 'ar' ? 'أمان التطبيقات والويب' : 'Application and web security',
+      8: lang === 'ar' ? 'إدارة الأمن في المؤسسات' : 'Enterprise security management'
     };
     return phaseDescriptions[phase] || '';
   };
 
-  // الحصول على عنوان الأسبوع
+  // الحصول على عنوان الأسبوع من ملف الخطة
   const getWeekTitle = (week: number) => {
-    const weekTitles: { [key: number]: string } = {
-      1: lang === 'ar' ? 'مقدمة في الأمن السيبراني' : 'Introduction to Cybersecurity',
-      2: lang === 'ar' ? 'التهديدات والهجمات' : 'Threats & Attacks',
-      3: lang === 'ar' ? 'أدوات الحماية' : 'Protection Tools',
-      4: lang === 'ar' ? 'أفضل الممارسات' : 'Best Practices',
-      5: lang === 'ar' ? 'المراقبة والكشف' : 'Monitoring & Detection',
-      6: lang === 'ar' ? 'الاستجابة للحوادث' : 'Incident Response',
-      7: lang === 'ar' ? 'التقييم والتحسين' : 'Assessment & Improvement',
-      8: lang === 'ar' ? 'التطبيق العملي' : 'Practical Application'
-    };
-    return weekTitles[week] || `${t('week')} ${week}`;
+    // البحث عن عنوان الأسبوع في البيانات
+    const weekData = safePlan.find(w => w.week === week);
+    if (weekData?.title) {
+      return weekData.title[lang] || weekData.title.en || `${lang === 'ar' ? 'الأسبوع' : 'Week'} ${week}`;
+    }
+    return `${lang === 'ar' ? 'الأسبوع' : 'Week'} ${week}`;
   };
 
-  // الحصول على وصف الأسبوع
+  // الحصول على وصف الأسبوع من ملف الخطة
   const getWeekDescription = (week: number) => {
-    const weekDescriptions: { [key: number]: string } = {
-      1: lang === 'ar' ? 'أساسيات ومفاهيم' : 'Basics & concepts',
-      2: lang === 'ar' ? 'أنواع التهديدات' : 'Types of threats',
-      3: lang === 'ar' ? 'أدوات وتقنيات' : 'Tools & techniques',
-      4: lang === 'ar' ? 'ممارسات آمنة' : 'Safe practices',
-      5: lang === 'ar' ? 'المراقبة المستمرة' : 'Continuous monitoring',
-      6: lang === 'ar' ? 'الاستجابة السريعة' : 'Quick response',
-      7: lang === 'ar' ? 'التقييم المستمر' : 'Continuous assessment',
-      8: lang === 'ar' ? 'التطبيق العملي' : 'Practical application'
-    };
-    return weekDescriptions[week] || '';
+    // البحث عن هدف الأسبوع في البيانات
+    const weekData = safePlan.find(w => w.week === week);
+    if (weekData?.objective) {
+      const objective = weekData.objective[lang] || weekData.objective.en || '';
+      // تقصير الوصف إذا كان طويلاً
+      return objective.length > 100 ? objective.substring(0, 100) + '...' : objective;
+    }
+    return '';
   };
 
   return (
@@ -146,16 +138,16 @@ export default function PlanPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {t('phase')} {phase}: {getPhaseTitle(phase)}
+                        {lang === 'ar' ? 'المرحلة' : 'Phase'} {phase}: {getPhaseTitle(phase)}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {weeks.length} {t('weeks')} • {getPhaseDescription(phase)}
+                        {weeks.length} {lang === 'ar' ? 'أسبوع' : 'weeks'} • {getPhaseDescription(phase)}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {weeks.length} {t('weeks')}
+                      {weeks.length} {lang === 'ar' ? 'أسبوع' : 'weeks'}
                     </span>
                     {isExpanded ? (
                       <ChevronDown className="w-5 h-5 text-gray-500" />
@@ -179,23 +171,23 @@ export default function PlanPage() {
                             className="flex items-center justify-between p-4 pl-8 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                             onClick={() => toggleWeek(week.week)}
                           >
-                            <div className="flex items-center space-x-3">
-                              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                                <Calendar className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-gray-900 dark:text-white">
-                                  {t('week')} {week.week}: {getWeekTitle(week.week)}
-                                </h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {days.length} {t('days')} • {getWeekDescription(week.week)}
-                                </p>
-                              </div>
+                                                      <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                              <Calendar className="w-4 h-4 text-green-600 dark:text-green-400" />
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {days.length} {t('days')}
-                              </span>
+                            <div>
+                              <h4 className="font-medium text-gray-900 dark:text-white">
+                                {lang === 'ar' ? 'الأسبوع' : 'Week'} {week.week}: {getWeekTitle(week.week)}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {getWeekDescription(week.week)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {days.length} {lang === 'ar' ? 'يوم' : 'days'}
+                            </span>
                               {isWeekExpanded ? (
                                 <ChevronDown className="w-4 h-4 text-gray-500" />
                               ) : (
