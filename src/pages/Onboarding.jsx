@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  BookOpen, 
-  Target, 
-  Trophy, 
-  Settings, 
-  ArrowRight, 
-  ArrowLeft,
-  CheckCircle,
-  Star,
-  Users,
+import {
+  BookOpen,
+  Target,
+  Trophy,
   Calendar,
   BarChart3,
-  Play,
-  SkipForward,
-  Home,
+  Settings,
   BookOpen as BookOpenIcon,
   Target as TargetIcon,
   Trophy as TrophyIcon,
@@ -22,39 +14,62 @@ import {
   ChevronRight,
   ChevronLeft
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
+import { useLocalization } from "../hooks/useLocalization";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
-import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 const onboardingSteps = [
   {
     id: "welcome",
-    title: "مرحباً بك في خطة التعلم",
-    description: "ابدأ رحلتك التعليمية مع خطة منظمة ومتدرجة",
+    title: {
+      ar: "مرحباً بك في رحلة الأمن السيبراني",
+      en: "Welcome to Cyber Security Journey"
+    },
+    description: {
+      ar: "ابدأ رحلتك التعليمية مع خطة منظمة ومتدرجة",
+      en: "Start your learning journey with an organized and progressive plan"
+    },
     icon: BookOpenIcon,
     color: "blue"
   },
   {
     id: "plan",
-    title: "خطة تعليمية شاملة",
-    description: "50 أسبوع من المحتوى التعليمي المنظم في 3 مراحل",
+    title: {
+      ar: "خطة تعليمية شاملة",
+      en: "Comprehensive Learning Plan"
+    },
+    description: {
+      ar: "50 أسبوع من المحتوى التعليمي المنظم في 3 مراحل",
+      en: "50 weeks of organized educational content in 3 phases"
+    },
     icon: TargetIcon,
     color: "green"
   },
   {
     id: "progress",
-    title: "تتبع تقدمك",
-    description: "راقب إنجازاتك واحصل على شارات التقدم",
+    title: {
+      ar: "تتبع تقدمك",
+      en: "Track Your Progress"
+    },
+    description: {
+      ar: "راقب إنجازاتك واحصل على شارات التقدم",
+      en: "Monitor your achievements and earn progress badges"
+    },
     icon: TrophyIcon,
     color: "purple"
   },
   {
     id: "customize",
-    title: "خصص تجربتك",
-    description: "اضبط الإعدادات حسب تفضيلاتك",
+    title: {
+      ar: "خصص تجربتك",
+      en: "Customize Your Experience"
+    },
+    description: {
+      ar: "اضبط الإعدادات حسب تفضيلاتك",
+      en: "Adjust settings according to your preferences"
+    },
     icon: SettingsIcon,
     color: "orange"
   }
@@ -63,40 +78,76 @@ const onboardingSteps = [
 const features = [
   {
     icon: BookOpen,
-    title: "خطة تعليمية منظمة",
-    description: "50 أسبوع من المحتوى التعليمي المتدرج"
+    title: {
+      ar: "خطة تعليمية منظمة",
+      en: "Organized Learning Plan"
+    },
+    description: {
+      ar: "50 أسبوع من المحتوى التعليمي المتدرج",
+      en: "50 weeks of progressive educational content"
+    }
   },
   {
     icon: Target,
-    title: "تتبع التقدم",
-    description: "راقب إنجازاتك وتقدمك في الوقت الفعلي"
+    title: {
+      ar: "تتبع التقدم",
+      en: "Progress Tracking"
+    },
+    description: {
+      ar: "راقب إنجازاتك وتقدمك في الوقت الفعلي",
+      en: "Monitor your achievements and progress in real-time"
+    }
   },
   {
     icon: Trophy,
-    title: "نظام الإنجازات",
-    description: "احصل على شارات ومكافآت لإنجازاتك"
+    title: {
+      ar: "نظام الإنجازات",
+      en: "Achievement System"
+    },
+    description: {
+      ar: "احصل على شارات ومكافآت لإنجازاتك",
+      en: "Earn badges and rewards for your achievements"
+    }
   },
   {
     icon: Calendar,
-    title: "جدولة المهام",
-    description: "نظم مهامك اليومية والأسبوعية"
+    title: {
+      ar: "جدولة المهام",
+      en: "Task Scheduling"
+    },
+    description: {
+      ar: "نظم مهامك اليومية والأسبوعية",
+      en: "Organize your daily and weekly tasks"
+    }
   },
   {
     icon: BarChart3,
-    title: "تحليلات مفصلة",
-    description: "احصل على إحصائيات وتحليلات شاملة"
+    title: {
+      ar: "تحليلات مفصلة",
+      en: "Detailed Analytics"
+    },
+    description: {
+      ar: "احصل على إحصائيات وتحليلات شاملة",
+      en: "Get comprehensive statistics and analytics"
+    }
   },
   {
     icon: Settings,
-    title: "إعدادات مرنة",
-    description: "خصص التطبيق حسب احتياجاتك"
+    title: {
+      ar: "إعدادات مرنة",
+      en: "Flexible Settings"
+    },
+    description: {
+      ar: "خصص التطبيق حسب احتياجاتك",
+      en: "Customize the app according to your needs"
+    }
   }
 ];
 
 export default function Onboarding() {
-  const { t, i18n } = useTranslation();
+  const { t } = useLocalization();
+  const { lang, updateSettings } = useApp();
   const navigate = useNavigate();
-  const { updateSettings } = useApp();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([]);
@@ -122,259 +173,141 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Mark onboarding as completed
       await updateSettings({ onboardingCompleted: true });
-      
-      // Navigate to dashboard
       navigate("/");
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      console.error("Error completing onboarding:", error);
+      navigate("/");
     } finally {
       setLoading(false);
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5
-      }
-    }
-  };
-
-  const slideVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="xl" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {t("completingSetup", "جاري إكمال الإعداد...")}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const currentStepData = onboardingSteps[currentStep];
 
   return (
-    <motion.div 
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      dir={i18n.language === "ar" ? "rtl" : "ltr"}
-    >
-      {/* Header */}
-      <motion.div className="absolute top-4 right-4" variants={itemVariants}>
-        <Button
-          variant="ghost"
-          onClick={handleSkip}
-          className="flex items-center gap-2"
-        >
-          <SkipForward className="w-4 h-4" />
-          {t("skip", "تخطي")}
-        </Button>
-      </motion.div>
-
-      {/* Progress Bar */}
-      <motion.div className="absolute top-4 left-4 right-20" variants={itemVariants}>
-        <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-          <motion.div
-            className="bg-blue-500 h-2 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentStep + 1) / onboardingSteps.length) * 100}%` }}
-            transition={{ duration: 0.5 }}
-          />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {lang === 'ar' ? 'التقدم' : 'Progress'}
+            </span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {currentStep + 1} / {onboardingSteps.length}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <motion.div
+              className="bg-blue-600 h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentStep + 1) / onboardingSteps.length) * 100}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
         </div>
-      </motion.div>
 
-      <div className="min-h-screen flex items-center justify-center py-8 px-4">
+        {/* Main Content */}
         <div className="max-w-4xl mx-auto">
-          {/* Step Content */}
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
-              custom={currentStep}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
-              }}
-              className="text-center"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-12"
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="mb-8"
-              >
-                <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 ${
-                  onboardingSteps[currentStep].color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/20' :
-                  onboardingSteps[currentStep].color === 'green' ? 'bg-green-100 dark:bg-green-900/20' :
-                  onboardingSteps[currentStep].color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20' :
-                  'bg-orange-100 dark:bg-orange-900/20'
-                }`}>
-                  {React.createElement(onboardingSteps[currentStep].icon, {
-                    className: `w-12 h-12 ${
-                      onboardingSteps[currentStep].color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                      onboardingSteps[currentStep].color === 'green' ? 'text-green-600 dark:text-green-400' :
-                      onboardingSteps[currentStep].color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                      'text-orange-600 dark:text-orange-400'
-                    }`
-                  })}
-                </div>
-              </motion.div>
-
-              <motion.h1 
-                className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
-                variants={itemVariants}
-              >
-                {onboardingSteps[currentStep].title}
-              </motion.h1>
-
-              <motion.p 
-                className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
-                variants={itemVariants}
-              >
-                {onboardingSteps[currentStep].description}
-              </motion.p>
-
-              {/* Features Grid for specific steps */}
-              {currentStep === 1 && (
-                <motion.div 
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
-                  variants={itemVariants}
+              {/* Step Icon */}
+              <div className="mb-6">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className={`inline-flex p-4 rounded-full bg-${currentStepData.color}-100 dark:bg-${currentStepData.color}-900`}
                 >
-                  {features.slice(0, 3).map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      variants={itemVariants}
-                      custom={index}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <Card className="h-full">
-                        <div className="text-center">
-                          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-4">
-                            <feature.icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{feature.description}</p>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
+                  <currentStepData.icon className={`w-12 h-12 text-${currentStepData.color}-600 dark:text-${currentStepData.color}-400`} />
                 </motion.div>
-              )}
+              </div>
 
-              {currentStep === 2 && (
-                <motion.div 
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
-                  variants={itemVariants}
-                >
-                  {features.slice(3).map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      variants={itemVariants}
-                      custom={index}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <Card className="h-full">
-                        <div className="text-center">
-                          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/20 mb-4">
-                            <feature.icon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                          </div>
-                          <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{feature.description}</p>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
+              {/* Step Title */}
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {currentStepData.title[lang]}
+              </h1>
+
+              {/* Step Description */}
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                {currentStepData.description[lang]}
+              </p>
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation */}
-          <motion.div 
-            className="flex items-center justify-between max-w-md mx-auto"
-            variants={itemVariants}
+          {/* Features Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
           >
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + index * 0.1 }}
+              >
+                <Card className="text-center p-6">
+                  <div className="mb-4">
+                    <feature.icon className="w-8 h-8 text-blue-600 mx-auto" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {feature.title[lang]}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {feature.description[lang]}
+                  </p>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center">
             <Button
-              variant="outline"
               onClick={handlePrevious}
               disabled={currentStep === 0}
+              variant="outline"
               className="flex items-center gap-2"
             >
               <ChevronLeft className="w-4 h-4" />
-              {t("previous", "السابق")}
+              {lang === 'ar' ? 'السابق' : 'Previous'}
             </Button>
 
-            <div className="flex gap-2">
-              {onboardingSteps.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentStep 
-                      ? 'bg-blue-500' 
-                      : index < currentStep 
-                        ? 'bg-green-500' 
-                        : 'bg-gray-300 dark:bg-gray-600'
-                  }`}
-                />
-              ))}
+            <div className="flex gap-4">
+              <Button
+                onClick={handleSkip}
+                variant="ghost"
+                disabled={loading}
+              >
+                {lang === 'ar' ? 'تخطي' : 'Skip'}
+              </Button>
+              
+              <Button
+                onClick={handleNext}
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                {currentStep === onboardingSteps.length - 1 
+                  ? (lang === 'ar' ? 'ابدأ الرحلة' : 'Start Journey')
+                  : (lang === 'ar' ? 'التالي' : 'Next')
+                }
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
-
-            <Button
-              onClick={handleNext}
-              className="flex items-center gap-2"
-            >
-              {currentStep === onboardingSteps.length - 1 ? (
-                <>
-                  {t("getStarted", "ابدأ")}
-                  <Play className="w-4 h-4" />
-                </>
-              ) : (
-                <>
-                  {t("next", "التالي")}
-                  <ChevronRight className="w-4 h-4" />
-                </>
-              )}
-            </Button>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

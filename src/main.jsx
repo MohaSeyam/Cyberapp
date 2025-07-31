@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./assets/main.css";
-import "./i18n/i18n";
 
 console.log("main.jsx loaded");
 
@@ -98,31 +97,44 @@ try {
   console.log("App rendered successfully");
 } catch (error) {
   console.error("Error rendering app:", error);
-  document.body.innerHTML = `
-    <div style="
-      min-height: 100vh; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      background-color: #fef2f2;
-      color: #dc2626;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    ">
-      <div style="text-align: center;">
-        <h1>Failed to render application</h1>
-        <p>Error: ${error.message}</p>
-        <button onclick="window.location.reload()" style="
-          background-color: #dc2626;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-        ">
-          Reload Page
-        </button>
+  
+  // Fallback error display
+  const rootElement = document.getElementById("root");
+  if (rootElement) {
+    rootElement.innerHTML = `
+      <div style="
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fef2f2;
+        color: #dc2626;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        text-align: center;
+      ">
+        <div>
+          <h1 style="font-size: 24px; margin-bottom: 16px;">
+            Critical Application Error
+          </h1>
+          <p style="margin-bottom: 16px;">
+            Failed to render the application. Please check the console for details.
+          </p>
+          <button 
+            onclick="window.location.reload()"
+            style="
+              background-color: #dc2626;
+              color: white;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+          >
+            Reload Page
+          </button>
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  }
 }
