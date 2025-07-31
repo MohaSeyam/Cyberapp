@@ -6,7 +6,7 @@ import Navigation from "./components/layout/Navigation";
 import Sidebar from "./components/layout/Sidebar";
 import BottomBar from "./components/layout/BottomBar";
 import HomePage from "./pages/HomePage";
-import DayViewPage from "./pages/DayViewPage";
+import DayViewPageEnhanced from "./pages/DayViewPageEnhanced";
 import NotesPage from "./pages/NotesPage";
 import JournalPage from "./pages/JournalPage";
 import ProgressPage from "./pages/ProgressPage";
@@ -111,7 +111,7 @@ function AppRoutes() {
         <div className="flex-1 min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:ml-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+            <Route path="/day/:weekId/:dayIndex" element={<DayViewPageEnhanced />} />
             <Route path="/notes" element={<NotesPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/plan" element={<PlanPage />} />
