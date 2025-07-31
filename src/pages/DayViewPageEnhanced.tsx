@@ -14,7 +14,7 @@ import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { animations } from '../constants/theme';
 
-const ResourceModal = React.memo(({ resource, open, onClose }) => (
+const ResourceModal = React.memo(({ resource, open, onClose, lang }) => (
   <Modal isOpen={open} onClose={onClose} title={resource?.title || ''} size="lg">
     {resource && (
       <div className="space-y-4">
@@ -120,7 +120,8 @@ export default function DayViewPageEnhanced() {
       <ResourceModal 
         resource={resourceModal.resource} 
         open={resourceModal.open} 
-        onClose={() => setResourceModal({ open: false, resource: null })} 
+        onClose={() => setResourceModal({ open: false, resource: null })}
+        lang={lang}
       />
       
       {/* Notes Section - Simple Style */}
