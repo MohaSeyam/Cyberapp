@@ -11,10 +11,9 @@ export default function BottomBar() {
   const { theme, setTheme } = useApp();
   const items = [
     { icon: Home, label: t('home'), path: '/' },
-    { icon: Calendar, label: t('today'), path: '/day/1/0' },
+    { icon: Calendar, label: t('plan'), path: '/plan' },
     { icon: FileText, label: t('notes'), path: '/notes' },
     { icon: BookOpen, label: t('journal'), path: '/journal' },
-    { icon: Calendar, label: t('plan'), path: '/plan' },
     { icon: TrendingUp, label: t('progress'), path: '/progress' },
     { icon: Settings, label: t('settings'), path: '/settings' },
   ];
