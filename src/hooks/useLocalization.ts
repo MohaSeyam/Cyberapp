@@ -398,6 +398,10 @@ const translations: TranslationData = {
     ar: "كلمات",
     en: "words"
   },
+  navigation: {
+    ar: "التنقل",
+    en: "Navigation"
+  },
   journalEntry: {
     ar: "مدخل المدونة",
     en: "Journal Entry"
@@ -787,6 +791,10 @@ const translations: TranslationData = {
   dark: {
     ar: "ليلي",
     en: "Dark"
+  },
+  navigation: {
+    ar: "التنقل",
+    en: "Navigation"
   }
 };
 

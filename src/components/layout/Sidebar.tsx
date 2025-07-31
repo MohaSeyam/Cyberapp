@@ -1,7 +1,7 @@
 // Sidebar Component
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home, Calendar, FileText, BookOpen, TrendingUp, Settings } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 
@@ -27,71 +27,109 @@ export default function Sidebar() {
     ? (plan || []).find(week => week.week === selectedWeek)?.days || []
     : [];
 
+  // عناصر التنقل
+  const navigationItems = [
+    { icon: Home, label: t('home'), path: '/' },
+    { icon: Calendar, label: t('plan'), path: '/plan' },
+    { icon: FileText, label: t('notes'), path: '/notes' },
+    { icon: BookOpen, label: t('journal'), path: '/journal' },
+    { icon: TrendingUp, label: t('progress'), path: '/progress' },
+    { icon: Settings, label: t('settings'), path: '/settings' },
+  ];
+
   return (
     <>
       {/* Toggle Button for Large Screens */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden md:block xl:hidden"
+        className="fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden lg:block xl:hidden"
       >
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
       {/* Sidebar */}
-      <aside className={`hidden md:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto p-4 transition-transform duration-300 z-40 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      <aside className={`hidden lg:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto transition-transform duration-300 z-40 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('plan')}</h2>
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="md:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-          >
-            <X className="w-5 h-5" />
-          </button>
+        <div className="p-4">
+          {/* Navigation Items */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+              {t('navigation')}
+            </h3>
+            <nav className="space-y-1">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path || 
+                  (item.path !== '/' && location.pathname.startsWith(item.path));
+                
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      isActive 
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Plan Tree */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+              {t('plan')}
+            </h3>
+            <ul className="space-y-1">
+              {phases.map(phase => (
+                <li key={phase}>
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-all ${selectedPhase === phase ? 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                    onClick={() => setSelectedPhase(phase)}
+                  >
+                    {t('phase')} {phase}
+                  </button>
+                  {/* الأسابيع */}
+                  {selectedPhase === phase && weeks.length > 0 && (
+                    <ul className="ml-4 mt-1 space-y-1">
+                      {weeks.map(week => (
+                        <li key={week.week}>
+                          <button
+                            className={`w-full text-left px-3 py-1 rounded-lg transition-all ${selectedWeek === week.week ? 'bg-blue-50 dark:bg-blue-700 text-blue-800 dark:text-blue-100' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+                            onClick={() => setSelectedWeek(week.week)}
+                          >
+                            {t('week')} {week.week}
+                          </button>
+                          {/* الأيام */}
+                          {selectedWeek === week.week && days.length > 0 && (
+                            <ul className="ml-4 mt-1 space-y-1">
+                              {days.map((day, idx) => (
+                                <li key={day.key}>
+                                  <Link
+                                    to={`/day/${week.week}/${idx}`}
+                                    className={`block px-3 py-1 rounded-lg transition-all ${location.pathname === `/day/${week.week}/${idx}` ? 'bg-blue-200 dark:bg-blue-600 text-blue-900 dark:text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-300'}`}
+                                  >
+                                    {day.day?.[lang] || day.key}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <ul>
-          {phases.map(phase => (
-            <li key={phase}>
-              <button
-                className={`w-full text-left px-3 py-2 rounded-lg mb-1 transition-all ${selectedPhase === phase ? 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
-                onClick={() => setSelectedPhase(phase)}
-              >
-                {t('phase')} {phase}
-              </button>
-              {/* الأسابيع */}
-              {selectedPhase === phase && weeks.length > 0 && (
-                <ul className="ml-4 mt-1">
-                  {weeks.map(week => (
-                    <li key={week.week}>
-                      <button
-                        className={`w-full text-left px-3 py-1 rounded-lg mb-1 transition-all ${selectedWeek === week.week ? 'bg-blue-50 dark:bg-blue-700 text-blue-800 dark:text-blue-100' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
-                        onClick={() => setSelectedWeek(week.week)}
-                      >
-                        {t('week')} {week.week}
-                      </button>
-                      {/* الأيام */}
-                      {selectedWeek === week.week && days.length > 0 && (
-                        <ul className="ml-4 mt-1">
-                          {days.map((day, idx) => (
-                            <li key={day.key}>
-                              <Link
-                                to={`/day/${week.week}/${idx}`}
-                                className={`block px-3 py-1 rounded-lg mb-1 transition-all ${location.pathname === `/day/${week.week}/${idx}` ? 'bg-blue-200 dark:bg-blue-600 text-blue-900 dark:text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-300'}`}
-                              >
-                                {day.day?.[lang] || day.key}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
       </aside>
     </>
   );
