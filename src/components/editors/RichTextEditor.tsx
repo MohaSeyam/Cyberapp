@@ -326,54 +326,10 @@ export default function RichTextEditor({
     }
   }, [content, editor]);
 
-  // إضافة دعم اختصارات لوحة المفاتيح
-  useEffect(() => {
-    if (!editor) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // اختصار للقائمة النقطية: Ctrl/Cmd + Shift + 8
-      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === '8') {
-        event.preventDefault();
-        editor.chain().focus().toggleBulletList().run();
-      }
-      
-      // اختصار للقائمة المرقمة: Ctrl/Cmd + Shift + 7
-      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === '7') {
-        event.preventDefault();
-        editor.chain().focus().toggleOrderedList().run();
-      }
-      
-      // اختصار للعريض: Ctrl/Cmd + B
-      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
-        event.preventDefault();
-        editor.chain().focus().toggleBold().run();
-      }
-      
-      // اختصار للمائل: Ctrl/Cmd + I
-      if ((event.ctrlKey || event.metaKey) && event.key === 'i') {
-        event.preventDefault();
-        editor.chain().focus().toggleItalic().run();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [editor]);
-
   return (
     <div className="w-full">
       {showToolbar && <EditorToolbar editor={editor} lang={lang} />}
       <EditorContent editor={editor} />
-      
-      {/* إضافة تلميحات للاختصارات */}
-      {showToolbar && (
-        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          <span className="mr-4">Ctrl+B: عريض</span>
-          <span className="mr-4">Ctrl+I: مائل</span>
-          <span className="mr-4">Ctrl+Shift+8: قائمة نقطية</span>
-          <span className="mr-4">Ctrl+Shift+7: قائمة مرقمة</span>
-        </div>
-      )}
     </div>
   );
 }

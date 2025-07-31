@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import { Toaster } from "react-hot-toast";
 import { useState, useEffect } from "react";
+import PlanPage from "./pages/PlanPage";
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -102,6 +103,7 @@ function AppRoutes() {
             <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
             <Route path="/notes" element={<NotesPage />} />
             <Route path="/journal" element={<JournalPage />} />
+            <Route path="/plan" element={<PlanPage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/onboarding" element={<Onboarding />} />

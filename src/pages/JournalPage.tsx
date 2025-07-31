@@ -29,6 +29,42 @@ export default function JournalPage() {
     tags: [] as string[]
   });
 
+  // قوالب جاهزة للمدونة
+  const journalTemplates = [
+    {
+      name: t('dailyReflection'),
+      title: t('dailyReflectionTitle'),
+      content: t('dailyReflectionTemplate'),
+      tags: [t('reflection'), t('daily')]
+    },
+    {
+      name: t('learningSummary'),
+      title: t('learningSummaryTitle'),
+      content: t('learningSummaryTemplate'),
+      tags: [t('learning'), t('summary')]
+    },
+    {
+      name: t('challengeAnalysis'),
+      title: t('challengeAnalysisTitle'),
+      content: t('challengeAnalysisTemplate'),
+      tags: [t('challenge'), t('analysis')]
+    },
+    {
+      name: t('goalSetting'),
+      title: t('goalSettingTitle'),
+      content: t('goalSettingTemplate'),
+      tags: [t('goals'), t('planning')]
+    }
+  ];
+
+  const applyTemplate = (template: any) => {
+    setJournalForm({
+      title: template.title,
+      content: template.content,
+      tags: template.tags
+    });
+  };
+
   // Get all journal entries from appState
   const allEntries = Object.values(appState.journal).flat();
   const filteredEntries = allEntries.filter(entry => {
@@ -372,6 +408,31 @@ export default function JournalPage() {
               placeholder={t('enterTitle')}
             />
           </div>
+
+          {/* Templates (only for new entries) */}
+          {!journalModal.entry && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('templates')}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {journalTemplates.map((template, index) => (
+                  <button
+                    key={index}
+                    onClick={() => applyTemplate(template)}
+                    className="p-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">
+                      {template.name}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {template.tags.join(', ')}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Week Selection (for new entries) */}
           {!journalModal.entry && (

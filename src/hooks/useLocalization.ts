@@ -719,6 +719,58 @@ const translations: TranslationData = {
   days: {
     ar: "الأيام",
     en: "Days"
+  },
+  templates: {
+    ar: "القوالب الجاهزة",
+    en: "Templates"
+  },
+  dailyReflection: {
+    ar: "تأمل يومي",
+    en: "Daily Reflection"
+  },
+  dailyReflectionTitle: {
+    ar: "تأملاتي اليومية",
+    en: "My Daily Reflections"
+  },
+  dailyReflectionTemplate: {
+    ar: "<h2>ما تعلمته اليوم:</h2><p>...</p><h2>التحديات التي واجهتها:</h2><p>...</p><h2>كيف يمكنني التحسن:</h2><p>...</p>",
+    en: "<h2>What I learned today:</h2><p>...</p><h2>Challenges I faced:</h2><p>...</p><h2>How I can improve:</h2><p>...</p>"
+  },
+  learningSummary: {
+    ar: "ملخص التعلم",
+    en: "Learning Summary"
+  },
+  learningSummaryTitle: {
+    ar: "ملخص ما تعلمته",
+    en: "Learning Summary"
+  },
+  learningSummaryTemplate: {
+    ar: "<h2>المفاهيم الرئيسية:</h2><ul><li>...</li></ul><h2>النقاط المهمة:</h2><ul><li>...</li></ul><h2>الأسئلة المتبقية:</h2><ul><li>...</li></ul>",
+    en: "<h2>Key Concepts:</h2><ul><li>...</li></ul><h2>Important Points:</h2><ul><li>...</li></ul><h2>Remaining Questions:</h2><ul><li>...</li></ul>"
+  },
+  challengeAnalysis: {
+    ar: "تحليل التحديات",
+    en: "Challenge Analysis"
+  },
+  challengeAnalysisTitle: {
+    ar: "تحليل التحديات",
+    en: "Challenge Analysis"
+  },
+  challengeAnalysisTemplate: {
+    ar: "<h2>التحدي:</h2><p>...</p><h2>السبب:</h2><p>...</p><h2>الحلول المقترحة:</h2><ul><li>...</li></ul><h2>الخطوات التالية:</h2><ul><li>...</li></ul>",
+    en: "<h2>The Challenge:</h2><p>...</p><h2>Why it happened:</h2><p>...</p><h2>Proposed Solutions:</h2><ul><li>...</li></ul><h2>Next Steps:</h2><ul><li>...</li></ul>"
+  },
+  goalSetting: {
+    ar: "تحديد الأهداف",
+    en: "Goal Setting"
+  },
+  goalSettingTitle: {
+    ar: "أهدافي الجديدة",
+    en: "My New Goals"
+  },
+  goalSettingTemplate: {
+    ar: "<h2>أهدافي قصيرة المدى:</h2><ul><li>...</li></ul><h2>أهدافي طويلة المدى:</h2><ul><li>...</li></ul><h2>خطة العمل:</h2><ul><li>...</li></ul><h2>مؤشرات النجاح:</h2><ul><li>...</li></ul>",
+    en: "<h2>Short-term Goals:</h2><ul><li>...</li></ul><h2>Long-term Goals:</h2><ul><li>...</li></ul><h2>Action Plan:</h2><ul><li>...</li></ul><h2>Success Indicators:</h2><ul><li>...</li></ul>"
   }
 };
 
