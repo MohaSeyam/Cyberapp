@@ -1,9 +1,9 @@
 // Home Page - Unified Design
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Shield, Target, Users, BookOpen, Calendar, 
-  TrendingUp, Award, ArrowRight, Play, 
+import {
+  Shield, Target, Users, BookOpen, Calendar,
+  TrendingUp, Award, ArrowRight, Play,
   CheckCircle, Clock, Star
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -19,16 +19,20 @@ export default function HomePage() {
   const { t } = useLocalization();
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
 
-  // Calculate statistics
-  const totalWeeks = plan.length;
-  const totalTasks = plan.reduce((total, week) => 
-    total + week.days.reduce((dayTotal, day) => dayTotal + day.tasks.length, 0), 0
+  // Safety checks for data
+  const safePlan = plan || [];
+  const safeProgress = progress || [];
+
+  // Calculate statistics with safety checks
+  const totalWeeks = safePlan.length;
+  const totalTasks = safePlan.reduce((total, week) =>
+    total + (week.days || []).reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
   );
-  const completedTasks = progress.filter(p => p.done).length;
+  const completedTasks = safeProgress.filter(p => p.done).length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  // Get unique phases
-  const phases = Array.from(new Set(plan.map(week => week.phase))).sort();
+  // Get unique phases with safety check
+  const phases = Array.from(new Set(safePlan.map(week => week.phase))).sort();
 
   // Get current week (you can implement your own logic)
   const currentWeek = 1; // This should be calculated based on user progress
@@ -91,7 +95,7 @@ export default function HomePage() {
   return (
     <PageLayout
       title={lang === 'ar' ? 'رحلة الأمن السيبراني' : 'Cyber Security Journey'}
-      subtitle={lang === 'ar' 
+      subtitle={lang === 'ar'
         ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
         : 'A comprehensive journey in cybersecurity - from basics to professional'
       }
@@ -105,7 +109,7 @@ export default function HomePage() {
               {lang === 'ar' ? 'رحلة الأمن السيبراني' : 'Cyber Security Journey'}
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              {lang === 'ar' 
+              {lang === 'ar'
                 ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
                 : 'A comprehensive journey in cybersecurity - from basics to professional'
               }
@@ -163,7 +167,7 @@ export default function HomePage() {
                 className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full"
               />
             </div>
-            
+
             <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -205,7 +209,7 @@ export default function HomePage() {
             >
               <PhaseCard
                 phase={phase}
-                weeks={plan.filter(week => week.phase === phase)}
+                weeks={safePlan.filter(week => week.phase === phase)}
                 isActive={selectedPhase === phase}
                 onClick={() => setSelectedPhase(phase)}
                 variant="detailed"
@@ -223,7 +227,7 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
           {t('quickActions')}
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {quickActions.map((action, index) => (
             <motion.div

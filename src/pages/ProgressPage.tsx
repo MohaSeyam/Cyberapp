@@ -17,43 +17,47 @@ export default function ProgressPage() {
   
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'all'>('all');
 
-  // Calculate statistics
-  const totalWeeks = plan.length;
-  const totalTasks = plan.reduce((total, week) => 
-    total + week.days.reduce((dayTotal, day) => dayTotal + day.tasks.length, 0), 0
+  // Safety checks for data
+  const safePlan = plan || [];
+  const safeProgress = progress || [];
+
+  // Calculate statistics with safety checks
+  const totalWeeks = safePlan.length;
+  const totalTasks = safePlan.reduce((total, week) => 
+    total + (week.days || []).reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
   );
-  const completedTasks = progress.filter(p => p.done).length;
+  const completedTasks = safeProgress.filter(p => p.done).length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   
-  // Calculate total duration
-  const totalDuration = plan.reduce((total, week) => 
-    total + week.days.reduce((dayTotal, day) => 
-      dayTotal + day.tasks.reduce((taskTotal, task) => taskTotal + task.duration, 0), 0
+  // Calculate total duration with safety checks
+  const totalDuration = safePlan.reduce((total, week) => 
+    total + (week.days || []).reduce((dayTotal, day) => 
+      dayTotal + (day.tasks || []).reduce((taskTotal, task) => taskTotal + (task.duration || 0), 0), 0
     ), 0
   );
   
-  const completedDuration = progress.reduce((total, p) => {
-    const task = plan.flatMap(w => w.days).flatMap(d => d.tasks).find(t => t.id === p.taskId);
+  const completedDuration = safeProgress.reduce((total, p) => {
+    const task = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === p.taskId);
     return total + (task?.duration || 0);
   }, 0);
 
-  // Get current week progress
-  const currentWeek = plan.find(w => w.week === 1);
-  const currentWeekTasks = currentWeek?.days.reduce((total, day) => total + day.tasks.length, 0) || 0;
-  const currentWeekCompleted = progress.filter(p => 
-    currentWeek?.days.some(day => day.tasks.some(task => task.id === p.taskId))
+  // Get current week progress with safety checks
+  const currentWeek = safePlan.find(w => w.week === 1);
+  const currentWeekTasks = currentWeek?.days?.reduce((total, day) => total + (day.tasks || []).length, 0) || 0;
+  const currentWeekCompleted = safeProgress.filter(p => 
+    currentWeek?.days?.some(day => (day.tasks || []).some(task => task.id === p.taskId))
   ).length;
 
-  // Get phase statistics
-  const phases = Array.from(new Set(plan.map(week => week.phase))).sort();
+  // Get phase statistics with safety checks
+  const phases = Array.from(new Set(safePlan.map(week => week.phase))).sort();
   const phaseStats = phases.map(phase => {
-    const phaseWeeks = plan.filter(week => week.phase === phase);
+    const phaseWeeks = safePlan.filter(week => week.phase === phase);
     const phaseTasks = phaseWeeks.reduce((total, week) => 
-      total + week.days.reduce((dayTotal, day) => dayTotal + day.tasks.length, 0), 0
+      total + (week.days || []).reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
     );
-    const phaseCompleted = progress.filter(p => 
+    const phaseCompleted = safeProgress.filter(p => 
       phaseWeeks.some(week => 
-        week.days.some(day => day.tasks.some(task => task.id === p.taskId))
+        (week.days || []).some(day => (day.tasks || []).some(task => task.id === p.taskId))
       )
     ).length;
     
@@ -65,10 +69,10 @@ export default function ProgressPage() {
     };
   });
 
-  // Get recent activity
-  const recentProgress = progress
+  // Get recent activity with safety checks
+  const recentProgress = safeProgress
     .filter(p => p.done)
-    .sort((a, b) => new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime())
+    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())
     .slice(0, 5);
 
   const stats = [
@@ -370,7 +374,7 @@ export default function ProgressPage() {
           <div className="space-y-4">
             {recentProgress.length > 0 ? (
               recentProgress.map((item, index) => {
-                const task = plan.flatMap(w => w.days).flatMap(d => d.tasks).find(t => t.id === item.taskId);
+                const task = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === item.taskId);
                 return (
                   <motion.div
                     key={item.id}
@@ -380,10 +384,10 @@ export default function ProgressPage() {
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                        {task?.title[lang] || t('completedTask')}
+                        {task?.title?.[lang] || t('completedTask')}
                       </p>
                       <p className="text-xs text-green-600 dark:text-green-300">
-                        {new Date(item.updatedAt!).toLocaleDateString()}
+                        {new Date(item.updatedAt || 0).toLocaleDateString()}
                       </p>
                     </div>
                   </motion.div>

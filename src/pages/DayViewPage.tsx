@@ -1,7 +1,7 @@
 // Day View Page - Unified Design
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
+import {
   Calendar, Clock, Target, BookOpen, MessageSquare,
   ExternalLink, Plus, CheckCircle, Circle
 } from 'lucide-react';
@@ -24,7 +24,7 @@ interface DayViewPageProps {
 export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPageProps) {
   const { plan, progress, addNote, addResource, lang } = useApp();
   const { t } = useLocalization();
-  
+
   const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
   const [selectedDay, setSelectedDay] = useState<Day | null>(null);
   const [noteModal, setNoteModal] = useState({ isOpen: false, taskId: '' });
@@ -32,17 +32,20 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
   const [noteContent, setNoteContent] = useState('');
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
 
-  // Find current week and day
+  // Safety check for plan
+  const safePlan = plan || [];
+
+  // Find current week and day with safety checks
   useEffect(() => {
-    const week = plan.find(w => w.week === parseInt(weekId));
+    const week = safePlan.find(w => w.week === parseInt(weekId));
     if (week) {
       setSelectedWeek(week);
-      const day = week.days[parseInt(dayIndex)];
+      const day = week.days?.[parseInt(dayIndex)];
       if (day) {
         setSelectedDay(day);
       }
     }
-  }, [plan, weekId, dayIndex]);
+  }, [safePlan, weekId, dayIndex]);
 
   const handleAddNote = async () => {
     if (noteContent.trim() && selectedWeek && selectedDay) {
@@ -95,8 +98,8 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
 
   return (
     <PageLayout
-      title={`${t('week')} ${selectedWeek.week} - ${selectedDay.day[lang]}`}
-      subtitle={selectedDay.topic[lang]}
+      title={`${t('week')} ${selectedWeek.week} - ${selectedDay.day?.[lang] || 'Unknown Day'}`}
+      subtitle={selectedDay.topic?.[lang] || 'No topic'}
       header={
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -105,16 +108,16 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {selectedDay.day[lang]}
+                {selectedDay.day?.[lang] || 'Unknown Day'}
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400">
-                {selectedDay.topic[lang]}
+                {selectedDay.topic?.[lang] || 'No topic'}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2 text-sm text-gray-500">
             <Clock className="w-4 h-4" />
-            <span>{selectedDay.tasks.reduce((total, task) => total + task.duration, 0)} {t('minutes')}</span>
+            <span>{(selectedDay.tasks || []).reduce((total, task) => total + (task.duration || 0), 0)} {t('minutes')}</span>
           </div>
         </div>
       }
@@ -131,13 +134,13 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
           <div className="flex items-center space-x-2">
             <Target className="w-5 h-5 text-blue-600" />
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {selectedDay.tasks.length} {t('tasks')}
+              {(selectedDay.tasks || []).length} {t('tasks')}
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {selectedDay.tasks.map((task, index) => (
+          {(selectedDay.tasks || []).map((task, index) => (
             <motion.div
               key={task.id}
               {...animations.stagger(index * 0.1)}
@@ -181,8 +184,8 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
           }
         >
           <div className="space-y-4">
-            {selectedDay.resources.length > 0 ? (
-              selectedDay.resources.map((resource, index) => (
+            {(selectedDay.resources || []).length > 0 ? (
+              (selectedDay.resources || []).map((resource, index) => (
                 <motion.div
                   key={index}
                   {...animations.stagger(0.3 + index * 0.1)}
@@ -228,7 +231,7 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
           transition={{ delay: 0.3 }}
         >
           <Card
-            title={selectedDay.notes_prompt.title[lang]}
+            title={selectedDay.notes_prompt.title?.[lang] || 'Journaling Prompt'}
             subtitle={t('eveningJournaling')}
           >
             <div className="space-y-4">
@@ -237,10 +240,10 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
                   {t('journalingPoints')}:
                 </h4>
                 <ul className="space-y-2">
-                  {selectedDay.notes_prompt.points.map((point, index) => (
+                  {(selectedDay.notes_prompt.points || []).map((point, index) => (
                     <li key={index} className="flex items-start space-x-2 text-sm text-blue-800 dark:text-blue-200">
                       <span className="text-blue-600 dark:text-blue-400 mt-1">•</span>
-                      <span>{point[lang]}</span>
+                      <span>{point?.[lang] || 'Point'}</span>
                     </li>
                   ))}
                 </ul>
@@ -309,7 +312,7 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
               placeholder={t('enterTitle')}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('resourceUrl')}
@@ -322,7 +325,7 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
               placeholder={t('enterUrl')}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('resourceType')}
@@ -340,7 +343,7 @@ export default function DayViewPage({ weekId = "1", dayIndex = "0" }: DayViewPag
               <option value="course">{t('course')}</option>
             </select>
           </div>
-          
+
           <div className="flex justify-end space-x-3">
             <Button
               variant="outline"

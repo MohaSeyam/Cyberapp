@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppProvider } from "./context/AppContext";
+import { AppProvider, useApp } from "./context/AppContext";
 import "./styles/fontSizes.css";
 import HomePage from "./pages/HomePage";
 import DayViewPage from "./pages/DayViewPage";
@@ -57,27 +57,65 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// Loading Component
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// App Routes Component
+function AppRoutes() {
+  const { loading, plan } = useApp();
+
+  // Show loading screen while data is being loaded
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  // Show loading screen if plan is not loaded yet
+  if (!plan || plan.length === 0) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+      <Route path="/notes" element={<NotesPage />} />
+      <Route path="/journal" element={<JournalPage />} />
+      <Route path="/progress" element={<ProgressPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(false);
+    // Small delay to ensure everything is initialized
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
         <AppProvider>
           <BrowserRouter>
             <Toaster
@@ -87,16 +125,7 @@ export default function App() {
                 duration: 2500,
               }}
             />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-              <Route path="/notes" element={<NotesPage />} />
-              <Route path="/journal" element={<JournalPage />} />
-              <Route path="/progress" element={<ProgressPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppRoutes />
           </BrowserRouter>
         </AppProvider>
       </div>

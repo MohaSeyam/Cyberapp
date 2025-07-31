@@ -55,17 +55,17 @@ export function AppProvider({ children }: AppProviderProps) {
   const [plan, setPlan] = useState<Week[]>([]);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [appState, setAppState] = useState<AppState>({
-    progress: {},
     notes: {},
-    journal: {}
+    journal: {},
+    resources: {}
   });
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
-  const [lang, setLangState] = useState<Language>('ar');
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [langState, setLangState] = useState<Language>('ar');
+  const [themeState, setThemeState] = useState<Theme>('light');
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState<{ isOpen: boolean; content: ReactNode | null }>({ 
-    isOpen: false, 
-    content: null 
+  const [modal, setModal] = useState<{ isOpen: boolean; content: ReactNode | null }>({
+    isOpen: false,
+    content: null
   });
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -74,7 +74,7 @@ export function AppProvider({ children }: AppProviderProps) {
     try {
       setLoading(true);
       
-      // Load settings and preferences
+      // Load language and theme from localStorage
       const savedLang = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as Language || 'ar';
       const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as Theme || 'light';
       const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
@@ -85,40 +85,41 @@ export function AppProvider({ children }: AppProviderProps) {
         setSettings(JSON.parse(savedSettings));
       }
       
-      // Load data from database
+      // Load data from database with safety checks
       const [planData, progressData, notesData, journalData] = await Promise.all([
-        planService.getAll(),
-        progressService.getAll(),
-        notesService.getAll(),
-        journalService.getAll()
+        planService.getAll().catch(() => []),
+        progressService.getAll().catch(() => []),
+        notesService.getAll().catch(() => []),
+        journalService.getAll().catch(() => [])
       ]);
       
       // Import plan if empty
       if (!planData || planData.length === 0) {
         try {
           const importedPlan = await planService.importFromFile();
-          setPlan(importedPlan);
+          setPlan(importedPlan || []);
         } catch (error) {
           console.error("Failed to import plan:", error);
           toast.error("فشل في تحميل الخطة");
+          setPlan([]);
         }
       } else {
-        setPlan(planData);
+        setPlan(planData || []);
       }
       
-      setProgress(progressData);
+      setProgress(progressData || []);
       
-      // Organize notes and journal by week/day
+      // Organize notes and journal by week/day with safety checks
       const organizedNotes: Record<string, Note[]> = {};
       const organizedJournal: Record<string, JournalEntry[]> = {};
       
-      notesData.forEach(note => {
+      (notesData || []).forEach(note => {
         const key = `${note.weekId}-${note.dayKey}`;
         if (!organizedNotes[key]) organizedNotes[key] = [];
         organizedNotes[key].push(note);
       });
       
-      journalData.forEach(entry => {
+      (journalData || []).forEach(entry => {
         const key = `${entry.weekId}-${entry.dayKey}`;
         if (!organizedJournal[key]) organizedJournal[key] = [];
         organizedJournal[key].push(entry);
@@ -133,6 +134,14 @@ export function AppProvider({ children }: AppProviderProps) {
     } catch (error) {
       console.error("Error loading initial data:", error);
       toast.error("فشل في تحميل البيانات");
+      // Set default empty values
+      setPlan([]);
+      setProgress([]);
+      setAppState({
+        notes: {},
+        journal: {},
+        resources: {}
+      });
     } finally {
       setLoading(false);
     }
@@ -371,8 +380,8 @@ export function AppProvider({ children }: AppProviderProps) {
     progress,
     appState,
     settings,
-    lang,
-    theme,
+    lang: langState,
+    theme: themeState,
     loading,
     modal,
     notifications,
