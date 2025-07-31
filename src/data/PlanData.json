@@ -1,0 +1,562 @@
+[
+  {
+    "week": 1,
+    "phase": 1,
+    "title": {
+      "ar": "مقدمة في الأمن السيبراني",
+      "en": "Introduction to Cybersecurity"
+    },
+    "objective": {
+      "ar": "بناء المعرفة النظرية والمفاهيم الأساسية للأمن السيبراني",
+      "en": "Build theoretical knowledge and fundamental concepts of cybersecurity"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "ما هو الأمن السيبراني؟",
+          "en": "What is Cybersecurity?"
+        },
+        "objective": {
+          "ar": "فهم المفاهيم الأساسية للأمن السيبراني وأهميته",
+          "en": "Understand basic cybersecurity concepts and its importance"
+        },
+        "tasks": [
+          {
+            "id": "1.1.1",
+            "title": {
+              "ar": "تعريف الأمن السيبراني",
+              "en": "Cybersecurity Definition"
+            },
+            "description": {
+              "ar": "تعريف الأمن السيبراني وأهميته في العصر الرقمي",
+              "en": "Definition of cybersecurity and its importance in the digital age"
+            },
+            "type": "Theoretical",
+            "duration": 30,
+            "difficulty": "Beginner"
+          },
+          {
+            "id": "1.1.2",
+            "title": {
+              "ar": "أنواع التهديدات السيبرانية",
+              "en": "Types of Cyber Threats"
+            },
+            "description": {
+              "ar": "تعرف على أنواع التهديدات المختلفة وكيفية تصنيفها",
+              "en": "Learn about different types of threats and how to classify them"
+            },
+            "type": "Theoretical",
+            "duration": 45,
+            "difficulty": "Beginner"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Cybersecurity Fundamentals",
+            "type": "Video",
+            "url": "https://example.com/cybersecurity-intro"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول المفاهيم الأساسية للأمن السيبراني",
+          "en": "Write your notes about basic cybersecurity concepts"
+        }
+      },
+      {
+        "day": {
+          "ar": "اليوم الثاني",
+          "en": "Day 2"
+        },
+        "key": "day2",
+        "title": {
+          "ar": "أساسيات الشبكات",
+          "en": "Network Fundamentals"
+        },
+        "objective": {
+          "ar": "فهم أساسيات الشبكات والبروتوكولات الأساسية",
+          "en": "Understand network fundamentals and basic protocols"
+        },
+        "tasks": [
+          {
+            "id": "1.2.1",
+            "title": {
+              "ar": "مكونات الشبكة الأساسية",
+              "en": "Basic Network Components"
+            },
+            "description": {
+              "ar": "تعرف على المكونات الأساسية للشبكات",
+              "en": "Learn about basic network components"
+            },
+            "type": "Theoretical",
+            "duration": 40,
+            "difficulty": "Beginner"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Network Basics",
+            "type": "Article",
+            "url": "https://example.com/network-basics"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول أساسيات الشبكات",
+          "en": "Write your notes about network fundamentals"
+        }
+      }
+    ]
+  },
+  {
+    "week": 2,
+    "phase": 1,
+    "title": {
+      "ar": "أساسيات أمن الشبكات",
+      "en": "Network Security Fundamentals"
+    },
+    "objective": {
+      "ar": "تعلم مبادئ أمن الشبكات والاتصال الآمن",
+      "en": "Learn network security principles and secure communication"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "مبادئ أمن الشبكات",
+          "en": "Network Security Principles"
+        },
+        "objective": {
+          "ar": "فهم المبادئ الأساسية لأمن الشبكات",
+          "en": "Understand basic network security principles"
+        },
+        "tasks": [
+          {
+            "id": "2.1.1",
+            "title": {
+              "ar": "التشفير في الشبكات",
+              "en": "Encryption in Networks"
+            },
+            "description": {
+              "ar": "تعلم أساسيات التشفير في الشبكات",
+              "en": "Learn encryption basics in networks"
+            },
+            "type": "Theoretical",
+            "duration": 50,
+            "difficulty": "Beginner"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Network Security Basics",
+            "type": "Video",
+            "url": "https://example.com/network-security"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول مبادئ أمن الشبكات",
+          "en": "Write your notes about network security principles"
+        }
+      }
+    ]
+  },
+  {
+    "week": 5,
+    "phase": 2,
+    "title": {
+      "ar": "أساسيات نظام لينكس",
+      "en": "Linux System Fundamentals"
+    },
+    "objective": {
+      "ar": "تعلم أساسيات نظام لينكس وأوامره الأساسية",
+      "en": "Learn Linux system fundamentals and basic commands"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "أوامر لينكس الأساسية",
+          "en": "Basic Linux Commands"
+        },
+        "objective": {
+          "ar": "تعلم الأوامر الأساسية في لينكس",
+          "en": "Learn basic Linux commands"
+        },
+        "tasks": [
+          {
+            "id": "5.1.1",
+            "title": {
+              "ar": "أوامر التنقل والملفات",
+              "en": "Navigation and File Commands"
+            },
+            "description": {
+              "ar": "تعلم أوامر التنقل والتعامل مع الملفات في لينكس",
+              "en": "Learn navigation and file handling commands in Linux"
+            },
+            "type": "Practical",
+            "duration": 60,
+            "difficulty": "Beginner"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Linux Basics",
+            "type": "Tutorial",
+            "url": "https://example.com/linux-basics"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول أوامر لينكس الأساسية",
+          "en": "Write your notes about basic Linux commands"
+        }
+      }
+    ]
+  },
+  {
+    "week": 9,
+    "phase": 3,
+    "title": {
+      "ar": "فهم منظور المهاجم",
+      "en": "Understanding Attacker Perspective"
+    },
+    "objective": {
+      "ar": "تعلم التفكير مثل المهاجم لفهم التهديدات",
+      "en": "Learn to think like an attacker to understand threats"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "تحليل التهديدات",
+          "en": "Threat Analysis"
+        },
+        "objective": {
+          "ar": "تعلم تحليل التهديدات من منظور المدافع",
+          "en": "Learn threat analysis from defender perspective"
+        },
+        "tasks": [
+          {
+            "id": "9.1.1",
+            "title": {
+              "ar": "منهجية تحليل التهديدات",
+              "en": "Threat Analysis Methodology"
+            },
+            "description": {
+              "ar": "تعلم منهجية تحليل التهديدات السيبرانية",
+              "en": "Learn cybersecurity threat analysis methodology"
+            },
+            "type": "Blue Team",
+            "duration": 45,
+            "difficulty": "Intermediate"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Blue Team Fundamentals",
+            "type": "Course",
+            "url": "https://example.com/blue-team"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول عقلية المدافع",
+          "en": "Write your notes about defender mindset"
+        }
+      }
+    ]
+  },
+  {
+    "week": 18,
+    "phase": 4,
+    "title": {
+      "ar": "أمن نقاط النهاية",
+      "en": "Endpoint Security"
+    },
+    "objective": {
+      "ar": "تعلم تقنيات حماية نقاط النهاية",
+      "en": "Learn endpoint protection techniques"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "حماية نقاط النهاية",
+          "en": "Endpoint Protection"
+        },
+        "objective": {
+          "ar": "تعلم تقنيات حماية نقاط النهاية المتقدمة",
+          "en": "Learn advanced endpoint protection techniques"
+        },
+        "tasks": [
+          {
+            "id": "18.1.1",
+            "title": {
+              "ar": "أدوات حماية نقاط النهاية",
+              "en": "Endpoint Protection Tools"
+            },
+            "description": {
+              "ar": "تعلم استخدام أدوات حماية نقاط النهاية",
+              "en": "Learn to use endpoint protection tools"
+            },
+            "type": "Blue Team",
+            "duration": 60,
+            "difficulty": "Advanced"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Advanced Endpoint Security",
+            "type": "Workshop",
+            "url": "https://example.com/endpoint-security"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول أمن نقاط النهاية",
+          "en": "Write your notes about endpoint security"
+        }
+      }
+    ]
+  },
+  {
+    "week": 26,
+    "phase": 5,
+    "title": {
+      "ar": "بايثون للأمن السيبراني",
+      "en": "Python for Cybersecurity"
+    },
+    "objective": {
+      "ar": "تعلم استخدام بايثون في الأمن السيبراني",
+      "en": "Learn using Python in cybersecurity"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "أساسيات بايثون للأمن",
+          "en": "Python Basics for Security"
+        },
+        "objective": {
+          "ar": "تعلم أساسيات بايثون للأمن السيبراني",
+          "en": "Learn Python basics for cybersecurity"
+        },
+        "tasks": [
+          {
+            "id": "26.1.1",
+            "title": {
+              "ar": "كتابة سكريبتات أمنية",
+              "en": "Writing Security Scripts"
+            },
+            "description": {
+              "ar": "تعلم كتابة سكريبتات بايثون للأمن السيبراني",
+              "en": "Learn to write Python scripts for cybersecurity"
+            },
+            "type": "Practical",
+            "duration": 90,
+            "difficulty": "Intermediate"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Python for Security",
+            "type": "Tutorial",
+            "url": "https://example.com/python-security"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول بايثون للأمن السيبراني",
+          "en": "Write your notes about Python for cybersecurity"
+        }
+      }
+    ]
+  },
+  {
+    "week": 33,
+    "phase": 6,
+    "title": {
+      "ar": "أساسيات اختبار الاختراق",
+      "en": "Penetration Testing Fundamentals"
+    },
+    "objective": {
+      "ar": "تعلم أساسيات اختبار الاختراق",
+      "en": "Learn penetration testing fundamentals"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "منهجية اختبار الاختراق",
+          "en": "Penetration Testing Methodology"
+        },
+        "objective": {
+          "ar": "تعلم منهجية اختبار الاختراق",
+          "en": "Learn penetration testing methodology"
+        },
+        "tasks": [
+          {
+            "id": "33.1.1",
+            "title": {
+              "ar": "مراحل اختبار الاختراق",
+              "en": "Penetration Testing Phases"
+            },
+            "description": {
+              "ar": "تعلم المراحل المختلفة لاختبار الاختراق",
+              "en": "Learn different phases of penetration testing"
+            },
+            "type": "Red Team",
+            "duration": 75,
+            "difficulty": "Advanced"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Penetration Testing Basics",
+            "type": "Course",
+            "url": "https://example.com/pentesting"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول اختبار الاختراق",
+          "en": "Write your notes about penetration testing"
+        }
+      }
+    ]
+  },
+  {
+    "week": 38,
+    "phase": 7,
+    "title": {
+      "ar": "الفريق الأرجواني",
+      "en": "Purple Teaming"
+    },
+    "objective": {
+      "ar": "تعلم تقنيات الفريق الأرجواني",
+      "en": "Learn purple teaming techniques"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "ممارسات الفريق الأرجواني",
+          "en": "Purple Team Practices"
+        },
+        "objective": {
+          "ar": "تعلم ممارسات الفريق الأرجواني",
+          "en": "Learn purple team practices"
+        },
+        "tasks": [
+          {
+            "id": "38.1.1",
+            "title": {
+              "ar": "التعاون بين الفرق الحمراء والزرقاء",
+              "en": "Red-Blue Team Collaboration"
+            },
+            "description": {
+              "ar": "تعلم كيفية التعاون بين فرق الهجوم والدفاع",
+              "en": "Learn how offensive and defensive teams collaborate"
+            },
+            "type": "Practical",
+            "duration": 120,
+            "difficulty": "Expert"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Purple Teaming Guide",
+            "type": "Guide",
+            "url": "https://example.com/purple-team"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول الفريق الأرجواني",
+          "en": "Write your notes about purple teaming"
+        }
+      }
+    ]
+  },
+  {
+    "week": 42,
+    "phase": 8,
+    "title": {
+      "ar": "تخطيط المشروع النهائي",
+      "en": "Capstone Project Planning"
+    },
+    "objective": {
+      "ar": "تخطيط وتصميم المشروع النهائي",
+      "en": "Plan and design the capstone project"
+    },
+    "days": [
+      {
+        "day": {
+          "ar": "اليوم الأول",
+          "en": "Day 1"
+        },
+        "key": "day1",
+        "title": {
+          "ar": "تحديد متطلبات المشروع",
+          "en": "Project Requirements Definition"
+        },
+        "objective": {
+          "ar": "تحديد متطلبات المشروع النهائي",
+          "en": "Define capstone project requirements"
+        },
+        "tasks": [
+          {
+            "id": "42.1.1",
+            "title": {
+              "ar": "تحليل متطلبات المشروع",
+              "en": "Project Requirements Analysis"
+            },
+            "description": {
+              "ar": "تحليل وتحديد متطلبات المشروع النهائي",
+              "en": "Analyze and define capstone project requirements"
+            },
+            "type": "Practical",
+            "duration": 180,
+            "difficulty": "Expert"
+          }
+        ],
+        "resources": [
+          {
+            "title": "Capstone Project Guide",
+            "type": "Guide",
+            "url": "https://example.com/capstone"
+          }
+        ],
+        "notes_prompt": {
+          "ar": "اكتب ملاحظاتك حول تخطيط المشروع النهائي",
+          "en": "Write your notes about capstone project planning"
+        }
+      }
+    ]
+  }
+]
