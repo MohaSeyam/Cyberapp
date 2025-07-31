@@ -135,6 +135,7 @@ function ResourcesSection({ weekId, dayIndex }) {
     const { lang, setModal, translations, Icons, plan } = useApp();
     const [userResources, setUserResources] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     
     // Defensive check for lang
     if (!lang) {
@@ -147,19 +148,33 @@ function ResourcesSection({ weekId, dayIndex }) {
     const fetchResources = useCallback(async () => {
         try {
             console.log("Fetching resources for weekId:", weekId, "dayIndex:", dayIndex);
-            const resources = await getResourcesByDay(weekId, dayIndex);
+            // تحويل weekId إلى number وdayIndex إلى number
+            const numericWeekId = parseInt(weekId, 10);
+            const numericDayIndex = parseInt(dayIndex, 10);
+            
+            if (isNaN(numericWeekId) || isNaN(numericDayIndex)) {
+                console.error("Invalid weekId or dayIndex:", weekId, dayIndex);
+                setError("خطأ في معرف الأسبوع أو اليوم");
+                setUserResources([]);
+                return;
+            }
+            
+            setError(""); // مسح الأخطاء السابقة
+            const resources = await getResourcesByDay(numericWeekId, numericDayIndex);
             console.log("Fetched resources:", resources);
             setUserResources(resources);
         } catch (error) {
             console.error("Error fetching resources:", error);
-            toast.error("خطأ في تحميل المراجع");
+            setError("خطأ في تحميل المراجع: " + error.message);
+            setUserResources([]);
         }
     }, [weekId, dayIndex]);
 
     // جلب المراجع من الخطة الأصلية (plan)
     let planResources = [];
     if (plan && plan.find) {
-      const week = plan.find(w => String(w.week) === String(weekId));
+      const numericWeekId = parseInt(weekId, 10);
+      const week = plan.find(w => w.week === numericWeekId);
       if (week && week.days && week.days[dayIndex]) {
         planResources = week.days[dayIndex].resources || [];
       }
@@ -170,9 +185,11 @@ function ResourcesSection({ weekId, dayIndex }) {
         async function loadResources() {
             try {
                 setLoading(true);
+                setError(""); // مسح الأخطاء السابقة
                 await fetchResources();
             } catch (error) {
                 console.error("Error loading resources:", error);
+                setError("خطأ في تحميل المراجع: " + error.message);
             } finally {
                 setLoading(false);
             }
@@ -185,14 +202,18 @@ function ResourcesSection({ weekId, dayIndex }) {
     // دالة لفتح نافذة تعديل أو إضافة مرجع
     const openResourceModal = (resource, index, isPlanResource) => {
         console.log("Opening resource modal:", { resource, index, isPlanResource, weekId, dayIndex });
+        // تحويل weekId وdayIndex إلى أرقام
+        const numericWeekId = parseInt(weekId, 10);
+        const numericDayIndex = parseInt(dayIndex, 10);
+        
         setModal({
             isOpen: true,
             content: (
                 <ResourceEditorModal 
                     resource={resource} 
                     index={isPlanResource ? null : index} 
-                    weekId={weekId} 
-                    dayIndex={dayIndex} 
+                    weekId={numericWeekId} 
+                    dayIndex={numericDayIndex} 
                     isPlanResource={isPlanResource}
                     onSave={() => {
                         // إعادة تحميل المراجع بعد الحفظ
@@ -223,6 +244,21 @@ function ResourcesSection({ weekId, dayIndex }) {
                 </motion.button>
             </div>
             <div className="space-y-3">
+                {/* عرض رسالة الخطأ */}
+                {error && (
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                        {error}
+                    </div>
+                )}
+                
+                {/* عرض حالة التحميل */}
+                {loading && (
+                    <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+                        <span className="text-gray-600 dark:text-gray-400 text-sm">جاري تحميل المراجع...</span>
+                    </div>
+                )}
+                
                 {/* مراجع الخطة الأصلية */}
                 {planResources.map((res, index) => (
                     <motion.div 
