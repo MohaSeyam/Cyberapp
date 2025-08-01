@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { animations } from '../../constants/theme';
 import MobileBottomBar from './MobileBottomBar';
+import Navbar from './Navbar';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,8 @@ export default function PageLayout({
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Navbar */}
+      <Navbar />
       
       {/* Main Content */}
       <main className={showBottomBar ? 'pb-20 lg:pb-0' : ''}>
