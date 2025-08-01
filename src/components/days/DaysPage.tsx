@@ -79,7 +79,7 @@ export default function DaysPage() {
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
-  const weekNumber = parseInsafeT(weekId);
+  const weekNumber = parseInt(weekId);
   const week = safePlan.find(w => w.week === weekNumber);
 
   // Calculate day completion
