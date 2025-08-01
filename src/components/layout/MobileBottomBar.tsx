@@ -13,42 +13,52 @@ export default function MobileBottomBar() {
   const { t } = useLocalization();
   const location = useLocation();
 
+  // Safety check for t function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   const navigationItems = [
     {
-      name: t('home'),
+      name: safeT('home'),
       path: '/',
       icon: Home,
-      description: t('dashboard')
+      description: safeT('dashboard')
     },
     {
-      name: t('phases'),
+      name: safeT('phases'),
       path: '/phases',
       icon: Calendar,
-      description: t('learningPhases')
+      description: safeT('learningPhases')
     },
     {
-      name: t('notes'),
+      name: safeT('notes'),
       path: '/notes',
       icon: FileText,
-      description: t('manageNotes')
+      description: safeT('manageNotes')
     },
     {
-      name: t('journal'),
+      name: safeT('journal'),
       path: '/journal',
       icon: BookOpen,
-      description: t('learningJournal')
+      description: safeT('learningJournal')
     },
     {
-      name: t('progress'),
+      name: safeT('progress'),
       path: '/progress',
       icon: TrendingUp,
-      description: t('trackProgress')
+      description: safeT('trackProgress')
     },
     {
-      name: t('settings'),
+      name: safeT('settings'),
       path: '/settings',
       icon: Settings,
-      description: t('appSettings')
+      description: safeT('appSettings')
     }
   ];
 
