@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Shield, Target, Users, BookOpen, Calendar,
   TrendingUp, Award, ArrowRight, Play,
-  CheckCircle, Clock, Star
+  CheckCircle, Clock, Star, FileText
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -79,18 +79,25 @@ export default function HomePage() {
       action: () => navigate('/phases')
     },
     {
-      icon: Users,
-      title: t('community'),
-      subtitle: t('joinDiscord'),
-      variant: 'outline' as const,
-      action: () => window.open('https://discord.gg/cybersecurity', '_blank')
+      icon: TrendingUp,
+      title: t('viewProgress'),
+      subtitle: t('trackYourProgress'),
+      variant: 'secondary' as const,
+      action: () => navigate('/progress')
     },
     {
-      icon: Target,
-      title: t('trackProgress'),
-      subtitle: t('viewAnalytics'),
+      icon: FileText,
+      title: t('manageNotes'),
+      subtitle: t('organizeYourNotes'),
       variant: 'outline' as const,
-      action: () => navigate('/progress')
+      action: () => navigate('/notes')
+    },
+    {
+      icon: BookOpen,
+      title: t('learningJournal'),
+      subtitle: t('reflectOnLearning'),
+      variant: 'outline' as const,
+      action: () => navigate('/journal')
     }
   ];
 

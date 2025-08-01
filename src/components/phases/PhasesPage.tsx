@@ -5,7 +5,7 @@ import {
   Shield, Server, Eye, Search, Cloud, 
   Calendar, Clock, Target, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ChevronRight, CheckCircle
+  Home, ChevronRight, CheckCircle, Bug, FileText
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -130,6 +130,40 @@ export default function PhasesPage() {
       icon: "cloud"
     }
   ];
+
+  // Task type icons and colors mapping
+  const taskTypeConfig = {
+    'Blue Team': {
+      icon: Shield,
+      color: 'blue',
+      bgColor: 'bg-blue-100 dark:bg-blue-900',
+      textColor: 'text-blue-600 dark:text-blue-400'
+    },
+    'Red Team': {
+      icon: Bug,
+      color: 'red',
+      bgColor: 'bg-red-100 dark:bg-red-900',
+      textColor: 'text-red-600 dark:text-red-400'
+    },
+    'Purple Team': {
+      icon: Eye,
+      color: 'purple',
+      bgColor: 'bg-purple-100 dark:bg-purple-900',
+      textColor: 'text-purple-600 dark:text-purple-400'
+    },
+    'Soft Skills': {
+      icon: Users,
+      color: 'green',
+      bgColor: 'bg-green-100 dark:bg-green-900',
+      textColor: 'text-green-600 dark:text-green-400'
+    },
+    'Policies': {
+      icon: FileText,
+      color: 'orange',
+      bgColor: 'bg-orange-100 dark:bg-orange-900',
+      textColor: 'text-orange-600 dark:text-orange-400'
+    }
+  };
 
   const goToPhaseWeeks = (phaseId: number) => {
     navigate(`/phase/${phaseId}`);

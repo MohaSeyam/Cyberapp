@@ -31,13 +31,43 @@ const dayIcons = {
   fri: Star
 };
 
-// Task type icons and colors
-const taskTypeIcons = {
-  'Blue Team': { icon: Shield, color: 'blue' },
-  'Red Team': { icon: Bug, color: 'red' },
-  'Purple Team': { icon: Eye, color: 'purple' },
-  'Soft Skills': { icon: Users, color: 'green' },
-  'Technical Skills': { icon: Code, color: 'orange' }
+// Task type icons and colors mapping
+const taskTypeConfig = {
+  'Blue Team': {
+    icon: Shield,
+    color: 'blue',
+    bgColor: 'bg-blue-100 dark:bg-blue-900',
+    textColor: 'text-blue-600 dark:text-blue-400',
+    borderColor: 'border-blue-200 dark:border-blue-700'
+  },
+  'Red Team': {
+    icon: Bug,
+    color: 'red',
+    bgColor: 'bg-red-100 dark:bg-red-900',
+    textColor: 'text-red-600 dark:text-red-400',
+    borderColor: 'border-red-200 dark:border-red-700'
+  },
+  'Purple Team': {
+    icon: Eye,
+    color: 'purple',
+    bgColor: 'bg-purple-100 dark:bg-purple-900',
+    textColor: 'text-purple-600 dark:text-purple-400',
+    borderColor: 'border-purple-200 dark:border-purple-700'
+  },
+  'Soft Skills': {
+    icon: Users,
+    color: 'green',
+    bgColor: 'bg-green-100 dark:bg-green-900',
+    textColor: 'text-green-600 dark:text-green-400',
+    borderColor: 'border-green-200 dark:border-green-700'
+  },
+  'Policies': {
+    icon: FileText,
+    color: 'orange',
+    bgColor: 'bg-orange-100 dark:bg-orange-900',
+    textColor: 'text-orange-600 dark:text-orange-400',
+    borderColor: 'border-orange-200 dark:border-orange-700'
+  }
 };
 
 // Breadcrumbs component
@@ -343,34 +373,16 @@ export default function DayViewPage() {
             }, {} as Record<string, typeof selectedDay.tasks>);
 
             return Object.entries(tasksByType).map(([type, tasks]) => {
-              const typeInfo = taskTypeIcons[type as keyof typeof taskTypeIcons] || taskTypeIcons['Technical Skills'];
+              const typeInfo = taskTypeConfig[type as keyof typeof taskTypeConfig] || taskTypeConfig['Technical Skills'];
               const TypeIcon = typeInfo.icon;
               
               return (
                 <Card key={type} className="mb-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className={`p-2 rounded-lg ${
-                      typeInfo.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' :
-                      typeInfo.color === 'red' ? 'bg-red-100 dark:bg-red-900' :
-                      typeInfo.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
-                      typeInfo.color === 'green' ? 'bg-green-100 dark:bg-green-900' :
-                      'bg-orange-100 dark:bg-orange-900'
-                    }`}>
-                      <TypeIcon className={`w-5 h-5 ${
-                        typeInfo.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                        typeInfo.color === 'red' ? 'text-red-600 dark:text-red-400' :
-                        typeInfo.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                        typeInfo.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                        'text-orange-600 dark:text-orange-400'
-                      }`} />
+                    <div className={`p-2 rounded-lg ${typeInfo.bgColor}`}>
+                      <TypeIcon className={`w-5 h-5 ${typeInfo.textColor}`} />
                     </div>
-                    <h3 className={`text-lg font-semibold ${
-                      typeInfo.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                      typeInfo.color === 'red' ? 'text-red-600 dark:text-red-400' :
-                      typeInfo.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                      typeInfo.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                      'text-orange-600 dark:text-orange-400'
-                    }`}>
+                    <h3 className={`text-lg font-semibold ${typeInfo.textColor}`}>
                       {type}
                     </h3>
                   </div>
