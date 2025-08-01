@@ -13,6 +13,7 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
+import phasesData from '../../data/phases.json';
 
 // Phase icons mapping
 const phaseIcons = {
@@ -61,11 +62,10 @@ export default function PhasesPage() {
 
   // Calculate phase completion
   const getPhaseCompletion = (phaseId: number) => {
-    const phaseWeeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32].filter(week => {
-      const weekData = safePlan.find(w => w.week === week);
-      return weekData && weekData.phase === phaseId;
-    });
+    const phase = phasesData.find(p => p.id === phaseId);
+    if (!phase) return { totalWeeks: 0, completedWeeks: 0, progress: 0 };
 
+    const phaseWeeks = phase.weeks;
     const totalWeeks = phaseWeeks.length;
     const completedWeeks = phaseWeeks.filter(week => {
       const weekData = safePlan.find(w => w.week === week);
@@ -86,80 +86,7 @@ export default function PhasesPage() {
   };
 
   // Get phase data from phases.json
-  const phases = [
-    {
-      id: 1,
-      title: { ar: "أساسيات الأمن السيبراني", en: "Cybersecurity Foundations" },
-      focus: { ar: "بناء المعرفة النظرية والمفاهيم الأساسية", en: "Building theoretical knowledge" },
-      duration: "4 أسابيع",
-      difficulty: "مبتدئ",
-      color: "blue",
-      icon: "shield"
-    },
-    {
-      id: 2,
-      title: { ar: "التقنيات والأنظمة الأساسية", en: "Core Technologies & Systems" },
-      focus: { ar: "فهم وإدارة الأنظمة والتقنيات الجوهرية", en: "Understanding core systems" },
-      duration: "4 أسابيع",
-      difficulty: "مبتدئ - متوسط",
-      color: "green",
-      icon: "server"
-    },
-    {
-      id: 3,
-      title: { ar: "عقلية المدافع", en: "The Defender's Mindset" },
-      focus: { ar: "تعلم أدوات وعمليات الفريق الأزرق", en: "Learning Blue Team tools" },
-      duration: "9 أسابيع",
-      difficulty: "متوسط",
-      color: "indigo",
-      icon: "eye"
-    },
-    {
-      id: 4,
-      title: { ar: "الدفاع والتحليل المتقدم", en: "Advanced Defense & Analysis" },
-      focus: { ar: "التعمق في تقنيات التحليل المتقدمة", en: "Advanced analysis techniques" },
-      duration: "8 أسابيع",
-      difficulty: "متقدم",
-      color: "purple",
-      icon: "search"
-    },
-    {
-      id: 5,
-      title: { ar: "تأمين البنى التحتية الحديثة", en: "Securing Modern Architectures" },
-      focus: { ar: "بناء المهارات لتأمين البيئات الحديثة", en: "Securing modern environments" },
-      duration: "7 أسابيع",
-      difficulty: "متوسط - متقدم",
-      color: "teal",
-      icon: "cloud"
-    },
-    {
-      id: 6,
-      title: { ar: "الهجوم واختبار الاختراق", en: "Offensive Security & Pentesting" },
-      focus: { ar: "تعلم التفكير مثل المهاجمين", en: "Learning to think like attackers" },
-      duration: "5 أسابيع",
-      difficulty: "متقدم",
-      color: "red",
-      icon: "target"
-    },
-    {
-      id: 7,
-      title: { ar: "التطبيق المتقدم والتكامل", en: "Advanced Application & Integration" },
-      focus: { ar: "دمج المهارات المكتسبة", en: "Integrating acquired skills" },
-      duration: "4 أسابيع",
-      difficulty: "خبير",
-      color: "pink",
-      icon: "zap"
-    },
-    {
-      id: 8,
-      title: { ar: "المشروع النهائي والانطلاق المهني", en: "Capstone & Career Launch" },
-      focus: { ar: "تتويج الرحلة التعليمية", en: "Culminating the learning journey" },
-      duration: "9 أسابيع",
-      difficulty: "خبير",
-      color: "yellow",
-      icon: "trophy"
-    }
-  ];
+  const phases = phasesData;
 
   // Task type icons and colors mapping
   const taskTypeConfig = {
