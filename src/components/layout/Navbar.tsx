@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sun, Moon, Globe, Shield } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
+import geminiLogo from '../../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useApp();
@@ -23,6 +24,21 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img 
+                src={geminiLogo} 
+                alt="Gemini Logo" 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
+                  }
+                }}
+              />
+            </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">
               CyberPlan
             </span>
