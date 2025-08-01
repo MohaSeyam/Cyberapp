@@ -83,7 +83,7 @@ function TaskCard({
     return (
       <motion.div
         whileHover={{ scale: isLocked ? 1 : 1.01 }}
-        className={`p-3 rounded-lg border transition-all duration-200 ${
+        className={`p-3 rounded-lg border transition-all duration-200 shadow-sm ${
           isCompleted ? 'bg-gray-50 border-gray-200' : 
           isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
           'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
@@ -105,10 +105,10 @@ function TaskCard({
           </button>
           
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium ${
+            <p className={`text-sm font-semibold leading-relaxed ${
               isCompleted ? 'text-gray-500 line-through' : 
               isLocked ? 'text-gray-400' : 
-              'text-gray-800 dark:text-gray-200'
+              'text-gray-900 dark:text-gray-100'
             }`}>
               {task.description[useApp().lang]}
               {isLocked && (
@@ -165,7 +165,7 @@ function TaskCard({
             </button>
             
             <div>
-              <h3 className={`text-lg font-semibold ${
+              <h3 className={`text-lg font-bold leading-relaxed ${
                 isCompleted ? 'text-gray-500 line-through' : 
                 isLocked ? 'text-gray-400' : 
                 'text-gray-900 dark:text-gray-100'
@@ -220,7 +220,7 @@ function TaskCard({
         boxShadow: ['0 0 0 rgba(34, 197, 94, 0)', '0 0 20px rgba(34, 197, 94, 0.3)', '0 0 0 rgba(34, 197, 94, 0)']
       } : {}}
       transition={{ duration: 0.6 }}
-      className={`p-4 rounded-lg border transition-all duration-200 ${
+      className={`p-4 rounded-lg border transition-all duration-200 shadow-sm ${
         isCompleted ? 'bg-green-50 border-green-200 shadow-lg' : 
         isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
         colors.bg + ' ' + colors.border
@@ -249,10 +249,10 @@ function TaskCard({
             </span>
           </div>
           
-          <p className={`text-sm font-medium ${
+          <p className={`text-sm font-bold leading-relaxed tracking-wide ${
             isCompleted ? 'text-gray-500 line-through' : 
             isLocked ? 'text-gray-400' : 
-            'text-gray-800 dark:text-gray-200'
+            'text-gray-900 dark:text-gray-100'
           }`}>
             {task.description[useApp().lang]}
             {isLocked && (
