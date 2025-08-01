@@ -1006,18 +1006,6 @@ const translations: TranslationData = {
     ar: "ملخص التقدم",
     en: "Progress Summary"
   },
-  totalTasks: {
-    ar: "إجمالي المهام",
-    en: "Total Tasks"
-  },
-  completedTasks: {
-    ar: "المهام المكتملة",
-    en: "Completed Tasks"
-  },
-  completionRate: {
-    ar: "معدل الإكمال",
-    en: "Completion Rate"
-  },
   export: {
     ar: "تصدير",
     en: "Export"

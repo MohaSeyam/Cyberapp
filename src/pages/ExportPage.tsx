@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Download, FileText, FileSpreadsheet, FilePdf, FileJson,
+  Download, FileText, FileSpreadsheet, FileJson,
   Calendar, Clock, Database, Settings, ArrowDown, CheckCircle
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -59,7 +59,7 @@ export default function ExportPage() {
       id: 'pdf',
       name: safeT('pdfFormat'),
       description: safeT('pdfDescription'),
-      icon: FilePdf,
+      icon: FileText, // استبدال FilePdf بـ FileText
       mimeType: 'application/pdf',
       extension: 'pdf'
     }
