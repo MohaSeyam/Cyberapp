@@ -30,7 +30,8 @@ interface Skill {
 }
 
 export default function ProgressPage() {
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
+  const lang = 'ar'; // Default to Arabic
   const { t } = useLocalization();
   
   // Safe translation function

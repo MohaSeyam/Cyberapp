@@ -383,7 +383,7 @@ export default function DaysPage() {
                         {completionPercentage === 100 ? (
                           <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                         ) : (
-                          <DayIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                          <Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                         )}
                       </div>
                       <div>

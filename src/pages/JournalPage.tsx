@@ -522,7 +522,7 @@ export default function JournalPage() {
               content={journalForm.content}
               onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
               placeholder={t('writeJournalEntry')}
-              lang={lang}
+              lang="ar"
               minHeight="400px"
             />
           </div>
