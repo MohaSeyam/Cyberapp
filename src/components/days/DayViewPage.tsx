@@ -105,7 +105,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const navigate = useNavigate();
-  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry, refreshData } = useApp();
+  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry, refreshData, appState } = useApp();
   const { t } = useLocalization();
 
   // Safe translation function
@@ -124,6 +124,13 @@ export default function DayViewPage() {
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null as Resource | null });
   const [noteContent, setNoteContent] = useState('');
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
+  
+  // Get resources for current day
+  const currentDayResources = useMemo(() => {
+    if (!appState?.resources || !selectedWeek || !selectedDay) return [];
+    const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
+    return appState.resources[dayKey] || [];
+  }, [appState?.resources, selectedWeek, selectedDay]);
 
   // Safety check for plan
   const safePlan = plan || [];
@@ -168,7 +175,7 @@ export default function DayViewPage() {
           url: resourceForm.url,
           type: resourceForm.type,
           weekId: selectedWeek.week,
-          dayIndex: parseInt(dayIndex)
+          dayKey: selectedDay.key
         });
         setResourceForm({ title: '', url: '', type: 'video' });
         setResourceModal({ isOpen: false, resource: null });
@@ -426,19 +433,18 @@ export default function DayViewPage() {
                   </p>
                 </div>
               </div>
-              <Button
-                variant="primary"
-                size="sm"
-                icon={<Plus className="w-5 h-5" />}
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
                 onClick={() => setResourceModal({ isOpen: true, resource: null })}
+                aria-label="إضافة مرجع جديد"
               >
-                إضافة مرجع جديد
-              </Button>
+                <Plus className="w-8 h-8" />
+              </button>
             </div>
 
             <div className="space-y-4">
-              {(selectedDay.resources || []).length > 0 ? (
-                (selectedDay.resources || []).map((resource, index) => {
+              {currentDayResources.length > 0 ? (
+                currentDayResources.map((resource, index) => {
                   const Icon = resourceTypeIcons[resource.type] || FileText;
                   
                   return (
@@ -706,16 +712,8 @@ export default function DayViewPage() {
                       });
                     } else {
                       // إضافة مرجع جديد
-                      await addResource({
-                        title: resourceForm.title,
-                        url: resourceForm.url,
-                        type: resourceForm.type,
-                        weekId: selectedWeek.week,
-                        dayIndex: parseInt(dayIndex)
-                      });
+                      await handleAddResource();
                     }
-                    setResourceForm({ title: '', url: '', type: 'video' });
-                    setResourceModal({ isOpen: false, resource: null });
                   } catch (error) {
                     console.error('Error saving resource:', error);
                   }
