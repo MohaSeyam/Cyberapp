@@ -108,7 +108,7 @@ function TaskCard({
             <p className={`text-sm font-semibold leading-relaxed ${
               isCompleted ? 'text-gray-500 line-through' : 
               isLocked ? 'text-gray-400' : 
-              'text-gray-900 dark:text-gray-100'
+              'text-gray-900 dark:text-white'
             }`}>
               {task.description[useApp().lang]}
               {isLocked && (
