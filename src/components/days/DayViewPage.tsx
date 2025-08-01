@@ -371,8 +371,8 @@ export default function DayViewPage() {
             }, {} as Record<string, typeof selectedDay.tasks>);
 
             return Object.entries(tasksByType).map(([type, tasks]) => {
-              const typeInfo = taskTypeConfig[type as keyof typeof taskTypeConfig] || taskTypeConfig['Technical Skills'];
-              const TypeIcon = typeInfo.icon;
+              const typeInfo = taskTypeConfig[type as keyof typeof taskTypeConfig] || taskTypeConfig['Blue Team'];
+              const TypeIcon = typeInfo?.icon || Shield;
               
               return (
                 <Card key={type} className="mb-6">

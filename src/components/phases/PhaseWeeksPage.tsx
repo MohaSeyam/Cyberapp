@@ -85,7 +85,7 @@ export default function PhaseWeeksPage() {
   const phases = phasesData;
 
   const currentPhase = phases.find(p => p.id === parseInt(phaseId));
-  const phaseWeeks = safePlan.filter(week => currentPhase.weeks.includes(week.week));
+  const phaseWeeks = currentPhase ? safePlan.filter(week => currentPhase.weeks.includes(week.week)) : [];
 
   // Calculate week completion
   const getWeekCompletion = (weekNumber: number) => {
