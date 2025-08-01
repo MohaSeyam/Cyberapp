@@ -13,7 +13,8 @@ import Card from '../ui/Card';
 import { animations } from '../../constants/theme';
 
 export default function OverallProgressCard() {
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
+  const lang = 'ar'; // Default to Arabic
   const { t } = useLocalization();
   const { getAllPhasesProgress, getCurrentPhase } = useWeekPhaseData();
 
