@@ -7,7 +7,7 @@ import {
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
   ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
-  Shield, Eye, Bug, Users, Code, Trash2, X
+  Shield, Eye, Bug, Users, Code, Trash2, X, Tag
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
