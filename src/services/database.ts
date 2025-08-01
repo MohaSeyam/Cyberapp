@@ -36,19 +36,36 @@ export const planService = {
 
   async importFromFile(): Promise<Week[]> {
     try {
-      const response = await fetch("/PlanData.json");
-      if (!response.ok) {
-        throw new Error(`Failed to fetch plan data: ${response.status}`);
-      }
-      const planData = await response.json();
-      if (!Array.isArray(planData)) {
+      // Try to import from the data directory first
+      const planData = await import('../data/PlanData.json');
+      if (!Array.isArray(planData.default)) {
         throw new Error("Invalid plan data format");
       }
-      await this.save(planData);
-      return planData;
+      
+      // Save to IndexedDB
+      await this.save(planData.default);
+      console.log("Successfully imported plan data:", planData.default.length, "weeks");
+      return planData.default;
     } catch (error) {
-      console.error("Error importing plan:", error);
-      throw error;
+      console.error("Error importing plan from data directory:", error);
+      
+      // Fallback to fetch from public directory
+      try {
+        const response = await fetch("/PlanData.json");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch plan data: ${response.status}`);
+        }
+        const planData = await response.json();
+        if (!Array.isArray(planData)) {
+          throw new Error("Invalid plan data format");
+        }
+        await this.save(planData);
+        console.log("Successfully imported plan data via fetch:", planData.length, "weeks");
+        return planData;
+      } catch (fetchError) {
+        console.error("Error importing plan via fetch:", fetchError);
+        throw fetchError;
+      }
     }
   }
 };

@@ -788,14 +788,6 @@ const translations: TranslationData = {
     ar: "التبديل للوضع الليلي",
     en: "Switch to Dark Mode"
   },
-  light: {
-    ar: "نهاري",
-    en: "Light"
-  },
-  dark: {
-    ar: "ليلي",
-    en: "Dark"
-  },
   navigation: {
     ar: "التنقل",
     en: "Navigation"
@@ -935,9 +927,50 @@ const translations: TranslationData = {
     ar: "تقدم الأسبوع",
     en: "Week Progress"
   },
-  confirmClearData: {
-    ar: "هل أنت متأكد من مسح جميع البيانات؟",
-    en: "Are you sure you want to clear all data?"
+
+  syncData: {
+    ar: "مزامنة البيانات",
+    en: "Sync Data"
+  },
+  syncStatus: {
+    ar: "حالة المزامنة",
+    en: "Sync Status"
+  },
+  pendingSync: {
+    ar: "في انتظار المزامنة",
+    en: "Pending Sync"
+  },
+  syncSuccess: {
+    ar: "تمت المزامنة بنجاح",
+    en: "Sync Successful"
+  },
+  syncFailed: {
+    ar: "فشلت المزامنة",
+    en: "Sync Failed"
+  },
+  noInternetConnection: {
+    ar: "لا يوجد اتصال بالإنترنت",
+    en: "No Internet Connection"
+  },
+  performanceMetrics: {
+    ar: "مقاييس الأداء",
+    en: "Performance Metrics"
+  },
+  loadTime: {
+    ar: "وقت التحميل",
+    en: "Load Time"
+  },
+  renderTime: {
+    ar: "وقت العرض",
+    en: "Render Time"
+  },
+  memoryUsage: {
+    ar: "استخدام الذاكرة",
+    en: "Memory Usage"
+  },
+  bundleSize: {
+    ar: "حجم الحزمة",
+    en: "Bundle Size"
   }
 };
 
