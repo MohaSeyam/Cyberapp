@@ -57,7 +57,7 @@ export const useWeekPhaseData = () => {
   };
 
   // Get all phases with progress
-  const getAllPhasesProgress = useMemo((): PhaseProgress[] => {
+  const getAllPhasesProgress = (): PhaseProgress[] => {
     const phases = weekPhaseService.getAllPhasesWithStats(completedWeeks);
     
     return phases.map(phase => ({
@@ -68,7 +68,7 @@ export const useWeekPhaseData = () => {
       progress: phase.stats.progress,
       remainingWeeks: phase.stats.remainingWeeks
     }));
-  }, [completedWeeks]);
+  };
 
   // Get validation errors
   const getValidationErrors = () => {

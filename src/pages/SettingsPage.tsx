@@ -84,17 +84,6 @@ export default function SettingsPage() {
       icon: theme === 'dark' ? Moon : Sun,
       settings: [
         {
-          key: 'theme',
-          label: t('theme'),
-          type: 'select',
-          options: [
-            { value: 'light', label: t('light') },
-            { value: 'dark', label: t('dark') }
-          ],
-          value: theme,
-          onChange: (value: string) => toggleTheme()
-        },
-        {
           key: 'fontSize',
           label: t('fontSize'),
           type: 'select',

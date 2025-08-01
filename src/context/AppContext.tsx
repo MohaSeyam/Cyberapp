@@ -27,6 +27,7 @@ interface AppContextType {
   // Actions
   setLang: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
+  toggleTheme: () => void;
   updateSettings: (settings: Partial<AppSettings>) => Promise<void>;
   updateProgress: (weekId: number, dayKey: string, taskId: string, done: boolean) => Promise<void>;
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Promise<number>;
@@ -221,6 +222,11 @@ export function AppProvider({ children }: AppProviderProps) {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+  // Toggle theme function
+  const toggleTheme = useCallback(() => {
+    setTheme(themeState === 'dark' ? 'light' : 'dark');
+  }, [themeState, setTheme]);
 
   // Settings management
   const updateSettings = useCallback(async (newSettings: Partial<AppSettings>) => {
@@ -501,6 +507,7 @@ export function AppProvider({ children }: AppProviderProps) {
     // Actions
     setLang,
     setTheme,
+    toggleTheme,
     updateSettings,
     updateProgress,
     addNote,
