@@ -13,10 +13,10 @@ import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
 
 export default function SettingsPage() {
-  const { theme, lang, toggleTheme, setLang } = useApp();
+  const { theme, lang, toggleTheme, setLang, settings, updateSettings } = useApp();
   const { t } = useLocalization();
   
-  const [localSettings, setLocalSettings] = useState(settings);
+  const [localSettings, setLocalSettings] = useState(settings || {});
   const [hasChanges, setHasChanges] = useState(false);
 
   const handleSettingChange = (key: keyof typeof settings, value: any) => {
@@ -92,7 +92,7 @@ export default function SettingsPage() {
             { value: 'dark', label: t('dark') }
           ],
           value: theme,
-          onChange: (value: string) => setTheme(value as 'light' | 'dark')
+          onChange: (value: string) => toggleTheme()
         },
         {
           key: 'fontSize',
