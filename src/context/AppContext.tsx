@@ -427,8 +427,64 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Refresh data
   const refreshData = useCallback(async () => {
-    await loadInitialData();
-  }, [loadInitialData]);
+    try {
+      setLoading(true);
+      
+      // Load data from database with comprehensive safety checks
+      let planData: Week[] = [];
+      let progressData: Progress[] = [];
+      let notesData: Note[] = [];
+      let journalData: JournalEntry[] = [];
+      
+      try {
+        [planData, progressData, notesData, journalData] = await Promise.all([
+          planService.getAll(),
+          progressService.getAll(),
+          notesService.getAll(),
+          journalService.getAll()
+        ]);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('فشل في تحميل البيانات');
+      }
+      
+      // Set data with safety checks
+      setPlan(Array.isArray(planData) ? planData : []);
+      setProgress(Array.isArray(progressData) ? progressData : []);
+      
+      // Organize notes and journal entries by week
+      const notesByWeek: Record<string, Note[]> = {};
+      const journalByWeek: Record<string, JournalEntry[]> = {};
+      
+      if (Array.isArray(notesData)) {
+        notesData.forEach(note => {
+          const key = `${note.weekId}-${note.dayKey}`;
+          if (!notesByWeek[key]) notesByWeek[key] = [];
+          notesByWeek[key].push(note);
+        });
+      }
+      
+      if (Array.isArray(journalData)) {
+        journalData.forEach(entry => {
+          const key = `${entry.weekId}-${entry.dayKey}`;
+          if (!journalByWeek[key]) journalByWeek[key] = [];
+          journalByWeek[key].push(entry);
+        });
+      }
+      
+      setAppState({
+        notes: notesByWeek,
+        journal: journalByWeek,
+        resources: {}
+      });
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      setLoading(false);
+      toast.error('فشل في تحديث البيانات');
+    }
+  }, []);
 
   const value: AppContextType = {
     // State
