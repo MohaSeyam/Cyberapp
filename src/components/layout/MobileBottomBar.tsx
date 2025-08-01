@@ -9,7 +9,6 @@ import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 
 export default function MobileBottomBar() {
-  const { lang } = useApp();
   const { t } = useLocalization();
   const location = useLocation();
 
