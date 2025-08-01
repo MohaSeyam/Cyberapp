@@ -14,6 +14,7 @@ import Card from '../components/ui/Card';
 import PhaseCard from '../components/ui/PhaseCard';
 import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
+import geminiLogo from '../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 export default function HomePage() {
   const { plan, progress } = useApp();
@@ -114,13 +115,41 @@ export default function HomePage() {
 
 
 
-  return (
+    return (
     <PageLayout 
       title={safeT('welcome')}
       subtitle={safeT('cyberSecurityLearning')}
       showBottomBar={true}
     >
-
+      {/* Logo Section */}
+      <motion.div
+        {...animations.fadeIn}
+        className="mb-8 text-center"
+      >
+        <div className="flex justify-center mb-6">
+          <div className="w-24 h-24 flex items-center justify-center">
+            <img 
+              src={geminiLogo} 
+              alt="Gemini Logo" 
+              className="w-24 h-24 object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = '<svg class="w-24 h-24 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
+                }
+              }}
+            />
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          CyberPlan
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          {safeT('cyberSecurityLearning')}
+        </p>
+      </motion.div>
 
       {/* Progress Section */}
       <motion.div
