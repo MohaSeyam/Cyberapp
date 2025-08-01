@@ -134,14 +134,14 @@ export default function JournalPage() {
             <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
               {entry.title}
             </h3>
-            <p className="text-sm text-gray-700 dark:text-gray-100 line-clamp-2">
+            <p className="text-sm text-gray-700 dark:text-white line-clamp-2">
               {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
             </p>
           </div>
         </div>
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-100">
+          <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-white">
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
               <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
@@ -370,7 +370,7 @@ export default function JournalPage() {
               {/* Content */}
               <div className="py-6">
                 <div className="space-y-6">
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-100">
+                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-white">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
                       <span>{new Date(selectedEntry.createdAt).toLocaleDateString('en-US')}</span>

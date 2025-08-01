@@ -239,66 +239,7 @@ export default function SettingsPage() {
         </motion.div>
       )}
 
-      {/* Language and Theme Quick Settings */}
-      <motion.div
-        {...animations.fadeIn}
-        className="mb-8"
-      >
-        <Card
-          title={t('quickSettings')}
-          subtitle={t('mostUsedSettings')}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Language */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('language')}
-              </label>
-              <div className="flex space-x-2">
-                <Button
-                  variant={lang === 'ar' ? 'primary' : 'outline'}
-                  onClick={() => setLang('ar')}
-                  className="flex-1"
-                >
-                  العربية
-                </Button>
-                <Button
-                  variant={lang === 'en' ? 'primary' : 'outline'}
-                  onClick={() => setLang('en')}
-                  className="flex-1"
-                >
-                  English
-                </Button>
-              </div>
-            </div>
 
-            {/* Theme */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('theme')}
-              </label>
-              <div className="flex space-x-2">
-                <Button
-                  variant={theme === 'light' ? 'primary' : 'outline'}
-                  icon={<Sun className="w-4 h-4" />}
-                  onClick={() => toggleTheme()}
-                  className="flex-1"
-                >
-                  {t('light')}
-                </Button>
-                <Button
-                  variant={theme === 'dark' ? 'primary' : 'outline'}
-                  icon={<Moon className="w-4 h-4" />}
-                  onClick={() => toggleTheme()}
-                  className="flex-1"
-                >
-                  {t('dark')}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
 
       {/* Settings Sections */}
       <div className="space-y-8">

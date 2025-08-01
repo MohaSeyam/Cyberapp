@@ -305,7 +305,7 @@ export default function RichTextEditor({
     content,
     editorProps: {
       attributes: {
-        class: `min-h-[${minHeight}] w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 transition-all duration-200 ${lang === "ar" ? "text-right" : "text-left"} ${className}`,
+        class: `min-h-[${minHeight}] w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all duration-200 ${lang === "ar" ? "text-right" : "text-left"} ${className}`,
         dir: lang === "ar" ? "rtl" : "ltr",
         spellcheck: 'true'
       }
