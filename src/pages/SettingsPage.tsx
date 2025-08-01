@@ -104,6 +104,27 @@ export default function SettingsPage() {
     }
   };
 
+  const handleClearAndReload = async () => {
+    if (window.confirm('هل أنت متأكد من حذف جميع البيانات وإعادة تحميلها من جديد؟')) {
+      try {
+        // Clear all data
+        localStorage.clear();
+        indexedDB.deleteDatabase('CyberPlanDB');
+        indexedDB.deleteDatabase('CyberPlanOffline');
+        
+        toast.success('تم حذف البيانات بنجاح');
+        
+        // Reload page after 1 second
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } catch (error) {
+        console.error('Error clearing data:', error);
+        toast.error('فشل في حذف البيانات');
+      }
+    }
+  };
+
   const settingSections = [
     {
       title: t('appearance'),
@@ -366,6 +387,37 @@ export default function SettingsPage() {
               <span className="text-sm font-medium text-gray-900 dark:text-white">
                 {new Date().toLocaleDateString()}
               </span>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Data Management Section */}
+      <motion.div
+        {...animations.fadeIn}
+        transition={{ delay: 0.8 }}
+        className="mt-8"
+      >
+        <Card
+          title="إدارة البيانات"
+          subtitle="حل مشاكل تحميل البيانات"
+        >
+          <div className="space-y-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+                مشكلة الأسبوع 3 و 4
+              </h4>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
+                إذا كنت تواجه مشكلة في عدم ظهور الأسبوع 3 و 4، اضغط على الزر أدناه لحل المشكلة.
+              </p>
+              <Button
+                variant="primary"
+                icon={<RefreshCw className="w-4 h-4" />}
+                onClick={handleClearAndReload}
+                className="w-full"
+              >
+                حل مشكلة الأسبوع 3 و 4
+              </Button>
             </div>
           </div>
         </Card>

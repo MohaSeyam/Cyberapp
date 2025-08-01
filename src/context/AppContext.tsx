@@ -138,21 +138,29 @@ export function AppProvider({ children }: AppProviderProps) {
           console.warn("Missing weeks in plan:", missingWeeks);
           console.log("Current plan weeks:", planData.map(w => w.week));
           
-          // Try to re-import if some weeks are missing
+          // Force import from file if weeks are missing
           try {
-            const reimportedPlan = await planService.importFromFile();
-            planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
-            console.log("Re-imported plan:", planData.length, "weeks");
+            console.log("Forcing import from PlanData.json...");
+            const forcedPlan = await import('../data/PlanData.json');
+            planData = Array.isArray(forcedPlan.default) ? forcedPlan.default : [];
+            console.log("Forced import successful:", planData.length, "weeks");
             
-            // Verify again after re-import
+            // Save to IndexedDB
+            await planService.save(planData);
+            console.log("Saved to IndexedDB");
+            
+            // Verify again after forced import
             const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
             if (stillMissingWeeks.length > 0) {
-              console.error("Still missing weeks after re-import:", stillMissingWeeks);
+              console.error("Still missing weeks after forced import:", stillMissingWeeks);
               toast.error(`أسابيع مفقودة: ${stillMissingWeeks.join(', ')}`);
+            } else {
+              console.log("All weeks are now present!");
+              toast.success("تم تحميل جميع الأسابيع بنجاح");
             }
-          } catch (reimportError) {
-            console.error("Failed to re-import plan:", reimportError);
-            toast.error("فشل في إعادة تحميل الخطة");
+          } catch (forcedImportError) {
+            console.error("Failed to force import plan:", forcedImportError);
+            toast.error("فشل في تحميل الخطة من الملف");
           }
         }
       } catch (error) {
