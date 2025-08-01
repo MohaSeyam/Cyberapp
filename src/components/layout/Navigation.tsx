@@ -9,7 +9,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 import Button from '../ui/Button';
-import geminiLogo from '../../assets/gemini-logo.svg';
+import geminiLogo from '../../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 interface NavigationProps {
   className?: string;
@@ -86,9 +86,8 @@ export default function Navigation({ className = '' }: NavigationProps) {
                   <img 
                     src={geminiLogo} 
                     alt="Gemini Logo" 
-                    className="w-6 h-6"
+                    className="w-6 h-6 object-contain"
                     onError={(e) => {
-                      // Fallback to Shield icon if image fails to load
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       const parent = target.parentElement;
@@ -158,7 +157,7 @@ export default function Navigation({ className = '' }: NavigationProps) {
                 <img 
                   src={geminiLogo} 
                   alt="Gemini Logo" 
-                  className="w-6 h-6"
+                  className="w-6 h-6 object-contain"
                   onError={(e) => {
                     // Fallback to Shield icon if image fails to load
                     const target = e.target as HTMLImageElement;
