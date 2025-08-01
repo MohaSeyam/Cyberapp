@@ -188,13 +188,14 @@ function NotesPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {t('notes')} ({searchableNotes.length})
             </h2>
-            <Button
-              variant="primary"
-              icon={<Plus className="w-4 h-4" />}
+            <button
+              className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+              style={{ fontSize: 32 }}
               onClick={() => {/* Implement add note */}}
+              aria-label={t('addNote')}
             >
-              {t('addNote')}
-            </Button>
+              <Plus className="w-10 h-10" />
+            </button>
           </div>
 
           {/* Virtual List for Notes */}
