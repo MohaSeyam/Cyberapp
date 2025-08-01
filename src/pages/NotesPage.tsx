@@ -1,7 +1,7 @@
 // Notes Page - Unified Design
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, Filter, SortAsc, SortDesc, Edit2, Trash2, X, Calendar, Tag, FileText } from 'lucide-react';
+import { Search, Plus, Filter, SortAsc, SortDesc, Edit2, Trash2, X, Calendar, Tag, FileText, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
@@ -131,7 +131,7 @@ export default function NotesPage() {
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
-              <span>الأسبوع {note.weekId} - {getDayTitle(note.dayKey, note.weekId)}</span>
+              <span>{note.dayKey === 'general' ? getDayTitle(note.dayKey, note.weekId) : `الأسبوع ${note.weekId} - ${getDayTitle(note.dayKey, note.weekId)}`}</span>
             </div>
           </div>
           
@@ -163,19 +163,25 @@ export default function NotesPage() {
   const handleSaveNote = async () => {
     if (noteForm.title.trim() && noteForm.content.trim()) {
       try {
+        // Add automatic tag for general notes
+        let finalTags = [...noteForm.tags];
+        if (noteForm.dayKey === 'general' && !finalTags.includes('ملاحظة عامة')) {
+          finalTags.push('ملاحظة عامة');
+        }
+
         if (noteModal.note) {
           // Update existing note
           await updateNote(noteModal.note.id!, {
             title: noteForm.title,
             content: noteForm.content,
-            tags: noteForm.tags
+            tags: finalTags
           });
         } else {
           // Add new note
           await addNote({
             title: noteForm.title,
             content: noteForm.content,
-            tags: noteForm.tags,
+            tags: finalTags,
             weekId: noteForm.weekId,
             dayKey: noteForm.dayKey,
             taskId: noteForm.taskId
@@ -213,6 +219,20 @@ export default function NotesPage() {
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
+
+  // Initialize note form when opening modal for new note
+  useEffect(() => {
+    if (noteModal.isOpen && !noteModal.note) {
+      setNoteForm({
+        title: '',
+        content: '',
+        tags: ['ملاحظة عامة'], // Auto-add general note tag
+        weekId: 1,
+        dayKey: 'general',
+        taskId: 'general'
+      });
+    }
+  }, [noteModal.isOpen, noteModal.note]);
 
   return (
     <PageLayout title={t('notes')}>
@@ -312,7 +332,7 @@ export default function NotesPage() {
                           {selectedNote.title}
                         </h1>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          الأسبوع {selectedNote.weekId} - {getDayTitle(selectedNote.dayKey, selectedNote.weekId)}
+                          {selectedNote.dayKey === 'general' ? getDayTitle(selectedNote.dayKey, selectedNote.weekId) : `الأسبوع ${selectedNote.weekId} - ${getDayTitle(selectedNote.dayKey, selectedNote.weekId)}`}
                         </p>
                       </div>
                     </div>
