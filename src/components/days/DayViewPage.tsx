@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
+import toast from 'react-hot-toast';
 import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import TaskCard from '../ui/TaskCard';
@@ -220,8 +221,10 @@ export default function DayViewPage() {
         });
         setResourceForm({ title: '', url: '', type: 'video' });
         setResourceModal({ isOpen: false, resource: null });
+        toast.success('تم إضافة المرجع بنجاح');
       } catch (error) {
         console.error('Error adding resource:', error);
+        toast.error('فشل في إضافة المرجع');
       }
     }
   };
@@ -866,25 +869,34 @@ export default function DayViewPage() {
               onClick={async () => {
                 if (resourceForm.title.trim() && resourceForm.url.trim() && selectedWeek && selectedDay) {
                   if (!isValidUrl(resourceForm.url)) {
-                    alert('يرجى إدخال رابط صحيح يبدأ بـ https://');
+                    toast.error('يرجى إدخال رابط صحيح يبدأ بـ https://');
                     return;
                   }
                   
                   try {
-                    if (resourceModal.resource) {
-                      // تعديل مرجع
-                      await updateResource(resourceModal.resource.id!, {
+                    if (resourceModal.resource && resourceModal.resource.id) {
+                      // تعديل مرجع موجود
+                      console.log('Updating resource with ID:', resourceModal.resource.id);
+                      await updateResource(resourceModal.resource.id, {
                         title: resourceForm.title,
                         url: resourceForm.url,
                         type: resourceForm.type
                       });
+                      // إغلاق المودال بعد التحديث الناجح
+                      setResourceModal({ isOpen: false, resource: null });
+                      setResourceForm({ title: '', url: '', type: 'video' });
+                      toast.success('تم تحديث المرجع بنجاح');
                     } else {
                       // إضافة مرجع جديد
+                      console.log('Adding new resource');
                       await handleAddResource();
                     }
                   } catch (error) {
                     console.error('Error saving resource:', error);
+                    toast.error('فشل في حفظ المرجع');
                   }
+                } else {
+                  toast.error('يرجى ملء جميع الحقول المطلوبة');
                 }
               }}
               disabled={!resourceForm.title.trim() || !resourceForm.url.trim() || !isValidUrl(resourceForm.url)}
