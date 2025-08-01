@@ -126,6 +126,7 @@ export default function DayViewPage() {
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
+  const [selectedJournalEntry, setSelectedJournalEntry] = useState<any>(null);
   
   // Get resources for current day (combine plan resources with user-added resources)
   const currentDayResources = useMemo(() => {
@@ -577,11 +578,122 @@ export default function DayViewPage() {
           </Card>
         </motion.div>
 
-        {/* Evening Journaling Section */}
+        {/* Journal Entries Section */}
+        <motion.div
+          {...animations.fadeIn}
+          transition={{ delay: 0.3 }}
+          className="mb-8"
+        >
+          <Card>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <MessageSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    مدونات اليوم
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    تدويناتك وتأملاتك
+                  </p>
+                </div>
+              </div>
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
+                onClick={() => setJournalModal({ isOpen: true, entry: null })}
+                aria-label="إضافة مدونة جديدة"
+              >
+                <Plus className="w-8 h-8" />
+              </button>
+            </div>
+
+            {/* Journal Entries List */}
+            <div className="space-y-4">
+              {(() => {
+                const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
+                const dayJournalEntries = appState?.journal?.[dayKey] || [];
+                
+                if (dayJournalEntries.length > 0) {
+                  return dayJournalEntries.map((entry, index) => (
+                    <motion.div
+                      key={entry.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      onClick={() => setSelectedJournalEntry(entry)}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
+                              {entry.title}
+                            </h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                              {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
+                            </div>
+                          </div>
+                          
+                          {entry.tags && entry.tags.length > 0 && (
+                            <div className="flex items-center space-x-1">
+                              <Tag className="w-3 h-3 text-gray-400" />
+                              <div className="flex space-x-1">
+                                {entry.tags.slice(0, 2).map((tag, tagIndex) => (
+                                  <span
+                                    key={tagIndex}
+                                    className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {entry.tags.length > 2 && (
+                                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
+                                    +{entry.tags.length - 2}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ));
+                } else {
+                  return (
+                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                      <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <h4 className="text-lg font-medium mb-2">لا توجد مدونات بعد</h4>
+                      <p className="text-sm mb-4">ابدأ بتدوين أفكارك وتأملاتك</p>
+                      <Button
+                        variant="outline"
+                        icon={<Plus className="w-4 h-4" />}
+                        onClick={() => setJournalModal({ isOpen: true, entry: null })}
+                      >
+                        إضافة أول مدونة
+                      </Button>
+                    </div>
+                  );
+                }
+              })()}
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Evening Journaling Prompt Section */}
         {selectedDay.notes_prompt && (
           <motion.div
             {...animations.fadeIn}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4 }}
           >
             <Card
               title={selectedDay.notes_prompt.title?.[lang] || 'مهمة التدوين المسائية'}
@@ -601,26 +713,15 @@ export default function DayViewPage() {
                     ))}
                   </ul>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <RichTextEditor
-                      content={journalForm.content}
-                      onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
-                      placeholder="اكتب تدوينك هنا..."
-                      lang={lang}
-                      minHeight="150px"
-                    />
-                  </div>
-                  <div className="ml-4">
-                    <Button
-                      variant="outline"
-                      icon={<MessageSquare className="w-4 h-4" />}
-                      onClick={() => setJournalModal({ isOpen: true, entry: null })}
-                      className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
-                    >
-                      حفظ المدونة
-                    </Button>
-                  </div>
+                <div className="flex items-center justify-center">
+                  <Button
+                    variant="outline"
+                    icon={<MessageSquare className="w-4 h-4" />}
+                    onClick={() => setJournalModal({ isOpen: true, entry: null })}
+                    className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                  >
+                    بدء التدوين
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -904,6 +1005,72 @@ export default function DayViewPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Journal Entry Detail Modal */}
+      {selectedJournalEntry && (
+        <Modal
+          isOpen={!!selectedJournalEntry}
+          onClose={() => setSelectedJournalEntry(null)}
+          title={selectedJournalEntry.title}
+          size="xl"
+        >
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{new Date(selectedJournalEntry.createdAt).toLocaleDateString('ar-SA')}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => {
+                    setJournalForm({
+                      title: selectedJournalEntry.title,
+                      content: selectedJournalEntry.content,
+                      tags: selectedJournalEntry.tags || []
+                    });
+                    setJournalModal({ isOpen: true, entry: selectedJournalEntry });
+                    setSelectedJournalEntry(null);
+                  }}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  title="تعديل المدونة"
+                >
+                  <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                </button>
+                <button
+                  onClick={() => handleDeleteJournalEntry(selectedJournalEntry.id)}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                  title="حذف المدونة"
+                >
+                  <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                </button>
+              </div>
+            </div>
+
+            {selectedJournalEntry.tags && selectedJournalEntry.tags.length > 0 && (
+              <div className="flex items-center space-x-2">
+                <Tag className="w-4 h-4 text-gray-400" />
+                <div className="flex flex-wrap gap-2">
+                  {selectedJournalEntry.tags.map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300">
+              <div dangerouslySetInnerHTML={{ __html: selectedJournalEntry.content }} />
+            </div>
+          </div>
+        </Modal>
+      )}
     </PageLayout>
   );
 }
