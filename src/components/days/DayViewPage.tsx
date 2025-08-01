@@ -399,13 +399,10 @@ export default function DayViewPage() {
           </div>
           
           <div className="mb-6">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
-              <DayIcon className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-4xl font-bold text-white mb-2">
               {selectedDay.name?.ar}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-gray-200">
               {selectedDay.topic?.ar}
             </p>
           </div>
@@ -526,9 +523,11 @@ export default function DayViewPage() {
                               <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 {resource.title}
                               </h4>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {resource.description || 'لا يوجد وصف'}
-                              </p>
+                              {resource.description && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  {resource.description}
+                                </p>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -554,10 +553,6 @@ export default function DayViewPage() {
                             >
                               <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                             </button>
-                            {/* External Link Icon */}
-                            <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                              <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                            </div>
                           </div>
                         </div>
                       </button>
