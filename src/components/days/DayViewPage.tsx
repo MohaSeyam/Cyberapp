@@ -225,7 +225,7 @@ export default function DayViewPage() {
     { label: 'المراحل', icon: Calendar, onClick: goToWeekView },
     { label: `الأسبوع ${selectedWeek.week}`, icon: Target, onClick: goToDayList },
     { label: 'الأيام', icon: Calendar, onClick: goToDayList },
-    { label: selectedDay.day?.[lang] || 'اليوم', icon: DayIcon }
+    { label: selectedDay.name?.ar || 'اليوم', icon: DayIcon }
   ];
 
   return (
@@ -259,10 +259,10 @@ export default function DayViewPage() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {selectedDay.day?.[lang]}
+                    {selectedDay.name?.ar}
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400">
-                    {t('week')} {selectedWeek.week} - {selectedDay.topic?.[lang]}
+                    {safeT('week')} {selectedWeek.week} - {selectedDay.topic?.ar}
                   </p>
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function DayViewPage() {
                 هدف الأسبوع
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedWeek.objective?.[lang] || 'No objective'}
+                {selectedWeek.objective?.ar || 'No objective'}
               </p>
             </div>
 
