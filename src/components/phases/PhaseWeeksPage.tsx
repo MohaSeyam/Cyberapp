@@ -62,7 +62,7 @@ function Breadcrumbs({ phaseTitle }: { phaseTitle: string }) {
 }
 
 export default function PhaseWeeksPage() {
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
   const { phaseId } = useParams();

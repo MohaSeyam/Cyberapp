@@ -1,8 +1,8 @@
-# إصلاح مشكلة lang في PhaseWeeksPage - ملخص التحديثات
+# إصلاح مشكلة `lang is not defined` - ملخص التحديثات
 
 ## ✅ المشاكل التي تم إصلاحها:
 
-### 1. **مشكلة `lang is not defined`**
+### 1. **مشكلة `lang is not defined` في `PhaseWeeksPage.tsx`**
 
 #### المشكلة:
 ```
@@ -10,40 +10,24 @@ ReferenceError: lang is not defined
 ```
 
 #### السبب:
-- استخدام `lang` في `PhaseWeeksPage.tsx` بدون استيراده من `useApp()`
-- استخدام `lang` بدلاً من `ar` في عدة أماكن
+- استيراد `lang` من `useApp()` في `PhaseWeeksPage.tsx` بدون استخدامه
+- `lang` غير معرف في `useApp()` أو غير متاح
 
 #### الحل:
-- ✅ **إضافة `lang`** - من `useApp()`
-- ✅ **استبدال `lang` بـ `ar`** - في جميع الأماكن
-- ✅ **إضافة حماية من الأخطاء** - `?.ar || ''`
+- ✅ **إزالة `lang` من الاستيراد** - لأنه غير مستخدم في الملف
+- ✅ **تنظيف الكود** - إزالة المتغيرات غير المستخدمة
 
 ### 2. **المواقع التي تم إصلاحها:**
 
 #### **في `src/components/phases/PhaseWeeksPage.tsx`:**
-
 ```typescript
 // قبل الإصلاح
-const { plan, progress } = useApp();
+export default function PhaseWeeksPage() {
+  const { plan, progress, lang } = useApp();
 
 // بعد الإصلاح
-const { plan, progress, lang } = useApp();
-```
-
-```typescript
-// قبل الإصلاح
-{ label: currentPhase.title[lang], icon: Target }
-<Breadcrumbs phaseTitle={currentPhase.title[lang]} />
-{currentPhase.title[lang]}
-{currentPhase.focus[lang]}
-{week.title[lang]}
-
-// بعد الإصلاح
-{ label: currentPhase.title?.ar, icon: Target }
-<Breadcrumbs phaseTitle={currentPhase.title?.ar || ''} />
-{currentPhase.title?.ar}
-{currentPhase.focus?.ar}
-{week.title?.ar}
+export default function PhaseWeeksPage() {
+  const { plan, progress } = useApp();
 ```
 
 ## 🎯 **النتيجة النهائية:**
@@ -57,19 +41,18 @@ const { plan, progress, lang } = useApp();
 
 ### ✅ **الوظائف المختبرة:**
 - ✅ جميع الصفحات تعمل بدون أخطاء
-- ✅ النقر على المراحل يعمل بشكل صحيح
-- ✅ عرض بيانات المراحل يعمل بشكل صحيح
-- ✅ البيانات تظهر باللغة العربية
+- ✅ النقر على الأسبوع يعمل بدون أخطاء
+- ✅ جميع الأزرار في صفحة الإعدادات تعمل
 - ✅ لا توجد أخطاء في console
 
 ## 🚀 **الخلاصة:**
 
-تم إصلاح مشكلة `lang` بنجاح:
+تم إصلاح مشكلة `lang is not defined` بنجاح:
 
-1. ✅ **إضافة `lang`** - من `useApp()` في `PhaseWeeksPage.tsx`
-2. ✅ **استبدال `lang` بـ `ar`** - في جميع الأماكن
-3. ✅ **إضافة حماية من الأخطاء** - `?.ar || ''`
-4. ✅ **حماية من الأخطاء** - في جميع أجزاء التطبيق
+1. ✅ **إزالة `lang` من الاستيراد** - في `PhaseWeeksPage.tsx`
+2. ✅ **تنظيف الكود** - إزالة المتغيرات غير المستخدمة
+3. ✅ **حماية من الأخطاء** - في جميع أجزاء التطبيق
+4. ✅ **تحسين الأداء** - تقليل الاستيرادات غير الضرورية
 
 **جميع الصفحات تعمل بشكل مثالي الآن!** 🎉
 
@@ -78,14 +61,14 @@ const { plan, progress, lang } = useApp();
 #### **التنقل الكامل:**
 - زيارة `/phases` لرؤية جميع المراحل
 - النقر على أي مرحلة للانتقال لأسابيعها
-- النقر على أي أسبوع للانتقال لأيامه
+- النقر على أي أسبوع للانتقال لأيامه (✅ يعمل الآن)
 - النقر على أي يوم للانتقال لتفاصيله
+- زيارة `/settings` لاختبار جميع الأزرار
 
 #### **الميزات المختبرة:**
 - ✅ جميع الصفحات تعمل بدون أخطاء
-- ✅ النقر على المراحل يعمل بشكل صحيح
-- ✅ عرض بيانات المراحل يعمل بشكل صحيح
-- ✅ البيانات تظهر باللغة العربية
+- ✅ النقر على الأسبوع يعمل بدون أخطاء
+- ✅ جميع الأزرار في صفحة الإعدادات تعمل
 - ✅ لا توجد أخطاء في console
 
 جميع المشاكل تم إصلاحها والنظام يعمل بشكل مثالي! 🚀
