@@ -716,9 +716,13 @@ export function AppProvider({ children }: AppProviderProps) {
       console.log("Fresh plan loaded:", freshPlan.length, "weeks");
       console.log("Available weeks:", freshPlan.map(w => w.week).sort((a, b) => a - b));
       
-      // Save to IndexedDB
+      // Clear existing plan data
+      await planService.save([]);
+      console.log("Cleared existing plan data");
+      
+      // Save fresh data to IndexedDB
       await planService.save(freshPlan);
-      console.log("Saved to IndexedDB");
+      console.log("Saved fresh data to IndexedDB");
       
       // Verify all weeks are present
       const phasesData = await import('../data/phases.json');
@@ -735,6 +739,9 @@ export function AppProvider({ children }: AppProviderProps) {
       
       // Update state
       setPlan(freshPlan);
+      
+      // Force refresh
+      await refreshData();
       
     } catch (error) {
       console.error("Error fixing missing weeks:", error);
