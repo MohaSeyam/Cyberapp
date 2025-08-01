@@ -205,12 +205,7 @@ export default function TaskCard({
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1 text-sm text-gray-500">
-              <span>ID:</span>
-              <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
-                {task.id}
-              </code>
-            </div>
+            {/* Removed ID display */}
           </div>
           
           <div className="text-sm text-gray-500">

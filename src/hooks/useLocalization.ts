@@ -795,6 +795,325 @@ const translations: TranslationData = {
   navigation: {
     ar: "التنقل",
     en: "Navigation"
+  },
+  // Task related
+  inProgress: {
+    ar: "قيد التنفيذ",
+    en: "In Progress"
+  },
+  locked: {
+    ar: "مقفل",
+    en: "Locked"
+  },
+  taskTypes: {
+    ar: "أنواع المهام",
+    en: "Task Types"
+  },
+  blueTeam: {
+    ar: "الفريق الأزرق",
+    en: "Blue Team"
+  },
+  redTeam: {
+    ar: "الفريق الأحمر",
+    en: "Red Team"
+  },
+  practical: {
+    ar: "عملي",
+    en: "Practical"
+  },
+  theoretical: {
+    ar: "نظري",
+    en: "Theoretical"
+  },
+  policies: {
+    ar: "السياسات",
+    en: "Policies"
+  },
+  softSkills: {
+    ar: "المهارات الناعمة",
+    en: "Soft Skills"
+  },
+
+  // Progress related
+  completionRate: {
+    ar: "معدل الإكمال",
+    en: "Completion Rate"
+  },
+  currentStreak: {
+    ar: "النشاط الحالي",
+    en: "Current Streak"
+  },
+  longestStreak: {
+    ar: "أطول نشاط",
+    en: "Longest Streak"
+  },
+  hoursLearned: {
+    ar: "ساعات التعلم",
+    en: "Hours Learned"
+  },
+  totalDuration: {
+    ar: "إجمالي المدة",
+    en: "Total Duration"
+  },
+  hours: {
+    ar: "ساعات",
+    en: "hours"
+  },
+  completed: {
+    ar: "مكتمل",
+    en: "Completed"
+  },
+  total: {
+    ar: "إجمالي",
+    en: "Total"
+  },
+  remaining: {
+    ar: "متبقي",
+    en: "Remaining"
+  },
+  weeks: {
+    ar: "أسابيع",
+    en: "Weeks"
+  },
+  totalWeeks: {
+    ar: "إجمالي الأسابيع",
+    en: "Total Weeks"
+  },
+  totalTasks: {
+    ar: "إجمالي المهام",
+    en: "Total Tasks"
+  },
+  completedTasks: {
+    ar: "المهام المكتملة",
+    en: "Completed Tasks"
+  },
+  taskTypesDistribution: {
+    ar: "توزيع أنواع المهام",
+    en: "Task Types Distribution"
+  },
+  distributionOfCompletedTasks: {
+    ar: "توزيع المهام المكتملة",
+    en: "Distribution of Completed Tasks"
+  },
+  progressOverTime: {
+    ar: "التقدم عبر الزمن",
+    en: "Progress Over Time"
+  },
+  weeklyProgressChart: {
+    ar: "رسم بياني للتقدم الأسبوعي",
+    en: "Weekly Progress Chart"
+  },
+  taskTypePieChart: {
+    ar: "رسم بياني دائري لأنواع المهام",
+    en: "Task Type Pie Chart"
+  },
+  distributionVisualization: {
+    ar: "تصور التوزيع",
+    en: "Distribution Visualization"
+  },
+  chartComingSoon: {
+    ar: "الرسم البياني قريباً",
+    en: "Chart Coming Soon"
+  },
+  detailedStatistics: {
+    ar: "إحصائيات مفصلة",
+    en: "Detailed Statistics"
+  },
+  comprehensiveAnalysis: {
+    ar: "تحليل شامل",
+    en: "Comprehensive Analysis"
+  },
+  skillsMatrix: {
+    ar: "مصفوفة المهارات",
+    en: "Skills Matrix"
+  },
+  yourSkillLevels: {
+    ar: "مستويات مهاراتك",
+    en: "Your Skill Levels"
+  },
+  level: {
+    ar: "مستوى",
+    en: "Level"
+  },
+  skillCategories: {
+    ar: "فئات المهارات",
+    en: "Skill Categories"
+  },
+  categoryBreakdown: {
+    ar: "تفصيل الفئات",
+    en: "Category Breakdown"
+  },
+  skills: {
+    ar: "مهارات",
+    en: "Skills"
+  },
+  achievements: {
+    ar: "الإنجازات",
+    en: "Achievements"
+  },
+  suggestions: {
+    ar: "الاقتراحات",
+    en: "Suggestions"
+  },
+  trackYourLearning: {
+    ar: "تتبع تعلمك",
+    en: "Track Your Learning"
+  },
+  trackYourProgress: {
+    ar: "تتبع تقدمك",
+    en: "Track Your Progress"
+  },
+  learningPhases: {
+    ar: "مراحل التعلم",
+    en: "Learning Phases"
+  },
+  choosePhaseToStart: {
+    ar: "اختر المرحلة للبدء",
+    en: "Choose Phase to Start"
+  },
+  weekDays: {
+    ar: "أيام الأسبوع",
+    en: "Week Days"
+  },
+  dayDetails: {
+    ar: "تفاصيل اليوم",
+    en: "Day Details"
+  },
+  phases: {
+    ar: "المراحل",
+    en: "Phases"
+  },
+  week: {
+    ar: "الأسبوع",
+    en: "Week"
+  },
+  phaseWeeks: {
+    ar: "أسابيع المرحلة",
+    en: "Phase Weeks"
+  },
+  weekProgress: {
+    ar: "تقدم الأسبوع",
+    en: "Week Progress"
+  },
+  customizeYourExperience: {
+    ar: "خصص تجربتك",
+    en: "Customize Your Experience"
+  },
+  quickSettings: {
+    ar: "إعدادات سريعة",
+    en: "Quick Settings"
+  },
+  mostUsedSettings: {
+    ar: "الإعدادات الأكثر استخداماً",
+    en: "Most Used Settings"
+  },
+  language: {
+    ar: "اللغة",
+    en: "Language"
+  },
+  theme: {
+    ar: "المظهر",
+    en: "Theme"
+  },
+  light: {
+    ar: "نهاري",
+    en: "Light"
+  },
+  dark: {
+    ar: "ليلي",
+    en: "Dark"
+  },
+  appearance: {
+    ar: "المظهر",
+    en: "Appearance"
+  },
+  fontSize: {
+    ar: "حجم الخط",
+    en: "Font Size"
+  },
+  small: {
+    ar: "صغير",
+    en: "Small"
+  },
+  medium: {
+    ar: "متوسط",
+    en: "Medium"
+  },
+  large: {
+    ar: "كبير",
+    en: "Large"
+  },
+  compactMode: {
+    ar: "الوضع المضغوط",
+    en: "Compact Mode"
+  },
+  notifications: {
+    ar: "الإشعارات",
+    en: "Notifications"
+  },
+  enableNotifications: {
+    ar: "تفعيل الإشعارات",
+    en: "Enable Notifications"
+  },
+  soundEffects: {
+    ar: "المؤثرات الصوتية",
+    en: "Sound Effects"
+  },
+  data: {
+    ar: "البيانات",
+    en: "Data"
+  },
+  autoSave: {
+    ar: "الحفظ التلقائي",
+    en: "Auto Save"
+  },
+  dataManagement: {
+    ar: "إدارة البيانات",
+    en: "Data Management"
+  },
+  manageYourData: {
+    ar: "إدارة بياناتك",
+    en: "Manage Your Data"
+  },
+  exportSettings: {
+    ar: "تصدير الإعدادات",
+    en: "Export Settings"
+  },
+  importSettings: {
+    ar: "استيراد الإعدادات",
+    en: "Import Settings"
+  },
+  refreshData: {
+    ar: "تحديث البيانات",
+    en: "Refresh Data"
+  },
+  clearData: {
+    ar: "مسح البيانات",
+    en: "Clear Data"
+  },
+  about: {
+    ar: "حول",
+    en: "About"
+  },
+  appInformation: {
+    ar: "معلومات التطبيق",
+    en: "App Information"
+  },
+  appName: {
+    ar: "اسم التطبيق",
+    en: "App Name"
+  },
+  version: {
+    ar: "الإصدار",
+    en: "Version"
+  },
+  lastUpdated: {
+    ar: "آخر تحديث",
+    en: "Last Updated"
+  },
+  confirmClearData: {
+    ar: "هل أنت متأكد من مسح جميع البيانات؟",
+    en: "Are you sure you want to clear all data?"
   }
 };
 

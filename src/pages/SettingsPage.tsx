@@ -220,7 +220,7 @@ export default function SettingsPage() {
                 <Button
                   variant={theme === 'light' ? 'primary' : 'outline'}
                   icon={<Sun className="w-4 h-4" />}
-                  onClick={() => setTheme('light')}
+                  onClick={() => toggleTheme()}
                   className="flex-1"
                 >
                   {t('light')}
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                 <Button
                   variant={theme === 'dark' ? 'primary' : 'outline'}
                   icon={<Moon className="w-4 h-4" />}
-                  onClick={() => setTheme('dark')}
+                  onClick={() => toggleTheme()}
                   className="flex-1"
                 >
                   {t('dark')}

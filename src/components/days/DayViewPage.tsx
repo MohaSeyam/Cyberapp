@@ -7,7 +7,7 @@ import {
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
   ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
-  Shield, Eye, Bug, Users, Code
+  Shield, Eye, Bug, Users, Code, Trash2
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -105,7 +105,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const navigate = useNavigate();
-  const { plan, progress, addNote, addResource, lang, updateResource } = useApp();
+  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry } = useApp();
   const { t } = useLocalization();
 
   // Safe translation function
@@ -175,6 +175,37 @@ export default function DayViewPage() {
       } catch (error) {
         console.error('Error adding resource:', error);
       }
+    }
+  };
+
+  const handleDeleteResource = async (resourceId: string) => {
+    if (selectedWeek && selectedDay) {
+      try {
+        await deleteResource(resourceId);
+        // Optionally, refresh the resources list or update the state
+        // For now, we'll just close the modal and let the user re-add if needed
+        setResourceModal({ isOpen: false, resource: null });
+      } catch (error) {
+        console.error('Error deleting resource:', error);
+      }
+    }
+  };
+
+  const handleDeleteNote = async (noteId: number) => {
+    try {
+      await deleteNote(noteId);
+      // Refresh notes or update state as needed
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
+  const handleDeleteJournalEntry = async (entryId: number) => {
+    try {
+      await deleteJournalEntry(entryId);
+      // Refresh journal entries or update state as needed
+    } catch (error) {
+      console.error('Error deleting journal entry:', error);
     }
   };
 
@@ -396,12 +427,20 @@ export default function DayViewPage() {
                     course: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400'
                   };
                   
+                  const typeLabels = {
+                    video: 'فيديو',
+                    article: 'مقال',
+                    book: 'كتاب',
+                    tool: 'أداة',
+                    podcast: 'بودكاست',
+                    course: 'دورة'
+                  };
+                  
                   return (
                     <motion.div
                       key={index}
                       {...animations.stagger(0.3 + index * 0.1)}
-                      className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 cursor-pointer"
-                      onClick={() => setResourceModal({ isOpen: true, resource })}
+                      className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -414,12 +453,7 @@ export default function DayViewPage() {
                                 {resource.title}
                               </h4>
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[resource.type] || typeColors.article}`}>
-                                {resource.type === 'video' ? 'فيديو' : 
-                                 resource.type === 'article' ? 'مقال' :
-                                 resource.type === 'book' ? 'كتاب' :
-                                 resource.type === 'tool' ? 'أداة' :
-                                 resource.type === 'podcast' ? 'بودكاست' :
-                                 resource.type === 'course' ? 'دورة' : resource.type}
+                                {typeLabels[resource.type] || resource.type}
                               </span>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -432,13 +466,22 @@ export default function DayViewPage() {
                             variant="ghost"
                             size="sm"
                             icon={<Edit2 className="w-4 h-4" />}
-                            onClick={e => { e.stopPropagation(); setResourceModal({ isOpen: true, resource }); }}
+                            onClick={() => setResourceModal({ isOpen: true, resource })}
+                            title="تعديل المرجع"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<Trash2 className="w-4 h-4" />}
+                            onClick={() => handleDeleteResource(resource.id)}
+                            title="حذف المرجع"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                           />
                           <Button
                             variant="primary"
                             size="sm"
                             icon={<ExternalLink className="w-4 h-4" />}
-                            onClick={e => { e.stopPropagation(); window.open(resource.url, '_blank'); }}
+                            onClick={() => window.open(resource.url, '_blank')}
                           >
                             فتح
                           </Button>

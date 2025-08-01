@@ -308,7 +308,7 @@ export default function ProgressPage() {
         <motion.div {...animations.fadeIn} transition={{ delay: 0.3 }}>
           <Card className="text-center p-6">
             <div className="flex items-center justify-center mb-4">
-              <Trophy className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+              <Trophy className="w-8 h-8 text-orange-600 dark:text-orange-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{longestStreak}</h3>
             <p className="text-gray-600 dark:text-gray-400">{safeT('longestStreak')}</p>
@@ -500,8 +500,8 @@ export default function ProgressPage() {
             description: lang === 'ar' ? 'أكمل 50% من المهام' : 'Complete 50% of tasks',
             icon: Trophy,
             unlocked: completionRate >= 50,
-            color: 'text-yellow-600',
-            bg: 'bg-yellow-50'
+            color: 'text-orange-600',
+            bg: 'bg-orange-50'
           }
         ].map((achievement, index) => (
           <motion.div key={achievement.id} {...animations.stagger(index * 0.1)}>
@@ -556,7 +556,7 @@ export default function ProgressPage() {
                   <div className="mt-3">
                     <span className={`inline-block px-2 py-1 text-xs rounded-full ${
                       suggestion.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
-                      suggestion.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
+                      suggestion.priority === 'medium' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300' :
                       'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                     }`}>
                       {suggestion.priority === 'high' ? (lang === 'ar' ? 'عالية' : 'High') :
@@ -607,8 +607,8 @@ export default function ProgressPage() {
           <OverallProgressCard />
 
           {/* Tabs Navigation */}
-          <Card>
-            <div className="flex flex-wrap gap-2">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="flex flex-wrap gap-2 justify-center">
               {tabs.map((tab) => (
                 <Button
                   key={tab.id}
@@ -616,6 +616,7 @@ export default function ProgressPage() {
                   size="sm"
                   onClick={() => setActiveTab(tab.id)}
                   icon={tab.icon}
+                  className="min-w-[120px]"
                 >
                   {tab.label}
                 </Button>
