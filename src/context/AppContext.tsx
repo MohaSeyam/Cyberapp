@@ -96,13 +96,15 @@ export function AppProvider({ children }: AppProviderProps) {
       let progressData: Progress[] = [];
       let notesData: Note[] = [];
       let journalData: JournalEntry[] = [];
+      let resourcesData: Resource[] = [];
       
       try {
-        [planData, progressData, notesData, journalData] = await Promise.all([
+        [planData, progressData, notesData, journalData, resourcesData] = await Promise.all([
           planService.getAll().catch(() => []),
           progressService.getAll().catch(() => []),
           notesService.getAll().catch(() => []),
-          journalService.getAll().catch(() => [])
+          journalService.getAll().catch(() => []),
+          resourcesService.getAll().catch(() => [])
         ]);
       } catch (error) {
         console.error("Error loading data from database:", error);
@@ -114,6 +116,7 @@ export function AppProvider({ children }: AppProviderProps) {
       progressData = Array.isArray(progressData) ? progressData : [];
       notesData = Array.isArray(notesData) ? notesData : [];
       journalData = Array.isArray(journalData) ? journalData : [];
+      resourcesData = Array.isArray(resourcesData) ? resourcesData : [];
       
       // Import plan if empty or incomplete
       if (planData.length === 0) {
@@ -191,10 +194,21 @@ export function AppProvider({ children }: AppProviderProps) {
         }
       });
       
+      // Organize resources by day
+      const organizedResources: { [key: string]: Resource[] } = {};
+      resourcesData.forEach(resource => {
+        if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
+          const key = `${resource.weekId}-${resource.dayKey}`;
+          if (!organizedResources[key]) organizedResources[key] = [];
+          organizedResources[key].push(resource);
+        }
+      });
+      
       setAppState(prev => ({
         ...prev,
         notes: organizedNotes,
-        journal: organizedJournal
+        journal: organizedJournal,
+        resources: organizedResources
       }));
       
       console.log("Data loaded successfully:", {
@@ -425,6 +439,22 @@ export function AppProvider({ children }: AppProviderProps) {
   const addResource = useCallback(async (resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       const id = await resourcesService.add(resource);
+      
+      // Update local state
+      setAppState(prev => {
+        const dayKey = `${resource.weekId}-${resource.dayKey}`;
+        const existingResources = prev.resources[dayKey] || [];
+        const newResource = { ...resource, id, createdAt: Date.now(), updatedAt: Date.now() };
+        
+        return {
+          ...prev,
+          resources: {
+            ...prev.resources,
+            [dayKey]: [...existingResources, newResource]
+          }
+        };
+      });
+      
       return id;
     } catch (error) {
       console.error('Error adding resource:', error);
@@ -436,6 +466,25 @@ export function AppProvider({ children }: AppProviderProps) {
   const updateResource = useCallback(async (id: number, updates: Partial<Resource>) => {
     try {
       await resourcesService.update(id, updates);
+      
+      // Update local state
+      setAppState(prev => {
+        const updatedResources = { ...prev.resources };
+        
+        // Find and update the resource in all day keys
+        Object.keys(updatedResources).forEach(dayKey => {
+          updatedResources[dayKey] = updatedResources[dayKey].map(resource => 
+            resource.id === id 
+              ? { ...resource, ...updates, updatedAt: Date.now() }
+              : resource
+          );
+        });
+        
+        return {
+          ...prev,
+          resources: updatedResources
+        };
+      });
     } catch (error) {
       console.error('Error updating resource:', error);
       toast.error('فشل في تحديث المرجع');
@@ -446,6 +495,21 @@ export function AppProvider({ children }: AppProviderProps) {
   const deleteResource = useCallback(async (id: number) => {
     try {
       await resourcesService.delete(id);
+      
+      // Update local state
+      setAppState(prev => {
+        const updatedResources = { ...prev.resources };
+        
+        // Remove the resource from all day keys
+        Object.keys(updatedResources).forEach(dayKey => {
+          updatedResources[dayKey] = updatedResources[dayKey].filter(resource => resource.id !== id);
+        });
+        
+        return {
+          ...prev,
+          resources: updatedResources
+        };
+      });
     } catch (error) {
       console.error('Error deleting resource:', error);
       toast.error('فشل في حذف المرجع');

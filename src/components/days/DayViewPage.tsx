@@ -127,12 +127,24 @@ export default function DayViewPage() {
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
   
-  // Get resources for current day
+  // Get resources for current day (combine plan resources with user-added resources)
   const currentDayResources = useMemo(() => {
-    if (!appState?.resources || !selectedWeek || !selectedDay) return [];
-    const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
-    return appState.resources[dayKey] || [];
-  }, [appState?.resources, selectedWeek, selectedDay]);
+    const resources = [];
+    
+    // Add resources from the plan (original resources)
+    if (selectedDay?.resources && Array.isArray(selectedDay.resources)) {
+      resources.push(...selectedDay.resources);
+    }
+    
+    // Add user-added resources from context
+    if (appState?.resources && selectedWeek && selectedDay) {
+      const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
+      const userResources = appState.resources[dayKey] || [];
+      resources.push(...userResources);
+    }
+    
+    return resources;
+  }, [appState?.resources, selectedWeek, selectedDay, selectedDay?.resources]);
 
   // Update resource form when editing
   useEffect(() => {
