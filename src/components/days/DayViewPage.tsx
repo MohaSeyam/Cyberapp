@@ -465,6 +465,7 @@ export default function DayViewPage() {
                           weekId={selectedWeek.week}
                           dayKey={selectedDay.key}
                           variant="detailed"
+                          showNotes={true}
                           onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
                         />
                       </motion.div>
@@ -666,7 +667,7 @@ export default function DayViewPage() {
                             <h4 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
                               {entry.title}
                             </h4>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                            <p className="text-sm text-gray-700 dark:text-white line-clamp-2">
                               {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                             </p>
                           </div>
@@ -676,7 +677,7 @@ export default function DayViewPage() {
                           <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-300">
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-3 h-3" />
-                              <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
+                              <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
                             </div>
                           </div>
                           

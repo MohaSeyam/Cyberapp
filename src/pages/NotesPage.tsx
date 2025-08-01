@@ -117,7 +117,7 @@ export default function NotesPage() {
             <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
               {note.title}
             </h3>
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+            <p className="text-sm text-gray-700 dark:text-white line-clamp-2">
               {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function NotesPage() {
           <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-300">
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
-              <span>{new Date(note.createdAt).toLocaleDateString('ar-SA')}</span>
+              <span>{new Date(note.createdAt).toLocaleDateString('en-US')}</span>
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
@@ -375,7 +375,7 @@ export default function NotesPage() {
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(selectedNote.createdAt).toLocaleDateString('ar-SA')}</span>
+                      <span>{new Date(selectedNote.createdAt).toLocaleDateString('en-US')}</span>
                     </div>
                   </div>
 

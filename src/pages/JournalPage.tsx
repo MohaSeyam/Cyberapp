@@ -129,7 +129,7 @@ export default function JournalPage() {
             <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
               {entry.title}
             </h3>
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+            <p className="text-sm text-gray-700 dark:text-white line-clamp-2">
               {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
             </p>
           </div>
@@ -139,11 +139,11 @@ export default function JournalPage() {
           <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-300">
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
-              <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
+              <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
-              <span>الأسبوع {entry.weekId} - {getDayTitle(entry.dayKey, entry.weekId)}</span>
+              <span>{entry.dayKey === 'general' ? getDayTitle(entry.dayKey, entry.weekId) : `الأسبوع ${entry.weekId} - ${getDayTitle(entry.dayKey, entry.weekId)}`}</span>
             </div>
           </div>
           
@@ -326,9 +326,9 @@ export default function JournalPage() {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                           {selectedEntry.title}
                         </h1>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          الأسبوع {selectedEntry.weekId} - {getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}
-                        </p>
+                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
+                           {selectedEntry.dayKey === 'general' ? getDayTitle(selectedEntry.dayKey, selectedEntry.weekId) : `الأسبوع ${selectedEntry.weekId} - ${getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}`}
+                         </p>
                       </div>
                     </div>
                     
@@ -367,7 +367,7 @@ export default function JournalPage() {
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(selectedEntry.createdAt).toLocaleDateString('ar-SA')}</span>
+                      <span>{new Date(selectedEntry.createdAt).toLocaleDateString('en-US')}</span>
                     </div>
                   </div>
 
