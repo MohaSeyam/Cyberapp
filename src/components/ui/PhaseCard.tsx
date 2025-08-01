@@ -54,7 +54,7 @@ export default function PhaseCard({
   const phaseWeeks = safeWeeks.filter(week => week && week.phase === safePhase);
   const totalTasks = phaseWeeks.reduce((total, week) => {
     if (!week || !Array.isArray(week.days)) return total;
-    return total + week.days.reduce((dayTotal, day) => {
+    return total + week.days.filter(day => day.key !== 'fri').reduce((dayTotal, day) => {
       if (!day || !Array.isArray(day.tasks)) return dayTotal;
       return dayTotal + day.tasks.length;
     }, 0);

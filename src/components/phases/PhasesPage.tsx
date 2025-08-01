@@ -89,7 +89,7 @@ export default function PhasesPage() {
       const weekData = safePlan.find(w => w.week === week);
       if (!weekData) return false;
 
-      const totalTasks = weekData.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
+      const totalTasks = weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
       const weekProgress = safeProgress.filter(p => p.weekId === (week?.toString() || ''));
       const completedTasks = weekProgress.filter(p => p.done).length;
 
@@ -297,7 +297,7 @@ export default function PhasesPage() {
                 </h4>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {safePlan.filter(week => {
-                    const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
+                    const totalTasks = week.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
                     const weekProgress = safeProgress.filter(p => p.weekId === (week.week?.toString() || ''));
                     const completedTasks = weekProgress.filter(p => p.done).length;
                     return totalTasks > 0 && completedTasks === totalTasks;

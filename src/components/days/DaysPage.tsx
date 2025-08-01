@@ -242,7 +242,7 @@ export default function DaysPage() {
           </h3>
           
           <div className="space-y-3">
-            {week.days?.map((day, dayIndex) => {
+            {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
               const dayKey = day.key;
               const dayProgress = safeProgress.filter(p => 
                 p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey

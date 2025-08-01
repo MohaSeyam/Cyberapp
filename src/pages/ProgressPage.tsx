@@ -58,14 +58,14 @@ export default function ProgressPage() {
   // Calculate statistics with safety checks
   const totalWeeks = 50; // Total weeks from phases.json
   const totalTasks = safePlan.reduce((total, week) => 
-    total + (week.days || []).reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
+    total + (week.days || []).filter(day => day.key !== 'fri').reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
   );
   const completedTasks = safeProgress.filter(p => p.done).length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   
   // Calculate total duration with safety checks
   const totalDuration = safePlan.reduce((total, week) => 
-    total + (week.days || []).reduce((dayTotal, day) => 
+    total + (week.days || []).filter(day => day.key !== 'fri').reduce((dayTotal, day) => 
       dayTotal + (day.tasks || []).reduce((taskTotal, task) => taskTotal + (task.duration || 0), 0), 0
     ), 0
   );

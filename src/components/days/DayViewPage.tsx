@@ -180,14 +180,26 @@ export default function DayViewPage() {
 
   // Navigation functions
   const goToNextDay = () => {
-    if (selectedWeek && selectedWeek.days && parseInt(dayIndex) < selectedWeek.days.length - 1) {
-      navigate(`/day/${weekId}/${parseInt(dayIndex) + 1}`);
+    if (selectedWeek && selectedWeek.days) {
+      const filteredDays = selectedWeek.days.filter(day => day.key !== 'fri');
+      const currentDayInFiltered = filteredDays.findIndex(day => day.key === selectedDay.key);
+      if (currentDayInFiltered < filteredDays.length - 1) {
+        const nextDay = filteredDays[currentDayInFiltered + 1];
+        const nextDayIndex = selectedWeek.days.findIndex(day => day.key === nextDay.key);
+        navigate(`/day/${weekId}/${nextDayIndex}`);
+      }
     }
   };
 
   const goToPreviousDay = () => {
-    if (parseInt(dayIndex) > 0) {
-      navigate(`/day/${weekId}/${parseInt(dayIndex) - 1}`);
+    if (selectedWeek && selectedWeek.days) {
+      const filteredDays = selectedWeek.days.filter(day => day.key !== 'fri');
+      const currentDayInFiltered = filteredDays.findIndex(day => day.key === selectedDay.key);
+      if (currentDayInFiltered > 0) {
+        const prevDay = filteredDays[currentDayInFiltered - 1];
+        const prevDayIndex = selectedWeek.days.findIndex(day => day.key === prevDay.key);
+        navigate(`/day/${weekId}/${prevDayIndex}`);
+      }
     }
   };
 
