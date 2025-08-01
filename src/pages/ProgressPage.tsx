@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { 
   Target, Clock, Flame, Trophy, BarChart3, PieChart, 
   TrendingUp, Award, Star, Users, BookOpen, Zap,
-  CheckCircle, Circle, Calendar, Activity, ArrowRight
+  CheckCircle, Circle, Calendar, Activity, ArrowRight,
+  LineChart, Brain, Lightbulb
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
