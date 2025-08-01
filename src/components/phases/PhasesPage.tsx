@@ -174,14 +174,6 @@ export default function PhasesPage() {
                 رحلة شاملة من المبتدئ إلى المتقدم في عالم الأمن السيبراني
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refreshData}
-              className="ml-4"
-            >
-              تحديث البيانات
-            </Button>
           </div>
         </Card>
 

@@ -340,68 +340,6 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {/* Data Management */}
-      <motion.div
-        {...animations.fadeIn}
-        transition={{ delay: 0.6 }}
-        className="mt-8"
-      >
-        <Card
-          title={t('dataManagement')}
-          subtitle={t('manageYourData')}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button
-              variant="outline"
-              icon={<Download className="w-4 h-4" />}
-              onClick={handleExportData}
-            >
-              {t('exportSettings')}
-            </Button>
-
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleImportData}
-                className="hidden"
-              />
-              <Button
-                variant="outline"
-                icon={<Upload className="w-4 h-4" />}
-                className="w-full"
-              >
-                {t('importSettings')}
-              </Button>
-            </label>
-
-            <Button
-              variant="outline"
-              icon={<RefreshCw className="w-4 h-4" />}
-              onClick={() => window.location.reload()}
-            >
-              {t('refreshData')}
-            </Button>
-
-            <Button
-              variant="danger"
-              icon={<Trash2 className="w-4 h-4" />}
-              onClick={handleClearData}
-            >
-              {t('clearData')}
-            </Button>
-
-            <Button
-              variant="danger"
-              icon={<RotateCcw className="w-4 h-4" />}
-              onClick={handleForceReloadData}
-            >
-              {t('forceReloadData')}
-            </Button>
-          </div>
-        </Card>
-      </motion.div>
-
       {/* About Section */}
       <motion.div
         {...animations.fadeIn}
