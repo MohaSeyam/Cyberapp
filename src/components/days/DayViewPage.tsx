@@ -7,7 +7,7 @@ import {
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
   ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
-  Shield, Eye, Bug, Users, Code, Trash2
+  Shield, Eye, Bug, Users, Code, Trash2, X
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -133,6 +133,32 @@ export default function DayViewPage() {
     const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
     return appState.resources[dayKey] || [];
   }, [appState?.resources, selectedWeek, selectedDay]);
+
+  // Update resource form when editing
+  useEffect(() => {
+    if (resourceModal.resource) {
+      setResourceForm({
+        title: resourceModal.resource.title || '',
+        url: resourceModal.resource.url || '',
+        type: resourceModal.resource.type || 'video'
+      });
+    } else {
+      setResourceForm({ title: '', url: '', type: 'video' });
+    }
+  }, [resourceModal.resource]);
+
+  // Update journal form when editing
+  useEffect(() => {
+    if (journalModal.entry) {
+      setJournalForm({
+        title: journalModal.entry.title || '',
+        content: journalModal.entry.content || '',
+        tags: journalModal.entry.tags || []
+      });
+    } else {
+      setJournalForm({ title: '', content: '', tags: [] });
+    }
+  }, [journalModal.entry]);
 
   // Safety check for plan
   const safePlan = plan || [];
