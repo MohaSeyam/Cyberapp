@@ -120,9 +120,45 @@ export default function HomePage() {
       subtitle={safeT('cyberSecurityLearning')}
       showBottomBar={true}
     >
+      {/* Progress Section */}
+      <motion.div
+        {...animations.fadeIn}
+        className="mb-8"
+      >
+        <Card
+          title={t('currentProgress')}
+          subtitle={`${t('week')} ${currentWeek} - ${completionRate}% ${t('completed')}`}
+          onClick={() => navigate('/progress')}
+          className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+        >
+          <div className="space-y-4">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${completionRate}%` }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full"
+              />
+            </div>
+
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span>{completedTasks} {t('completed')}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <span>{totalTasks} {t('total')}</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
       {/* Statistics Cards */}
       <motion.div
         {...animations.fadeIn}
+        transition={{ delay: 0.2 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
       >
         {stats.map((stat, index) => (
@@ -156,44 +192,6 @@ export default function HomePage() {
           </motion.div>
         ))}
       </motion.div>
-
-      {/* Progress Section */}
-      <motion.div
-        {...animations.fadeIn}
-        transition={{ delay: 0.2 }}
-        className="mb-8"
-      >
-        <Card
-          title={t('currentProgress')}
-          subtitle={`${t('week')} ${currentWeek} - ${completionRate}% ${t('completed')}`}
-          onClick={() => navigate('/progress')}
-          className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-        >
-          <div className="space-y-4">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${completionRate}%` }}
-                transition={{ duration: 1, delay: 0.5 }}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full"
-              />
-            </div>
-
-            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span>{completedTasks} {t('completed')}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-gray-500" />
-                <span>{totalTasks} {t('total')}</span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-
 
       {/* Quick Actions */}
       <motion.div

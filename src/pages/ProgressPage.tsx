@@ -603,9 +603,6 @@ export default function ProgressPage() {
       >
         <motion.div {...animations.fadeIn} className="space-y-6">
           
-          {/* Overall Progress Card - Using New Component */}
-          <OverallProgressCard />
-
           {/* Tabs Navigation */}
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
             <div className="flex flex-wrap gap-2 justify-center">
@@ -626,7 +623,13 @@ export default function ProgressPage() {
 
           {/* Tab Content */}
           <div className="mt-6">
-            {activeTab === 'overview' && <OverviewTab />}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* Overall Progress Card - Using New Component */}
+                <OverallProgressCard />
+                <OverviewTab />
+              </div>
+            )}
             {activeTab === 'analytics' && <AnalyticsTab />}
             {activeTab === 'skills' && <SkillsTab />}
             {activeTab === 'achievements' && <AchievementsTab />}
