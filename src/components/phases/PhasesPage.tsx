@@ -145,7 +145,7 @@ export default function PhasesPage() {
       bgColor: 'bg-red-100 dark:bg-red-900',
       textColor: 'text-red-600 dark:text-red-400'
     },
-    'Purple Team': {
+    'Particular': {
       icon: Eye,
       color: 'purple',
       bgColor: 'bg-purple-100 dark:bg-purple-900',

@@ -47,7 +47,7 @@ const taskTypeConfig = {
     textColor: 'text-red-600 dark:text-red-400',
     borderColor: 'border-red-200 dark:border-red-700'
   },
-  'Purple Team': {
+  'Particular': {
     icon: Eye,
     color: 'purple',
     bgColor: 'bg-purple-100 dark:bg-purple-900',
