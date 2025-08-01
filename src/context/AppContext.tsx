@@ -496,6 +496,31 @@ export function AppProvider({ children }: AppProviderProps) {
       setTimeout(() => {
         setAppState(prev => ({ ...prev }));
       }, 100);
+      
+      // Also refresh the resources from database to ensure consistency
+      setTimeout(async () => {
+        try {
+          const freshResources = await resourcesService.getAll();
+          console.log('Fresh resources from database:', freshResources);
+          
+          // Organize resources by day
+          const organizedResources: { [key: string]: Resource[] } = {};
+          freshResources.forEach(resource => {
+            if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
+              const key = `${resource.weekId}-${resource.dayKey}`;
+              if (!organizedResources[key]) organizedResources[key] = [];
+              organizedResources[key].push(resource);
+            }
+          });
+          
+          setAppState(prev => ({
+            ...prev,
+            resources: organizedResources
+          }));
+        } catch (error) {
+          console.error('Error refreshing resources:', error);
+        }
+      }, 200);
     } catch (error) {
       console.error('Error updating resource:', error);
       console.error('Error details:', error);

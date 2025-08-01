@@ -142,9 +142,20 @@ export default function DayViewPage() {
     if (appState?.resources && selectedWeek && selectedDay) {
       const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
       const userResources = appState.resources[dayKey] || [];
-      resources.push(...userResources);
+      
+      // Filter out duplicates and add user resources
+      userResources.forEach(userResource => {
+        const isDuplicate = resources.some(planResource => 
+          planResource.title === userResource.title && 
+          planResource.url === userResource.url
+        );
+        if (!isDuplicate) {
+          resources.push(userResource);
+        }
+      });
     }
     
+    console.log('Current day resources:', resources);
     return resources;
   }, [appState?.resources, selectedWeek, selectedDay, selectedDay?.resources]);
 
@@ -890,6 +901,12 @@ export default function DayViewPage() {
                       setResourceModal({ isOpen: false, resource: null });
                       setResourceForm({ title: '', url: '', type: 'video' });
                       toast.success('تم تحديث المرجع بنجاح');
+                      
+                      // Force re-render of resources
+                      setTimeout(() => {
+                        // This will trigger the useMemo to recalculate currentDayResources
+                        setSelectedDay({ ...selectedDay });
+                      }, 100);
                     } else {
                       // إضافة مرجع جديد
                       console.log('Adding new resource');
