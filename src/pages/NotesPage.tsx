@@ -73,7 +73,19 @@ export default function NotesPage() {
     ['title', 'content', 'tags']
   );
 
-  const getDayName = (dayKey: string) => {
+  const getDayTitle = (dayKey: string, weekId: number) => {
+    if (dayKey === 'general') return 'ملاحظة عامة';
+    
+    // Get day title from plan data
+    const { plan } = useApp();
+    const week = plan?.find(w => w.week === weekId);
+    const day = week?.days?.find(d => d.key === dayKey);
+    
+    if (day?.title) {
+      return day.title.ar || day.title.en || day.title;
+    }
+    
+    // Fallback to day name
     const dayNames: { [key: string]: string } = {
       sat: 'السبت',
       sun: 'الأحد',
@@ -81,8 +93,7 @@ export default function NotesPage() {
       tue: 'الثلاثاء',
       wed: 'الأربعاء',
       thu: 'الخميس',
-      fri: 'الجمعة',
-      general: 'ملاحظة عامة'
+      fri: 'الجمعة'
     };
     return dayNames[dayKey] || dayKey;
   };
@@ -116,7 +127,7 @@ export default function NotesPage() {
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
-              <span>الأسبوع {note.weekId} - {getDayName(note.dayKey)}</span>
+              <span>الأسبوع {note.weekId} - {getDayTitle(note.dayKey, note.weekId)}</span>
             </div>
           </div>
           
@@ -297,7 +308,7 @@ export default function NotesPage() {
                   </div>
                   <div className="flex items-center space-x-1">
                     <FileText className="w-4 h-4" />
-                    <span>الأسبوع {selectedNote.weekId} - {getDayName(selectedNote.dayKey)}</span>
+                    <span>الأسبوع {selectedNote.weekId} - {getDayTitle(selectedNote.dayKey, selectedNote.weekId)}</span>
                   </div>
                 </div>
                 
@@ -346,7 +357,7 @@ export default function NotesPage() {
                 </div>
               )}
 
-              <div className="prose prose-sm max-w-none dark:prose-invert">
+              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-blue-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300">
                 <div dangerouslySetInnerHTML={{ __html: selectedNote.content }} />
               </div>
             </div>

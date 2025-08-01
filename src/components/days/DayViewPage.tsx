@@ -105,7 +105,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const navigate = useNavigate();
-  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry, refreshData, appState } = useApp();
+  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry, addJournalEntry, refreshData, appState } = useApp();
   const { t } = useLocalization();
 
   // Safe translation function
@@ -124,6 +124,8 @@ export default function DayViewPage() {
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null as Resource | null });
   const [noteContent, setNoteContent] = useState('');
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
+  const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
+  const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
   
   // Get resources for current day
   const currentDayResources = useMemo(() => {
@@ -213,6 +215,25 @@ export default function DayViewPage() {
       // Refresh journal entries or update state as needed
     } catch (error) {
       console.error('Error deleting journal entry:', error);
+    }
+  };
+
+  const handleAddJournalEntry = async () => {
+    if (journalForm.title.trim() && journalForm.content.trim() && selectedWeek && selectedDay) {
+      try {
+        await addJournalEntry({
+          title: journalForm.title,
+          content: journalForm.content,
+          tags: journalForm.tags,
+          weekId: selectedWeek.week,
+          dayKey: selectedDay.key,
+          taskId: 'journal'
+        });
+        setJournalForm({ title: '', content: '', tags: [] });
+        setJournalModal({ isOpen: false, entry: null });
+      } catch (error) {
+        console.error('Error adding journal entry:', error);
+      }
     }
   };
 
@@ -547,13 +568,27 @@ export default function DayViewPage() {
                     ))}
                   </ul>
                 </div>
-                <Button
-                  variant="primary"
-                  icon={<MessageSquare className="w-4 h-4" />}
-                  onClick={() => setNoteModal({ isOpen: true, taskId: 'journal' })}
-                >
-                  بدء التدوين
-                </Button>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <RichTextEditor
+                      content={journalForm.content}
+                      onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
+                      placeholder="اكتب تدوينك هنا..."
+                      lang={lang}
+                      minHeight="150px"
+                    />
+                  </div>
+                  <div className="ml-4">
+                    <Button
+                      variant="outline"
+                      icon={<MessageSquare className="w-4 h-4" />}
+                      onClick={() => setJournalModal({ isOpen: true, entry: null })}
+                      className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                    >
+                      حفظ المدونة
+                    </Button>
+                  </div>
+                </div>
               </div>
             </Card>
           </motion.div>
@@ -722,6 +757,116 @@ export default function DayViewPage() {
               disabled={!resourceForm.title.trim() || !resourceForm.url.trim() || !isValidUrl(resourceForm.url)}
             >
               {resourceModal.resource ? 'تحديث' : 'إضافة'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Journal Modal */}
+      <Modal
+        isOpen={journalModal.isOpen}
+        onClose={() => setJournalModal({ isOpen: false, entry: null })}
+        title={journalModal.entry ? 'تعديل المدونة' : 'إضافة مدونة جديدة'}
+        size="xl"
+      >
+        <div className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              عنوان المدونة
+            </label>
+            <input
+              type="text"
+              value={journalForm.title}
+              onChange={(e) => setJournalForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="أدخل عنوان المدونة"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              التاقات
+            </label>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {journalForm.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => setJournalForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))}
+                      className="ml-1 hover:text-blue-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="أضف تاق"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const tag = e.currentTarget.value.trim();
+                      if (tag && !journalForm.tags.includes(tag)) {
+                        setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                        e.currentTarget.value = '';
+                      }
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const tag = input.value.trim();
+                    if (tag && !journalForm.tags.includes(tag)) {
+                      setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                      input.value = '';
+                    }
+                  }}
+                >
+                  إضافة
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              محتوى المدونة
+            </label>
+            <RichTextEditor
+              content={journalForm.content}
+              onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
+              placeholder="اكتب محتوى المدونة هنا..."
+              lang={lang}
+              minHeight="400px"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setJournalModal({ isOpen: false, entry: null })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddJournalEntry}
+              disabled={!journalForm.title.trim() || !journalForm.content.trim()}
+            >
+              {journalModal.entry ? 'تحديث المدونة' : 'حفظ المدونة'}
             </Button>
           </div>
         </div>
