@@ -130,7 +130,9 @@ function TaskCard({
               size="sm"
               onClick={onNoteClick}
               className="flex-shrink-0 p-1"
-              icon={<MessageSquare size={16} />}
+              icon={<MessageSquare size={16} className="text-blue-600 dark:text-yellow-300" />}
+              disabled={!onNoteClick}
+              title={onNoteClick ? t('addNote') : t('noNoteAction')}
             />
           )}
         </div>
@@ -168,7 +170,7 @@ function TaskCard({
               <h3 className={`text-lg font-bold leading-relaxed ${
                 isCompleted ? 'text-gray-500 line-through' : 
                 isLocked ? 'text-gray-400' : 
-                'text-gray-900 dark:text-gray-100'
+                'text-gray-900 dark:text-white'
               }`}>
                 {task.description[useApp().lang]}
                 {isLocked && (
@@ -252,7 +254,7 @@ function TaskCard({
           <p className={`text-sm font-bold leading-relaxed tracking-wide ${
             isCompleted ? 'text-gray-500 line-through' : 
             isLocked ? 'text-gray-400' : 
-            'text-gray-900 dark:text-gray-100'
+            'text-gray-900 dark:text-white'
           }`}>
             {task.description[useApp().lang]}
             {isLocked && (
