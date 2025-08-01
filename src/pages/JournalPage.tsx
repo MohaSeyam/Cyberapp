@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BookOpen, Search, Filter, Plus, Edit2, Trash2,
-  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X, FileText
+  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X, FileText, ArrowLeft
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
