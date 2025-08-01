@@ -1,5 +1,5 @@
 // Day View Page - Enhanced with Task Types and Evening Journaling
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
