@@ -2,9 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, Search, Filter, Plus, Edit2, Trash2,
-  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X, FileText, ArrowLeft,
-  SortAsc, SortDesc
+  BookOpen, Plus, Edit2, Trash2,
+  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X, FileText, ArrowLeft
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -13,9 +12,8 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import RichTextEditor from '../components/editors/RichTextEditor';
-import { VirtualList, useVirtualSearch } from '../components/ui/VirtualList';
+import { VirtualList } from '../components/ui/VirtualList';
 import { animations } from '../constants/theme';
-import { useDebounce } from '../hooks/useDebounce';
 import type { JournalEntry } from '../types';
 
 export default function JournalPage() {
@@ -33,10 +31,7 @@ export default function JournalPage() {
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'date' | 'title'>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [filterType, setFilterType] = useState<'all' | 'recent' | 'important'>('all');
+
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as JournalEntry | null });
   const [showFullEntry, setShowFullEntry] = useState(false);
@@ -52,40 +47,8 @@ export default function JournalPage() {
       return [];
     }
     const flattened = Object.values(journal).flat();
-    return flattened.sort((a, b) => {
-      if (sortBy === 'date') {
-        return sortOrder === 'asc' 
-          ? a.createdAt - b.createdAt 
-          : b.createdAt - a.createdAt;
-      } else {
-        return sortOrder === 'asc'
-          ? a.title.localeCompare(b.title)
-          : b.title.localeCompare(a.title);
-      }
-    });
-  }, [journal, sortBy, sortOrder]);
-
-  // Apply filters
-  const filteredEntries = useMemo(() => {
-    let filtered = allEntries;
-    
-    if (filterType === 'recent') {
-      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      filtered = filtered.filter(entry => entry.createdAt > oneWeekAgo);
-    } else if (filterType === 'important') {
-      filtered = filtered.filter(entry => entry.tags?.includes('important'));
-    }
-
-    return filtered;
-  }, [allEntries, filterType]);
-
-  // Use virtual search
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-  const searchableEntries = useVirtualSearch(
-    filteredEntries,
-    debouncedSearchTerm,
-    ['title', 'content', 'tags']
-  );
+    return flattened.sort((a, b) => b.createdAt - a.createdAt); // Sort by date descending
+  }, [journal]);
 
   const getDayTitle = (dayKey: string, weekId: number) => {
     if (dayKey === 'general') return 'مدونة عامة';
@@ -226,9 +189,7 @@ export default function JournalPage() {
     setJournalForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
+
 
   return (
     <PageLayout 
@@ -242,68 +203,19 @@ export default function JournalPage() {
         variants={animations.page}
         className="space-y-6"
       >
-        {/* Search and Filters */}
-        <Card>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder={t('searchJournal')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <select
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value as any)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                >
-                  <option value="all">جميع المدونات</option>
-                  <option value="recent">المدونات الحديثة</option>
-                  <option value="important">المدونات المهمة</option>
-                </select>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <SortAsc className="w-4 h-4 text-gray-500" />
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                >
-                  <option value="date">ترتيب حسب التاريخ</option>
-                  <option value="title">ترتيب حسب العنوان</option>
-                </select>
-                
-                <button
-                  onClick={toggleSortOrder}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  title={sortOrder === 'asc' ? 'ترتيب تصاعدي' : 'ترتيب تنازلي'}
-                >
-                  {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-        </Card>
+
 
         {/* Journal Entries List */}
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {t('journal')} ({searchableEntries.length})
+              {t('journal')} ({allEntries.length})
             </h2>
           </div>
 
           {/* Virtual List for Journal Entries */}
           <VirtualList
-            items={searchableEntries}
+            items={allEntries}
             height={600}
             itemHeight={140}
             renderItem={renderJournalItem}
