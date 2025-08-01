@@ -240,30 +240,14 @@ export default function DayViewPage() {
         <Breadcrumbs items={breadcrumbs} />
         
         {/* Day Header */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<ArrowLeft />}
-                onClick={goToDayList}
-              />
-              
-              <div className="flex items-center space-x-3">
-                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
-                  <DayIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {selectedDay.name?.ar}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {safeT('week')} {selectedWeek.week} - {selectedDay.topic?.ar}
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<ArrowLeft />}
+              onClick={goToDayList}
+            />
             
             <div className="flex items-center space-x-2">
               <Button
@@ -282,70 +266,19 @@ export default function DayViewPage() {
               />
             </div>
           </div>
-
-          {/* Day Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                تقدم اليوم
-              </h3>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {/* Calculate day completion */}
-                {(() => {
-                  const totalTasks = selectedDay.tasks?.length || 0;
-                  const dayProgress = progress?.filter(p => 
-                    p.weekId === (selectedWeek?.week?.toString() || '') && p.dayKey === selectedDay.key
-                  ) || [];
-                  const completedTasks = dayProgress.filter(p => p.done).length;
-                  return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-                })()}%
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                {/* Calculate completed/total tasks */}
-                {(() => {
-                  const totalTasks = selectedDay.tasks?.length || 0;
-                  const dayProgress = progress?.filter(p => 
-                    p.weekId === (selectedWeek?.week?.toString() || '') && p.dayKey === selectedDay.key
-                  ) || [];
-                  const completedTasks = dayProgress.filter(p => p.done).length;
-                  return `${completedTasks} / ${totalTasks} مهام`;
-                })()}
-              </p>
+          
+          <div className="mb-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
+              <DayIcon className="w-10 h-10 text-blue-600 dark:text-blue-400" />
             </div>
-
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                موضوع اليوم
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedDay.topic?.ar || 'لا يوجد موضوع محدد'}
-              </p>
-            </div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              {selectedDay.name?.ar}
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-400">
+              {selectedDay.topic?.ar}
+            </p>
           </div>
-        </Card>
-
-        {/* Day Topic */}
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                موضوع اليوم
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {selectedDay.topic?.[lang] || 'لا يوجد موضوع محدد'}
-              </p>
-            </div>
-            <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-full">
-              <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            </div>
-          </div>
-        </Card>
+        </div>
 
         {/* Tasks Section by Type */}
         <motion.div {...animations.fadeIn} className="mb-8">
@@ -413,66 +346,107 @@ export default function DayViewPage() {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <Card
-            title="الموارد المقترحة"
-            subtitle="موارد مفيدة لليوم"
-            header={
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <span>الموارد المقترحة</span>
+          <Card>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon={<Plus className="w-4 h-4" />}
-                  onClick={() => setResourceModal({ isOpen: true, resource: null })}
-                >
-                  إضافة مورد
-                </Button>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    المراجع والموارد
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    موارد مفيدة لليوم
+                  </p>
+                </div>
               </div>
-            }
-          >
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<Plus className="w-5 h-5" />}
+                onClick={() => setResourceModal({ isOpen: true, resource: null })}
+              >
+                إضافة مرجع جديد
+              </Button>
+            </div>
+
             <div className="space-y-4">
               {(selectedDay.resources || []).length > 0 ? (
                 (selectedDay.resources || []).map((resource, index) => {
                   const Icon = resourceTypeIcons[resource.type] || FileText;
+                  const typeColors = {
+                    video: 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400',
+                    article: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
+                    book: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400',
+                    tool: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400',
+                    podcast: 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400',
+                    course: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400'
+                  };
+                  
                   return (
                     <motion.div
                       key={index}
                       {...animations.stagger(0.3 + index * 0.1)}
-                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                      className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 cursor-pointer"
                       onClick={() => setResourceModal({ isOpen: true, resource })}
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                          <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`p-3 rounded-lg ${typeColors[resource.type] || typeColors.article}`}>
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                                {resource.title}
+                              </h4>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[resource.type] || typeColors.article}`}>
+                                {resource.type === 'video' ? 'فيديو' : 
+                                 resource.type === 'article' ? 'مقال' :
+                                 resource.type === 'book' ? 'كتاب' :
+                                 resource.type === 'tool' ? 'أداة' :
+                                 resource.type === 'podcast' ? 'بودكاست' :
+                                 resource.type === 'course' ? 'دورة' : resource.type}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {resource.description || 'لا يوجد وصف'}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                            {resource.title}
-                            <Edit2 className="w-3 h-3 text-gray-400 inline-block ml-1" />
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {resource.type}
-                          </p>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<Edit2 className="w-4 h-4" />}
+                            onClick={e => { e.stopPropagation(); setResourceModal({ isOpen: true, resource }); }}
+                          />
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            icon={<ExternalLink className="w-4 h-4" />}
+                            onClick={e => { e.stopPropagation(); window.open(resource.url, '_blank'); }}
+                          >
+                            فتح
+                          </Button>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={e => { e.stopPropagation(); window.open(resource.url, '_blank'); }}
-                      >
-                        فتح
-                      </Button>
                     </motion.div>
                   );
                 })
               ) : (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>لا توجد موارد بعد</p>
-                  <p className="text-sm">أضف أول مورد لك</p>
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                  <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <h4 className="text-lg font-medium mb-2">لا توجد مراجع بعد</h4>
+                  <p className="text-sm mb-4">أضف مراجع مفيدة لليوم</p>
+                  <Button
+                    variant="outline"
+                    icon={<Plus className="w-4 h-4" />}
+                    onClick={() => setResourceModal({ isOpen: true, resource: null })}
+                  >
+                    إضافة أول مرجع
+                  </Button>
                 </div>
               )}
             </div>

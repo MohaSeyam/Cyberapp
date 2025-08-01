@@ -35,7 +35,7 @@ export default function HomePage() {
   const safeProgress = Array.isArray(progress) ? progress : [];
 
   // Calculate statistics with comprehensive safety checks
-  const totalWeeks = safePlan.length;
+  const totalWeeks = 50; // Total weeks from phases.json
   const totalTasks = safePlan.reduce((total, week) => {
     if (!week || !Array.isArray(week.days)) return total;
     return total + week.days.reduce((dayTotal, day) => {

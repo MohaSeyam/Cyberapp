@@ -215,136 +215,25 @@ export default function DaysPage() {
           ]} 
         />
         
-        {/* Week Overview Card */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                الأسبوع {weekNumber}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {week.title?.ar}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<ArrowLeft />}
-              onClick={goToWeekView}
-            >
-              العودة للمراحل
-            </Button>
+        {/* Week Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              الأسبوع {weekNumber}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              {week.title?.ar}
+            </p>
           </div>
-
-          {/* Week Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                هدف الأسبوع
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {week.objective?.ar || 'لا يوجد هدف محدد'}
-              </p>
-            </div>
-
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                تقدم الأسبوع
-              </h3>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {weekCompletion.percentage}%
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                {weekCompletion.completed} / {weekCompletion.total} مهام
-              </p>
-            </div>
-
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                المرحلة {week.phase}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {week.title?.ar || 'لا توجد بيانات المرحلة'}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Day Navigation */}
-        {currentDay && (
-          <Card>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={<ChevronLeft />}
-                  onClick={goToPreviousDay}
-                  disabled={selectedDayIndex <= 0}
-                />
-                
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {currentDay.name?.ar || currentDay.day?.ar}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {currentDay.topic?.ar}
-                  </p>
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={<ChevronRight />}
-                  onClick={goToNextDay}
-                  disabled={selectedDayIndex >= (week.days?.length || 0) - 1}
-                />
-              </div>
-              
-              <Button
-                variant="primary"
-                onClick={() => goToDayView(selectedDayIndex)}
-              >
-                عرض اليوم
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  موضوع اليوم
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {currentDay.topic?.ar || 'لا يوجد موضوع محدد'}
-                </p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                  تقدم اليوم
-                </h3>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {getDayCompletion(weekNumber, currentDay.key).percentage}%
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {getDayCompletion(weekNumber, currentDay.key).completed} / {getDayCompletion(weekNumber, currentDay.key).total} مهام
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<ArrowLeft />}
+            onClick={goToWeekView}
+          >
+            العودة للمراحل
+          </Button>
+        </div>
 
         {/* Days List */}
         <Card>

@@ -26,7 +26,10 @@ export default function NotesPage() {
   const [noteForm, setNoteForm] = useState({
     title: '',
     content: '',
-    tags: [] as string[]
+    tags: [] as string[],
+    weekId: 1,
+    dayKey: 'sat',
+    taskId: 'general'
   });
 
   // Get all notes from appState
@@ -57,9 +60,9 @@ export default function NotesPage() {
             title: noteForm.title,
             content: noteForm.content,
             tags: noteForm.tags,
-            weekId: 1, // Default week
-            dayKey: 'sat', // Default day
-            taskId: 'general' // General note
+            weekId: noteForm.weekId,
+            dayKey: noteForm.dayKey,
+            taskId: noteForm.taskId
           });
         }
         setNoteForm({ title: '', content: '', tags: [] });
@@ -255,11 +258,11 @@ export default function NotesPage() {
         </motion.div>
       )}
 
-      {/* Notes List */}
+      {/* Notes Grid */}
       <motion.div
         {...animations.fadeIn}
         transition={{ delay: 0.4 }}
-        className="space-y-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
         {filteredNotes.map((note, index) => (
           <motion.div
@@ -270,24 +273,59 @@ export default function NotesPage() {
               variant="elevated"
               hover
               onClick={() => handleEditNote(note)}
-              className="cursor-pointer"
+              className="cursor-pointer h-full"
             >
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      {note.title}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{t('week')} {note.weekId}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{new Date(note.createdAt!).toLocaleDateString()}</span>
+              <div className="space-y-4 h-full flex flex-col">
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                        {note.title}
+                      </h3>
+                      <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>الأسبوع {note.weekId}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{new Date(note.createdAt!).toLocaleDateString('ar-SA')}</span>
+                        </div>
                       </div>
                     </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+                      {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                    </div>
+                  </div>
+                  
+                  {note.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {note.tags.slice(0, 3).map(tag => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {note.tags.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
+                          +{note.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-1">
+                    <MessageSquare className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {note.taskId === 'general' ? 'ملاحظة عامة' : `مهمة: ${note.taskId}`}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Button
@@ -310,37 +348,6 @@ export default function NotesPage() {
                       className="p-1 text-red-600 hover:text-red-700"
                       icon={<Trash2 className="w-3 h-3" />}
                     />
-                  </div>
-                </div>
-
-                <div
-                  className="text-gray-700 dark:text-gray-300 line-clamp-3"
-                  dangerouslySetInnerHTML={{ __html: note.content }}
-                />
-
-                {note.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {note.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <MessageSquare className="w-4 h-4" />
-                    <span>{note.content.replace(/<[^>]*>/g, '').split(' ').length} {t('words')}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Tag className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {note.tags.length} {t('tags')}
-                    </span>
                   </div>
                 </div>
               </div>

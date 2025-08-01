@@ -56,7 +56,7 @@ export default function ProgressPage() {
     safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).find(t => t.id === taskId);
 
   // Calculate statistics with safety checks
-  const totalWeeks = safePlan.length;
+  const totalWeeks = 50; // Total weeks from phases.json
   const totalTasks = safePlan.reduce((total, week) => 
     total + (week.days || []).reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
   );

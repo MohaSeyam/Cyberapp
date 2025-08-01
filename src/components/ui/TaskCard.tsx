@@ -193,10 +193,11 @@ export default function TaskCard({
             
             {showNotes && onNoteClick && (
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={onNoteClick}
-                icon={<MessageSquare size={16} />}
+                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                icon={<MessageSquare size={18} className="text-blue-600 dark:text-blue-400" />}
               />
             )}
           </div>
@@ -213,7 +214,7 @@ export default function TaskCard({
           </div>
           
           <div className="text-sm text-gray-500">
-            {isCompleted ? t('completed') : t('pending')}
+            {isCompleted ? t('completed') : 'قيد التنفيذ'}
           </div>
         </div>
       </motion.div>
@@ -224,8 +225,13 @@ export default function TaskCard({
   return (
     <motion.div
       whileHover={{ scale: isLocked ? 1 : 1.01 }}
+      animate={isCompleted ? { 
+        scale: [1, 1.05, 1],
+        boxShadow: ['0 0 0 rgba(34, 197, 94, 0)', '0 0 20px rgba(34, 197, 94, 0.3)', '0 0 0 rgba(34, 197, 94, 0)']
+      } : {}}
+      transition={{ duration: 0.6 }}
       className={`p-4 rounded-lg border transition-all duration-200 ${
-        isCompleted ? 'bg-gray-50 border-gray-200' : 
+        isCompleted ? 'bg-green-50 border-green-200 shadow-lg' : 
         isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
         colors.bg + ' ' + colors.border
       } ${className}`}
@@ -277,8 +283,8 @@ export default function TaskCard({
                 variant="ghost"
                 size="sm"
                 onClick={onNoteClick}
-                className="p-1"
-                icon={<MessageSquare size={14} />}
+                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                icon={<MessageSquare size={16} className="text-blue-600 dark:text-blue-400" />}
               />
             )}
           </div>

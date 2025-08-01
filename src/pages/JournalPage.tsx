@@ -195,13 +195,7 @@ export default function JournalPage() {
         {...animations.fadeIn}
         className="mb-6 flex justify-end"
       >
-        <Button
-          variant="primary"
-          icon={<Plus className="w-4 h-4" />}
-          onClick={() => setJournalModal({ isOpen: true, entry: null })}
-        >
-          {t('addEntry')}
-        </Button>
+
       </motion.div>
 
       {/* Statistics */}
