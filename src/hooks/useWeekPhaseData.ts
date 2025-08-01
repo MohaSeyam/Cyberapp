@@ -60,7 +60,7 @@ export const useWeekPhaseData = () => {
     
     return phases.map(phase => ({
       phaseId: phase.id,
-      phaseTitle: phase.title.ar,
+      phaseTitle: phase.title?.ar || phase.title?.en || `Phase ${phase.id}`,
       totalWeeks: phase.stats.totalWeeks,
       completedWeeks: phase.stats.completedWeeks,
       progress: phase.stats.progress,

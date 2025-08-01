@@ -90,8 +90,8 @@ export default function OverallProgressCard() {
 
   const { currentStreak, longestStreak } = calculateStreak();
 
-  // Get phases progress
-  const phasesProgress = getAllPhasesProgress();
+  // Get phases progress with safety checks
+  const phasesProgress = getAllPhasesProgress() || [];
   const currentPhase = getCurrentPhase();
 
   return (
@@ -208,14 +208,14 @@ export default function OverallProgressCard() {
               >
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                    {phase.phaseTitle}
+                    {phase.phaseTitle || `Phase ${phase.phaseId}`}
                   </h4>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     currentPhase?.id === phase.phaseId
                       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                       : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
                   }`}>
-                    {phase.progress}%
+                    {phase.progress || 0}%
                   </span>
                 </div>
                 
@@ -227,13 +227,13 @@ export default function OverallProgressCard() {
                           ? 'bg-blue-500'
                           : 'bg-gray-400 dark:bg-gray-600'
                       }`}
-                      style={{ width: `${phase.progress}%` }}
+                      style={{ width: `${phase.progress || 0}%` }}
                     />
                   </div>
                   
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>{phase.completedWeeks}/{phase.totalWeeks} {t('weeks')}</span>
-                    <span>{phase.remainingWeeks} {t('remaining')}</span>
+                    <span>{phase.completedWeeks || 0}/{phase.totalWeeks || 0} {t('weeks')}</span>
+                    <span>{phase.remainingWeeks || 0} {t('remaining')}</span>
                   </div>
                 </div>
 
