@@ -148,7 +148,6 @@ export default function PhasesPage() {
     <PageLayout 
       title={safeT('learningPhases')}
       subtitle={safeT('choosePhaseToStart')}
-      showTopNavBar={true}
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">

@@ -140,7 +140,6 @@ export default function NotesPage() {
     <PageLayout 
       title={safeT('notes')}
       subtitle={safeT('manageYourNotes')}
-      showTopNavBar={true}
       showBottomBar={true}
     >
       {/* Add Note Button */}

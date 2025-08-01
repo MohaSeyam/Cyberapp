@@ -164,7 +164,6 @@ export default function SettingsPage() {
     <PageLayout 
       title={safeT('settings')}
       subtitle={safeT('customizeYourExperience')}
-      showTopNavBar={true}
       showBottomBar={true}
     >
       {/* Save/Reset Buttons */}

@@ -187,7 +187,6 @@ export default function JournalPage() {
     <PageLayout 
       title={safeT('journal')}
       subtitle={safeT('learningJournal')}
-      showTopNavBar={true}
       showBottomBar={true}
     >
       {/* Add Entry Button */}

@@ -598,7 +598,6 @@ export default function ProgressPage() {
       <PageLayout 
         title={safeT('progress')}
         subtitle={safeT('trackYourLearning')}
-        showTopNavBar={true}
         showBottomBar={true}
       >
         <motion.div {...animations.fadeIn} className="space-y-6">

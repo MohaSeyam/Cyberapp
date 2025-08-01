@@ -118,7 +118,6 @@ export default function HomePage() {
     <PageLayout 
       title={safeT('welcome')}
       subtitle={safeT('cyberSecurityLearning')}
-      showTopNavBar={true}
       showBottomBar={true}
     >
       {/* Statistics Cards */}

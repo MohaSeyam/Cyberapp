@@ -232,10 +232,7 @@ export default function DayViewPage() {
     <PageLayout 
       title={selectedDay?.name?.ar || safeT('dayDetails')}
       subtitle={selectedDay?.topic?.ar || ''}
-      showTopNavBar={true}
       showBottomBar={true}
-      showBackButton={true}
-      onBackClick={() => navigate(`/days/${weekId}`)}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         

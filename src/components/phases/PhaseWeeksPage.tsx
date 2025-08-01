@@ -187,10 +187,7 @@ export default function PhaseWeeksPage() {
     <PageLayout 
       title={currentPhase?.title?.ar || safeT('phaseWeeks')}
       subtitle={currentPhase?.focus?.ar || ''}
-      showTopNavBar={true}
       showBottomBar={true}
-      showBackButton={true}
-      onBackClick={() => navigate('/phases')}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         

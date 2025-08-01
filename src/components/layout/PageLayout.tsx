@@ -2,7 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { animations } from '../../constants/theme';
-import TopNavBar from './TopNavBar';
 import MobileBottomBar from './MobileBottomBar';
 
 interface PageLayoutProps {
@@ -11,9 +10,6 @@ interface PageLayoutProps {
   subtitle?: string;
   showHeader?: boolean;
   showBottomBar?: boolean;
-  showTopNavBar?: boolean;
-  showBackButton?: boolean;
-  onBackClick?: () => void;
 }
 
 export default function PageLayout({ 
@@ -21,26 +17,13 @@ export default function PageLayout({
   title, 
   subtitle, 
   showHeader = true,
-  showBottomBar = true,
-  showTopNavBar = true,
-  showBackButton = false,
-  onBackClick
+  showBottomBar = true
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       
-      {/* Top Navigation Bar */}
-      {showTopNavBar && (
-        <TopNavBar 
-          title={title}
-          subtitle={subtitle}
-          showBackButton={showBackButton}
-          onBackClick={onBackClick}
-        />
-      )}
-
       {/* Main Content */}
-      <main className={`${showTopNavBar ? 'pt-16' : ''} ${showBottomBar ? 'pb-20 lg:pb-0' : ''}`}>
+      <main className={showBottomBar ? 'pb-20 lg:pb-0' : ''}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {showHeader && title && (
             <motion.div {...animations.fadeIn} className="mb-8">

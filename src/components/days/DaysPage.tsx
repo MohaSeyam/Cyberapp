@@ -196,10 +196,7 @@ export default function DaysPage() {
     <PageLayout 
       title={safeT('weekDays')}
       subtitle={week?.title?.ar || ''}
-      showTopNavBar={true}
       showBottomBar={true}
-      showBackButton={true}
-      onBackClick={() => navigate('/phases')}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
