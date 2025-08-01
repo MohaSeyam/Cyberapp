@@ -62,7 +62,7 @@ function Breadcrumbs({ phaseTitle }: { phaseTitle: string }) {
 }
 
 export default function PhaseWeeksPage() {
-  const { plan, progress } = useApp();
+  const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
   const { phaseId } = useParams();
@@ -180,7 +180,7 @@ export default function PhaseWeeksPage() {
 
   const breadcrumbs = [
     { label: 'المراحل', icon: Calendar, onClick: goToPhases },
-    { label: currentPhase.title[lang], icon: Target }
+            { label: currentPhase.title?.ar, icon: Target }
   ];
 
   return (
@@ -192,7 +192,7 @@ export default function PhaseWeeksPage() {
       <motion.div {...animations.fadeIn} className="space-y-6">
         
         {/* Breadcrumbs */}
-        <Breadcrumbs phaseTitle={currentPhase.title[lang]} />
+        <Breadcrumbs phaseTitle={currentPhase.title?.ar || ''} />
         
         {/* Phase Header */}
         <Card className={`bg-gradient-to-r ${
@@ -229,12 +229,12 @@ export default function PhaseWeeksPage() {
                 </div>
                 
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {currentPhase.title[lang]}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {currentPhase.focus[lang]}
-                  </p>
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {currentPhase.title?.ar}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                {currentPhase.focus?.ar}
+              </p>
                 </div>
               </div>
             </div>
@@ -328,7 +328,7 @@ export default function PhaseWeeksPage() {
                       </div>
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white"> الأسبوع {week.week} </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400"> {week.title[lang]} </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400"> {week.title?.ar} </p>
                       </div>
                     </div>
                     <div className="text-right">
