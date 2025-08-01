@@ -294,10 +294,10 @@ export default function DaysPage() {
                 
                 <div className="text-center">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {currentDay.day?.[lang]}
+                    {currentDay.name?.ar || currentDay.day?.ar}
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400">
-                    {currentDay.topic?.[lang]}
+                    {currentDay.topic?.ar}
                   </p>
                 </div>
                 
@@ -324,7 +324,7 @@ export default function DaysPage() {
                   موضوع اليوم
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {currentDay.topic?.[lang] || 'لا يوجد موضوع محدد'}
+                  {currentDay.topic?.ar || 'لا يوجد موضوع محدد'}
                 </p>
               </div>
               
@@ -388,10 +388,10 @@ export default function DaysPage() {
                       </div>
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white">
-                          {day.day[lang]}
+                          {day.name?.ar || day.day?.ar}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {day.topic[lang]}
+                          {day.topic?.ar}
                         </p>
                       </div>
                     </div>
