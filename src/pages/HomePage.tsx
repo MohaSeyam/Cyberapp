@@ -132,12 +132,13 @@ export default function HomePage() {
               src={geminiLogo} 
               alt="Gemini Logo" 
               className="w-32 h-32 object-contain opacity-80"
+              style={{ backgroundColor: 'transparent' }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
                 const parent = target.parentElement;
                 if (parent) {
-                  parent.innerHTML = '<svg class="w-32 h-32 text-blue-600 dark:text-blue-400 opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
+                  parent.innerHTML = '<svg class="w-32 h-32 text-blue-600 dark:text-blue-400 opacity-80" fill="currentColor" viewBox="0 0 24 24" style="background-color: transparent;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
                 }
               }}
             />
