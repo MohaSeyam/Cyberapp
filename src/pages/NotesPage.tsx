@@ -326,10 +326,10 @@ export default function NotesPage() {
 
         {/* Full Note View */}
         {showFullNote && selectedNote && (
-          <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto flex items-center justify-center">
-            <div className="max-w-2xl w-full mx-auto my-8 px-4 py-6 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+          <div className="fixed inset-0 bg-white dark:bg-gray-800 z-50 overflow-y-auto flex items-center justify-center">
+            <div className="max-w-2xl w-full mx-auto my-8 px-4 py-6 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
               {/* Header */}
-              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-10 rounded-t-xl">
+                              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10 rounded-t-xl">
                 <div className="px-2 py-4 flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <button
