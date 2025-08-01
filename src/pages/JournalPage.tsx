@@ -38,6 +38,7 @@ export default function JournalPage() {
   const [filterType, setFilterType] = useState<'all' | 'recent' | 'important'>('all');
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as JournalEntry | null });
+  const [showFullEntry, setShowFullEntry] = useState(false);
   const [journalForm, setJournalForm] = useState({
     title: '',
     content: '',
@@ -117,7 +118,10 @@ export default function JournalPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.05 }}
       className="p-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-      onClick={() => setSelectedEntry(entry)}
+      onClick={() => {
+        setSelectedEntry(entry);
+        setShowFullEntry(true);
+      }}
     >
       <div className="space-y-3">
         <div className="flex items-start justify-between">
@@ -125,14 +129,14 @@ export default function JournalPage() {
             <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
               {entry.title}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
               {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
             </p>
           </div>
         </div>
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-300">
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
               <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
@@ -267,14 +271,7 @@ export default function JournalPage() {
                 <option value="title">{t('sortByTitle')}</option>
               </select>
               
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleSortOrder}
-                icon={sortOrder === 'asc' ? <TrendingUp className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
-              >
-                {sortOrder === 'asc' ? t('ascending') : t('descending')}
-              </Button>
+
             </div>
           </div>
         </Card>
@@ -306,74 +303,97 @@ export default function JournalPage() {
           />
         </Card>
 
-        {/* Journal Entry Detail Modal */}
-        {selectedEntry && (
-          <Modal
-            isOpen={!!selectedEntry}
-            onClose={() => setSelectedEntry(null)}
-            title={selectedEntry.title}
-            size="xl"
-          >
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{new Date(selectedEntry.createdAt).toLocaleDateString('ar-SA')}</span>
+        {/* Full Journal Entry View */}
+        {showFullEntry && selectedEntry && (
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto">
+            <div className="min-h-screen">
+              {/* Header */}
+              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-10">
+                <div className="max-w-4xl mx-auto px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <button
+                        onClick={() => {
+                          setShowFullEntry(false);
+                          setSelectedEntry(null);
+                        }}
+                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        title="العودة للمدونات"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          {selectedEntry.title}
+                        </h1>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          الأسبوع {selectedEntry.weekId} - {getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          setJournalForm({
+                            title: selectedEntry.title,
+                            content: selectedEntry.content,
+                            tags: selectedEntry.tags || []
+                          });
+                          setJournalModal({ isOpen: true, entry: selectedEntry });
+                          setShowFullEntry(false);
+                          setSelectedEntry(null);
+                        }}
+                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        title="تعديل المدونة"
+                      >
+                        <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEntry(selectedEntry.id)}
+                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                        title="حذف المدونة"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <FileText className="w-4 h-4" />
-                    <span>الأسبوع {selectedEntry.weekId} - {getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => {
-                      setJournalForm({
-                        title: selectedEntry.title,
-                        content: selectedEntry.content,
-                        tags: selectedEntry.tags || []
-                      });
-                      setJournalModal({ isOpen: true, entry: selectedEntry });
-                      setSelectedEntry(null);
-                    }}
-                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    title="تعديل المدونة"
-                  >
-                    <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteEntry(selectedEntry.id)}
-                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
-                    title="حذف المدونة"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                  </button>
                 </div>
               </div>
 
-              {selectedEntry.tags && selectedEntry.tags.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <Tag className="w-4 h-4 text-gray-400" />
-                  <div className="flex flex-wrap gap-2">
-                    {selectedEntry.tags.map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+              {/* Content */}
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{new Date(selectedEntry.createdAt).toLocaleDateString('ar-SA')}</span>
+                    </div>
+                  </div>
+
+                  {selectedEntry.tags && selectedEntry.tags.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <Tag className="w-4 h-4 text-gray-400" />
+                      <div className="flex flex-wrap gap-2">
+                        {selectedEntry.tags.map((tag: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300">
+                    <div dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
                   </div>
                 </div>
-              )}
-
-              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-blue-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300">
-                <div dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
               </div>
             </div>
-          </Modal>
+          </div>
         )}
 
         {/* Add/Edit Journal Modal */}
