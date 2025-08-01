@@ -86,7 +86,7 @@ function TaskCard({
         className={`p-3 rounded-lg border transition-all duration-200 ${
           isCompleted ? 'bg-gray-50 border-gray-200' : 
           isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
-          colors.bg + ' ' + colors.border
+          'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
         } ${className}`}
       >
         <div className="flex items-center space-x-3">
@@ -108,7 +108,7 @@ function TaskCard({
             <p className={`text-sm font-medium ${
               isCompleted ? 'text-gray-500 line-through' : 
               isLocked ? 'text-gray-400' : 
-              'text-gray-900 dark:text-gray-100'
+              'text-gray-900 dark:text-white'
             }`}>
               {task.description[useApp().lang]}
               {isLocked && (
@@ -118,8 +118,9 @@ function TaskCard({
               )}
             </p>
             <div className="flex items-center space-x-2 mt-1">
-              <span className="text-xs text-gray-500">{colors.icon}</span>
-              <span className="text-xs text-gray-500">{task.duration} {t('minutes')}</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs font-medium">
+                {task.duration} {t('minutes')}
+              </span>
             </div>
           </div>
 
@@ -164,12 +165,6 @@ function TaskCard({
             </button>
             
             <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-2xl">{colors.icon}</span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${colors.text} ${colors.bg}`}>
-                  {task.type}
-                </span>
-              </div>
               <h3 className={`text-lg font-semibold ${
                 isCompleted ? 'text-gray-500 line-through' : 
                 isLocked ? 'text-gray-400' : 
@@ -185,10 +180,10 @@ function TaskCard({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1 text-sm text-gray-500">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
               <Clock className="w-4 h-4" />
-              <span>{task.duration} {t('minutes')}</span>
+              <span className="font-medium">{task.duration} {t('minutes')}</span>
             </div>
             
             {showNotes && onNoteClick && (
