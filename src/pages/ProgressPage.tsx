@@ -33,6 +33,16 @@ export default function ProgressPage() {
   const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
   
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? safeT(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+  
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'all'>('all');
 
@@ -72,7 +82,7 @@ export default function ProgressPage() {
       .filter(p => p.done)
       .map(p => new Date(p.updatedAt || 0).toDateString())
       .filter((date, index, arr) => arr.indexOf(date) === index)
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+      .sorsafeT((a, b) => new Date(b).getTime() - new Date(a).getTime());
     
     if (completedDates.length === 0) return { currentStreak: 0, longestStreak: 0 };
     
@@ -123,7 +133,7 @@ export default function ProgressPage() {
   // Get last activity
   const lastActivity = safeProgress
     .filter(p => p.done)
-    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
+    .sorsafeT((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
 
   // Calculate task types distribution (including Policies)
   const completedTaskTypes = safeProgress
@@ -270,7 +280,7 @@ export default function ProgressPage() {
               <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{completionRate}%</h3>
-            <p className="text-gray-600 dark:text-gray-400">{t('completionRate')}</p>
+            <p className="text-gray-600 dark:text-gray-400">{safeT('completionRate')}</p>
           </Card>
         </motion.div>
 
@@ -280,7 +290,7 @@ export default function ProgressPage() {
               <Flame className="w-8 h-8 text-orange-600 dark:text-orange-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{currentStreak}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
+            <p className="text-gray-600 dark:text-gray-400">{safeT('currentStreak')}</p>
           </Card>
         </motion.div>
 
@@ -290,7 +300,7 @@ export default function ProgressPage() {
               <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(completedDuration / 60)}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{t('hoursLearned')}</p>
+            <p className="text-gray-600 dark:text-gray-400">{safeT('hoursLearned')}</p>
           </Card>
         </motion.div>
 
@@ -300,33 +310,33 @@ export default function ProgressPage() {
               <Trophy className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{longestStreak}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{t('longestStreak')}</p>
+            <p className="text-gray-600 dark:text-gray-400">{safeT('longestStreak')}</p>
           </Card>
         </motion.div>
       </div>
 
       {/* Task Types Distribution */}
-      <Card title={t('taskTypesDistribution')} subtitle={t('distributionOfCompletedTasks')}>
+                <Card title={safeT('taskTypesDistribution')} subtitle={safeT('distributionOfCompletedTasks')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{blueTeamTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('blueTeam')}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('blueTeam')}</div>
           </div>
           <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
             <div className="text-2xl font-bold text-red-600 dark:text-red-400">{redTeamTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('redTeam')}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('redTeam')}</div>
           </div>
           <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">{practicalTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('practical')}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('practical')}</div>
           </div>
           <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{theoreticalTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('theoretical')}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('theoretical')}</div>
           </div>
           <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{policiesTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t('policies')}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('policies')}</div>
           </div>
         </div>
       </Card>
@@ -337,43 +347,43 @@ export default function ProgressPage() {
     <div className="space-y-6">
       {/* Charts Placeholder */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title={t('progressOverTime')} subtitle={t('weeklyProgressChart')}>
+                  <Card title={safeT('progressOverTime')} subtitle={safeT('weeklyProgressChart')}>
           <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div className="text-center">
               <BarChart3 className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">{t('chartComingSoon')}</p>
+              <p className="text-gray-500 dark:text-gray-400">{safeT('chartComingSoon')}</p>
             </div>
           </div>
         </Card>
 
-        <Card title={t('taskTypePieChart')} subtitle={t('distributionVisualization')}>
+        <Card title={safeT('taskTypePieChart')} subtitle={safeT('distributionVisualization')}>
           <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div className="text-center">
               <PieChart className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">{t('chartComingSoon')}</p>
+              <p className="text-gray-500 dark:text-gray-400">{safeT('chartComingSoon')}</p>
             </div>
           </div>
         </Card>
       </div>
 
       {/* Detailed Statistics */}
-      <Card title={t('detailedStatistics')} subtitle={t('comprehensiveAnalysis')}>
+      <Card title={safeT('detailedStatistics')} subtitle={safeT('comprehensiveAnalysis')}>
         <div className="space-y-4">
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{t('totalWeeks')}</span>
+            <span className="text-gray-700 dark:text-gray-300">{safeT('totalWeeks')}</span>
             <span className="font-semibold text-gray-900 dark:text-white">{totalWeeks}</span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{t('totalTasks')}</span>
+            <span className="text-gray-700 dark:text-gray-300">{safeT('totalTasks')}</span>
             <span className="font-semibold text-gray-900 dark:text-white">{totalTasks}</span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{t('completedTasks')}</span>
+            <span className="text-gray-700 dark:text-gray-300">{safeT('completedTasks')}</span>
             <span className="font-semibold text-gray-900 dark:text-white">{completedTasks}</span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{t('totalDuration')}</span>
-            <span className="font-semibold text-gray-900 dark:text-white">{Math.round(totalDuration / 60)} {t('hours')}</span>
+            <span className="text-gray-700 dark:text-gray-300">{safeT('totalDuration')}</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{Math.round(totalDuration / 60)} {safeT('hours')}</span>
           </div>
         </div>
       </Card>
@@ -383,7 +393,7 @@ export default function ProgressPage() {
   const SkillsTab = () => (
     <div className="space-y-6">
       {/* Skills Matrix */}
-      <Card title={t('skillsMatrix')} subtitle={t('yourSkillLevels')}>
+      <Card title={safeT('skillsMatrix')} subtitle={safeT('yourSkillLevels')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {skillsMatrix.map((skill, index) => (
             <motion.div key={skill.id} {...animations.stagger(index * 0.1)}>
@@ -404,7 +414,7 @@ export default function ProgressPage() {
                   ))}
                 </div>
                 <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  {skill.level}/5 {t('level')}
+                  {skill.level}/5 {safeT('level')}
                 </div>
               </div>
             </motion.div>
@@ -413,9 +423,9 @@ export default function ProgressPage() {
       </Card>
 
       {/* Skills Categories */}
-      <Card title={t('skillCategories')} subtitle={t('categoryBreakdown')}>
+      <Card title={safeT('skillCategories')} subtitle={safeT('categoryBreakdown')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from(new Set(skillsMatrix.map(s => s.category))).map((category, index) => {
+          {Array.from(new SesafeT(skillsMatrix.map(s => s.category))).map((category, index) => {
             const categorySkills = skillsMatrix.filter(s => s.category === category);
             const avgLevel = Math.round(categorySkills.reduce((sum, s) => sum + s.level, 0) / categorySkills.length);
             return (
@@ -423,7 +433,7 @@ export default function ProgressPage() {
                 <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-center">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{category}</h4>
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{avgLevel}/5</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{categorySkills.length} {t('skills')}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{categorySkills.length} {safeT('skills')}</div>
                 </div>
               </motion.div>
             );
@@ -585,7 +595,7 @@ export default function ProgressPage() {
 
   return (
     <WeekPhaseProvider>
-      <PageLayout title={t('progress')} subtitle={t('trackYourLearningProgress')} showHeader={true}>
+      <PageLayout title={safeT('progress')} subtitle={safeT('trackYourLearningProgress')} showHeader={true}>
         <motion.div {...animations.fadeIn} className="space-y-6">
           
           {/* Overall Progress Card - Using New Component */}
