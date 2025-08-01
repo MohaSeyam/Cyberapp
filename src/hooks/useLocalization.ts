@@ -931,38 +931,6 @@ const translations: TranslationData = {
     ar: "تقدم الأسبوع",
     en: "Week Progress"
   },
-  enableNotifications: {
-    ar: "تفعيل الإشعارات",
-    en: "Enable Notifications"
-  },
-  soundEffects: {
-    ar: "المؤثرات الصوتية",
-    en: "Sound Effects"
-  },
-  manageYourData: {
-    ar: "إدارة بياناتك",
-    en: "Manage Your Data"
-  },
-  exportSettings: {
-    ar: "تصدير الإعدادات",
-    en: "Export Settings"
-  },
-  importSettings: {
-    ar: "استيراد الإعدادات",
-    en: "Import Settings"
-  },
-  appInformation: {
-    ar: "معلومات التطبيق",
-    en: "App Information"
-  },
-  appName: {
-    ar: "اسم التطبيق",
-    en: "App Name"
-  },
-  lastUpdated: {
-    ar: "آخر تحديث",
-    en: "Last Updated"
-  },
   confirmClearData: {
     ar: "هل أنت متأكد من مسح جميع البيانات؟",
     en: "Are you sure you want to clear all data?"

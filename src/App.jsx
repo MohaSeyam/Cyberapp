@@ -1,33 +1,38 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AppProvider } from "./context/AppContext";
-import HomePage from "./pages/HomePage";
-import ProgressPage from "./pages/ProgressPage";
-import PlanPageEnhanced from "./pages/PlanPageEnhanced";
-import DayViewPageEnhanced from "./pages/DayViewPageEnhanced";
-import DaysPageEnhanced from "./pages/DaysPage";
-import PhasesPageEnhanced from "./pages/PhasesPage";
-import PhaseWeeksPageEnhanced from "./pages/PhaseWeeksPage";
-import NotesPage from "./pages/NotesPage";
-import JournalPage from "./pages/JournalPage";
-import SettingsPage from "./pages/SettingsPage";
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AppProvider } from './context/AppContext';
+import { Toaster } from 'react-hot-toast';
+import LoadingSpinner from './components/ui/LoadingSpinner';
+
+// Lazy load pages for better performance
+const HomePage = lazy(() => import('./pages/HomePage'));
+const PhasesPage = lazy(() => import('./pages/PhasesPage'));
+const PhaseWeeksPage = lazy(() => import('./components/phases/PhaseWeeksPage'));
+const DaysPage = lazy(() => import('./components/days/DaysPage'));
+const DayViewPage = lazy(() => import('./components/days/DayViewPage'));
+const ProgressPage = lazy(() => import('./pages/ProgressPage'));
+const NotesPage = lazy(() => import('./pages/NotesPage'));
+const JournalPage = lazy(() => import('./pages/JournalPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
 function App() {
   return (
     <AppProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/plan" element={<PlanPageEnhanced />} />
-          <Route path="/phases" element={<PhasesPageEnhanced />} />
-          <Route path="/phase/:phaseId" element={<PhaseWeeksPageEnhanced />} />
-          <Route path="/day/:weekId/:dayIndex" element={<DayViewPageEnhanced />} />
-          <Route path="/days/:weekId" element={<DaysPageEnhanced />} />
-          <Route path="/notes" element={<NotesPage />} />
-          <Route path="/journal" element={<JournalPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Toaster />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/phases" element={<PhasesPage />} />
+            <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+            <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+            <Route path="/days/:weekId" element={<DaysPage />} />
+            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/journal" element={<JournalPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </Suspense>
       </Router>
     </AppProvider>
   );

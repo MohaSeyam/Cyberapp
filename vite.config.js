@@ -90,4 +90,53 @@ export default defineConfig({
     }),
   ],
   publicDir: 'public',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // فصل مكتبات React
+          'react-vendor': ['react', 'react-dom'],
+          // فصل مكتبات الرسم البياني
+          'charts-vendor': ['chart.js', 'react-chartjs-2', 'recharts'],
+          // فصل مكتبات التحرير
+          'editor-vendor': ['@tiptap/react', '@tiptap/starter-kit'],
+          // فصل مكتبات الحركة
+          'motion-vendor': ['framer-motion'],
+          // فصل مكتبات قاعدة البيانات
+          'db-vendor': ['dexie'],
+          // فصل مكتبات الترجمة
+          'i18n-vendor': ['i18next', 'react-i18next'],
+        },
+      },
+    },
+    // تحسين حجم الحزمة
+    chunkSizeWarningLimit: 1000,
+    // تمكين ضغط الملفات
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+  },
+  // تحسين الأداء في التطوير
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'framer-motion',
+      'lucide-react',
+      'dexie',
+      'chart.js',
+      'react-chartjs-2',
+    ],
+  },
+  // تحسين سرعة التطوير
+  server: {
+    hmr: {
+      overlay: false,
+    },
+  },
 });

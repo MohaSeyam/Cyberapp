@@ -1,5 +1,5 @@
 // Unified Task Card Component
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Circle, Clock, Edit, MessageSquare } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -24,7 +24,7 @@ const taskTypeColors = {
   'Practical': { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', icon: '⚡' }
 };
 
-export default function TaskCard({
+function TaskCard({
   task,
   weekId,
   dayKey,
@@ -288,3 +288,6 @@ export default function TaskCard({
     </motion.div>
   );
 }
+
+const TaskCardWithMemo = memo(TaskCard);
+export default TaskCardWithMemo;
