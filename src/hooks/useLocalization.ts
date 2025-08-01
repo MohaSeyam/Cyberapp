@@ -835,57 +835,13 @@ const translations: TranslationData = {
   },
 
   // Progress related
-  completionRate: {
-    ar: "معدل الإكمال",
-    en: "Completion Rate"
-  },
-  currentStreak: {
-    ar: "النشاط الحالي",
-    en: "Current Streak"
-  },
-  longestStreak: {
-    ar: "أطول نشاط",
-    en: "Longest Streak"
-  },
   hoursLearned: {
     ar: "ساعات التعلم",
     en: "Hours Learned"
   },
-  totalDuration: {
-    ar: "إجمالي المدة",
-    en: "Total Duration"
-  },
-  hours: {
-    ar: "ساعات",
-    en: "hours"
-  },
-  completed: {
-    ar: "مكتمل",
-    en: "Completed"
-  },
-  total: {
-    ar: "إجمالي",
-    en: "Total"
-  },
   remaining: {
     ar: "متبقي",
     en: "Remaining"
-  },
-  weeks: {
-    ar: "أسابيع",
-    en: "Weeks"
-  },
-  totalWeeks: {
-    ar: "إجمالي الأسابيع",
-    en: "Total Weeks"
-  },
-  totalTasks: {
-    ar: "إجمالي المهام",
-    en: "Total Tasks"
-  },
-  completedTasks: {
-    ar: "المهام المكتملة",
-    en: "Completed Tasks"
   },
   taskTypesDistribution: {
     ar: "توزيع أنواع المهام",
@@ -947,25 +903,13 @@ const translations: TranslationData = {
     ar: "مهارات",
     en: "Skills"
   },
-  achievements: {
-    ar: "الإنجازات",
-    en: "Achievements"
-  },
   suggestions: {
     ar: "الاقتراحات",
     en: "Suggestions"
   },
-  trackYourLearning: {
-    ar: "تتبع تعلمك",
-    en: "Track Your Learning"
-  },
   trackYourProgress: {
     ar: "تتبع تقدمك",
     en: "Track Your Progress"
-  },
-  learningPhases: {
-    ar: "مراحل التعلم",
-    en: "Learning Phases"
   },
   choosePhaseToStart: {
     ar: "اختر المرحلة للبدء",
@@ -979,14 +923,6 @@ const translations: TranslationData = {
     ar: "تفاصيل اليوم",
     en: "Day Details"
   },
-  phases: {
-    ar: "المراحل",
-    en: "Phases"
-  },
-  week: {
-    ar: "الأسبوع",
-    en: "Week"
-  },
   phaseWeeks: {
     ar: "أسابيع المرحلة",
     en: "Phase Weeks"
@@ -995,62 +931,6 @@ const translations: TranslationData = {
     ar: "تقدم الأسبوع",
     en: "Week Progress"
   },
-  customizeYourExperience: {
-    ar: "خصص تجربتك",
-    en: "Customize Your Experience"
-  },
-  quickSettings: {
-    ar: "إعدادات سريعة",
-    en: "Quick Settings"
-  },
-  mostUsedSettings: {
-    ar: "الإعدادات الأكثر استخداماً",
-    en: "Most Used Settings"
-  },
-  language: {
-    ar: "اللغة",
-    en: "Language"
-  },
-  theme: {
-    ar: "المظهر",
-    en: "Theme"
-  },
-  light: {
-    ar: "نهاري",
-    en: "Light"
-  },
-  dark: {
-    ar: "ليلي",
-    en: "Dark"
-  },
-  appearance: {
-    ar: "المظهر",
-    en: "Appearance"
-  },
-  fontSize: {
-    ar: "حجم الخط",
-    en: "Font Size"
-  },
-  small: {
-    ar: "صغير",
-    en: "Small"
-  },
-  medium: {
-    ar: "متوسط",
-    en: "Medium"
-  },
-  large: {
-    ar: "كبير",
-    en: "Large"
-  },
-  compactMode: {
-    ar: "الوضع المضغوط",
-    en: "Compact Mode"
-  },
-  notifications: {
-    ar: "الإشعارات",
-    en: "Notifications"
-  },
   enableNotifications: {
     ar: "تفعيل الإشعارات",
     en: "Enable Notifications"
@@ -1058,18 +938,6 @@ const translations: TranslationData = {
   soundEffects: {
     ar: "المؤثرات الصوتية",
     en: "Sound Effects"
-  },
-  data: {
-    ar: "البيانات",
-    en: "Data"
-  },
-  autoSave: {
-    ar: "الحفظ التلقائي",
-    en: "Auto Save"
-  },
-  dataManagement: {
-    ar: "إدارة البيانات",
-    en: "Data Management"
   },
   manageYourData: {
     ar: "إدارة بياناتك",
@@ -1083,18 +951,6 @@ const translations: TranslationData = {
     ar: "استيراد الإعدادات",
     en: "Import Settings"
   },
-  refreshData: {
-    ar: "تحديث البيانات",
-    en: "Refresh Data"
-  },
-  clearData: {
-    ar: "مسح البيانات",
-    en: "Clear Data"
-  },
-  about: {
-    ar: "حول",
-    en: "About"
-  },
   appInformation: {
     ar: "معلومات التطبيق",
     en: "App Information"
@@ -1102,10 +958,6 @@ const translations: TranslationData = {
   appName: {
     ar: "اسم التطبيق",
     en: "App Name"
-  },
-  version: {
-    ar: "الإصدار",
-    en: "Version"
   },
   lastUpdated: {
     ar: "آخر تحديث",

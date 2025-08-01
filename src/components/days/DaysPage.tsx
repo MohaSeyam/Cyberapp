@@ -58,7 +58,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 }
 
 export default function DaysPage() {
-  const { plan, progress } = useApp();
+  const { plan, progress, refreshData } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
   const { weekId } = useParams();
@@ -139,11 +139,19 @@ export default function DaysPage() {
       <PageLayout title="خطأ" subtitle="الأسبوع غير موجود" showHeader={true}>
         <div className="text-center py-12">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            الأسبوع غير موجود
+            الأسبوع {weekNumber} غير موجود
           </h3>
-          <Button onClick={goToWeekView}>
-            العودة للمراحل
-          </Button>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            قد تكون البيانات غير محملة بشكل صحيح. جرب تحديث البيانات.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button onClick={refreshData} variant="primary">
+              تحديث البيانات
+            </Button>
+            <Button onClick={goToWeekView} variant="outline">
+              العودة للمراحل
+            </Button>
+          </div>
         </div>
       </PageLayout>
     );

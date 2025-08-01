@@ -105,7 +105,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const navigate = useNavigate();
-  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry } = useApp();
+  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry, refreshData } = useApp();
   const { t } = useLocalization();
 
   // Safe translation function
@@ -209,6 +209,16 @@ export default function DayViewPage() {
     }
   };
 
+  // دالة التحقق من صحة الرابط
+  const isValidUrl = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'https:' || urlObj.protocol === 'http:';
+    } catch {
+      return false;
+    }
+  };
+
   // Navigation functions
   const goToNextDay = () => {
     if (selectedWeek && selectedWeek.days) {
@@ -247,7 +257,19 @@ export default function DayViewPage() {
       <PageLayout title="جاري التحميل">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">جاري تحميل محتوى اليوم...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400 mb-6">
+            {!selectedWeek ? `الأسبوع ${weekId} غير موجود` : 'جاري تحميل محتوى اليوم...'}
+          </p>
+          {!selectedWeek && (
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={refreshData} variant="primary">
+                تحديث البيانات
+              </Button>
+              <Button onClick={() => navigate('/phases')} variant="outline">
+                العودة للمراحل
+              </Button>
+            </div>
+          )}
         </div>
       </PageLayout>
     );
@@ -641,9 +663,18 @@ export default function DayViewPage() {
               type="url"
               value={resourceForm.url}
               onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="أدخل الرابط"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
+                resourceForm.url && !isValidUrl(resourceForm.url) 
+                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
+              placeholder="https://www.example.com"
             />
+            {resourceForm.url && !isValidUrl(resourceForm.url) && (
+              <p className="text-red-500 text-sm mt-1">
+                يرجى إدخال رابط صحيح يبدأ بـ https://
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -673,6 +704,11 @@ export default function DayViewPage() {
               variant="primary"
               onClick={async () => {
                 if (resourceForm.title.trim() && resourceForm.url.trim() && selectedWeek && selectedDay) {
+                  if (!isValidUrl(resourceForm.url)) {
+                    alert('يرجى إدخال رابط صحيح يبدأ بـ https://');
+                    return;
+                  }
+                  
                   try {
                     if (resourceModal.resource) {
                       // تعديل مرجع
@@ -698,9 +734,9 @@ export default function DayViewPage() {
                   }
                 }
               }}
-              disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
+              disabled={!resourceForm.title.trim() || !resourceForm.url.trim() || !isValidUrl(resourceForm.url)}
             >
-              {resourceModal.resource ? 'تحديث المورد' : 'إضافة مورد'}
+              {resourceModal.resource ? 'تحديث' : 'إضافة'}
             </Button>
           </div>
         </div>
