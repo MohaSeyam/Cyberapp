@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Home, Calendar, FileText, BookOpen, TrendingUp, Settings,
+  Home, Calendar, FileText, BookOpen, TrendingUp, Settings, Download,
   Menu, X, ChevronDown, Sun, Moon
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -50,6 +50,12 @@ export default function Navigation({ className = '' }: NavigationProps) {
       path: '/progress',
       icon: TrendingUp,
       description: t('trackProgress')
+    },
+    {
+      name: t('exportData'),
+      path: '/export',
+      icon: Download,
+      description: t('exportDataDescription')
     },
     {
       name: t('settings'),

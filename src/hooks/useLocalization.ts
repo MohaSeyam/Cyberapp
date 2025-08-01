@@ -967,11 +967,89 @@ const translations: TranslationData = {
   bundleSize: {
     ar: "حجم الحزمة",
     en: "Bundle Size"
+  },
+  
+  // Export Page
+  exportData: {
+    ar: "تصدير البيانات",
+    en: "Export Data"
+  },
+  exportDataDescription: {
+    ar: "تصدير بيانات رحلتك في الأمن السيبراني",
+    en: "Export your cyber security journey data"
+  },
+  jsonFormat: {
+    ar: "تنسيق JSON",
+    en: "JSON Format"
+  },
+  jsonDescription: {
+    ar: "تصدير البيانات بصيغة JSON للنسخ الاحتياطية",
+    en: "Export data as JSON for backup"
+  },
+  csvFormat: {
+    ar: "تنسيق CSV",
+    en: "CSV Format"
+  },
+  csvDescription: {
+    ar: "تصدير البيانات بصيغة CSV للتحليل",
+    en: "Export data as CSV for analysis"
+  },
+  pdfFormat: {
+    ar: "تنسيق PDF",
+    en: "PDF Format"
+  },
+  pdfDescription: {
+    ar: "تصدير تقرير بصيغة PDF",
+    en: "Export report as PDF"
+  },
+  progressSummary: {
+    ar: "ملخص التقدم",
+    en: "Progress Summary"
+  },
+  totalTasks: {
+    ar: "إجمالي المهام",
+    en: "Total Tasks"
+  },
+  completedTasks: {
+    ar: "المهام المكتملة",
+    en: "Completed Tasks"
+  },
+  completionRate: {
+    ar: "معدل الإكمال",
+    en: "Completion Rate"
+  },
+  export: {
+    ar: "تصدير",
+    en: "Export"
+  },
+  exporting: {
+    ar: "جاري التصدير",
+    en: "Exporting"
+  },
+  lastExport: {
+    ar: "آخر تصدير",
+    en: "Last Export"
+  },
+  exportTips: {
+    ar: "نصائح التصدير",
+    en: "Export Tips"
+  },
+  exportTip1: {
+    ar: "استخدم JSON للنسخ الاحتياطية الكاملة",
+    en: "Use JSON for complete backups"
+  },
+  exportTip2: {
+    ar: "استخدم CSV لتحليل البيانات في Excel",
+    en: "Use CSV for data analysis in Excel"
+  },
+  exportTip3: {
+    ar: "استخدم PDF للمشاركة والتوثيق",
+    en: "Use PDF for sharing and documentation"
   }
 };
 
 export function useLocalization() {
-  const { lang } = useApp();
+  const { lang, setLang } = useApp();
 
   const t = useCallback((key: string): string => {
     return translations[key]?.[lang] || key;
@@ -981,5 +1059,5 @@ export function useLocalization() {
     return translations[key]?.[language] || key;
   }, []);
 
-  return { t, tWithLang };
+  return { t, tWithLang, lang, setLang };
 }
