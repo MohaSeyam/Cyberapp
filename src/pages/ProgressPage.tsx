@@ -2,12 +2,9 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  TrendingUp, Target, Calendar, Award, Clock, CheckCircle,
-  BarChart3, PieChart, Activity, Star, Trophy, Zap,
-  Lightbulb, BookOpen, Users, Rocket, Shield, Brain,
-  Heart, Coffee, Flame, Crown, Medal, Gift, Sparkles,
-  Target as TargetIcon, Eye, Brain as BrainIcon, Zap as ZapIcon,
-  FileText, Settings, BarChart, LineChart, Grid, Layers
+  Target, Clock, Flame, Trophy, BarChart3, PieChart, 
+  TrendingUp, Award, Star, Users, BookOpen, Zap,
+  CheckCircle, Circle, Calendar, Activity, ArrowRight
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -15,6 +12,8 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
+import { WeekPhaseProvider } from '../components/WeekPhaseProvider';
+import OverallProgressCard from '../components/progress/OverallProgressCard';
 
 // Tab Types
 type TabType = 'overview' | 'analytics' | 'skills' | 'achievements' | 'suggestions';
@@ -198,7 +197,7 @@ export default function ProgressPage() {
 
     if (completedTasks === 0) {
       suggestionsList.push({
-        icon: Rocket,
+        icon: ArrowRight,
         title: lang === 'ar' ? 'ابدأ رحلتك' : 'Start Your Journey',
         description: lang === 'ar' ? 'ابدأ بأول مهمة لتبدأ رحلتك في الأمن السيبراني' : 'Start with your first task to begin your cybersecurity journey',
         type: 'motivation',
@@ -234,7 +233,7 @@ export default function ProgressPage() {
 
     if (blueTeamTasks < redTeamTasks) {
       suggestionsList.push({
-        icon: Shield,
+        icon: ArrowRight,
         title: lang === 'ar' ? 'ركز على الدفاع' : 'Focus on Defense',
         description: lang === 'ar' ? 'ركز على مهام الفريق الأزرق لتحسين مهارات الدفاع' : 'Focus on blue team tasks to improve defensive skills',
         type: 'skill-balance',
@@ -246,7 +245,7 @@ export default function ProgressPage() {
 
     if (policiesTasks < 2) {
       suggestionsList.push({
-        icon: FileText,
+        icon: BookOpen,
         title: lang === 'ar' ? 'تعلم السياسات' : 'Learn Policies',
         description: lang === 'ar' ? 'ركز على مهام السياسات لفهم الإجراءات الأمنية' : 'Focus on policy tasks to understand security procedures',
         type: 'skill-balance',
@@ -460,7 +459,7 @@ export default function ProgressPage() {
             id: 'blue-team',
             title: lang === 'ar' ? 'محلل دفاعي' : 'Defensive Analyst',
             description: lang === 'ar' ? 'أكمل 5 مهام فريق أزرق' : 'Complete 5 blue team tasks',
-            icon: Shield,
+            icon: ArrowRight,
             unlocked: blueTeamTasks >= 5,
             color: 'text-blue-600',
             bg: 'bg-blue-50'
@@ -478,7 +477,7 @@ export default function ProgressPage() {
             id: 'policies',
             title: lang === 'ar' ? 'خبير السياسات' : 'Policy Expert',
             description: lang === 'ar' ? 'أكمل 3 مهام سياسات' : 'Complete 3 policy tasks',
-            icon: FileText,
+            icon: BookOpen,
             unlocked: policiesTasks >= 3,
             color: 'text-orange-600',
             bg: 'bg-orange-50'
@@ -576,7 +575,7 @@ export default function ProgressPage() {
 
   // Tab Configuration
   const tabs = [
-    { id: 'overview', label: lang === 'ar' ? 'نظرة عامة' : 'Overview', icon: BarChart },
+    { id: 'overview', label: lang === 'ar' ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
     { id: 'analytics', label: lang === 'ar' ? 'التحليلات' : 'Analytics', icon: LineChart },
     { id: 'skills', label: lang === 'ar' ? 'المهارات' : 'Skills', icon: Brain },
     { id: 'achievements', label: lang === 'ar' ? 'الإنجازات' : 'Achievements', icon: Trophy },
@@ -584,35 +583,40 @@ export default function ProgressPage() {
   ];
 
   return (
-    <PageLayout title={t('progress')} subtitle={t('trackYourLearningProgress')} showHeader={true}>
-      {/* Tab Navigation */}
-      <motion.div {...animations.fadeIn} className="mb-6">
-        <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-t-lg transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </motion.div>
+    <WeekPhaseProvider>
+      <PageLayout title={t('progress')} subtitle={t('trackYourLearningProgress')} showHeader={true}>
+        <motion.div {...animations.fadeIn} className="space-y-6">
+          
+          {/* Overall Progress Card - Using New Component */}
+          <OverallProgressCard />
 
-      {/* Tab Content */}
-      <motion.div {...animations.fadeIn} transition={{ delay: 0.1 }}>
-        {activeTab === 'overview' && <OverviewTab />}
-        {activeTab === 'analytics' && <AnalyticsTab />}
-        {activeTab === 'skills' && <SkillsTab />}
-        {activeTab === 'achievements' && <AchievementsTab />}
-        {activeTab === 'suggestions' && <SuggestionsTab />}
-      </motion.div>
-    </PageLayout>
+          {/* Tabs Navigation */}
+          <Card>
+            <div className="flex flex-wrap gap-2">
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setActiveTab(tab.id)}
+                  icon={tab.icon}
+                >
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
+          </Card>
+
+          {/* Tab Content */}
+          <div className="mt-6">
+            {activeTab === 'overview' && <OverviewTab />}
+            {activeTab === 'analytics' && <AnalyticsTab />}
+            {activeTab === 'skills' && <SkillsTab />}
+            {activeTab === 'achievements' && <AchievementsTab />}
+            {activeTab === 'suggestions' && <SuggestionsTab />}
+          </div>
+        </motion.div>
+      </PageLayout>
+    </WeekPhaseProvider>
   );
 }

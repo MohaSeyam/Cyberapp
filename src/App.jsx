@@ -7,6 +7,7 @@ import Sidebar from "./components/layout/Sidebar";
 import BottomBar from "./components/layout/BottomBar";
 import HomePage from "./pages/HomePage";
 import DayViewPageEnhanced from "./pages/DayViewPageEnhanced";
+import DaysPageEnhanced from "./pages/DaysPage";
 import NotesPage from "./pages/NotesPage";
 import JournalPage from "./pages/JournalPage";
 import ProgressPage from "./pages/ProgressPage";
@@ -112,6 +113,7 @@ function AppRoutes() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/day/:weekId/:dayIndex" element={<DayViewPageEnhanced />} />
+            <Route path="/days/:weekId" element={<DaysPageEnhanced />} />
             <Route path="/notes" element={<NotesPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/plan" element={<PlanPageEnhanced />} />
