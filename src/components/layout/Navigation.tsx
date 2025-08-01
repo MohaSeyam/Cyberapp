@@ -9,7 +9,6 @@ import {
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 import Button from '../ui/Button';
-import geminiLogo from '../../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 interface NavigationProps {
   className?: string;
@@ -82,21 +81,6 @@ export default function Navigation({ className = '' }: NavigationProps) {
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <img 
-                    src={geminiLogo} 
-                    alt="Gemini Logo" 
-                    className="w-6 h-6 object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = '<svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
-                      }
-                    }}
-                  />
-                </div>
                 <span className="text-xl font-bold text-gray-900 dark:text-white">
                   {t('cyberSecurity')}
                 </span>
@@ -153,22 +137,6 @@ export default function Navigation({ className = '' }: NavigationProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <img 
-                  src={geminiLogo} 
-                  alt="Gemini Logo" 
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    // Fallback to Shield icon if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
-                    }
-                  }}
-                />
-              </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 {t('cyberSecurity')}
               </span>
