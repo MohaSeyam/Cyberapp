@@ -44,6 +44,7 @@ interface AppContextType {
   removeNotification: (id: string) => void;
   refreshData: () => Promise<void>;
   forceReloadData: () => Promise<void>;
+  fixMissingWeeks: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -692,6 +693,47 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   };
 
+  // Fix missing weeks function
+  const fixMissingWeeks = async () => {
+    try {
+      setLoading(true);
+      console.log("Fixing missing weeks...");
+      
+      // Import fresh data directly from PlanData.json
+      const planData = await import('../data/PlanData.json');
+      const freshPlan = Array.isArray(planData.default) ? planData.default : [];
+      
+      console.log("Fresh plan loaded:", freshPlan.length, "weeks");
+      console.log("Available weeks:", freshPlan.map(w => w.week).sort((a, b) => a - b));
+      
+      // Save to IndexedDB
+      await planService.save(freshPlan);
+      console.log("Saved to IndexedDB");
+      
+      // Verify all weeks are present
+      const phasesData = await import('../data/phases.json');
+      const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
+      const missingWeeks = allPhaseWeeks.filter(week => !freshPlan.find(w => w.week === week));
+      
+      if (missingWeeks.length > 0) {
+        console.error("Missing weeks after fix:", missingWeeks);
+        toast.error(`أسابيع مفقودة: ${missingWeeks.join(', ')}`);
+      } else {
+        console.log("All weeks present after fix!");
+        toast.success("تم إصلاح الأسابيع المفقودة بنجاح");
+      }
+      
+      // Update state
+      setPlan(freshPlan);
+      
+    } catch (error) {
+      console.error("Error fixing missing weeks:", error);
+      toast.error("فشل في إصلاح الأسابيع المفقودة");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: AppContextType = {
     // State
     plan,
@@ -723,7 +765,8 @@ export function AppProvider({ children }: AppProviderProps) {
     addNotification,
     removeNotification,
     refreshData,
-    forceReloadData // Add this new method
+    forceReloadData,
+    fixMissingWeeks // Add this new method
   };
 
   return (
