@@ -215,10 +215,23 @@ export const resourcesService = {
 
   async update(id: number, updates: Partial<Resource>): Promise<void> {
     try {
+      console.log("Attempting to update resource with ID:", id);
+      console.log("Updates:", updates);
+      
+      // Check if resource exists
+      const existingResource = await db.resources.get(id);
+      if (!existingResource) {
+        throw new Error(`Resource with ID ${id} not found`);
+      }
+      
+      console.log("Existing resource:", existingResource);
+      
       await db.resources.update(id, {
         ...updates,
         updatedAt: Date.now()
       });
+      
+      console.log("Resource updated successfully");
     } catch (error) {
       console.error("Error updating resource:", error);
       throw error;

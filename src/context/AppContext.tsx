@@ -467,7 +467,9 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const updateResource = useCallback(async (id: number, updates: Partial<Resource>) => {
     try {
+      console.log('Updating resource in database:', id, updates);
       await resourcesService.update(id, updates);
+      console.log('Resource updated successfully in database');
       
       // Update local state
       setAppState(prev => {
@@ -482,13 +484,21 @@ export function AppProvider({ children }: AppProviderProps) {
           );
         });
         
+        console.log('Local state updated successfully');
+        console.log('Updated resources:', updatedResources);
         return {
           ...prev,
           resources: updatedResources
         };
       });
+      
+      // Force a re-render by updating the state again
+      setTimeout(() => {
+        setAppState(prev => ({ ...prev }));
+      }, 100);
     } catch (error) {
       console.error('Error updating resource:', error);
+      console.error('Error details:', error);
       toast.error('فشل في تحديث المرجع');
       throw error;
     }

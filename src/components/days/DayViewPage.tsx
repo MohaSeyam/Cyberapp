@@ -877,11 +877,15 @@ export default function DayViewPage() {
                     if (resourceModal.resource && resourceModal.resource.id) {
                       // تعديل مرجع موجود
                       console.log('Updating resource with ID:', resourceModal.resource.id);
+                      console.log('Resource data:', resourceModal.resource);
+                      console.log('Form data:', resourceForm);
+                      
                       await updateResource(resourceModal.resource.id, {
                         title: resourceForm.title,
                         url: resourceForm.url,
                         type: resourceForm.type
                       });
+                      
                       // إغلاق المودال بعد التحديث الناجح
                       setResourceModal({ isOpen: false, resource: null });
                       setResourceForm({ title: '', url: '', type: 'video' });
@@ -893,6 +897,7 @@ export default function DayViewPage() {
                     }
                   } catch (error) {
                     console.error('Error saving resource:', error);
+                    console.error('Error details:', error);
                     toast.error('فشل في حفظ المرجع');
                   }
                 } else {
