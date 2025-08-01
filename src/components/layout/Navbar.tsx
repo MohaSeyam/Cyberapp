@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Sun, Moon, Globe, Shield } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
-import geminiLogo from '../../assets/gemini-logo.svg';
+import geminiLogo from '../../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useApp();

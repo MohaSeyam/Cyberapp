@@ -9,7 +9,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 import Button from '../ui/Button';
-import geminiLogo from '../../assets/gemini-logo.svg';
+import geminiLogo from '../../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 interface NavigationProps {
   className?: string;
