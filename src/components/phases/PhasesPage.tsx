@@ -178,6 +178,13 @@ export default function PhasesPage() {
             const completion = getPhaseCompletion(phase.id);
             const PhaseIcon = phaseIcons[(phase.icon || 'shield') as keyof typeof phaseIcons] || Shield;
             
+            // Debug: Log phase data
+            console.log(`Phase ${phase.id} (${phase.title.ar}):`, {
+              weeks: phase.weeks,
+              totalWeeks: phase.weeks.length,
+              completion: completion
+            });
+            
             return (
               <motion.div key={phase.id} {...animations.stagger(index * 0.1)}>
                 <Card 
