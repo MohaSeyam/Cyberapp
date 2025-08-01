@@ -13,6 +13,7 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
+import phasesData from '../../data/phases.json';
 
 // Phase icons mapping
 const phaseIcons = {
@@ -20,7 +21,10 @@ const phaseIcons = {
   server: Server,
   eye: Eye,
   search: Search,
-  cloud: Cloud
+  cloud: Cloud,
+  target: Target,
+  zap: TrendingUp,
+  trophy: Trophy
 };
 
 // Breadcrumbs component
@@ -78,53 +82,7 @@ export default function PhaseWeeksPage() {
   const safeProgress = progress || [];
 
   // Get phase data
-  const phases = [
-    {
-      id: 1,
-      title: { ar: "أساسيات الأمن السيبراني", en: "Cybersecurity Foundations" },
-      focus: { ar: "بناء المعرفة النظرية والمفاهيم الأساسية", en: "Building theoretical knowledge" },
-      duration: "4 أسابيع",
-      difficulty: "مبتدئ",
-      color: "blue",
-      icon: "shield"
-    },
-    {
-      id: 2,
-      title: { ar: "التقنيات والأنظمة الأساسية", en: "Core Technologies & Systems" },
-      focus: { ar: "فهم وإدارة الأنظمة والتقنيات الجوهرية", en: "Understanding core systems" },
-      duration: "4 أسابيع",
-      difficulty: "مبتدئ - متوسط",
-      color: "green",
-      icon: "server"
-    },
-    {
-      id: 3,
-      title: { ar: "عقلية المدافع", en: "The Defender's Mindset" },
-      focus: { ar: "تعلم أدوات وعمليات الفريق الأزرق", en: "Learning Blue Team tools" },
-      duration: "9 أسابيع",
-      difficulty: "متوسط",
-      color: "indigo",
-      icon: "eye"
-    },
-    {
-      id: 4,
-      title: { ar: "الدفاع والتحليل المتقدم", en: "Advanced Defense & Analysis" },
-      focus: { ar: "التعمق في تقنيات التحليل المتقدمة", en: "Advanced analysis techniques" },
-      duration: "8 أسابيع",
-      difficulty: "متقدم",
-      color: "purple",
-      icon: "search"
-    },
-    {
-      id: 5,
-      title: { ar: "تأمين البنى التحتية الحديثة", en: "Securing Modern Architectures" },
-      focus: { ar: "بناء المهارات لتأمين البيئات الحديثة", en: "Securing modern environments" },
-      duration: "7 أسابيع",
-      difficulty: "متوسط - متقدم",
-      color: "teal",
-      icon: "cloud"
-    }
-  ];
+  const phases = phasesData;
 
   const currentPhase = phases.find(p => p.id === parseInt(phaseId));
   const phaseWeeks = safePlan.filter(week => week.phase === parseInt(phaseId));
