@@ -284,19 +284,7 @@ export default function DayViewPage() {
           </div>
 
           {/* Day Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                هدف الأسبوع
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedWeek.objective?.ar || 'No objective'}
-              </p>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
               <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
@@ -329,14 +317,14 @@ export default function DayViewPage() {
             </div>
 
             <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                المرحلة {selectedWeek.phase}
+                موضوع اليوم
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedWeek.title?.[lang] || 'No phase data'}
+                {selectedDay.topic?.ar || 'لا يوجد موضوع محدد'}
               </p>
             </div>
           </div>
