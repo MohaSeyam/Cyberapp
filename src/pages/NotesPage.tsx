@@ -12,7 +12,8 @@ import { animations } from '../constants/theme';
 import { useDebounce } from '../hooks/useDebounce';
 
 export default function NotesPage() {
-  const { notes, addNote, updateNote, deleteNote } = useApp();
+  const { appState, addNote, updateNote, deleteNote } = useApp();
+  const notes = appState?.notes || {};
   const { t, lang } = useLocalization();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'title'>('date');
@@ -21,6 +22,9 @@ export default function NotesPage() {
 
   // Flatten notes for virtual scrolling
   const allNotes = useMemo(() => {
+    if (!notes || typeof notes !== 'object') {
+      return [];
+    }
     const flattened = Object.values(notes).flat();
     return flattened.sort((a, b) => {
       if (sortBy === 'date') {
