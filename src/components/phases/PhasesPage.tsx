@@ -77,6 +77,14 @@ export default function PhasesPage() {
 
     const phaseWeeks = phase.weeks;
     const totalWeeks = phaseWeeks.length;
+    
+    // Debug logging
+    console.log(`Phase ${phaseId}:`, {
+      weeks: phaseWeeks,
+      totalWeeks: totalWeeks,
+      phaseTitle: phase.title.ar
+    });
+    
     const completedWeeks = phaseWeeks.filter(week => {
       const weekData = safePlan.find(w => w.week === week);
       if (!weekData) return false;
