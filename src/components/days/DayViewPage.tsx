@@ -124,6 +124,11 @@ export default function DayViewPage() {
   const [noteModal, setNoteModal] = useState({ isOpen: false, taskId: '' });
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null as Resource | null });
   const [noteContent, setNoteContent] = useState('');
+  const [noteForm, setNoteForm] = useState({
+    title: '',
+    content: '',
+    tags: [] as string[]
+  });
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
@@ -200,23 +205,39 @@ export default function DayViewPage() {
     }
   }, [safePlan, weekId, dayIndex]);
 
+  // Tag management functions
+  const addTag = (tag: string) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !noteForm.tags.includes(trimmedTag)) {
+      setNoteForm(prev => ({ ...prev, tags: [...prev.tags, trimmedTag] }));
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setNoteForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
+  };
+
   const handleAddNote = async () => {
-    if (noteContent.trim() && selectedWeek && selectedDay) {
+    if (noteForm.title.trim() && noteForm.content.trim() && selectedWeek && selectedDay) {
       try {
         await addNote({
-          title: `ملاحظة مهمة`,
-          content: noteContent,
+          title: noteForm.title,
+          content: noteForm.content,
           keywords: '',
-          tags: [],
+          tags: noteForm.tags,
           weekId: selectedWeek.week,
           dayKey: selectedDay.key,
           taskId: noteModal.taskId
         });
-        setNoteContent('');
+        setNoteForm({ title: '', content: '', tags: [] });
         setNoteModal({ isOpen: false, taskId: '' });
+        toast.success('تم إضافة الملاحظة بنجاح');
       } catch (error) {
         console.error('Error adding note:', error);
+        toast.error('فشل في إضافة الملاحظة');
       }
+    } else {
+      toast.error('يرجى ملء العنوان والمحتوى');
     }
   };
 
@@ -783,27 +804,101 @@ export default function DayViewPage() {
         isOpen={noteModal.isOpen}
         onClose={() => setNoteModal({ isOpen: false, taskId: '' })}
         title="إضافة ملاحظة"
-        size="lg"
+        size="xl"
       >
-        <div className="space-y-4">
-          <RichTextEditor
-            content={noteContent}
-            onChange={setNoteContent}
-            placeholder="اكتب ملاحظتك هنا..."
-            lang={lang}
-            minHeight="200px"
-          />
-          <div className="flex justify-end space-x-3">
+        <div className="space-y-4 pb-20">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              عنوان الملاحظة
+            </label>
+            <input
+              type="text"
+              value={noteForm.title}
+              onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="أدخل عنوان الملاحظة"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              التاقات
+            </label>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {noteForm.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 hover:text-blue-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="أضف تاق"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      addTag(e.currentTarget.value);
+                      e.currentTarget.value = '';
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    addTag(input.value);
+                    input.value = '';
+                  }}
+                >
+                  إضافة
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              محتوى الملاحظة
+            </label>
+            <RichTextEditor
+              content={noteForm.content}
+              onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
+              placeholder="اكتب ملاحظتك هنا..."
+              lang={lang}
+              minHeight="400px"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4">
             <Button
               variant="outline"
-              onClick={() => setNoteModal({ isOpen: false, taskId: '' })}
+              onClick={() => {
+                setNoteModal({ isOpen: false, taskId: '' });
+                setNoteForm({ title: '', content: '', tags: [] });
+              }}
             >
               إلغاء
             </Button>
             <Button
               variant="primary"
               onClick={handleAddNote}
-              disabled={!noteContent.trim()}
+              disabled={!noteForm.title.trim() || !noteForm.content.trim()}
             >
               حفظ الملاحظة
             </Button>
