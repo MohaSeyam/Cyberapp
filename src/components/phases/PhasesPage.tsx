@@ -52,7 +52,7 @@ function Breadcrumbs() {
 }
 
 export default function PhasesPage() {
-  const { plan, progress, lang } = useApp();
+  const { plan, progress, lang, refreshData } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
 
@@ -82,12 +82,16 @@ export default function PhasesPage() {
     console.log(`Phase ${phaseId}:`, {
       weeks: phaseWeeks,
       totalWeeks: totalWeeks,
-      phaseTitle: phase.title.ar
+      phaseTitle: phase.title.ar,
+      availableWeeks: safePlan.map(w => w.week)
     });
     
     const completedWeeks = phaseWeeks.filter(week => {
       const weekData = safePlan.find(w => w.week === week);
-      if (!weekData) return false;
+      if (!weekData) {
+        console.log(`Week ${week} not found in plan`);
+        return false;
+      }
 
       const totalTasks = weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
       const weekProgress = safeProgress.filter(p => p.weekId === (week?.toString() || ''));
@@ -161,13 +165,23 @@ export default function PhasesPage() {
         
         {/* Header Card */}
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              خطة تعلم الأمن السيبراني
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              رحلة شاملة من المبتدئ إلى المتقدم في عالم الأمن السيبراني
-            </p>
+          <div className="flex items-center justify-between">
+            <div className="text-center flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                خطة تعلم الأمن السيبراني
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                رحلة شاملة من المبتدئ إلى المتقدم في عالم الأمن السيبراني
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshData}
+              className="ml-4"
+            >
+              تحديث البيانات
+            </Button>
           </div>
         </Card>
 

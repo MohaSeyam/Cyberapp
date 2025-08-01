@@ -121,6 +121,23 @@ export function AppProvider({ children }: AppProviderProps) {
           const importedPlan = await planService.importFromFile();
           planData = Array.isArray(importedPlan) ? importedPlan : [];
           console.log("Imported plan:", planData.length, "weeks");
+          
+          // Verify that all weeks from phases.json are present
+          const phasesData = await import('../data/phases.json');
+          const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
+          const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
+          
+          if (missingWeeks.length > 0) {
+            console.warn("Missing weeks in plan:", missingWeeks);
+            // Try to re-import if some weeks are missing
+            try {
+              const reimportedPlan = await planService.importFromFile();
+              planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
+              console.log("Re-imported plan:", planData.length, "weeks");
+            } catch (reimportError) {
+              console.error("Failed to re-import plan:", reimportError);
+            }
+          }
         } catch (error) {
           console.error("Failed to import plan:", error);
           toast.error("فشل في تحميل الخطة");
@@ -455,8 +472,24 @@ export function AppProvider({ children }: AppProviderProps) {
       }
       
       // Set data with safety checks
-      setPlan(Array.isArray(planData) ? planData : []);
-      setProgress(Array.isArray(progressData) ? progressData : []);
+      planData = Array.isArray(planData) ? planData : [];
+      progressData = Array.isArray(progressData) ? progressData : [];
+      notesData = Array.isArray(notesData) ? notesData : [];
+      journalData = Array.isArray(journalData) ? journalData : [];
+      
+      // Import plan if empty or incomplete
+      if (planData.length === 0) {
+        try {
+          const importedPlan = await planService.importFromFile();
+          planData = Array.isArray(importedPlan) ? importedPlan : [];
+          console.log("Refreshed plan:", planData.length, "weeks");
+        } catch (error) {
+          console.error("Failed to import plan during refresh:", error);
+        }
+      }
+      
+      setPlan(planData);
+      setProgress(progressData);
       
       // Organize notes and journal entries by week
       const notesByWeek: Record<string, Note[]> = {};

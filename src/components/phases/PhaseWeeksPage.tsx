@@ -85,7 +85,30 @@ export default function PhaseWeeksPage() {
   const phases = phasesData;
 
   const currentPhase = phases.find(p => p.id === parseInt(phaseId));
-  const phaseWeeks = currentPhase ? safePlan.filter(week => currentPhase.weeks.includes(week.week)) : [];
+  
+  // Get phase weeks - if not found in plan, create them from phases data
+  const phaseWeeks = currentPhase ? currentPhase.weeks.map(weekNumber => {
+    // Try to find the week in the plan
+    const existingWeek = safePlan.find(w => w.week === weekNumber);
+    
+    if (existingWeek) {
+      return existingWeek;
+    } else {
+      // Create a placeholder week if not found in plan
+      return {
+        week: weekNumber,
+        title: {
+          ar: `الأسبوع ${weekNumber}`,
+          en: `Week ${weekNumber}`
+        },
+        objective: {
+          ar: `أهداف الأسبوع ${weekNumber}`,
+          en: `Week ${weekNumber} Objectives`
+        },
+        days: []
+      };
+    }
+  }) : [];
 
   // Calculate week completion
   const getWeekCompletion = (weekNumber: number) => {
