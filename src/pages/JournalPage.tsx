@@ -315,64 +315,60 @@ export default function JournalPage() {
 
         {/* Full Journal Entry View */}
         {showFullEntry && selectedEntry && (
-          <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto">
-            <div className="min-h-screen">
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto flex items-center justify-center">
+            <div className="max-w-2xl w-full mx-auto my-8 px-4 py-6 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
               {/* Header */}
-              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-10">
-                <div className="max-w-4xl mx-auto px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <button
-                        onClick={() => {
-                          setShowFullEntry(false);
-                          setSelectedEntry(null);
-                        }}
-                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                        title="العودة للمدونات"
-                      >
-                        <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      </button>
-                      <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                          {selectedEntry.title}
-                        </h1>
-                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                           {selectedEntry.dayKey === 'general' ? getDayTitle(selectedEntry.dayKey, selectedEntry.weekId) : `الأسبوع ${selectedEntry.weekId} - ${getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}`}
-                         </p>
-                      </div>
+              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-10 rounded-t-xl">
+                <div className="px-2 py-4 flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => {
+                        setShowFullEntry(false);
+                        setSelectedEntry(null);
+                      }}
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      title="العودة للمدونات"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    </button>
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {selectedEntry.title}
+                      </h1>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedEntry.dayKey === 'general' ? getDayTitle(selectedEntry.dayKey, selectedEntry.weekId) : `الأسبوع ${selectedEntry.weekId} - ${getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}`}
+                      </p>
                     </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => {
-                          setJournalForm({
-                            title: selectedEntry.title,
-                            content: selectedEntry.content,
-                            tags: selectedEntry.tags || []
-                          });
-                          setJournalModal({ isOpen: true, entry: selectedEntry });
-                          setShowFullEntry(false);
-                          setSelectedEntry(null);
-                        }}
-                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                        title="تعديل المدونة"
-                      >
-                        <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteEntry(selectedEntry.id)}
-                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
-                        title="حذف المدونة"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                      </button>
-                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => {
+                        setJournalForm({
+                          title: selectedEntry.title,
+                          content: selectedEntry.content,
+                          tags: selectedEntry.tags || []
+                        });
+                        setJournalModal({ isOpen: true, entry: selectedEntry });
+                        setShowFullEntry(false);
+                        setSelectedEntry(null);
+                      }}
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      title="تعديل المدونة"
+                    >
+                      <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteEntry(selectedEntry.id)}
+                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                      title="حذف المدونة"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    </button>
                   </div>
                 </div>
               </div>
-
               {/* Content */}
-              <div className="max-w-4xl mx-auto px-6 py-8">
+              <div className="py-6">
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                     <div className="flex items-center space-x-1">
@@ -380,7 +376,6 @@ export default function JournalPage() {
                       <span>{new Date(selectedEntry.createdAt).toLocaleDateString('en-US')}</span>
                     </div>
                   </div>
-
                   {selectedEntry.tags && selectedEntry.tags.length > 0 && (
                     <div className="flex items-center space-x-2">
                       <Tag className="w-4 h-4 text-gray-400" />
@@ -396,7 +391,6 @@ export default function JournalPage() {
                       </div>
                     </div>
                   )}
-
                   <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300">
                     <div dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
                   </div>
@@ -413,7 +407,7 @@ export default function JournalPage() {
           title={journalModal.entry ? t('editJournalEntry') : t('addJournalEntry')}
           size="xl"
         >
-          <div className="space-y-4">
+          <div className="space-y-4 pb-20">
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -492,7 +486,7 @@ export default function JournalPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-900 p-4 border-t z-20 flex justify-end space-x-3">
               <Button
                 variant="outline"
                 onClick={() => setJournalModal({ isOpen: false, entry: null })}
