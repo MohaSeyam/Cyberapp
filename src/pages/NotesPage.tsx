@@ -16,7 +16,8 @@ import { animations } from '../constants/theme';
 import type { Note } from '../types';
 
 export default function NotesPage() {
-  const { notes, addNote, updateNote, deleteNote } = useApp();
+  const { appState, addNote, updateNote, deleteNote } = useApp();
+  const notes = appState?.notes || {};
   const { t } = useLocalization();
   
   const [searchTerm, setSearchTerm] = useState('');

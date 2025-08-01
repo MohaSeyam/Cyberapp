@@ -16,7 +16,8 @@ import { animations } from '../constants/theme';
 import type { JournalEntry } from '../types';
 
 export default function JournalPage() {
-  const { journal, addJournalEntry, updateJournalEntry, deleteJournalEntry, lang } = useApp();
+  const { appState, addJournalEntry, updateJournalEntry, deleteJournalEntry } = useApp();
+  const journal = appState?.journal || {};
   const { t } = useLocalization();
   
   // Safe translation function
