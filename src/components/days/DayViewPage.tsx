@@ -440,75 +440,62 @@ export default function DayViewPage() {
               {(selectedDay.resources || []).length > 0 ? (
                 (selectedDay.resources || []).map((resource, index) => {
                   const Icon = resourceTypeIcons[resource.type] || FileText;
-                  const typeColors = {
-                    video: 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400',
-                    article: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
-                    book: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400',
-                    tool: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400',
-                    podcast: 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400',
-                    course: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400'
-                  };
-                  
-                  const typeLabels = {
-                    video: 'فيديو',
-                    article: 'مقال',
-                    book: 'كتاب',
-                    tool: 'أداة',
-                    podcast: 'بودكاست',
-                    course: 'دورة'
-                  };
                   
                   return (
                     <motion.div
                       key={index}
                       {...animations.stagger(0.3 + index * 0.1)}
-                      className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
+                      className="group relative"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className={`p-3 rounded-lg ${typeColors[resource.type] || typeColors.article}`}>
-                            <Icon className="w-6 h-6" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                      {/* Resource Card as Button */}
+                      <button
+                        onClick={() => window.open(resource.url, '_blank')}
+                        className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-300 text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+                              <Icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 {resource.title}
                               </h4>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeColors[resource.type] || typeColors.article}`}>
-                                {typeLabels[resource.type] || resource.type}
-                              </span>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {resource.description || 'لا يوجد وصف'}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {resource.description || 'لا يوجد وصف'}
-                            </p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {/* Edit Button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setResourceModal({ isOpen: true, resource });
+                              }}
+                              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                              title="تعديل المرجع"
+                            >
+                              <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            </button>
+                            {/* Delete Button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteResource(resource.id);
+                              }}
+                              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                              title="حذف المرجع"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                            </button>
+                            {/* External Link Icon */}
+                            <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                              <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            icon={<Edit2 className="w-4 h-4" />}
-                            onClick={() => setResourceModal({ isOpen: true, resource })}
-                            title="تعديل المرجع"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            icon={<Trash2 className="w-4 h-4" />}
-                            onClick={() => handleDeleteResource(resource.id)}
-                            title="حذف المرجع"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                          />
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            icon={<ExternalLink className="w-4 h-4" />}
-                            onClick={() => window.open(resource.url, '_blank')}
-                          >
-                            فتح
-                          </Button>
-                        </div>
-                      </div>
+                      </button>
                     </motion.div>
                   );
                 })
