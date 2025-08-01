@@ -61,6 +61,17 @@ export default function DaysPage() {
   const { weekId = "1" } = useParams();
   const navigate = useNavigate();
   const { plan, progress, lang } = useApp();
+  const { t } = useLocalization();
+
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? safeT(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
 
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
 
@@ -68,7 +79,7 @@ export default function DaysPage() {
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
-  const weekNumber = parseInt(weekId);
+  const weekNumber = parseInsafeT(weekId);
   const week = safePlan.find(w => w.week === weekNumber);
 
   // Calculate day completion
@@ -183,7 +194,7 @@ export default function DaysPage() {
 
   return (
     <PageLayout 
-      title={`${t('week')} ${weekNumber} - ${t('days')}`} 
+      title={`${safeT('week')} ${weekNumber} - ${safeT('days')}`} 
       subtitle={week.title?.[lang]} 
       showHeader={true}
     >
