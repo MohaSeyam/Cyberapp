@@ -63,6 +63,16 @@ export default function PhaseWeeksPage() {
   const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
 
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? safeT(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   // Safety checks for data
   const safePlan = plan || [];
   const safeProgress = progress || [];
@@ -116,8 +126,8 @@ export default function PhaseWeeksPage() {
     }
   ];
 
-  const currentPhase = phases.find(p => p.id === parseInt(phaseId));
-  const phaseWeeks = safePlan.filter(week => week.phase === parseInt(phaseId));
+  const currentPhase = phases.find(p => p.id === parseInsafeT(phaseId));
+  const phaseWeeks = safePlan.filter(week => week.phase === parseInsafeT(phaseId));
 
   // Calculate week completion
   const getWeekCompletion = (weekNumber: number) => {
