@@ -14,7 +14,7 @@ import { animations } from '../constants/theme';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
-  const { theme, lang, toggleTheme, setLang, settings, updateSettings } = useApp();
+  const { theme, lang, toggleTheme, setLang, settings, updateSettings, forceReloadData } = useApp();
   const { t } = useLocalization();
   
   const [localSettings, setLocalSettings] = useState(settings || {});
@@ -107,20 +107,12 @@ export default function SettingsPage() {
   const handleClearAndReload = async () => {
     if (window.confirm('هل أنت متأكد من حذف جميع البيانات وإعادة تحميلها من جديد؟')) {
       try {
-        // Clear all data
-        localStorage.clear();
-        indexedDB.deleteDatabase('CyberPlanDB');
-        indexedDB.deleteDatabase('CyberPlanOffline');
-        
-        toast.success('تم حذف البيانات بنجاح');
-        
-        // Reload page after 1 second
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // Use the new forceReloadData function
+        await forceReloadData();
+        toast.success('تم إعادة تحميل البيانات بنجاح');
       } catch (error) {
         console.error('Error clearing data:', error);
-        toast.error('فشل في حذف البيانات');
+        toast.error('فشل في إعادة تحميل البيانات');
       }
     }
   };

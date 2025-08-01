@@ -43,6 +43,7 @@ interface AppContextType {
   addNotification: (notification: Omit<Notification, 'id'>) => void;
   removeNotification: (id: string) => void;
   refreshData: () => Promise<void>;
+  forceReloadData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -642,6 +643,55 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   }, []);
 
+  // Force reload data function
+  const forceReloadData = async () => {
+    try {
+      setLoading(true);
+      console.log("Force reloading data...");
+      
+      // Clear existing data
+      await Promise.all([
+        planService.clear(),
+        progressService.clear(),
+        notesService.clear(),
+        journalService.clear(),
+        resourcesService.clear()
+      ]);
+      
+      // Import fresh data
+      const freshPlan = await planService.importFromFile();
+      console.log("Fresh plan loaded:", freshPlan.length, "weeks");
+      
+      // Verify all weeks are present
+      const phasesData = await import('../data/phases.json');
+      const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
+      const missingWeeks = allPhaseWeeks.filter(week => !freshPlan.find(w => w.week === week));
+      
+      if (missingWeeks.length > 0) {
+        console.error("Missing weeks after force reload:", missingWeeks);
+        toast.error(`أسابيع مفقودة: ${missingWeeks.join(', ')}`);
+      } else {
+        console.log("All weeks present after force reload!");
+        toast.success("تم إعادة تحميل البيانات بنجاح");
+      }
+      
+      // Update state
+      setPlan(freshPlan);
+      setProgress([]);
+      setAppState({
+        notes: {},
+        journal: {},
+        resources: {}
+      });
+      
+    } catch (error) {
+      console.error("Error in force reload:", error);
+      toast.error("فشل في إعادة تحميل البيانات");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: AppContextType = {
     // State
     plan,
@@ -673,6 +723,7 @@ export function AppProvider({ children }: AppProviderProps) {
     addNotification,
     removeNotification,
     refreshData,
+    forceReloadData // Add this new method
   };
 
   return (
