@@ -105,7 +105,7 @@ export default function PhaseWeeksPage() {
 
   // Calculate phase completion
   const getPhaseCompletion = () => {
-    const totalWeeks = phaseWeeks.length;
+    const totalWeeks = currentPhase.weeks.length;
     const completedWeeks = phaseWeeks.filter(week => {
       const completion = getWeekCompletion(week.week);
       return completion.percentage === 100;
