@@ -1,14 +1,18 @@
-// Performance monitoring utilities
 import React from 'react';
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+import getCLS from 'web-vitals/dist/getCLS';
+import getFID from 'web-vitals/dist/getFID';
+import getFCP from 'web-vitals/dist/getFCP';
+import getLCP from 'web-vitals/dist/getLCP';
+import getTTFB from 'web-vitals/dist/getTTFB';
 import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
 
 // Initialize Sentry
 Sentry.init({
   dsn: process.env.VITE_SENTRY_DSN || '', // Add your Sentry DSN here
   environment: process.env.NODE_ENV,
   integrations: [
-    new Sentry.BrowserTracing({
+    new BrowserTracing({
       tracePropagationTargets: ['localhost', 'your-domain.com'],
     }),
   ],
@@ -17,16 +21,13 @@ Sentry.init({
 
 // Performance metrics tracking
 export const trackPerformance = () => {
-  // Core Web Vitals
   getCLS(console.log);
   getFID(console.log);
   getFCP(console.log);
   getLCP(console.log);
   getTTFB(console.log);
 
-  // Custom performance tracking
   if ('performance' in window) {
-    // Navigation Timing API
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     if (navigation) {
       console.log('Navigation Timing:', {
@@ -36,8 +37,6 @@ export const trackPerformance = () => {
         domComplete: navigation.domComplete,
       });
     }
-
-    // Resource Timing API
     const resources = performance.getEntriesByType('resource');
     const slowResources = resources.filter(resource => resource.duration > 1000);
     if (slowResources.length > 0) {
@@ -46,7 +45,6 @@ export const trackPerformance = () => {
   }
 };
 
-// Error tracking
 export const trackError = (error: Error, context?: any) => {
   console.error('Error tracked:', error, context);
   Sentry.captureException(error, {
@@ -54,14 +52,12 @@ export const trackError = (error: Error, context?: any) => {
   });
 };
 
-// Performance monitoring hook
 export const usePerformanceMonitoring = () => {
   React.useEffect(() => {
     trackPerformance();
   }, []);
 };
 
-// Custom performance marks
 export const performanceMarks = {
   start: (name: string) => {
     performance.mark(name);
@@ -75,7 +71,6 @@ export const performanceMarks = {
   },
 };
 
-// Bundle size monitoring
 export const trackBundleSize = () => {
   if ('performance' in window) {
     const observer = new PerformanceObserver((list) => {
@@ -96,7 +91,6 @@ export const trackBundleSize = () => {
   }
 };
 
-// Memory usage monitoring
 export const trackMemoryUsage = () => {
   if ('memory' in performance) {
     const memory = (performance as any).memory;
@@ -108,20 +102,16 @@ export const trackMemoryUsage = () => {
   }
 };
 
-// React performance monitoring
 export const withPerformanceMonitoring = (Component: React.ComponentType<any>) => {
   return React.memo((props: any) => {
     const startTime = performance.now();
-    
     React.useEffect(() => {
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
-      if (renderTime > 16) { // More than 60fps threshold
+      if (renderTime > 16) {
         console.warn(`Slow render detected: ${renderTime.toFixed(2)}ms`, Component.name);
       }
     });
-
     return <Component {...props} />;
   });
 };

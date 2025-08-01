@@ -788,10 +788,6 @@ const translations: TranslationData = {
     ar: "التبديل للوضع الليلي",
     en: "Switch to Dark Mode"
   },
-  navigation: {
-    ar: "التنقل",
-    en: "Navigation"
-  },
   // Task related
   inProgress: {
     ar: "قيد التنفيذ",
