@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { pageLayouts, animations } from '../../constants/theme';
+import MobileBottomBar from './MobileBottomBar';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface PageLayoutProps {
   className?: string;
   showHeader?: boolean;
   showFooter?: boolean;
+  showBottomBar?: boolean;
 }
 
 export default function PageLayout({
@@ -24,7 +26,8 @@ export default function PageLayout({
   footer,
   className = '',
   showHeader = false,
-  showFooter = true
+  showFooter = true,
+  showBottomBar = true
 }: PageLayoutProps) {
   return (
     <div className={`${pageLayouts.container} ${className}`}>
@@ -60,7 +63,7 @@ export default function PageLayout({
       <motion.main
         {...animations.fadeIn}
         transition={{ delay: 0.1 }}
-        className={pageLayouts.main}
+        className={`${pageLayouts.main} ${showBottomBar ? 'pb-20 lg:pb-0' : ''}`}
       >
         {children}
       </motion.main>
@@ -75,6 +78,9 @@ export default function PageLayout({
           {footer}
         </motion.footer>
       )}
+
+      {/* Mobile Bottom Bar */}
+      {showBottomBar && <MobileBottomBar />}
     </div>
   );
 }
