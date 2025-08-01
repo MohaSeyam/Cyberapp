@@ -82,7 +82,7 @@ export default function ProgressPage() {
       .filter(p => p.done)
       .map(p => new Date(p.updatedAt || 0).toDateString())
       .filter((date, index, arr) => arr.indexOf(date) === index)
-      .sorsafeT((a, b) => new Date(b).getTime() - new Date(a).getTime());
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
     
     if (completedDates.length === 0) return { currentStreak: 0, longestStreak: 0 };
     
@@ -133,7 +133,7 @@ export default function ProgressPage() {
   // Get last activity
   const lastActivity = safeProgress
     .filter(p => p.done)
-    .sorsafeT((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
+    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime())[0];
 
   // Calculate task types distribution (including Policies)
   const completedTaskTypes = safeProgress
