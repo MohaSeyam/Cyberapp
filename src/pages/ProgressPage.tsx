@@ -201,7 +201,7 @@ export default function ProgressPage() {
       description: lang === 'ar' ? 'مهارات الأمن السيبراني الشاملة' : 'Comprehensive cybersecurity skills',
       color: 'bg-indigo-500'
     }
-  ], [blueTeamTasks, redTeamTasks, practicalTasks, theoreticalTasks, policiesTasks, lang]);
+  ], [blueTeamTasks, redTeamTasks, practicalTasks, theoreticalTasks, policiesTasks]);
 
   // Smart Suggestions System
   const suggestions = useMemo(() => {
@@ -268,7 +268,7 @@ export default function ProgressPage() {
     }
 
     return suggestionsList;
-  }, [completedTasks, completionRate, currentStreak, blueTeamTasks, redTeamTasks, policiesTasks, lang]);
+  }, [completedTasks, completionRate, currentStreak, blueTeamTasks, redTeamTasks, policiesTasks]);
 
   // Tab Components
   const OverviewTab = () => (
