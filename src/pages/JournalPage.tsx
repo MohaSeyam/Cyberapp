@@ -94,8 +94,12 @@ export default function JournalPage() {
     const week = plan?.find(w => w.week === weekId);
     const day = week?.days?.find(d => d.key === dayKey);
     
-    if (day?.title) {
-      return day.title.ar || day.title.en || day.title;
+    if (day?.day?.ar) {
+      return day.day.ar;
+    }
+    
+    if (day?.day?.en) {
+      return day.day.en;
     }
     
     // Fallback to day name
@@ -251,27 +255,39 @@ export default function JournalPage() {
               />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">{t('allEntries')}</option>
-                <option value="recent">{t('recentEntries')}</option>
-                <option value="important">{t('importantEntries')}</option>
-              </select>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-gray-500" />
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value as any)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="all">جميع المدونات</option>
+                  <option value="recent">المدونات الحديثة</option>
+                  <option value="important">المدونات المهمة</option>
+                </select>
+              </div>
               
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="date">{t('sortByDate')}</option>
-                <option value="title">{t('sortByTitle')}</option>
-              </select>
-              
-
+              <div className="flex items-center space-x-2">
+                <SortAsc className="w-4 h-4 text-gray-500" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="date">ترتيب حسب التاريخ</option>
+                  <option value="title">ترتيب حسب العنوان</option>
+                </select>
+                
+                <button
+                  onClick={toggleSortOrder}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  title={sortOrder === 'asc' ? 'ترتيب تصاعدي' : 'ترتيب تنازلي'}
+                >
+                  {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </Card>
@@ -282,13 +298,6 @@ export default function JournalPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {t('journal')} ({searchableEntries.length})
             </h2>
-            <button
-              className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-              onClick={() => setJournalModal({ isOpen: true, entry: null })}
-              aria-label={t('addEntry')}
-            >
-              <Plus className="w-8 h-8" />
-            </button>
           </div>
 
           {/* Virtual List for Journal Entries */}

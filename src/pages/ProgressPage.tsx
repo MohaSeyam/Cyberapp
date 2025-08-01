@@ -604,8 +604,8 @@ export default function ProgressPage() {
         <motion.div {...animations.fadeIn} className="space-y-6">
           
           {/* Tabs Navigation */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-            <div className="flex flex-wrap gap-2 justify-center">
+          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-700">
+            <div className="flex flex-wrap gap-3 justify-center p-4">
               {tabs.map((tab) => (
                 <Button
                   key={tab.id}
@@ -613,7 +613,11 @@ export default function ProgressPage() {
                   size="sm"
                   onClick={() => setActiveTab(tab.id)}
                   icon={tab.icon}
-                  className="min-w-[120px]"
+                  className={`min-w-[140px] transition-all duration-300 ${
+                    activeTab === tab.id 
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transform scale-105' 
+                      : 'hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                  }`}
                 >
                   {tab.label}
                 </Button>

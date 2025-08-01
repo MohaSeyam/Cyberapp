@@ -123,6 +123,28 @@ export default function SettingsPage() {
       icon: theme === 'dark' ? Moon : Sun,
       settings: [
         {
+          key: 'language',
+          label: t('language'),
+          type: 'select',
+          options: [
+            { value: 'ar', label: 'العربية' },
+            { value: 'en', label: 'English' }
+          ],
+          value: lang,
+          onChange: (value: string) => setLang(value as 'ar' | 'en')
+        },
+        {
+          key: 'theme',
+          label: t('theme'),
+          type: 'select',
+          options: [
+            { value: 'light', label: t('light') },
+            { value: 'dark', label: t('dark') }
+          ],
+          value: theme,
+          onChange: (value: string) => setTheme(value as 'light' | 'dark')
+        },
+        {
           key: 'fontSize',
           label: t('fontSize'),
           type: 'select',
@@ -384,36 +406,7 @@ export default function SettingsPage() {
         </Card>
       </motion.div>
 
-      {/* Data Management Section */}
-      <motion.div
-        {...animations.fadeIn}
-        transition={{ delay: 0.8 }}
-        className="mt-8"
-      >
-        <Card
-          title="إدارة البيانات"
-          subtitle="حل مشاكل تحميل البيانات"
-        >
-          <div className="space-y-4">
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-              <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">
-                مشكلة الأسبوع 3 و 4
-              </h4>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
-                إذا كنت تواجه مشكلة في عدم ظهور الأسبوع 3 و 4، اضغط على الزر أدناه لحل المشكلة.
-              </p>
-              <Button
-                variant="primary"
-                icon={<RefreshCw className="w-4 h-4" />}
-                onClick={handleClearAndReload}
-                className="w-full"
-              >
-                حل مشكلة الأسبوع 3 و 4
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
+
     </PageLayout>
   );
 }

@@ -108,7 +108,7 @@ function TaskCard({
             <p className={`text-sm font-medium ${
               isCompleted ? 'text-gray-500 line-through' : 
               isLocked ? 'text-gray-400' : 
-              'text-gray-900 dark:text-white'
+              'text-gray-800 dark:text-gray-200'
             }`}>
               {task.description[useApp().lang]}
               {isLocked && (
@@ -249,10 +249,10 @@ function TaskCard({
             </span>
           </div>
           
-          <p className={`text-sm ${
+          <p className={`text-sm font-medium ${
             isCompleted ? 'text-gray-500 line-through' : 
             isLocked ? 'text-gray-400' : 
-            'text-gray-900 dark:text-gray-100'
+            'text-gray-800 dark:text-gray-200'
           }`}>
             {task.description[useApp().lang]}
             {isLocked && (

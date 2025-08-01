@@ -82,8 +82,12 @@ export default function NotesPage() {
     const week = plan?.find(w => w.week === weekId);
     const day = week?.days?.find(d => d.key === dayKey);
     
-    if (day?.title) {
-      return day.title.ar || day.title.en || day.title;
+    if (day?.day?.ar) {
+      return day.day.ar;
+    }
+    
+    if (day?.day?.en) {
+      return day.day.en;
     }
     
     // Fallback to day name
@@ -256,27 +260,39 @@ export default function NotesPage() {
               />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">{t('allNotes')}</option>
-                <option value="recent">{t('recentNotes')}</option>
-                <option value="important">{t('importantNotes')}</option>
-              </select>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-gray-500" />
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value as any)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="all">جميع الملاحظات</option>
+                  <option value="recent">الملاحظات الحديثة</option>
+                  <option value="important">الملاحظات المهمة</option>
+                </select>
+              </div>
               
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="date">{t('sortByDate')}</option>
-                <option value="title">{t('sortByTitle')}</option>
-              </select>
-              
-
+              <div className="flex items-center space-x-2">
+                <SortAsc className="w-4 h-4 text-gray-500" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="date">ترتيب حسب التاريخ</option>
+                  <option value="title">ترتيب حسب العنوان</option>
+                </select>
+                
+                <button
+                  onClick={toggleSortOrder}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  title={sortOrder === 'asc' ? 'ترتيب تصاعدي' : 'ترتيب تنازلي'}
+                >
+                  {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </Card>
