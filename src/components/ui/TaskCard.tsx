@@ -108,7 +108,7 @@ function TaskCard({
             <p className={`text-sm font-semibold leading-relaxed ${
               isCompleted ? 'text-gray-500 line-through' : 
               isLocked ? 'text-gray-400' : 
-              'text-gray-900 dark:text-white'
+              'text-gray-900 dark:text-gray-900'
             }`}>
               {task.description[useApp().lang]}
               {isLocked && (
@@ -170,7 +170,7 @@ function TaskCard({
               <h3 className={`text-lg font-bold leading-relaxed ${
                 isCompleted ? 'text-gray-500 line-through' : 
                 isLocked ? 'text-gray-400' : 
-                'text-gray-900 dark:text-white'
+                'text-gray-900 dark:text-gray-900'
               }`}>
                 {task.description[useApp().lang]}
                 {isLocked && (
@@ -255,7 +255,7 @@ function TaskCard({
           <p className={`text-sm font-bold leading-relaxed tracking-wide ${
             isCompleted ? 'text-gray-500 line-through' : 
             isLocked ? 'text-gray-400' : 
-            'text-gray-900 dark:text-white'
+            'text-gray-900 dark:text-gray-900'
           }`}>
             {task.description[useApp().lang]}
             {isLocked && (
