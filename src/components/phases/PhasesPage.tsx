@@ -52,7 +52,7 @@ function Breadcrumbs() {
 }
 
 export default function PhasesPage() {
-  const { plan, progress } = useApp();
+  const { plan, progress, lang } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
 
