@@ -13,7 +13,7 @@ import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
 
 export default function SettingsPage() {
-  const { settings, updateSettings, lang, setLang, theme, setTheme, refreshData } = useApp();
+  const { theme, lang, toggleTheme, setLang } = useApp();
   const { t } = useLocalization();
   
   const [localSettings, setLocalSettings] = useState(settings);
@@ -150,11 +150,22 @@ export default function SettingsPage() {
     }
   ];
 
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   return (
-    <PageLayout
-      title={t('settings')}
-      subtitle={t('customizeYourExperience')}
-      showHeader={true}
+    <PageLayout 
+      title={safeT('settings')}
+      subtitle={safeT('customizeYourExperience')}
+      showTopNavBar={true}
+      showBottomBar={true}
     >
       {/* Save/Reset Buttons */}
       {hasChanges && (

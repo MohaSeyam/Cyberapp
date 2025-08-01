@@ -36,7 +36,7 @@ export default function ProgressPage() {
   // Safe translation function
   const safeT = (key: string) => {
     try {
-      return t ? safeT(key) : key;
+      return t ? t(key) : key;
     } catch (error) {
       console.warn('Translation function not available:', error);
       return key;
@@ -425,7 +425,7 @@ export default function ProgressPage() {
       {/* Skills Categories */}
       <Card title={safeT('skillCategories')} subtitle={safeT('categoryBreakdown')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from(new SesafeT(skillsMatrix.map(s => s.category))).map((category, index) => {
+          {Array.from(new Set(skillsMatrix.map(s => s.category))).map((category, index) => {
             const categorySkills = skillsMatrix.filter(s => s.category === category);
             const avgLevel = Math.round(categorySkills.reduce((sum, s) => sum + s.level, 0) / categorySkills.length);
             return (
@@ -595,7 +595,12 @@ export default function ProgressPage() {
 
   return (
     <WeekPhaseProvider>
-      <PageLayout title={safeT('progress')} subtitle={safeT('trackYourLearningProgress')} showHeader={true}>
+      <PageLayout 
+        title={safeT('progress')}
+        subtitle={safeT('trackYourLearning')}
+        showTopNavBar={true}
+        showBottomBar={true}
+      >
         <motion.div {...animations.fadeIn} className="space-y-6">
           
           {/* Overall Progress Card - Using New Component */}

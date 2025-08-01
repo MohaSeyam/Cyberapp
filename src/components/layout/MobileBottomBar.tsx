@@ -1,19 +1,18 @@
 // Mobile Bottom Bar Component
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Home, Calendar, FileText, BookOpen, TrendingUp, Settings
+  Home, BookOpen, FileText, BarChart3, Settings
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 
 export default function MobileBottomBar() {
-  const { lang } = useApp();
-  const { t } = useLocalization();
+  const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLocalization();
 
-  // Safety check for t function
+  // Safe translation function
   const safeT = (key: string) => {
     try {
       return t ? t(key) : key;
@@ -24,42 +23,11 @@ export default function MobileBottomBar() {
   };
 
   const navigationItems = [
-    {
-      name: safeT('home'),
-      path: '/',
-      icon: Home,
-      description: safeT('dashboard')
-    },
-    {
-      name: safeT('phases'),
-      path: '/phases',
-      icon: Calendar,
-      description: safeT('learningPhases')
-    },
-    {
-      name: safeT('notes'),
-      path: '/notes',
-      icon: FileText,
-      description: safeT('manageNotes')
-    },
-    {
-      name: safeT('journal'),
-      path: '/journal',
-      icon: BookOpen,
-      description: safeT('learningJournal')
-    },
-    {
-      name: safeT('progress'),
-      path: '/progress',
-      icon: TrendingUp,
-      description: safeT('trackProgress')
-    },
-    {
-      name: safeT('settings'),
-      path: '/settings',
-      icon: Settings,
-      description: safeT('appSettings')
-    }
+    { path: '/', label: safeT('home'), icon: Home },
+    { path: '/phases', label: safeT('phases'), icon: BookOpen },
+    { path: '/notes', label: safeT('notes'), icon: FileText },
+    { path: '/progress', label: safeT('progress'), icon: BarChart3 },
+    { path: '/settings', label: safeT('settings'), icon: Settings }
   ];
 
   const isActive = (path: string) => {
@@ -70,47 +38,27 @@ export default function MobileBottomBar() {
   };
 
   return (
-    <motion.nav
+    <motion.nav 
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 lg:hidden"
     >
-      <div className="flex justify-around items-center h-16 px-2">
+      <div className="flex items-center justify-around h-16">
         {navigationItems.map((item) => {
           const Icon = item.icon;
-          const active = isActive(item.path);
-          
           return (
-            <Link
+            <button
               key={item.path}
-              to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1 transition-all duration-200 ${
-                active
+              onClick={() => navigate(item.path)}
+              className={`flex flex-col items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive(item.path)
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
-              <div className={`flex flex-col items-center space-y-1 ${
-                active ? 'transform scale-110' : ''
-              }`}>
-                <Icon className={`w-5 h-5 transition-all duration-200 ${
-                  active ? 'text-blue-600 dark:text-blue-400' : ''
-                }`} />
-                <span className={`text-xs font-medium transition-all duration-200 ${
-                  active ? 'text-blue-600 dark:text-blue-400' : ''
-                }`}>
-                  {item.name}
-                </span>
-              </div>
-              {active && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
-              )}
-            </Link>
+              <Icon className="w-5 h-5 mb-1" />
+              <span className="text-xs">{item.label}</span>
+            </button>
           );
         })}
       </div>

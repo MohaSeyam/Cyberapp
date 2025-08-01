@@ -16,9 +16,20 @@ import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
 
 export default function HomePage() {
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
   const { t } = useLocalization();
   const navigate = useNavigate();
+
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   // Comprehensive safety checks for data
   const safePlan = Array.isArray(plan) ? plan : [];
   const safeProgress = Array.isArray(progress) ? progress : [];
@@ -104,13 +115,11 @@ export default function HomePage() {
 
 
   return (
-    <PageLayout
-      title={lang === 'ar' ? 'رحلة الأمن السيبراني' : 'Cyber Security Journey'}
-      subtitle={lang === 'ar' 
-        ? 'رحلة شاملة في عالم الأمن السيبراني - من الأساسيات إلى الاحتراف'
-        : 'A comprehensive journey in cybersecurity - from basics to professional'
-      }
-      showHeader={true}
+    <PageLayout 
+      title={safeT('welcome')}
+      subtitle={safeT('cyberSecurityLearning')}
+      showTopNavBar={true}
+      showBottomBar={true}
     >
       {/* Statistics Cards */}
       <motion.div

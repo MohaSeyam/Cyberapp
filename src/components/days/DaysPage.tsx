@@ -58,15 +58,15 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 }
 
 export default function DaysPage() {
-  const { weekId = "1" } = useParams();
-  const navigate = useNavigate();
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
   const { t } = useLocalization();
+  const navigate = useNavigate();
+  const { weekId } = useParams();
 
   // Safe translation function
   const safeT = (key: string) => {
     try {
-      return t ? safeT(key) : key;
+      return t ? t(key) : key;
     } catch (error) {
       console.warn('Translation function not available:', error);
       return key;
@@ -194,14 +194,29 @@ export default function DaysPage() {
 
   return (
     <PageLayout 
-      title={`${safeT('week')} ${weekNumber} - ${safeT('days')}`} 
-      subtitle={week.title?.[lang]} 
-      showHeader={true}
+      title={safeT('weekDays')}
+      subtitle={week?.title?.ar || ''}
+      showTopNavBar={true}
+      showBottomBar={true}
+      showBackButton={true}
+      onBackClick={() => navigate('/phases')}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
         {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbs} />
+        <Breadcrumbs 
+          items={[
+            { 
+              label: safeT('phases'), 
+              icon: BookOpen,
+              onClick: () => navigate('/phases')
+            },
+            { 
+              label: safeT('week'), 
+              icon: Calendar 
+            }
+          ]} 
+        />
         
         {/* Week Overview Card */}
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">

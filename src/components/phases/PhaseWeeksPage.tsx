@@ -62,22 +62,22 @@ function Breadcrumbs({ phaseTitle }: { phaseTitle: string }) {
 }
 
 export default function PhaseWeeksPage() {
-  const { phaseId = "1" } = useParams<{ phaseId: string }>();
-  const navigate = useNavigate();
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
   const { t } = useLocalization();
+  const navigate = useNavigate();
+  const { phaseId } = useParams();
 
   // Safe translation function
   const safeT = (key: string) => {
     try {
-      return t ? safeT(key) : key;
+      return t ? t(key) : key;
     } catch (error) {
       console.warn('Translation function not available:', error);
       return key;
     }
   };
 
-  // Safety checks for data
+  // Safety checks
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
@@ -185,9 +185,12 @@ export default function PhaseWeeksPage() {
 
   return (
     <PageLayout 
-      title={currentPhase.title[lang]} 
-      subtitle={currentPhase.focus[lang]} 
-      showHeader={true}
+      title={currentPhase?.title?.ar || safeT('phaseWeeks')}
+      subtitle={currentPhase?.focus?.ar || ''}
+      showTopNavBar={true}
+      showBottomBar={true}
+      showBackButton={true}
+      onBackClick={() => navigate('/phases')}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         

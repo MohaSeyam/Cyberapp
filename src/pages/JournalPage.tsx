@@ -16,9 +16,19 @@ import { animations } from '../constants/theme';
 import type { JournalEntry } from '../types';
 
 export default function JournalPage() {
-  const { appState, addJournalEntry, updateJournalEntry, deleteJournalEntry, lang } = useApp();
+  const { journal, addJournalEntry, updateJournalEntry, deleteJournalEntry, lang } = useApp();
   const { t } = useLocalization();
   
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
@@ -66,7 +76,7 @@ export default function JournalPage() {
   };
 
   // Get all journal entries from appState
-  const allEntries = Object.values(appState.journal).flat();
+  const allEntries = Object.values(journal).flat();
   const filteredEntries = allEntries.filter(entry => {
     const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          entry.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -174,10 +184,11 @@ export default function JournalPage() {
   ];
 
   return (
-    <PageLayout
-      title={t('journal')}
-      subtitle={t('yourLearningJourney')}
-      showHeader={true}
+    <PageLayout 
+      title={safeT('journal')}
+      subtitle={safeT('learningJournal')}
+      showTopNavBar={true}
+      showBottomBar={true}
     >
       {/* Add Entry Button */}
       <motion.div

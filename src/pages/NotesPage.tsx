@@ -16,7 +16,7 @@ import { animations } from '../constants/theme';
 import type { Note } from '../types';
 
 export default function NotesPage() {
-  const { appState, addNote, updateNote, deleteNote, lang } = useApp();
+  const { notes, addNote, updateNote, deleteNote } = useApp();
   const { t } = useLocalization();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +29,7 @@ export default function NotesPage() {
   });
 
   // Get all notes from appState
-  const allNotes = Object.values(appState.notes).flat();
+  const allNotes = Object.values(notes).flat();
   const filteredNotes = allNotes.filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          note.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -126,11 +126,22 @@ export default function NotesPage() {
     }
   ];
 
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   return (
-    <PageLayout
-      title={t('notes')}
-      subtitle={t('manageYourNotes')}
-      showHeader={true}
+    <PageLayout 
+      title={safeT('notes')}
+      subtitle={safeT('manageYourNotes')}
+      showTopNavBar={true}
+      showBottomBar={true}
     >
       {/* Add Note Button */}
       <motion.div
@@ -444,7 +455,7 @@ export default function NotesPage() {
               content={noteForm.content}
               onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
               placeholder={t('writeNote')}
-              lang={lang}
+              lang={t}
               minHeight="400px"
             />
           </div>

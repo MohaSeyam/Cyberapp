@@ -108,6 +108,16 @@ export default function DayViewPage() {
   const { plan, progress, addNote, addResource, lang, updateResource } = useApp();
   const { t } = useLocalization();
 
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
   const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
   const [selectedDay, setSelectedDay] = useState<Day | null>(null);
   const [noteModal, setNoteModal] = useState({ isOpen: false, taskId: '' });
@@ -219,10 +229,13 @@ export default function DayViewPage() {
   ];
 
   return (
-    <PageLayout
-      title={`${selectedDay.day?.[lang] || 'Unknown Day'}`}
-      subtitle={selectedDay.topic?.[lang] || 'No topic'}
-      showHeader={true}
+    <PageLayout 
+      title={selectedDay?.name?.ar || safeT('dayDetails')}
+      subtitle={selectedDay?.topic?.ar || ''}
+      showTopNavBar={true}
+      showBottomBar={true}
+      showBackButton={true}
+      onBackClick={() => navigate(`/days/${weekId}`)}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         

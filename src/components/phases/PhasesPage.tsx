@@ -52,11 +52,21 @@ function Breadcrumbs() {
 }
 
 export default function PhasesPage() {
-  const navigate = useNavigate();
-  const { plan, progress, lang } = useApp();
+  const { plan, progress } = useApp();
   const { t } = useLocalization();
+  const navigate = useNavigate();
 
-  // Safety checks for data
+  // Safe translation function
+  const safeT = (key: string) => {
+    try {
+      return t ? t(key) : key;
+    } catch (error) {
+      console.warn('Translation function not available:', error);
+      return key;
+    }
+  };
+
+  // Safety checks
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
@@ -128,14 +138,19 @@ export default function PhasesPage() {
 
   return (
     <PageLayout 
-      title="المراحل" 
-      subtitle="خطة تعلم الأمن السيبراني الشاملة" 
-      showHeader={true}
+      title={safeT('learningPhases')}
+      subtitle={safeT('choosePhaseToStart')}
+      showTopNavBar={true}
+      showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
         {/* Breadcrumbs */}
-        <Breadcrumbs />
+        <Breadcrumbs 
+          items={[
+            { label: safeT('phases'), icon: BookOpen }
+          ]} 
+        />
         
         {/* Header Card */}
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
