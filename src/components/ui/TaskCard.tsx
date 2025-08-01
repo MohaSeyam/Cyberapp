@@ -124,17 +124,17 @@ function TaskCard({
             </div>
           </div>
 
-          {showNotes && onNoteClick && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onNoteClick}
-              className="flex-shrink-0 p-1"
-              icon={<MessageSquare size={16} className="text-blue-600 dark:text-yellow-300" />}
-              disabled={!onNoteClick}
-              title={onNoteClick ? t('addNote') : t('noNoteAction')}
-            />
-          )}
+                      {showNotes && onNoteClick && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onNoteClick}
+                className="flex-shrink-0 p-1 border border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm hover:shadow-md transition-all duration-200"
+                icon={<MessageSquare size={16} className="text-blue-600 dark:text-yellow-300" />}
+                disabled={!onNoteClick}
+                title={onNoteClick ? t('addNote') : t('noNoteAction')}
+              />
+            )}
         </div>
       </motion.div>
     );
@@ -193,8 +193,9 @@ function TaskCard({
                 variant="ghost"
                 size="sm"
                 onClick={onNoteClick}
-                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                icon={<MessageSquare size={18} className="text-blue-600 dark:text-blue-400" />}
+                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-all duration-200"
+                icon={<MessageSquare size={18} className="text-blue-600 dark:text-yellow-300" />}
+                title={t('addNote')}
               />
             )}
           </div>
@@ -254,7 +255,7 @@ function TaskCard({
           <p className={`text-sm font-bold leading-relaxed tracking-wide ${
             isCompleted ? 'text-gray-500 line-through' : 
             isLocked ? 'text-gray-400' : 
-            'text-gray-900 dark:text-white'
+            'text-gray-900 dark:text-gray-100'
           }`}>
             {task.description[useApp().lang]}
             {isLocked && (
@@ -275,8 +276,9 @@ function TaskCard({
                 variant="ghost"
                 size="sm"
                 onClick={onNoteClick}
-                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                icon={<MessageSquare size={16} className="text-blue-600 dark:text-blue-400" />}
+                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-200 dark:border-blue-700 shadow-sm hover:shadow-md transition-all duration-200"
+                icon={<MessageSquare size={16} className="text-blue-600 dark:text-yellow-300" />}
+                title={t('addNote')}
               />
             )}
           </div>
