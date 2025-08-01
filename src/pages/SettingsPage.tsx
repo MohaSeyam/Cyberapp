@@ -363,7 +363,7 @@ export default function SettingsPage() {
             <Button
               variant="outline"
               icon={<RotateCcw className="w-4 h-4" />}
-              onClick={refreshData}
+              onClick={() => window.location.reload()}
             >
               {t('refreshData')}
             </Button>
