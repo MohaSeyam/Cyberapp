@@ -314,77 +314,63 @@ export default function DaysPage() {
           </h3>
           
           <div className="space-y-3">
-            {week.days?.map((day, index) => {
-              const dayCompletion = getDayCompletion(weekNumber, day.key);
-              const isSelected = index === selectedDayIndex;
-              const DayIcon = dayIcons[day.key as keyof typeof dayIcons] || Calendar;
+            {week.days?.map((day, dayIndex) => {
+              const dayKey = day.key;
+              const dayProgress = safeProgress.filter(p => 
+                p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
+              );
+              const completedTasks = dayProgress.filter(p => p.done).length;
+              const totalTasks = day.tasks?.length || 0;
+              const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
               
               return (
-                <motion.div
-                  key={index}
-                  {...animations.stagger(index * 0.1)}
+                <motion.div 
+                  key={dayKey} 
+                  {...animations.stagger(dayIndex * 0.1)}
                   className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
-                    isSelected
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    completionPercentage === 100 
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
                       : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
                   }`}
-                  onClick={() => setSelectedDayIndex(index)}
+                  onClick={() => goToDayView(dayIndex)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        dayCompletion.percentage === 100
-                          ? 'bg-green-100 dark:bg-green-900'
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        completionPercentage === 100 
+                          ? 'bg-green-100 dark:bg-green-900' 
                           : 'bg-gray-100 dark:bg-gray-700'
                       }`}>
-                        {dayCompletion.percentage === 100 ? (
-                          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        {completionPercentage === 100 ? (
+                          <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                         ) : (
-                          <DayIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                          <DayIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                         )}
                       </div>
-                      
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white">
-                          {day.day?.[lang]}
+                          {day.day[lang]}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {day.topic?.[lang]}
+                          {day.topic[lang]}
                         </p>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {dayCompletion.percentage}%
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-500">
-                          {dayCompletion.completed}/{dayCompletion.total} مهام
-                        </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {completionPercentage}%
                       </div>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToDayView(index);
-                        }}
-                      >
-                        عرض اليوم
-                      </Button>
+                      <div className="text-xs text-gray-500 dark:text-gray-500">
+                        {completedTasks}/{totalTasks} مهام
+                      </div>
                     </div>
                   </div>
-                  
                   <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div 
                       className={`h-2 rounded-full transition-all duration-300 ${
-                        dayCompletion.percentage === 100
-                          ? 'bg-green-500'
-                          : 'bg-blue-500'
+                        completionPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'
                       }`}
-                      style={{ width: `${dayCompletion.percentage}%` }}
+                      style={{ width: `${completionPercentage}%` }}
                     />
                   </div>
                 </motion.div>

@@ -199,41 +199,35 @@ export default function PhasesPage() {
             const PhaseIcon = phaseIcons[phase.icon as keyof typeof phaseIcons] || Shield;
             
             return (
-              <motion.div
-                key={phase.id}
-                {...animations.stagger(index * 0.1)}
-              >
+              <motion.div key={phase.id} {...animations.stagger(index * 0.1)}>
                 <Card 
                   className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105 ${
-                    completion.progress === 100 
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
-                      : 'border-gray-200 dark:border-gray-700'
-                  }`}
+                    completion.progress === 100 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-700'
+                  }`} 
                   onClick={() => goToPhaseWeeks(phase.id)}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className={`p-3 rounded-full ${
-                      phase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' :
-                      phase.color === 'green' ? 'bg-green-100 dark:bg-green-900' :
-                      phase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' :
-                      phase.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
+                      phase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' : 
+                      phase.color === 'green' ? 'bg-green-100 dark:bg-green-900' : 
+                      phase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' : 
+                      phase.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' : 
                       'bg-teal-100 dark:bg-teal-900'
                     }`}>
                       <PhaseIcon className={`w-6 h-6 ${
-                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
-                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 
+                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' : 
+                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' : 
+                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' : 
                         'text-teal-600 dark:text-teal-400'
                       }`} />
                     </div>
-                    
                     <div className="text-right">
                       <div className={`text-2xl font-bold ${
-                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
-                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 
+                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' : 
+                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' : 
+                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' : 
                         'text-teal-600 dark:text-teal-400'
                       }`}>
                         {completion.progress}%
@@ -281,17 +275,6 @@ export default function PhasesPage() {
                         style={{ width: `${completion.progress}%` }}
                       />
                     </div>
-
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        goToPhaseWeeks(phase.id);
-                      }}
-                    >
-                      عرض أسابيع المرحلة
-                    </Button>
                   </div>
                 </Card>
               </motion.div>

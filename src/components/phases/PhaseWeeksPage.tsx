@@ -352,72 +352,24 @@ export default function PhaseWeeksPage() {
               const completion = getWeekCompletion(week.week);
               
               return (
-                <motion.div
-                  key={week.week}
-                  {...animations.stagger(index * 0.1)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
-                    completion.percentage === 100
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
-                  }`}
-                  onClick={() => goToWeekDays(week.week)}
-                >
+                <motion.div key={week.week} {...animations.stagger(index * 0.1)} className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${completion.percentage === 100 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'}`} onClick={() => goToWeekDays(week.week)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        completion.percentage === 100
-                          ? 'bg-green-100 dark:bg-green-900'
-                          : 'bg-gray-100 dark:bg-gray-700'
-                      }`}>
-                        {completion.percentage === 100 ? (
-                          <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                        )}
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${completion.percentage === 100 ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                        {completion.percentage === 100 ? (<CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />) : (<Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />)}
                       </div>
-                      
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          الأسبوع {week.week}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {week.title[lang]}
-                        </p>
+                        <h4 className="font-medium text-gray-900 dark:text-white"> الأسبوع {week.week} </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400"> {week.title[lang]} </p>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {completion.percentage}%
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-500">
-                          {completion.completed}/{completion.total} مهام
-                        </div>
-                      </div>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToWeekDays(week.week);
-                        }}
-                      >
-                        عرض الأيام
-                      </Button>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white"> {completion.percentage}% </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500"> {completion.completed}/{completion.total} مهام </div>
                     </div>
                   </div>
-                  
                   <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        completion.percentage === 100
-                          ? 'bg-green-500'
-                          : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${completion.percentage}%` }}
-                    />
+                    <div className={`h-2 rounded-full transition-all duration-300 ${completion.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${completion.percentage}%` }} />
                   </div>
                 </motion.div>
               );
