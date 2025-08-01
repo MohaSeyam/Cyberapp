@@ -585,7 +585,7 @@ export default function DayViewPage() {
           </Card>
         </motion.div>
 
-        {/* Journal Entries Section */}
+        {/* Journal Section - Combined */}
         <motion.div
           {...animations.fadeIn}
           transition={{ delay: 0.3 }}
@@ -599,7 +599,7 @@ export default function DayViewPage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                    مدونات اليوم
+                    التدوين والمدونات
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
                     تدويناتك وتأملاتك
@@ -614,6 +614,35 @@ export default function DayViewPage() {
                 <Plus className="w-8 h-8" />
               </button>
             </div>
+
+            {/* Journal Prompt from Plan */}
+            {selectedDay.notes_prompt && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
+                    <MessageSquare className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                      {selectedDay.notes_prompt.title?.[lang] || 'مهمة التدوين المسائية'}
+                    </h4>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                      <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2 text-sm">
+                        نقاط التدوين:
+                      </h5>
+                      <ul className="space-y-1">
+                        {(selectedDay.notes_prompt.points || []).map((point, index) => (
+                          <li key={index} className="flex items-start space-x-2 text-sm text-purple-700 dark:text-purple-300">
+                            <span className="text-purple-500 dark:text-purple-400 mt-1 text-xs">•</span>
+                            <span>{point?.[lang] || 'Point'}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Journal Entries List */}
             <div className="space-y-4">
@@ -637,14 +666,14 @@ export default function DayViewPage() {
                             <h4 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
                               {entry.title}
                             </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
                               {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                             </p>
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-300">
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-3 h-3" />
                               <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
@@ -677,14 +706,15 @@ export default function DayViewPage() {
                   ));
                 } else {
                   return (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                      <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <h4 className="text-lg font-medium mb-2">لا توجد مدونات بعد</h4>
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <h4 className="text-base font-medium mb-2">لا توجد مدونات بعد</h4>
                       <p className="text-sm mb-4">ابدأ بتدوين أفكارك وتأملاتك</p>
                       <Button
                         variant="outline"
                         icon={<Plus className="w-4 h-4" />}
                         onClick={() => setJournalModal({ isOpen: true, entry: null })}
+                        className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40"
                       >
                         إضافة أول مدونة
                       </Button>
@@ -695,45 +725,6 @@ export default function DayViewPage() {
             </div>
           </Card>
         </motion.div>
-
-        {/* Evening Journaling Prompt Section */}
-        {selectedDay.notes_prompt && (
-          <motion.div
-            {...animations.fadeIn}
-            transition={{ delay: 0.4 }}
-          >
-            <Card
-              title={selectedDay.notes_prompt.title?.[lang] || 'مهمة التدوين المسائية'}
-              subtitle="تدوين المساء"
-            >
-              <div className="space-y-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">
-                    نقاط التدوين:
-                  </h4>
-                  <ul className="space-y-2">
-                    {(selectedDay.notes_prompt.points || []).map((point, index) => (
-                      <li key={index} className="flex items-start space-x-2 text-sm text-blue-800 dark:text-blue-200">
-                        <span className="text-blue-600 dark:text-blue-400 mt-1">•</span>
-                        <span>{point?.[lang] || 'Point'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex items-center justify-center">
-                  <Button
-                    variant="outline"
-                    icon={<MessageSquare className="w-4 h-4" />}
-                    onClick={() => setJournalModal({ isOpen: true, entry: null })}
-                    className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
-                  >
-                    بدء التدوين
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
 
         {/* Navigation Footer */}
         <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
