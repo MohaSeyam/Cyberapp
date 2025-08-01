@@ -70,7 +70,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Load initial data
-  const loadInitialData = useCallback(async () => {
+  const loadInitialData = async () => {
     try {
       setLoading(true);
       
@@ -178,12 +178,12 @@ export function AppProvider({ children }: AppProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   // Load data on mount
   useEffect(() => {
     loadInitialData();
-  }, [loadInitialData]);
+  }, []);
 
   // Apply saved theme and language on mount
   useEffect(() => {
