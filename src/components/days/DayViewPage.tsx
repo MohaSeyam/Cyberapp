@@ -227,33 +227,40 @@ export default function DayViewPage() {
   };
 
   const handleDeleteResource = async (resourceId: string) => {
-    if (selectedWeek && selectedDay) {
-      try {
-        await deleteResource(resourceId);
-        // Optionally, refresh the resources list or update the state
-        // For now, we'll just close the modal and let the user re-add if needed
-        setResourceModal({ isOpen: false, resource: null });
-      } catch (error) {
-        console.error('Error deleting resource:', error);
+    if (window.confirm('هل أنت متأكد من حذف هذا المرجع؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      if (selectedWeek && selectedDay) {
+        try {
+          await deleteResource(resourceId);
+          // Optionally, refresh the resources list or update the state
+          // For now, we'll just close the modal and let the user re-add if needed
+          setResourceModal({ isOpen: false, resource: null });
+        } catch (error) {
+          console.error('Error deleting resource:', error);
+        }
       }
     }
   };
 
   const handleDeleteNote = async (noteId: number) => {
-    try {
-      await deleteNote(noteId);
-      // Refresh notes or update state as needed
-    } catch (error) {
-      console.error('Error deleting note:', error);
+    if (window.confirm('هل أنت متأكد من حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      try {
+        await deleteNote(noteId);
+        // Refresh notes or update state as needed
+      } catch (error) {
+        console.error('Error deleting note:', error);
+      }
     }
   };
 
   const handleDeleteJournalEntry = async (entryId: number) => {
-    try {
-      await deleteJournalEntry(entryId);
-      // Refresh journal entries or update state as needed
-    } catch (error) {
-      console.error('Error deleting journal entry:', error);
+    if (window.confirm('هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      try {
+        await deleteJournalEntry(entryId);
+        setSelectedJournalEntry(null);
+        // Refresh journal entries or update state as needed
+      } catch (error) {
+        console.error('Error deleting journal entry:', error);
+      }
     }
   };
 
