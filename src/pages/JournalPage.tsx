@@ -70,7 +70,7 @@ export default function JournalPage() {
   const filteredEntries = allEntries.filter(entry => {
     const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          entry.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesWeek = !selectedWeek || entry.weekId.toString() === selectedWeek;
+    const matchesWeek = !selectedWeek || entry.weekId?.toString() === selectedWeek;
     const matchesTag = !selectedTag || entry.tags.includes(selectedTag);
     return matchesSearch && matchesWeek && matchesTag;
   });

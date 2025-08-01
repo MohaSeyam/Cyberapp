@@ -46,18 +46,13 @@ export default function DaysPage() {
   const week = safePlan.find(w => w.week === weekNumber);
 
   // Calculate day completion
-  const getDayCompletion = (dayIndex: number) => {
-    if (!week || !week.days || !week.days[dayIndex]) {
-      return { completed: 0, total: 0, percentage: 0 };
-    }
-
-    const day = week.days[dayIndex];
-    const totalTasks = day.tasks?.length || 0;
+  const getDayCompletion = (weekNumber: number, dayKey: string) => {
     const dayProgress = safeProgress.filter(p => 
-      p.weekId === weekNumber.toString() && p.dayKey === day.key
+      p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
     );
     const completedTasks = dayProgress.filter(p => p.done).length;
-
+    const totalTasks = dayProgress.length;
+    
     return {
       completed: completedTasks,
       total: totalTasks,
@@ -66,11 +61,12 @@ export default function DaysPage() {
   };
 
   // Calculate week completion
-  const getWeekCompletion = () => {
-    if (!week || !week.days) return { completed: 0, total: 0, percentage: 0 };
+  const getWeekCompletion = (weekNumber: number) => {
+    const week = safePlan.find(w => w.week === weekNumber);
+    if (!week) return { completed: 0, total: 0, percentage: 0 };
 
-    const totalTasks = week.days.reduce((sum, day) => sum + (day.tasks?.length || 0), 0);
-    const weekProgress = safeProgress.filter(p => p.weekId === weekNumber.toString());
+    const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
+    const weekProgress = safeProgress.filter(p => p.weekId === (weekNumber?.toString() || ''));
     const completedTasks = weekProgress.filter(p => p.done).length;
 
     return {
@@ -117,7 +113,7 @@ export default function DaysPage() {
   }
 
   const currentDay = week.days?.[selectedDayIndex];
-  const weekCompletion = getWeekCompletion();
+  const weekCompletion = getWeekCompletion(weekNumber);
 
   return (
     <PageLayout 
@@ -254,10 +250,10 @@ export default function DaysPage() {
                   {t('dayProgress')}
                 </h3>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {getDayCompletion(selectedDayIndex).percentage}%
+                  {getDayCompletion(weekNumber, currentDay.key).percentage}%
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {getDayCompletion(selectedDayIndex).completed} / {getDayCompletion(selectedDayIndex).total} {t('tasks')}
+                  {getDayCompletion(weekNumber, currentDay.key).completed} / {getDayCompletion(weekNumber, currentDay.key).total} {t('tasks')}
                 </p>
               </div>
             </div>
@@ -280,7 +276,7 @@ export default function DaysPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {week.days?.map((day, index) => {
-              const dayCompletion = getDayCompletion(index);
+              const dayCompletion = getDayCompletion(weekNumber, day.key);
               const isSelected = index === selectedDayIndex;
               const DayIcon = dayIcons[day.key as keyof typeof dayIcons] || Calendar;
               

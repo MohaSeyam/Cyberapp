@@ -218,7 +218,7 @@ export default function DayViewPage() {
                 {(() => {
                   const totalTasks = selectedDay.tasks?.length || 0;
                   const dayProgress = progress?.filter(p => 
-                    p.weekId === selectedWeek.week.toString() && p.dayKey === selectedDay.key
+                    p.weekId === (selectedWeek?.week?.toString() || '') && p.dayKey === selectedDay.key
                   ) || [];
                   const completedTasks = dayProgress.filter(p => p.done).length;
                   return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -229,7 +229,7 @@ export default function DayViewPage() {
                 {(() => {
                   const totalTasks = selectedDay.tasks?.length || 0;
                   const dayProgress = progress?.filter(p => 
-                    p.weekId === selectedWeek.week.toString() && p.dayKey === selectedDay.key
+                    p.weekId === (selectedWeek?.week?.toString() || '') && p.dayKey === selectedDay.key
                   ) || [];
                   const completedTasks = dayProgress.filter(p => p.done).length;
                   return `${completedTasks} / ${totalTasks} ${t('tasks')}`;

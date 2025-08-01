@@ -23,6 +23,8 @@ export const useWeekPhaseData = () => {
 
   // Get week data with correct phase assignment
   const getWeekData = (weekNumber: number): WeekPhaseData | null => {
+    if (!weekNumber || typeof weekNumber !== 'number') return null;
+    
     const weekData = weekPhaseService.getWeekWithPhase(weekNumber);
     const phaseData = weekPhaseService.getPhaseForWeek(weekNumber);
     
