@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
-import { useWeekPhaseData } from '../../hooks/useWeekPhaseData';
 import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -62,8 +61,6 @@ export default function DaysPage() {
   const { weekId = "1" } = useParams();
   const navigate = useNavigate();
   const { plan, progress, lang } = useApp();
-  const { t } = useLocalization();
-  const { getWeekData } = useWeekPhaseData();
 
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
 
@@ -73,7 +70,6 @@ export default function DaysPage() {
 
   const weekNumber = parseInt(weekId);
   const week = safePlan.find(w => w.week === weekNumber);
-  const weekData = getWeekData(weekNumber);
 
   // Calculate day completion
   const getDayCompletion = (weekNumber: number, dayKey: string) => {
@@ -124,19 +120,19 @@ export default function DaysPage() {
   };
 
   const goToWeekView = () => {
-    navigate('/plan');
+    navigate('/phases');
   };
 
-  if (!week || !weekData) {
+  if (!week) {
     return (
-      <PageLayout title={t('loading')} subtitle={t('loadingDayData')} showHeader={true}>
+      <PageLayout title="خطأ" subtitle="الأسبوع غير موجود" showHeader={true}>
         <div className="text-center py-12">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            {t('loading')}
+            الأسبوع غير موجود
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            {t('loadingWeekData')}
-          </p>
+          <Button onClick={goToWeekView}>
+            العودة للمراحل
+          </Button>
         </div>
       </PageLayout>
     );
@@ -146,7 +142,7 @@ export default function DaysPage() {
   const weekCompletion = getWeekCompletion(weekNumber);
 
   const breadcrumbs = [
-    { label: 'الخطة', icon: Calendar, onClick: goToWeekView },
+    { label: 'المراحل', icon: Calendar, onClick: goToWeekView },
     { label: `الأسبوع ${weekNumber}`, icon: Target },
     { label: 'الأيام', icon: Calendar }
   ];
@@ -154,7 +150,7 @@ export default function DaysPage() {
   return (
     <PageLayout 
       title={`${t('week')} ${weekNumber} - ${t('days')}`} 
-      subtitle={weekData.weekData.title[lang]} 
+      subtitle={week.title?.[lang]} 
       showHeader={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
@@ -170,7 +166,7 @@ export default function DaysPage() {
                 الأسبوع {weekNumber}
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {weekData.weekData.title[lang]}
+                {week.title?.[lang]}
               </p>
             </div>
             <Button
@@ -179,7 +175,7 @@ export default function DaysPage() {
               icon={<ArrowLeft />}
               onClick={goToWeekView}
             >
-              العودة للأسابيع
+              العودة للمراحل
             </Button>
           </div>
 
@@ -189,7 +185,7 @@ export default function DaysPage() {
                 هدف الأسبوع
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {weekData.weekData.objective[lang]}
+                {week.objective?.[lang]}
               </p>
             </div>
             

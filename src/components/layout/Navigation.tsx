@@ -28,10 +28,10 @@ export default function Navigation({ className = '' }: NavigationProps) {
       description: t('dashboard')
     },
     {
-      name: t('today'),
-      path: '/day/1/0',
+      name: t('phases'),
+      path: '/phases',
       icon: Calendar,
-      description: t('dailyTasks')
+      description: t('learningPhases')
     },
     {
       name: t('notes'),
@@ -56,12 +56,6 @@ export default function Navigation({ className = '' }: NavigationProps) {
       path: '/settings',
       icon: Settings,
       description: t('appSettings')
-    },
-    {
-      name: t('plan'),
-      path: '/plan',
-      icon: Calendar,
-      description: t('plan')
     }
   ];
 

@@ -1,4 +1,4 @@
-// Day View Page - Simplified with Navigation
+// Day View Page - Enhanced with Task Types and Evening Journaling
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -6,11 +6,11 @@ import {
   Calendar, Clock, Target, BookOpen, MessageSquare,
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
-  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home
+  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
+  Shield, Eye, Bug, Users, Code
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
-import { useWeekPhaseData } from '../../hooks/useWeekPhaseData';
 import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import TaskCard from '../ui/TaskCard';
@@ -29,6 +29,15 @@ const dayIcons = {
   wed: Heart,
   thu: Brain,
   fri: Star
+};
+
+// Task type icons and colors
+const taskTypeIcons = {
+  'Blue Team': { icon: Shield, color: 'blue' },
+  'Red Team': { icon: Bug, color: 'red' },
+  'Purple Team': { icon: Eye, color: 'purple' },
+  'Soft Skills': { icon: Users, color: 'green' },
+  'Technical Skills': { icon: Code, color: 'orange' }
 };
 
 // Breadcrumbs component
@@ -68,7 +77,6 @@ export default function DayViewPage() {
   const navigate = useNavigate();
   const { plan, progress, addNote, addResource, lang, updateResource } = useApp();
   const { t } = useLocalization();
-  const { getWeekData } = useWeekPhaseData();
 
   const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
   const [selectedDay, setSelectedDay] = useState<Day | null>(null);
@@ -91,9 +99,6 @@ export default function DayViewPage() {
       }
     }
   }, [safePlan, weekId, dayIndex]);
-
-  // Get week data from week-phase system
-  const weekData = getWeekData(parseInt(weekId));
 
   const handleAddNote = async () => {
     if (noteContent.trim() && selectedWeek && selectedDay) {
@@ -151,15 +156,15 @@ export default function DayViewPage() {
   };
 
   const goToWeekView = () => {
-    navigate('/plan');
+    navigate('/phases');
   };
 
   if (!selectedWeek || !selectedDay) {
     return (
-      <PageLayout title={t('loading')}>
+      <PageLayout title="جاري التحميل">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">{t('loadingDayContent')}</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">جاري تحميل محتوى اليوم...</p>
         </div>
       </PageLayout>
     );
@@ -177,7 +182,7 @@ export default function DayViewPage() {
   const DayIcon = dayIcons[selectedDay.key as keyof typeof dayIcons] || Calendar;
 
   const breadcrumbs = [
-    { label: 'الخطة', icon: Calendar, onClick: goToWeekView },
+    { label: 'المراحل', icon: Calendar, onClick: goToWeekView },
     { label: `الأسبوع ${selectedWeek.week}`, icon: Target, onClick: goToDayList },
     { label: 'الأيام', icon: Calendar, onClick: goToDayList },
     { label: selectedDay.day?.[lang] || 'اليوم', icon: DayIcon }
@@ -248,7 +253,7 @@ export default function DayViewPage() {
                 هدف الأسبوع
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {weekData?.weekData.objective[lang] || 'No objective'}
+                {selectedWeek.objective?.[lang] || 'No objective'}
               </p>
             </div>
 
@@ -288,10 +293,10 @@ export default function DayViewPage() {
                 <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                المرحلة {weekData?.phase || 'N/A'}
+                المرحلة {selectedWeek.phase}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {weekData?.phaseData.title[lang] || 'No phase data'}
+                {selectedWeek.title?.[lang] || 'No phase data'}
               </p>
             </div>
           </div>
@@ -314,7 +319,7 @@ export default function DayViewPage() {
           </div>
         </Card>
 
-        {/* Tasks Section */}
+        {/* Tasks Section by Type */}
         <motion.div {...animations.fadeIn} className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -328,22 +333,68 @@ export default function DayViewPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {(selectedDay.tasks || []).map((task, index) => (
-              <motion.div
-                key={task.id}
-                {...animations.stagger(index * 0.1)}
-              >
-                <TaskCard
-                  task={task}
-                  weekId={selectedWeek.week}
-                  dayKey={selectedDay.key}
-                  variant="detailed"
-                  onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
-                />
-              </motion.div>
-            ))}
-          </div>
+          {/* Group tasks by type */}
+          {(() => {
+            const tasksByType = (selectedDay.tasks || []).reduce((acc, task) => {
+              const type = task.type || 'Technical Skills';
+              if (!acc[type]) acc[type] = [];
+              acc[type].push(task);
+              return acc;
+            }, {} as Record<string, typeof selectedDay.tasks>);
+
+            return Object.entries(tasksByType).map(([type, tasks]) => {
+              const typeInfo = taskTypeIcons[type as keyof typeof taskTypeIcons] || taskTypeIcons['Technical Skills'];
+              const TypeIcon = typeInfo.icon;
+              
+              return (
+                <Card key={type} className="mb-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className={`p-2 rounded-lg ${
+                      typeInfo.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' :
+                      typeInfo.color === 'red' ? 'bg-red-100 dark:bg-red-900' :
+                      typeInfo.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
+                      typeInfo.color === 'green' ? 'bg-green-100 dark:bg-green-900' :
+                      'bg-orange-100 dark:bg-orange-900'
+                    }`}>
+                      <TypeIcon className={`w-5 h-5 ${
+                        typeInfo.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                        typeInfo.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                        typeInfo.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                        typeInfo.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                        'text-orange-600 dark:text-orange-400'
+                      }`} />
+                    </div>
+                    <h3 className={`text-lg font-semibold ${
+                      typeInfo.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                      typeInfo.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                      typeInfo.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                      typeInfo.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                      'text-orange-600 dark:text-orange-400'
+                    }`}>
+                      {type}
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {tasks?.map((task, index) => (
+                      <motion.div
+                        key={task.id}
+                        {...animations.stagger(index * 0.1)}
+                      >
+                        <TaskCard
+                          task={task}
+                          weekId={selectedWeek.week}
+                          dayKey={selectedDay.key}
+                          variant="detailed"
+                          onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </Card>
+              );
+            });
+          })()}
         </motion.div>
 
         {/* Resources Section */}
@@ -417,6 +468,42 @@ export default function DayViewPage() {
             </div>
           </Card>
         </motion.div>
+
+        {/* Evening Journaling Section */}
+        {selectedDay.notes_prompt && (
+          <motion.div
+            {...animations.fadeIn}
+            transition={{ delay: 0.3 }}
+          >
+            <Card
+              title={selectedDay.notes_prompt.title?.[lang] || 'مهمة التدوين المسائية'}
+              subtitle="تدوين المساء"
+            >
+              <div className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">
+                    نقاط التدوين:
+                  </h4>
+                  <ul className="space-y-2">
+                    {(selectedDay.notes_prompt.points || []).map((point, index) => (
+                      <li key={index} className="flex items-start space-x-2 text-sm text-blue-800 dark:text-blue-200">
+                        <span className="text-blue-600 dark:text-blue-400 mt-1">•</span>
+                        <span>{point?.[lang] || 'Point'}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Button
+                  variant="primary"
+                  icon={<MessageSquare className="w-4 h-4" />}
+                  onClick={() => setNoteModal({ isOpen: true, taskId: 'journal' })}
+                >
+                  بدء التدوين
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Navigation Footer */}
         <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>

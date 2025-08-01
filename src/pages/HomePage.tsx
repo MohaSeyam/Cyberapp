@@ -76,7 +76,7 @@ export default function HomePage() {
       title: t('startLearning'),
       subtitle: t('beginYourJourney'),
       variant: 'primary' as const,
-      action: () => navigate('/day/1/0')
+      action: () => navigate('/phases')
     },
     {
       icon: Users,
