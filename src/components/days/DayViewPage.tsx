@@ -1,4 +1,4 @@
-// Day View Page - Unified Design with Week-Phase Integration
+// Day View Page - Simplified with Navigation
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -6,7 +6,7 @@ import {
   Calendar, Clock, Target, BookOpen, MessageSquare,
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
-  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star
+  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -30,6 +30,38 @@ const dayIcons = {
   thu: Brain,
   fri: Star
 };
+
+// Breadcrumbs component
+function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
+  const navigate = useNavigate();
+  
+  return (
+    <nav className="flex items-center space-x-2 mb-6 text-sm">
+      <button 
+        onClick={() => navigate('/')}
+        className="flex items-center text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        <Home className="w-4 h-4 mr-1" />
+        الرئيسية
+      </button>
+      
+      {items.map((item, idx) => (
+        <span key={idx} className="flex items-center">
+          <ChevronRight className="w-4 h-4 mx-1 text-gray-400" />
+          {item.onClick ? (
+            <button onClick={item.onClick} className="text-blue-600 dark:text-blue-400 hover:underline">
+              {item.icon && <item.icon className="inline w-4 h-4 mr-1" />} {item.label}
+            </button>
+          ) : (
+            <span className="text-gray-700 dark:text-gray-200 font-semibold">
+              {item.icon && <item.icon className="inline w-4 h-4 mr-1" />} {item.label}
+            </span>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}
 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
@@ -118,6 +150,10 @@ export default function DayViewPage() {
     navigate(`/days/${weekId}`);
   };
 
+  const goToWeekView = () => {
+    navigate('/plan');
+  };
+
   if (!selectedWeek || !selectedDay) {
     return (
       <PageLayout title={t('loading')}>
@@ -140,6 +176,13 @@ export default function DayViewPage() {
 
   const DayIcon = dayIcons[selectedDay.key as keyof typeof dayIcons] || Calendar;
 
+  const breadcrumbs = [
+    { label: 'الخطة', icon: Calendar, onClick: goToWeekView },
+    { label: `الأسبوع ${selectedWeek.week}`, icon: Target, onClick: goToDayList },
+    { label: 'الأيام', icon: Calendar, onClick: goToDayList },
+    { label: selectedDay.day?.[lang] || 'اليوم', icon: DayIcon }
+  ];
+
   return (
     <PageLayout
       title={`${selectedDay.day?.[lang] || 'Unknown Day'}`}
@@ -148,7 +191,10 @@ export default function DayViewPage() {
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
-        {/* Day Header with Week Context */}
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbs} />
+        
+        {/* Day Header */}
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
@@ -192,14 +238,14 @@ export default function DayViewPage() {
             </div>
           </div>
 
-          {/* Week and Day Info */}
+          {/* Day Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
               <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                 <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                {t('weekObjective')}
+                هدف الأسبوع
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {weekData?.weekData.objective[lang] || 'No objective'}
@@ -211,7 +257,7 @@ export default function DayViewPage() {
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                {t('dayProgress')}
+                تقدم اليوم
               </h3>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {/* Calculate day completion */}
@@ -232,7 +278,7 @@ export default function DayViewPage() {
                     p.weekId === (selectedWeek?.week?.toString() || '') && p.dayKey === selectedDay.key
                   ) || [];
                   const completedTasks = dayProgress.filter(p => p.done).length;
-                  return `${completedTasks} / ${totalTasks} ${t('tasks')}`;
+                  return `${completedTasks} / ${totalTasks} مهام`;
                 })()}
               </p>
             </div>
@@ -242,7 +288,7 @@ export default function DayViewPage() {
                 <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                {t('phase')} {weekData?.phase || 'N/A'}
+                المرحلة {weekData?.phase || 'N/A'}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {weekData?.phaseData.title[lang] || 'No phase data'}
@@ -251,39 +297,19 @@ export default function DayViewPage() {
           </div>
         </Card>
 
-        {/* Day Topic and Objective */}
+        {/* Day Topic */}
         <Card>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                {t('todayTopic')}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                موضوع اليوم
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {selectedDay.topic?.[lang] || 'No topic'}
+                {selectedDay.topic?.[lang] || 'لا يوجد موضوع محدد'}
               </p>
             </div>
             <div className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-full">
               <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                {t('dayFocus')}
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400">
-                {selectedDay.topic?.[lang] || 'No specific focus for today'}
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                {t('weekContext')}
-              </h4>
-              <p className="text-gray-600 dark:text-gray-400">
-                {weekData?.weekData.objective[lang] || 'No week objective'}
-              </p>
             </div>
           </div>
         </Card>
@@ -292,12 +318,12 @@ export default function DayViewPage() {
         <motion.div {...animations.fadeIn} className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t('todayTasks')}
+              مهام اليوم
             </h2>
             <div className="flex items-center space-x-2">
               <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {(selectedDay.tasks || []).length} {t('tasks')}
+                {(selectedDay.tasks || []).length} مهام
               </span>
             </div>
           </div>
@@ -327,13 +353,13 @@ export default function DayViewPage() {
           className="mb-8"
         >
           <Card
-            title={t('suggestedResources')}
-            subtitle={t('resourcesForToday')}
+            title="الموارد المقترحة"
+            subtitle="موارد مفيدة لليوم"
             header={
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <span>{t('suggestedResources')}</span>
+                  <span>الموارد المقترحة</span>
                 </div>
                 <Button
                   variant="outline"
@@ -341,7 +367,7 @@ export default function DayViewPage() {
                   icon={<Plus className="w-4 h-4" />}
                   onClick={() => setResourceModal({ isOpen: true, resource: null })}
                 >
-                  {t('addResource')}
+                  إضافة مورد
                 </Button>
               </div>
             }
@@ -376,7 +402,7 @@ export default function DayViewPage() {
                         size="sm"
                         onClick={e => { e.stopPropagation(); window.open(resource.url, '_blank'); }}
                       >
-                        {t('open')}
+                        فتح
                       </Button>
                     </motion.div>
                   );
@@ -384,49 +410,13 @@ export default function DayViewPage() {
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>{t('noResourcesYet')}</p>
-                  <p className="text-sm">{t('addYourFirstResource')}</p>
+                  <p>لا توجد موارد بعد</p>
+                  <p className="text-sm">أضف أول مورد لك</p>
                 </div>
               )}
             </div>
           </Card>
         </motion.div>
-
-        {/* Evening Journaling */}
-        {selectedDay.notes_prompt && (
-          <motion.div
-            {...animations.fadeIn}
-            transition={{ delay: 0.3 }}
-          >
-            <Card
-              title={selectedDay.notes_prompt.title?.[lang] || 'Journaling Prompt'}
-              subtitle={t('eveningJournaling')}
-            >
-              <div className="space-y-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">
-                    {t('journalingPoints')}:
-                  </h4>
-                  <ul className="space-y-2">
-                    {(selectedDay.notes_prompt.points || []).map((point, index) => (
-                      <li key={index} className="flex items-start space-x-2 text-sm text-blue-800 dark:text-blue-200">
-                        <span className="text-blue-600 dark:text-blue-400 mt-1">•</span>
-                        <span>{point?.[lang] || 'Point'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <Button
-                  variant="primary"
-                  icon={<MessageSquare className="w-4 h-4" />}
-                  onClick={() => setNoteModal({ isOpen: true, taskId: 'journal' })}
-                >
-                  {t('startJournaling')}
-                </Button>
-              </div>
-            </Card>
-          </motion.div>
-        )}
 
         {/* Navigation Footer */}
         <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
@@ -437,7 +427,7 @@ export default function DayViewPage() {
                 onClick={goToDayList}
                 icon={<ArrowLeft />}
               >
-                {t('backToDays')}
+                العودة للأيام
               </Button>
               
               <div className="flex items-center space-x-2">
@@ -448,7 +438,7 @@ export default function DayViewPage() {
                   onClick={goToPreviousDay}
                   disabled={parseInt(dayIndex) <= 0}
                 >
-                  {t('previousDay')}
+                  اليوم السابق
                 </Button>
                 <Button
                   variant="ghost"
@@ -457,7 +447,7 @@ export default function DayViewPage() {
                   onClick={goToNextDay}
                   disabled={parseInt(dayIndex) >= (selectedWeek.days?.length || 0) - 1}
                 >
-                  {t('nextDay')}
+                  اليوم التالي
                 </Button>
               </div>
             </div>
@@ -469,14 +459,14 @@ export default function DayViewPage() {
       <Modal
         isOpen={noteModal.isOpen}
         onClose={() => setNoteModal({ isOpen: false, taskId: '' })}
-        title={t('addNote')}
+        title="إضافة ملاحظة"
         size="lg"
       >
         <div className="space-y-4">
           <RichTextEditor
             content={noteContent}
             onChange={setNoteContent}
-            placeholder={t('writeTaskNote')}
+            placeholder="اكتب ملاحظتك هنا..."
             lang={lang}
             minHeight="200px"
           />
@@ -485,14 +475,14 @@ export default function DayViewPage() {
               variant="outline"
               onClick={() => setNoteModal({ isOpen: false, taskId: '' })}
             >
-              {t('cancel')}
+              إلغاء
             </Button>
             <Button
               variant="primary"
               onClick={handleAddNote}
               disabled={!noteContent.trim()}
             >
-              {t('saveNote')}
+              حفظ الملاحظة
             </Button>
           </div>
         </div>
@@ -502,48 +492,48 @@ export default function DayViewPage() {
       <Modal
         isOpen={resourceModal.isOpen}
         onClose={() => setResourceModal({ isOpen: false, resource: null })}
-        title={resourceModal.resource ? t('editResource') : t('addResource')}
+        title={resourceModal.resource ? 'تعديل المورد' : 'إضافة مورد'}
       >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('resourceTitle')}
+              عنوان المورد
             </label>
             <input
               type="text"
               value={resourceForm.title}
               onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={t('enterTitle')}
+              placeholder="أدخل العنوان"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('resourceUrl')}
+              رابط المورد
             </label>
             <input
               type="url"
               value={resourceForm.url}
               onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={t('enterUrl')}
+              placeholder="أدخل الرابط"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('resourceType')}
+              نوع المورد
             </label>
             <select
               value={resourceForm.type}
               onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value as any }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value="video">{t('video')}</option>
-              <option value="article">{t('article')}</option>
-              <option value="book">{t('book')}</option>
-              <option value="tool">{t('tool')}</option>
-              <option value="podcast">{t('podcast')}</option>
-              <option value="course">{t('course')}</option>
+              <option value="video">فيديو</option>
+              <option value="article">مقال</option>
+              <option value="book">كتاب</option>
+              <option value="tool">أداة</option>
+              <option value="podcast">بودكاست</option>
+              <option value="course">دورة</option>
             </select>
           </div>
           <div className="flex justify-end space-x-3">
@@ -551,7 +541,7 @@ export default function DayViewPage() {
               variant="outline"
               onClick={() => setResourceModal({ isOpen: false, resource: null })}
             >
-              {t('cancel')}
+              إلغاء
             </Button>
             <Button
               variant="primary"
@@ -584,7 +574,7 @@ export default function DayViewPage() {
               }}
               disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
             >
-              {resourceModal.resource ? t('updateResource') : t('addResource')}
+              {resourceModal.resource ? 'تحديث المورد' : 'إضافة مورد'}
             </Button>
           </div>
         </div>
