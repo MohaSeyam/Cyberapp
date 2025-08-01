@@ -1,9 +1,9 @@
 // Journal Page - Unified Design
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, Search, Filter, Plus, Edit, Trash2,
-  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X
+  BookOpen, Search, Filter, Plus, Edit2, Trash2,
+  Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X, FileText
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -12,7 +12,9 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import RichTextEditor from '../components/editors/RichTextEditor';
+import { VirtualList, useVirtualSearch } from '../components/ui/VirtualList';
 import { animations } from '../constants/theme';
+import { useDebounce } from '../hooks/useDebounce';
 import type { JournalEntry } from '../types';
 
 export default function JournalPage() {
@@ -31,8 +33,10 @@ export default function JournalPage() {
   };
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedWeek, setSelectedWeek] = useState<string>('');
-  const [selectedTag, setSelectedTag] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'date' | 'title'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [filterType, setFilterType] = useState<'all' | 'recent' | 'important'>('all');
+  const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as JournalEntry | null });
   const [journalForm, setJournalForm] = useState({
     title: '',
@@ -40,54 +44,129 @@ export default function JournalPage() {
     tags: [] as string[]
   });
 
-  // قوالب جاهزة للمدونة
-  const journalTemplates = [
-    {
-      name: t('dailyReflection'),
-      title: t('dailyReflectionTitle'),
-      content: t('dailyReflectionTemplate'),
-      tags: [t('reflection'), t('daily')]
-    },
-    {
-      name: t('learningSummary'),
-      title: t('learningSummaryTitle'),
-      content: t('learningSummaryTemplate'),
-      tags: [t('learning'), t('summary')]
-    },
-    {
-      name: t('challengeAnalysis'),
-      title: t('challengeAnalysisTitle'),
-      content: t('challengeAnalysisTemplate'),
-      tags: [t('challenge'), t('analysis')]
-    },
-    {
-      name: t('goalSetting'),
-      title: t('goalSettingTitle'),
-      content: t('goalSettingTemplate'),
-      tags: [t('goals'), t('planning')]
+  // Get all journal entries and flatten them
+  const allEntries = useMemo(() => {
+    if (!journal || typeof journal !== 'object') {
+      return [];
     }
-  ];
-
-  const applyTemplate = (template: any) => {
-    setJournalForm({
-      title: template.title,
-      content: template.content,
-      tags: template.tags
+    const flattened = Object.values(journal).flat();
+    return flattened.sort((a, b) => {
+      if (sortBy === 'date') {
+        return sortOrder === 'asc' 
+          ? a.createdAt - b.createdAt 
+          : b.createdAt - a.createdAt;
+      } else {
+        return sortOrder === 'asc'
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      }
     });
+  }, [journal, sortBy, sortOrder]);
+
+  // Apply filters
+  const filteredEntries = useMemo(() => {
+    let filtered = allEntries;
+    
+    if (filterType === 'recent') {
+      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      filtered = filtered.filter(entry => entry.createdAt > oneWeekAgo);
+    } else if (filterType === 'important') {
+      filtered = filtered.filter(entry => entry.tags?.includes('important'));
+    }
+
+    return filtered;
+  }, [allEntries, filterType]);
+
+  // Use virtual search
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const searchableEntries = useVirtualSearch(
+    filteredEntries,
+    debouncedSearchTerm,
+    ['title', 'content', 'tags']
+  );
+
+  const getDayTitle = (dayKey: string, weekId: number) => {
+    if (dayKey === 'general') return 'مدونة عامة';
+    
+    // Get day title from plan data
+    const { plan } = useApp();
+    const week = plan?.find(w => w.week === weekId);
+    const day = week?.days?.find(d => d.key === dayKey);
+    
+    if (day?.title) {
+      return day.title.ar || day.title.en || day.title;
+    }
+    
+    // Fallback to day name
+    const dayNames: { [key: string]: string } = {
+      sat: 'السبت',
+      sun: 'الأحد',
+      mon: 'الاثنين',
+      tue: 'الثلاثاء',
+      wed: 'الأربعاء',
+      thu: 'الخميس',
+      fri: 'الجمعة'
+    };
+    return dayNames[dayKey] || dayKey;
   };
 
-  // Get all journal entries from appState
-  const allEntries = Object.values(journal).flat();
-  const filteredEntries = allEntries.filter(entry => {
-    const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         entry.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesWeek = !selectedWeek || entry.weekId?.toString() === selectedWeek;
-    const matchesTag = !selectedTag || entry.tags.includes(selectedTag);
-    return matchesSearch && matchesWeek && matchesTag;
-  });
-
-  // Get unique weeks
-  const weeks = Array.from(new Set(allEntries.map(entry => entry.weekId))).sort();
+  const renderJournalItem = (entry: any, index: number) => (
+    <motion.div
+      key={entry.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, delay: index * 0.05 }}
+      className="p-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      onClick={() => setSelectedEntry(entry)}
+    >
+      <div className="space-y-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
+              {entry.title}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+              {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center space-x-1">
+              <Calendar className="w-3 h-3" />
+              <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <FileText className="w-3 h-3" />
+              <span>الأسبوع {entry.weekId} - {getDayTitle(entry.dayKey, entry.weekId)}</span>
+            </div>
+          </div>
+          
+          {entry.tags && entry.tags.length > 0 && (
+            <div className="flex items-center space-x-1">
+              <Tag className="w-3 h-3 text-gray-400" />
+              <div className="flex space-x-1">
+                {entry.tags.slice(0, 2).map((tag: string, tagIndex: number) => (
+                  <span
+                    key={tagIndex}
+                    className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {entry.tags.length > 2 && (
+                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
+                    +{entry.tags.length - 2}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
 
   const handleSaveEntry = async () => {
     if (journalForm.title.trim() && journalForm.content.trim()) {
@@ -105,8 +184,8 @@ export default function JournalPage() {
             title: journalForm.title,
             content: journalForm.content,
             tags: journalForm.tags,
-            weekId: parseInt(selectedWeek) || 1,
-            dayKey: 'sat'
+            weekId: 1,
+            dayKey: 'general'
           });
         }
         setJournalForm({ title: '', content: '', tags: [] });
@@ -117,19 +196,11 @@ export default function JournalPage() {
     }
   };
 
-  const handleEditEntry = (entry: JournalEntry) => {
-    setJournalForm({
-      title: entry.title,
-      content: entry.content,
-      tags: entry.tags
-    });
-    setJournalModal({ isOpen: true, entry });
-  };
-
   const handleDeleteEntry = async (entryId: number) => {
-    if (confirm(t('confirmDeleteJournal'))) {
+    if (window.confirm(t('confirmDeleteJournal'))) {
       try {
         await deleteJournalEntry(entryId);
+        setSelectedEntry(null);
       } catch (error) {
         console.error('Error deleting journal entry:', error);
       }
@@ -146,43 +217,9 @@ export default function JournalPage() {
     setJournalForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
-  const handleTagClick = (tag: string) => {
-    setSelectedTag(selectedTag === tag ? '' : tag);
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
-
-  // Get unique tags
-  const allTags = Array.from(new Set(allEntries.flatMap(entry => entry.tags)));
-
-  // Calculate statistics
-  const totalEntries = allEntries.length;
-  const thisWeekEntries = allEntries.filter(entry => entry.weekId === 1).length; // Current week
-  const totalWords = allEntries.reduce((sum, entry) => 
-    sum + entry.content.replace(/<[^>]*>/g, '').split(' ').length, 0
-  );
-
-  const stats = [
-    {
-      icon: BookOpen,
-      label: t('totalEntries'),
-      value: totalEntries,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50'
-    },
-    {
-      icon: TrendingUp,
-      label: t('thisWeekEntries'),
-      value: thisWeekEntries,
-      color: 'text-green-600',
-      bg: 'bg-green-50'
-    },
-    {
-      icon: MessageSquare,
-      label: t('totalWords'),
-      value: totalWords,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50'
-    }
-  ];
 
   return (
     <PageLayout 
@@ -190,361 +227,259 @@ export default function JournalPage() {
       subtitle={safeT('learningJournal')}
       showBottomBar={true}
     >
-      {/* Add Entry Button */}
       <motion.div
-        {...animations.fadeIn}
-        className="mb-6 flex justify-end"
+        initial="hidden"
+        animate="visible"
+        variants={animations.page}
+        className="space-y-6"
       >
-        <Button
-          variant="primary"
-          icon={<Plus className="w-4 h-4" />}
-          onClick={() => setJournalModal({ isOpen: true, entry: null })}
-        >
-          {t('addEntry')}
-        </Button>
-      </motion.div>
-
-      {/* Statistics */}
-      <motion.div
-        {...animations.fadeIn}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
-      >
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            {...animations.stagger(index * 0.1)}
-          >
-            <Card
-              variant="elevated"
-              className="text-center"
-            >
-              <div className="flex flex-col items-center">
-                <div className={`p-3 rounded-full ${stat.bg} mb-4`}>
-                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {stat.value}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {stat.label}
-                </p>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Search and Filters */}
-      <motion.div
-        {...animations.fadeIn}
-        transition={{ delay: 0.2 }}
-        className="mb-8"
-      >
+        {/* Search and Filters */}
         <Card>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder={t('searchJournal')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-
-            {/* Week Filter */}
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            
+            <div className="flex items-center space-x-2">
               <select
-                value={selectedWeek}
-                onChange={(e) => setSelectedWeek(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value as any)}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">{t('allWeeks')}</option>
-                {weeks.map(week => (
-                  <option key={week} value={week}>{t('week')} {week}</option>
-                ))}
+                <option value="all">{t('allEntries')}</option>
+                <option value="recent">{t('recentEntries')}</option>
+                <option value="important">{t('importantEntries')}</option>
               </select>
-            </div>
-
-            {/* Stats */}
-            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
-              <BookOpen className="w-4 h-4 mr-2" />
-              {filteredEntries.length} {t('entries')}
+              
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="date">{t('sortByDate')}</option>
+                <option value="title">{t('sortByTitle')}</option>
+              </select>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleSortOrder}
+                icon={sortOrder === 'asc' ? <TrendingUp className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
+              >
+                {sortOrder === 'asc' ? t('ascending') : t('descending')}
+              </Button>
             </div>
           </div>
         </Card>
-      </motion.div>
 
-      {/* Journal Entries */}
-      <motion.div
-        {...animations.fadeIn}
-        transition={{ delay: 0.3 }}
-        className="space-y-6"
-      >
-        {filteredEntries.map((entry, index) => (
-          <motion.div
-            key={entry.id}
-            {...animations.stagger(index * 0.1)}
-          >
-            <Card
-              variant="elevated"
-              hover
-              onClick={() => handleEditEntry(entry)}
-              className="cursor-pointer"
+        {/* Journal Entries List */}
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {t('journal')} ({searchableEntries.length})
+            </h2>
+            <button
+              className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+              onClick={() => setJournalModal({ isOpen: true, entry: null })}
+              aria-label={t('addEntry')}
             >
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      {entry.title}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{t('week')} {entry.weekId}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{new Date(entry.createdAt!).toLocaleDateString()}</span>
-                      </div>
-                    </div>
+              <Plus className="w-8 h-8" />
+            </button>
+          </div>
+
+          {/* Virtual List for Journal Entries */}
+          <VirtualList
+            items={searchableEntries}
+            height={600}
+            itemHeight={140}
+            renderItem={renderJournalItem}
+            overscan={10}
+            emptyMessage={t('noJournalEntries')}
+            className="border border-gray-200 dark:border-gray-700 rounded-lg"
+          />
+        </Card>
+
+        {/* Journal Entry Detail Modal */}
+        {selectedEntry && (
+          <Modal
+            isOpen={!!selectedEntry}
+            onClose={() => setSelectedEntry(null)}
+            title={selectedEntry.title}
+            size="xl"
+          >
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{new Date(selectedEntry.createdAt).toLocaleDateString('ar-SA')}</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditEntry(entry);
-                      }}
-                      className="p-1"
-                      icon={<Edit className="w-3 h-3" />}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteEntry(entry.id!);
-                      }}
-                      className="p-1 text-red-600 hover:text-red-700"
-                      icon={<Trash2 className="w-3 h-3" />}
-                    />
+                    <FileText className="w-4 h-4" />
+                    <span>الأسبوع {selectedEntry.weekId} - {getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}</span>
                   </div>
                 </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setJournalForm({
+                        title: selectedEntry.title,
+                        content: selectedEntry.content,
+                        tags: selectedEntry.tags || []
+                      });
+                      setJournalModal({ isOpen: true, entry: selectedEntry });
+                      setSelectedEntry(null);
+                    }}
+                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    title="تعديل المدونة"
+                  >
+                    <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEntry(selectedEntry.id)}
+                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                    title="حذف المدونة"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  </button>
+                </div>
+              </div>
 
-                <div 
-                  className="text-gray-700 dark:text-gray-300 line-clamp-4"
-                  dangerouslySetInnerHTML={{ __html: entry.content }}
-                />
-
-                {entry.tags.length > 0 && (
+              {selectedEntry.tags && selectedEntry.tags.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <Tag className="w-4 h-4 text-gray-400" />
                   <div className="flex flex-wrap gap-2">
-                    {entry.tags.map(tag => (
+                    {selectedEntry.tags.map((tag: string, index: number) => (
                       <span
-                        key={tag}
-                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <MessageSquare className="w-4 h-4" />
-                    <span>{entry.content.replace(/<[^>]*>/g, '').split(' ').length} {t('words')}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {t('journalEntry')}
+              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-blue-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300">
+                <div dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {/* Add/Edit Journal Modal */}
+        <Modal
+          isOpen={journalModal.isOpen}
+          onClose={() => setJournalModal({ isOpen: false, entry: null })}
+          title={journalModal.entry ? t('editJournalEntry') : t('addJournalEntry')}
+          size="xl"
+        >
+          <div className="space-y-4">
+            {/* Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('journalTitle')}
+              </label>
+              <input
+                type="text"
+                value={journalForm.title}
+                onChange={(e) => setJournalForm(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder={t('enterTitle')}
+              />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('tags')}
+              </label>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {journalForm.tags.map(tag => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                    >
+                      <span>{tag}</span>
+                      <button
+                        onClick={() => removeTag(tag)}
+                        className="ml-1 hover:text-blue-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </span>
-                  </div>
+                  ))}
+                </div>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    placeholder={t('addTag')}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        addTag(e.currentTarget.value);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addTag(input.value);
+                      input.value = '';
+                    }}
+                  >
+                    {t('add')}
+                  </Button>
                 </div>
               </div>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Empty State */}
-      {filteredEntries.length === 0 && (
-        <motion.div
-          {...animations.fadeIn}
-          transition={{ delay: 0.4 }}
-          className="text-center py-12"
-        >
-          <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            {searchTerm || selectedWeek ? t('noEntriesFound') : t('noJournalEntries')}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchTerm || selectedWeek ? t('tryDifferentSearch') : t('startYourJournal')}
-          </p>
-          {!searchTerm && !selectedWeek && (
-            <Button
-              variant="primary"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={() => setJournalModal({ isOpen: true, entry: null })}
-            >
-              {t('addEntry')}
-            </Button>
-          )}
-        </motion.div>
-      )}
-
-      {/* Journal Entry Modal */}
-      <Modal
-        isOpen={journalModal.isOpen}
-        onClose={() => setJournalModal({ isOpen: false, entry: null })}
-        title={journalModal.entry ? t('editJournalEntry') : t('addJournalEntry')}
-        size="xl"
-      >
-        <div className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('journalTitle')}
-            </label>
-            <input
-              type="text"
-              value={journalForm.title}
-              onChange={(e) => setJournalForm(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={t('enterTitle')}
-            />
-          </div>
-
-          {/* Templates (only for new entries) */}
-          {!journalModal.entry && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('templates')}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {journalTemplates.map((template, index) => (
-                  <button
-                    key={index}
-                    onClick={() => applyTemplate(template)}
-                    className="p-3 text-left border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">
-                      {template.name}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      {template.tags.join(', ')}
-                    </div>
-                  </button>
-                ))}
-              </div>
             </div>
-          )}
 
-          {/* Week Selection (for new entries) */}
-          {!journalModal.entry && (
+            {/* Content */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('week')}
+                {t('journalContent')}
               </label>
-              <select
-                value={selectedWeek}
-                onChange={(e) => setSelectedWeek(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              <RichTextEditor
+                content={journalForm.content}
+                onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
+                placeholder={t('writeJournalEntry')}
+                lang="ar"
+                minHeight="400px"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setJournalModal({ isOpen: false, entry: null })}
               >
-                <option value="">{t('selectWeek')}</option>
-                {weeks.map(week => (
-                  <option key={week} value={week}>{t('week')} {week}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('tags')}
-            </label>
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
-                {journalForm.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
-                  >
-                    <span>{tag}</span>
-                    <button
-                      onClick={() => removeTag(tag)}
-                      className="ml-1 hover:text-blue-600"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder={t('addTag')}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      addTag(e.currentTarget.value);
-                      e.currentTarget.value = '';
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                    addTag(input.value);
-                    input.value = '';
-                  }}
-                >
-                  {t('add')}
-                </Button>
-              </div>
+                {t('cancel')}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSaveEntry}
+                disabled={!journalForm.title.trim() || !journalForm.content.trim()}
+              >
+                {journalModal.entry ? t('updateEntry') : t('saveEntry')}
+              </Button>
             </div>
           </div>
-
-          {/* Content */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('journalContent')}
-            </label>
-            <RichTextEditor
-              content={journalForm.content}
-              onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
-              placeholder={t('writeJournalEntry')}
-              lang="ar"
-              minHeight="400px"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setJournalModal({ isOpen: false, entry: null })}
-            >
-              {t('cancel')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleSaveEntry}
-              disabled={!journalForm.title.trim() || !journalForm.content.trim()}
-            >
-              {journalModal.entry ? t('updateEntry') : t('saveEntry')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        </Modal>
+      </motion.div>
     </PageLayout>
   );
 }
