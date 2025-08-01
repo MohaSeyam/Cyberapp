@@ -1,9 +1,9 @@
 // Settings Page - Unified Design
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Settings, Globe, Moon, Sun, Bell, Volume2, VolumeX,
-  Save, RotateCcw, Download, Upload, Trash2, Eye, EyeOff
+  Settings, Sun, Moon, Globe, Save, RotateCcw, 
+  Download, Upload, Trash2, Database, RefreshCw
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -11,6 +11,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const { theme, lang, toggleTheme, setLang, settings, updateSettings } = useApp();
@@ -72,9 +73,34 @@ export default function SettingsPage() {
   };
 
   const handleClearData = () => {
-    if (confirm(t('confirmClearData'))) {
-      // Implement data clearing logic
-      console.log('Clearing all data...');
+    if (window.confirm(t('confirmClearData'))) {
+      // Clear all data from IndexedDB
+      localStorage.clear();
+      indexedDB.deleteDatabase('CyberPlanDB');
+      indexedDB.deleteDatabase('CyberPlanOffline');
+      
+      // Show success message
+      toast.success('تم مسح جميع البيانات بنجاح');
+      
+      // Refresh the page to reload data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  };
+
+  const handleForceReloadData = async () => {
+    try {
+      // Clear plan data from IndexedDB
+      indexedDB.deleteDatabase('CyberPlanDB');
+      
+      // Refresh data
+      await refreshData();
+      
+      toast.success('تم إعادة تحميل البيانات بنجاح');
+    } catch (error) {
+      console.error('Error forcing data reload:', error);
+      toast.error('فشل في إعادة تحميل البيانات');
     }
   };
 
@@ -106,7 +132,7 @@ export default function SettingsPage() {
     },
     {
       title: t('notifications'),
-      icon: Bell,
+      icon: Settings, // Changed from Bell to Settings for consistency
       settings: [
         {
           key: 'notifications',
@@ -126,7 +152,7 @@ export default function SettingsPage() {
     },
     {
       title: t('data'),
-      icon: Save,
+      icon: Database, // Changed from Save to Database for consistency
       settings: [
         {
           key: 'autoSave',
@@ -261,8 +287,8 @@ export default function SettingsPage() {
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         {setting.type === 'toggle' && (setting.value ? 
-                          <Bell className="w-4 h-4 text-green-600" /> : 
-                          <Bell className="w-4 h-4 text-gray-400" />
+                          <Settings className="w-4 h-4 text-green-600" /> : 
+                          <Settings className="w-4 h-4 text-gray-400" />
                         )}
                         {setting.type === 'select' && <Globe className="w-4 h-4 text-blue-600" />}
                       </div>
@@ -351,7 +377,7 @@ export default function SettingsPage() {
 
             <Button
               variant="outline"
-              icon={<RotateCcw className="w-4 h-4" />}
+              icon={<RefreshCw className="w-4 h-4" />}
               onClick={() => window.location.reload()}
             >
               {t('refreshData')}
@@ -363,6 +389,14 @@ export default function SettingsPage() {
               onClick={handleClearData}
             >
               {t('clearData')}
+            </Button>
+
+            <Button
+              variant="danger"
+              icon={<RotateCcw className="w-4 h-4" />}
+              onClick={handleForceReloadData}
+            >
+              {t('forceReloadData')}
             </Button>
           </div>
         </Card>

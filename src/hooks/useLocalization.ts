@@ -606,6 +606,10 @@ const translations: TranslationData = {
     ar: "هل أنت متأكد من مسح جميع البيانات؟",
     en: "Are you sure you want to clear all data?"
   },
+  forceReloadData: {
+    ar: "إعادة تحميل البيانات",
+    en: "Force Reload Data"
+  },
   about: {
     ar: "حول",
     en: "About"

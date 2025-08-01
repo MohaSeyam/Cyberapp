@@ -115,34 +115,48 @@ export function AppProvider({ children }: AppProviderProps) {
       notesData = Array.isArray(notesData) ? notesData : [];
       journalData = Array.isArray(journalData) ? journalData : [];
       
-      // Import plan if empty
+      // Import plan if empty or incomplete
       if (planData.length === 0) {
         try {
           const importedPlan = await planService.importFromFile();
           planData = Array.isArray(importedPlan) ? importedPlan : [];
           console.log("Imported plan:", planData.length, "weeks");
-          
-          // Verify that all weeks from phases.json are present
-          const phasesData = await import('../data/phases.json');
-          const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-          const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-          
-          if (missingWeeks.length > 0) {
-            console.warn("Missing weeks in plan:", missingWeeks);
-            // Try to re-import if some weeks are missing
-            try {
-              const reimportedPlan = await planService.importFromFile();
-              planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
-              console.log("Re-imported plan:", planData.length, "weeks");
-            } catch (reimportError) {
-              console.error("Failed to re-import plan:", reimportError);
-            }
-          }
         } catch (error) {
           console.error("Failed to import plan:", error);
           toast.error("فشل في تحميل الخطة");
           planData = [];
         }
+      }
+      
+      // Always verify that all weeks from phases.json are present
+      try {
+        const phasesData = await import('../data/phases.json');
+        const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
+        const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
+        
+        if (missingWeeks.length > 0) {
+          console.warn("Missing weeks in plan:", missingWeeks);
+          console.log("Current plan weeks:", planData.map(w => w.week));
+          
+          // Try to re-import if some weeks are missing
+          try {
+            const reimportedPlan = await planService.importFromFile();
+            planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
+            console.log("Re-imported plan:", planData.length, "weeks");
+            
+            // Verify again after re-import
+            const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
+            if (stillMissingWeeks.length > 0) {
+              console.error("Still missing weeks after re-import:", stillMissingWeeks);
+              toast.error(`أسابيع مفقودة: ${stillMissingWeeks.join(', ')}`);
+            }
+          } catch (reimportError) {
+            console.error("Failed to re-import plan:", reimportError);
+            toast.error("فشل في إعادة تحميل الخطة");
+          }
+        }
+      } catch (error) {
+        console.error("Error verifying weeks:", error);
       }
       
       // Set state with validated data
@@ -486,6 +500,37 @@ export function AppProvider({ children }: AppProviderProps) {
         } catch (error) {
           console.error("Failed to import plan during refresh:", error);
         }
+      }
+      
+      // Always verify that all weeks from phases.json are present
+      try {
+        const phasesData = await import('../data/phases.json');
+        const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
+        const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
+        
+        if (missingWeeks.length > 0) {
+          console.warn("Missing weeks in refreshed plan:", missingWeeks);
+          console.log("Current plan weeks:", planData.map(w => w.week));
+          
+          // Try to re-import if some weeks are missing
+          try {
+            const reimportedPlan = await planService.importFromFile();
+            planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
+            console.log("Re-imported plan during refresh:", planData.length, "weeks");
+            
+            // Verify again after re-import
+            const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
+            if (stillMissingWeeks.length > 0) {
+              console.error("Still missing weeks after refresh re-import:", stillMissingWeeks);
+              toast.error(`أسابيع مفقودة: ${stillMissingWeeks.join(', ')}`);
+            }
+          } catch (reimportError) {
+            console.error("Failed to re-import plan during refresh:", reimportError);
+            toast.error("فشل في إعادة تحميل الخطة");
+          }
+        }
+      } catch (error) {
+        console.error("Error verifying weeks during refresh:", error);
       }
       
       setPlan(planData);
