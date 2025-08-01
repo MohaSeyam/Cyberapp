@@ -10,11 +10,8 @@ import Button from '../components/ui/Button';
 import { VirtualList, useVirtualSearch } from '../components/ui/VirtualList';
 import { animations } from '../constants/theme';
 import { useDebounce } from '../hooks/useDebounce';
-import { withPerformanceMonitoring } from '../utils/performance';
 
-const NotesPageWithMonitoring = withPerformanceMonitoring(NotesPage);
-
-function NotesPage() {
+export default function NotesPage() {
   const { notes, addNote, updateNote, deleteNote } = useApp();
   const { t, lang } = useLocalization();
   const [searchTerm, setSearchTerm] = useState('');
@@ -213,5 +210,3 @@ function NotesPage() {
     </PageLayout>
   );
 }
-
-export default NotesPageWithMonitoring;
