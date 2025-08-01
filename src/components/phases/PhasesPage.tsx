@@ -20,7 +20,10 @@ const phaseIcons = {
   server: Server,
   eye: Eye,
   search: Search,
-  cloud: Cloud
+  cloud: Cloud,
+  target: Target,
+  zap: TrendingUp,
+  trophy: Trophy
 };
 
 // Breadcrumbs component
@@ -128,6 +131,33 @@ export default function PhasesPage() {
       difficulty: "متوسط - متقدم",
       color: "teal",
       icon: "cloud"
+    },
+    {
+      id: 6,
+      title: { ar: "الهجوم واختبار الاختراق", en: "Offensive Security & Pentesting" },
+      focus: { ar: "تعلم التفكير مثل المهاجمين", en: "Learning to think like attackers" },
+      duration: "5 أسابيع",
+      difficulty: "متقدم",
+      color: "red",
+      icon: "target"
+    },
+    {
+      id: 7,
+      title: { ar: "التطبيق المتقدم والتكامل", en: "Advanced Application & Integration" },
+      focus: { ar: "دمج المهارات المكتسبة", en: "Integrating acquired skills" },
+      duration: "4 أسابيع",
+      difficulty: "خبير",
+      color: "pink",
+      icon: "zap"
+    },
+    {
+      id: 8,
+      title: { ar: "المشروع النهائي والانطلاق المهني", en: "Capstone & Career Launch" },
+      focus: { ar: "تتويج الرحلة التعليمية", en: "Culminating the learning journey" },
+      duration: "9 أسابيع",
+      difficulty: "خبير",
+      color: "yellow",
+      icon: "trophy"
     }
   ];
 
@@ -196,7 +226,7 @@ export default function PhasesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {phases.map((phase, index) => {
             const completion = getPhaseCompletion(phase.id);
-            const PhaseIcon = phaseIcons[phase.icon as keyof typeof phaseIcons] || Shield;
+            const PhaseIcon = phaseIcons[(phase.icon || 'shield') as keyof typeof phaseIcons] || Shield;
             
             return (
               <motion.div key={phase.id} {...animations.stagger(index * 0.1)}>
