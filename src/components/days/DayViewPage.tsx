@@ -1041,7 +1041,7 @@ export default function DayViewPage() {
               content={noteForm.content}
               onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
               placeholder="اكتب ملاحظتك هنا..."
-              lang={lang}
+              lang={language}
               minHeight="400px"
             />
           </div>
@@ -1154,7 +1154,7 @@ export default function DayViewPage() {
               content={journalForm.content}
               onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
               placeholder="اكتب محتوى المدونة هنا..."
-              lang={lang}
+              lang={language}
               minHeight="400px"
             />
           </div>
