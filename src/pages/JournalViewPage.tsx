@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Tag, Calendar, Clock, Target, FileText } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target, FileText, Copy, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import PageLayout from '../components/layout/PageLayout';
@@ -191,10 +191,39 @@ export default function JournalViewPage() {
               aria-label="العودة لقائمة المدونات"
             >
               <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            </button>
+                        </button>
           </div>
           
-
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleEditJournalEntry}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="تعديل المدونة"
+            >
+              <Edit2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
+              onClick={handleCopyContent}
+              className="p-2 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/20 transition-colors"
+              title="نسخ المحتوى"
+            >
+              <Copy className="w-5 h-5 text-green-600 dark:text-green-400" />
+            </button>
+            <button
+              onClick={handlePrint}
+              className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
+              title="طباعة المدونة"
+            >
+              <Printer className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+              title="حذف المدونة"
+            >
+              <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </button>
+          </div>
         </div>
 
         {/* Journal Entry Content */}
