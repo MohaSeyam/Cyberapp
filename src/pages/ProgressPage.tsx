@@ -1486,8 +1486,8 @@ export default function ProgressPage() {
                   {safePlan.map((phase, index) => (
                     <option key={index} value={index}>
                       {getCurrentLanguageText({ 
-                        ar: `المرحلة ${index + 1}: ${phase.name?.ar || `مرحلة ${index + 1}`}`, 
-                        en: `Phase ${index + 1}: ${phase.name?.en || `Phase ${index + 1}`}` 
+                        ar: `Phase ${index + 1}: ${phase.name?.ar || 'Phase ' + (index + 1)}`, 
+                        en: `Phase ${index + 1}: ${phase.name?.en || 'Phase ' + (index + 1)}` 
                       })}
                     </option>
                   ))}
