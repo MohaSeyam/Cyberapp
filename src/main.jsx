@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./assets/main.css";
 import "./styles/rtl.css";
+import "./styles/editor.css";
 
 console.log("main.jsx loaded");
 

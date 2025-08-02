@@ -1,0 +1,381 @@
+/* Enhanced Rich Text Editor Styles */
+
+.rich-text-editor {
+  font-family: 'Cairo', 'Arial', sans-serif;
+}
+
+/* Table Styles */
+.ProseMirror table {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .ProseMirror table {
+  border-color: #374151;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 8px 12px;
+  position: relative;
+  vertical-align: top;
+}
+
+.dark .ProseMirror table td,
+.dark .ProseMirror table th {
+  border-color: #374151;
+}
+
+.ProseMirror table th {
+  background-color: #f9fafb;
+  font-weight: bold;
+  text-align: left;
+}
+
+.dark .ProseMirror table th {
+  background-color: #374151;
+}
+
+.ProseMirror table .selectedCell:after {
+  background: rgba(200, 200, 255, 0.4);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.ProseMirror table .column-resize-handle {
+  background-color: #adf;
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  pointer-events: none;
+  top: 0;
+  width: 4px;
+}
+
+.ProseMirror table p {
+  margin: 0;
+}
+
+/* Horizontal Rule */
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 1em 0;
+}
+
+.dark .ProseMirror hr {
+  border-top-color: #374151;
+}
+
+/* Link Styles */
+.ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dark .ProseMirror a {
+  color: #60a5fa;
+}
+
+.ProseMirror a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.dark .ProseMirror a:hover {
+  color: #93c5fd;
+}
+
+/* Font Family Styles */
+.ProseMirror [data-font-family="Arial, sans-serif"] {
+  font-family: Arial, sans-serif;
+}
+
+.ProseMirror [data-font-family="Times New Roman, serif"] {
+  font-family: "Times New Roman", serif;
+}
+
+.ProseMirror [data-font-family="Courier New, monospace"] {
+  font-family: "Courier New", monospace;
+}
+
+.ProseMirror [data-font-family="Georgia, serif"] {
+  font-family: Georgia, serif;
+}
+
+.ProseMirror [data-font-family="Verdana, sans-serif"] {
+  font-family: Verdana, sans-serif;
+}
+
+.ProseMirror [data-font-family="Tahoma, sans-serif"] {
+  font-family: Tahoma, sans-serif;
+}
+
+.ProseMirror [data-font-family="Cairo, sans-serif"] {
+  font-family: Cairo, sans-serif;
+}
+
+.ProseMirror [data-font-family="Amiri, serif"] {
+  font-family: Amiri, serif;
+}
+
+.ProseMirror [data-font-family="Noto Naskh Arabic, serif"] {
+  font-family: "Noto Naskh Arabic", serif;
+}
+
+.ProseMirror [data-font-family="Scheherazade New, serif"] {
+  font-family: "Scheherazade New", serif;
+}
+
+.ProseMirror [data-font-family="Readex Pro, sans-serif"] {
+  font-family: "Readex Pro", sans-serif;
+}
+
+.ProseMirror [data-font-family="IBM Plex Sans Arabic, sans-serif"] {
+  font-family: "IBM Plex Sans Arabic", sans-serif;
+}
+
+/* Font Size Styles */
+.ProseMirror [data-font-size="12px"] {
+  font-size: 12px;
+}
+
+.ProseMirror [data-font-size="14px"] {
+  font-size: 14px;
+}
+
+.ProseMirror [data-font-size="16px"] {
+  font-size: 16px;
+}
+
+.ProseMirror [data-font-size="18px"] {
+  font-size: 18px;
+}
+
+.ProseMirror [data-font-size="20px"] {
+  font-size: 20px;
+}
+
+.ProseMirror [data-font-size="24px"] {
+  font-size: 24px;
+}
+
+.ProseMirror [data-font-size="28px"] {
+  font-size: 28px;
+}
+
+.ProseMirror [data-font-size="32px"] {
+  font-size: 32px;
+}
+
+/* Color Styles */
+.ProseMirror [data-color="#000000"] {
+  color: #000000;
+}
+
+.ProseMirror [data-color="#434343"] {
+  color: #434343;
+}
+
+.ProseMirror [data-color="#666666"] {
+  color: #666666;
+}
+
+.ProseMirror [data-color="#999999"] {
+  color: #999999;
+}
+
+.ProseMirror [data-color="#b7b7b7"] {
+  color: #b7b7b7;
+}
+
+.ProseMirror [data-color="#cccccc"] {
+  color: #cccccc;
+}
+
+.ProseMirror [data-color="#d9d9d9"] {
+  color: #d9d9d9;
+}
+
+.ProseMirror [data-color="#efefef"] {
+  color: #efefef;
+}
+
+.ProseMirror [data-color="#f3f3f3"] {
+  color: #f3f3f3;
+}
+
+.ProseMirror [data-color="#ffffff"] {
+  color: #ffffff;
+}
+
+.ProseMirror [data-color="#980000"] {
+  color: #980000;
+}
+
+.ProseMirror [data-color="#ff0000"] {
+  color: #ff0000;
+}
+
+.ProseMirror [data-color="#ff9900"] {
+  color: #ff9900;
+}
+
+.ProseMirror [data-color="#ffff00"] {
+  color: #ffff00;
+}
+
+.ProseMirror [data-color="#00ff00"] {
+  color: #00ff00;
+}
+
+.ProseMirror [data-color="#00ffff"] {
+  color: #00ffff;
+}
+
+.ProseMirror [data-color="#4a86e8"] {
+  color: #4a86e8;
+}
+
+.ProseMirror [data-color="#0000ff"] {
+  color: #0000ff;
+}
+
+.ProseMirror [data-color="#9900ff"] {
+  color: #9900ff;
+}
+
+.ProseMirror [data-color="#ff00ff"] {
+  color: #ff00ff;
+}
+
+/* Dark mode color adjustments */
+.dark .ProseMirror [data-color="#000000"] {
+  color: #ffffff;
+}
+
+.dark .ProseMirror [data-color="#ffffff"] {
+  color: #000000;
+}
+
+/* Editor Focus Styles */
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.dark .ProseMirror p.is-editor-empty:first-child::before {
+  color: #6b7280;
+}
+
+/* Selection Styles */
+.ProseMirror ::selection {
+  background: #b3d4fc;
+}
+
+.dark .ProseMirror ::selection {
+  background: #1e40af;
+}
+
+/* Toolbar Dropdown Styles */
+.editor-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.dark .editor-dropdown {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+/* Color Picker Grid */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  padding: 8px;
+}
+
+.color-option {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.dark .color-option {
+  border-color: #4b5563;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .rich-text-editor .toolbar {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .rich-text-editor .toolbar > div {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .color-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .rich-text-editor .toolbar {
+    display: none;
+  }
+  
+  .ProseMirror {
+    color: black !important;
+    background: white !important;
+  }
+  
+  .ProseMirror table {
+    border-color: black !important;
+  }
+  
+  .ProseMirror table td,
+  .ProseMirror table th {
+    border-color: black !important;
+  }
+}
