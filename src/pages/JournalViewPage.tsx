@@ -82,14 +82,7 @@ export default function JournalViewPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => {
-                // محاولة العودة للصفحة السابقة، وإذا فشلت العودة لقائمة المدونات
-                if (window.history.length > 1) {
-                  navigate(-1);
-                } else {
-                  navigate('/journal');
-                }
-              }}
+              onClick={() => navigate(-1)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="رجوع"
               aria-label="رجوع"

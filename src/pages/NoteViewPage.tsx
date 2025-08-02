@@ -82,14 +82,7 @@ export default function NoteViewPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => {
-                // محاولة العودة للصفحة السابقة، وإذا فشلت العودة لقائمة الملاحظات
-                if (window.history.length > 1) {
-                  navigate(-1);
-                } else {
-                  navigate('/notes');
-                }
-              }}
+              onClick={() => navigate(-1)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="رجوع"
               aria-label="رجوع"

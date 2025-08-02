@@ -83,8 +83,8 @@ export default function NotesPage() {
       transition={{ duration: 0.2, delay: index * 0.05 }}
       className="p-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       onClick={() => {
-        // فتح الملاحظة في صفحة منفصلة
-        window.open(`/note/${note.id}`, '_blank');
+        // فتح الملاحظة في نفس الصفحة
+        window.location.href = `/note/${note.id}`;
       }}
     >
       <div className="space-y-3">
