@@ -80,14 +80,31 @@ export default function JournalViewPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            title="رجوع"
-            aria-label="رجوع"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                // محاولة العودة للصفحة السابقة، وإذا فشلت العودة لقائمة المدونات
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate('/journal');
+                }
+              }}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="رجوع"
+              aria-label="رجوع"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <button
+              onClick={() => navigate('/journal')}
+              className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors"
+              title="العودة لقائمة المدونات"
+              aria-label="العودة لقائمة المدونات"
+            >
+              <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            </button>
+          </div>
           
           <div className="flex items-center space-x-2">
             <button

@@ -80,14 +80,31 @@ export default function NoteViewPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            title="رجوع"
-            aria-label="رجوع"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                // محاولة العودة للصفحة السابقة، وإذا فشلت العودة لقائمة الملاحظات
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate('/notes');
+                }
+              }}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="رجوع"
+              aria-label="رجوع"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            <button
+              onClick={() => navigate('/notes')}
+              className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
+              title="العودة لقائمة الملاحظات"
+              aria-label="العودة لقائمة الملاحظات"
+            >
+              <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </button>
+          </div>
           
           <div className="flex items-center space-x-2">
             <button
