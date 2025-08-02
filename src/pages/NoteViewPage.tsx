@@ -139,8 +139,13 @@ export default function NoteViewPage() {
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4" />
                   <span className="text-blue-600 dark:text-blue-400 font-medium">
-                    {dayInfo.day.name?.ar} - الأسبوع {dayInfo.week.week}
+                    {dayInfo.day.name?.ar}
                   </span>
+                  {dayInfo.day.topic?.ar && (
+                    <span className="text-gray-500 dark:text-gray-400">
+                      - {dayInfo.day.topic.ar}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

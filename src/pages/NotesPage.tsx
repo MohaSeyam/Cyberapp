@@ -46,12 +46,12 @@ export default function NotesPage() {
     const week = plan?.find(w => w.week === weekId);
     const day = week?.days?.find(d => d.key === dayKey);
     
-    if (day?.day?.ar) {
-      return day.day.ar;
+    if (day?.name?.ar) {
+      return day.name.ar;
     }
     
-    if (day?.day?.en) {
-      return day.day.en;
+    if (day?.name?.en) {
+      return day.name.en;
     }
     
     // Fallback to day name
@@ -103,7 +103,7 @@ export default function NotesPage() {
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
-              <span>{note.dayKey === 'general' ? getDayTitle(note.dayKey, note.weekId) : `الأسبوع ${note.weekId} - ${getDayTitle(note.dayKey, note.weekId)}`}</span>
+              <span>{note.dayKey === 'general' ? getDayTitle(note.dayKey, note.weekId) : getDayTitle(note.dayKey, note.weekId)}</span>
             </div>
           </div>
           

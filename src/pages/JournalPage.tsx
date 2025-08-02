@@ -58,12 +58,12 @@ export default function JournalPage() {
     const week = plan?.find(w => w.week === weekId);
     const day = week?.days?.find(d => d.key === dayKey);
     
-    if (day?.day?.ar) {
-      return day.day.ar;
+    if (day?.name?.ar) {
+      return day.name.ar;
     }
     
-    if (day?.day?.en) {
-      return day.day.en;
+    if (day?.name?.en) {
+      return day.name.en;
     }
     
     // Fallback to day name
@@ -115,7 +115,7 @@ export default function JournalPage() {
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
-              <span>{entry.dayKey === 'general' ? getDayTitle(entry.dayKey, entry.weekId) : `الأسبوع ${entry.weekId} - ${getDayTitle(entry.dayKey, entry.weekId)}`}</span>
+              <span>{entry.dayKey === 'general' ? getDayTitle(entry.dayKey, entry.weekId) : getDayTitle(entry.dayKey, entry.weekId)}</span>
             </div>
           </div>
           
