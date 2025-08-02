@@ -21,6 +21,17 @@ import ProgressChart from '../components/charts/ProgressChart';
 import PieChart from '../components/charts/PieChart';
 import toast from 'react-hot-toast';
 
+// Custom CSS for hiding scrollbar
+const scrollbarHideStyles = `
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
 // Tab Types
 type TabType = 'overview' | 'analytics' | 'skills' | 'achievements' | 'suggestions' | 'reports';
 
@@ -501,46 +512,109 @@ export default function ProgressPage() {
 
   // Tab Components
   const OverviewTab = () => (
-    <div className="space-y-6">
-      {/* Key Metrics */}
+    <div className="space-y-8">
+      {/* Enhanced Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div {...animations.fadeIn}>
-          <Card className="text-center p-6">
-            <div className="flex items-center justify-center mb-4">
-              <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 border-2 border-blue-200 dark:border-blue-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between p-6">
+              <div>
+                <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                  {language === 'ar' ? 'معدل الإكمال' : 'Completion Rate'}
+                </h3>
+                <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                  {completionRate}%
+                </p>
+                <div className="mt-3 w-full bg-blue-200 dark:bg-blue-700 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${completionRate}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div className="p-4 bg-blue-100 dark:bg-blue-800 rounded-full">
+                <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{completionRate}%</h3>
-            <p className="text-gray-600 dark:text-gray-400">{safeT('completionRate')}</p>
           </Card>
         </motion.div>
 
-        <motion.div {...animations.fadeIn} transition={{ delay: 0.1 }}>
-          <Card className="text-center p-6">
-            <div className="flex items-center justify-center mb-4">
-              <Flame className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/30 border-2 border-green-200 dark:border-green-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between p-6">
+              <div>
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  {language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}
+                </h3>
+                <p className="text-4xl font-bold text-green-600 dark:text-green-400">
+                  {completedTasks}
+                </p>
+                <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                  {language === 'ar' ? 'من أصل' : 'out of'} {totalTasks} {language === 'ar' ? 'مهمة' : 'tasks'}
+                </p>
+              </div>
+              <div className="p-4 bg-green-100 dark:bg-green-800 rounded-full">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{currentStreak}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{safeT('currentStreak')}</p>
           </Card>
         </motion.div>
 
-        <motion.div {...animations.fadeIn} transition={{ delay: 0.2 }}>
-          <Card className="text-center p-6">
-            <div className="flex items-center justify-center mb-4">
-              <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/30 border-2 border-purple-200 dark:border-purple-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between p-6">
+              <div>
+                <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">
+                  {language === 'ar' ? 'الوقت المستغرق' : 'Time Spent'}
+                </h3>
+                <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                  {Math.round(completedDuration / 60)}h
+                </p>
+                <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">
+                  {language === 'ar' ? 'من أصل' : 'out of'} {Math.round(totalDuration / 60)}h {language === 'ar' ? 'إجمالي' : 'total'}
+                </p>
+              </div>
+              <div className="p-4 bg-purple-100 dark:bg-purple-800 rounded-full">
+                <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(completedDuration / 60)}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{safeT('hoursLearned')}</p>
           </Card>
         </motion.div>
 
-        <motion.div {...animations.fadeIn} transition={{ delay: 0.3 }}>
-          <Card className="text-center p-6">
-            <div className="flex items-center justify-center mb-4">
-              <Trophy className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-900/30 border-2 border-orange-200 dark:border-orange-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between p-6">
+              <div>
+                <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">
+                  {language === 'ar' ? 'المسار الحالي' : 'Current Streak'}
+                </h3>
+                <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                  {streak.currentStreak}
+                </p>
+                <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
+                  {language === 'ar' ? 'أيام متتالية' : 'days in a row'}
+                </p>
+              </div>
+              <div className="p-4 bg-orange-100 dark:bg-orange-800 rounded-full">
+                <Flame className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{longestStreak}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{safeT('longestStreak')}</p>
           </Card>
         </motion.div>
       </div>
@@ -1007,14 +1081,50 @@ export default function ProgressPage() {
     </div>
   );
 
-  // Tab Configuration
+  // Tab Configuration with enhanced design
   const tabs = [
-    { id: 'overview', label: language === 'ar' ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
-    { id: 'analytics', label: language === 'ar' ? 'التحليلات' : 'Analytics', icon: LineChart },
-    { id: 'skills', label: language === 'ar' ? 'المهارات' : 'Skills', icon: Brain },
-    { id: 'achievements', label: language === 'ar' ? 'الإنجازات' : 'Achievements', icon: Trophy },
-    { id: 'suggestions', label: language === 'ar' ? 'الاقتراحات' : 'Suggestions', icon: Lightbulb },
-    { id: 'reports', label: language === 'ar' ? 'التقارير' : 'Reports', icon: Download }
+    { 
+      id: 'overview', 
+      label: { ar: 'نظرة عامة', en: 'Overview' }, 
+      icon: BarChart3,
+      color: 'blue',
+      description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' }
+    },
+    { 
+      id: 'analytics', 
+      label: { ar: 'التحليلات', en: 'Analytics' }, 
+      icon: LineChart,
+      color: 'purple',
+      description: { ar: 'رسوم بيانية مفصلة', en: 'Detailed charts and graphs' }
+    },
+    { 
+      id: 'skills', 
+      label: { ar: 'المهارات', en: 'Skills' }, 
+      icon: Brain,
+      color: 'green',
+      description: { ar: 'تقييم المهارات المكتسبة', en: 'Assess acquired skills' }
+    },
+    { 
+      id: 'achievements', 
+      label: { ar: 'الإنجازات', en: 'Achievements' }, 
+      icon: Trophy,
+      color: 'yellow',
+      description: { ar: 'المسارات والإنجازات', en: 'Milestones and achievements' }
+    },
+    { 
+      id: 'suggestions', 
+      label: { ar: 'الاقتراحات', en: 'Suggestions' }, 
+      icon: Lightbulb,
+      color: 'orange',
+      description: { ar: 'نصائح للتحسين', en: 'Improvement tips' }
+    },
+    { 
+      id: 'reports', 
+      label: { ar: 'التقارير', en: 'Reports' }, 
+      icon: Download,
+      color: 'red',
+      description: { ar: 'تصدير التقارير', en: 'Export reports' }
+    }
   ];
 
   return (
@@ -1024,29 +1134,82 @@ export default function ProgressPage() {
         subtitle={safeT('trackYourLearning')}
         showBottomBar={true}
       >
-        <motion.div {...animations.fadeIn} className="space-y-6">
+        <motion.div {...animations.fadeIn} className="space-y-8">
           
-          {/* Tabs Navigation */}
-          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-700">
-            <div className="flex flex-wrap gap-3 justify-center p-4">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? 'primary' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveTab(tab.id)}
-                  icon={tab.icon}
-                  className={`min-w-[140px] transition-all duration-300 ${
-                    activeTab === tab.id 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transform scale-105' 
-                      : 'hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                  }`}
-                >
-                  {tab.label}
-                </Button>
-              ))}
+          {/* Enhanced Header with Progress Overview */}
+          <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-700">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="text-center lg:text-left">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                  {language === 'ar' ? 'مركز التقدم' : 'Progress Center'}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  {language === 'ar' 
+                    ? `إكمال ${completionRate}% من المهام - ${completedTasks}/${totalTasks}`
+                    : `${completionRate}% Complete - ${completedTasks}/${totalTasks} tasks`
+                  }
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {completedTasks}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'مهام مكتملة' : 'Completed'}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {totalDuration - completedDuration}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'ساعات متبقية' : 'Hours Left'}
+                  </div>
+                </div>
+              </div>
             </div>
-          </Card>
+          </div>
+
+          {/* Enhanced Tabs Navigation */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="flex flex-wrap lg:flex-nowrap overflow-x-auto scrollbar-hide">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                const colorClasses = {
+                  blue: isActive ? 'bg-blue-500 text-white' : 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20',
+                  purple: isActive ? 'bg-purple-500 text-white' : 'text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20',
+                  green: isActive ? 'bg-green-500 text-white' : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20',
+                  yellow: isActive ? 'bg-yellow-500 text-white' : 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
+                  orange: isActive ? 'bg-orange-500 text-white' : 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20',
+                  red: isActive ? 'bg-red-500 text-white' : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
+                };
+                
+                return (
+                  <motion.button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[120px] transition-all duration-300 border-b-2 ${
+                      isActive 
+                        ? `border-${tab.color}-500 ${colorClasses[tab.color as keyof typeof colorClasses]}`
+                        : 'border-transparent hover:border-gray-300'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Icon className={`w-6 h-6 mb-2 ${isActive ? '' : colorClasses[tab.color as keyof typeof colorClasses].split(' ')[0]}`} />
+                    <span className="font-semibold text-sm">
+                      {getCurrentLanguageText(tab.label)}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden lg:block">
+                      {getCurrentLanguageText(tab.description)}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Tab Content */}
           <div className="mt-6">
@@ -1130,6 +1293,9 @@ export default function ProgressPage() {
             </div>
           </div>
         </Modal>
+        
+        {/* Custom Styles */}
+        <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyles }} />
       </WeekPhaseProvider>
     );
   }
