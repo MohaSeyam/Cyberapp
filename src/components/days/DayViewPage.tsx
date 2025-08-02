@@ -331,7 +331,7 @@ export default function DayViewPage() {
     }
   };
 
-  const previewResource = (resource: any) => {
+  const handlePreviewResource = (resource: any) => {
     // التحقق من أن الرابط آمن للمعاينة
     if (!isValidUrl(resource.url)) {
       toast.error('الرابط غير صالح للمعاينة');
@@ -604,7 +604,7 @@ export default function DayViewPage() {
                           <div className="flex items-center space-x-2">
                             {/* Preview Button */}
                             <button
-                              onClick={() => previewResource(resource)}
+                              onClick={() => handlePreviewResource(resource)}
                               className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
                               title="معاينة المرجع"
                             >
