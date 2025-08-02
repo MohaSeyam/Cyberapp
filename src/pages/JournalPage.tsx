@@ -291,6 +291,20 @@ export default function JournalPage() {
       title={safeT('journal')}
       subtitle={safeT('learningJournal')}
       showBottomBar={true}
+      headerAction={
+        <motion.button
+          onClick={() => setJournalModal({ isOpen: true, entry: null })}
+          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Plus className="w-5 h-5" />
+          <span className="font-medium">إضافة مدونة</span>
+        </motion.button>
+      }
     >
       <motion.div
         initial="hidden"
