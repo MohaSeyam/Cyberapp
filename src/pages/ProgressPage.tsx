@@ -1185,6 +1185,149 @@ export default function ProgressPage() {
         </div>
       </Card>
 
+      {/* Date/Phase Selection */}
+      {(reportOptions.type === 'daily' || reportOptions.type === 'weekly' || reportOptions.type === 'phase') && (
+        <Card>
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <CalendarDays className="w-6 h-6 mr-2 text-indigo-600" />
+              {getCurrentLanguageText({ 
+                ar: reportOptions.type === 'daily' ? 'اختر اليوم' : 
+                    reportOptions.type === 'weekly' ? 'اختر الأسبوع' : 'اختر المرحلة', 
+                en: reportOptions.type === 'daily' ? 'Select Day' : 
+                    reportOptions.type === 'weekly' ? 'Select Week' : 'Select Phase' 
+              })}
+            </h3>
+            
+            {reportOptions.type === 'daily' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {getCurrentLanguageText({ ar: 'من تاريخ', en: 'From Date' })}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                      value={reportOptions.dateRange?.start?.toISOString().split('T')[0] || ''}
+                      onChange={(e) => {
+                        const startDate = e.target.value ? new Date(e.target.value) : undefined;
+                        setReportOptions(prev => ({
+                          ...prev,
+                          dateRange: {
+                            start: startDate || new Date(),
+                            end: prev.dateRange?.end || new Date()
+                          }
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {getCurrentLanguageText({ ar: 'إلى تاريخ', en: 'To Date' })}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                      value={reportOptions.dateRange?.end?.toISOString().split('T')[0] || ''}
+                      onChange={(e) => {
+                        const endDate = e.target.value ? new Date(e.target.value) : undefined;
+                        setReportOptions(prev => ({
+                          ...prev,
+                          dateRange: {
+                            start: prev.dateRange?.start || new Date(),
+                            end: endDate || new Date()
+                          }
+                        }));
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {reportOptions.type === 'weekly' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {getCurrentLanguageText({ ar: 'من أسبوع', en: 'From Week' })}
+                    </label>
+                    <input
+                      type="week"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                      value={reportOptions.dateRange?.start?.toISOString().split('T')[0] || ''}
+                      onChange={(e) => {
+                        const startDate = e.target.value ? new Date(e.target.value) : undefined;
+                        setReportOptions(prev => ({
+                          ...prev,
+                          dateRange: {
+                            start: startDate || new Date(),
+                            end: prev.dateRange?.end || new Date()
+                          }
+                        }));
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {getCurrentLanguageText({ ar: 'إلى أسبوع', en: 'To Week' })}
+                    </label>
+                    <input
+                      type="week"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                      value={reportOptions.dateRange?.end?.toISOString().split('T')[0] || ''}
+                      onChange={(e) => {
+                        const endDate = e.target.value ? new Date(e.target.value) : undefined;
+                        setReportOptions(prev => ({
+                          ...prev,
+                          dateRange: {
+                            start: prev.dateRange?.start || new Date(),
+                            end: endDate || new Date()
+                          }
+                        }));
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {reportOptions.type === 'phase' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                    value={reportOptions.phaseId || ''}
+                    onChange={(e) => {
+                      setReportOptions(prev => ({
+                        ...prev,
+                        phaseId: e.target.value ? parseInt(e.target.value) : undefined
+                      }));
+                    }}
+                  >
+                    <option value="">
+                      {getCurrentLanguageText({ ar: 'اختر مرحلة...', en: 'Select a phase...' })}
+                    </option>
+                    {safePlan.map((phase, index) => (
+                      <option key={index} value={index}>
+                        {getCurrentLanguageText({ 
+                          ar: `المرحلة ${index + 1}: ${phase.name?.ar || `مرحلة ${index + 1}`}`, 
+                          en: `Phase ${index + 1}: ${phase.name?.en || `Phase ${index + 1}`}` 
+                        })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
       {/* Language Selection */}
       <Card>
         <div className="mb-6">

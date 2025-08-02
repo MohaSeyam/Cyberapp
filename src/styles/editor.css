@@ -357,6 +357,54 @@
   .color-grid {
     grid-template-columns: repeat(8, 1fr);
   }
+  
+  /* Enhanced mobile toolbar */
+  .rich-text-editor .toolbar {
+    padding: 0.5rem;
+    gap: 0.25rem;
+  }
+  
+  .rich-text-editor .toolbar > div {
+    min-width: auto;
+    flex-shrink: 0;
+  }
+  
+  .rich-text-editor .toolbar button {
+    padding: 0.25rem;
+    min-width: 2rem;
+    height: 2rem;
+  }
+  
+  .rich-text-editor .toolbar button svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Hide scrollbar for toolbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Dropdown responsive */
+  .editor-dropdown {
+    max-width: 200px;
+    max-height: 200px;
+  }
+  
+  .color-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+  }
+  
+  .color-option {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 /* Print Styles */

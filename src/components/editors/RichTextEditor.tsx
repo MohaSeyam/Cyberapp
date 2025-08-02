@@ -186,8 +186,8 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3">
-      <div className="flex flex-wrap gap-2 items-center">
+    <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-3">
+      <div className="flex flex-wrap gap-1 items-center justify-start overflow-x-auto scrollbar-hide">
         {/* Text Formatting */}
         <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
           <button 
