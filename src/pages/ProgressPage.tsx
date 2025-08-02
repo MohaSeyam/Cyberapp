@@ -19,6 +19,7 @@ import { WeekPhaseProvider } from '../components/WeekPhaseProvider';
 import OverallProgressCard from '../components/progress/OverallProgressCard';
 import ProgressChart from '../components/charts/ProgressChart';
 import PieChart from '../components/charts/PieChart';
+import Logo from '../components/ui/Logo';
 import toast from 'react-hot-toast';
 
 // Custom CSS for hiding scrollbar
@@ -395,50 +396,50 @@ export default function ProgressPage() {
   const skillsMatrix: Skill[] = useMemo(() => [
     {
       id: '1',
-      name: lang === 'ar' ? 'التحليل الجنائي' : 'Forensic Analysis',
-      category: lang === 'ar' ? 'التحليل' : 'Analysis',
+      name: language === 'ar' ? 'التحليل الجنائي' : 'Forensic Analysis',
+      category: language === 'ar' ? 'التحليل' : 'Analysis',
       level: Math.min(5, Math.floor(blueTeamTasks / 3)),
-      description: lang === 'ar' ? 'مهارات تحليل الأدلة الرقمية' : 'Digital evidence analysis skills',
+      description: language === 'ar' ? 'مهارات تحليل الأدلة الرقمية' : 'Digital evidence analysis skills',
       color: 'bg-blue-500'
     },
     {
       id: '2',
-      name: lang === 'ar' ? 'اختبار الاختراق' : 'Penetration Testing',
-      category: lang === 'ar' ? 'الهجوم' : 'Offensive',
+      name: language === 'ar' ? 'اختبار الاختراق' : 'Penetration Testing',
+      category: language === 'ar' ? 'الهجوم' : 'Offensive',
       level: Math.min(5, Math.floor(redTeamTasks / 3)),
-      description: lang === 'ar' ? 'مهارات اختبار الاختراق' : 'Penetration testing skills',
+      description: language === 'ar' ? 'مهارات اختبار الاختراق' : 'Penetration testing skills',
       color: 'bg-red-500'
     },
     {
       id: '3',
-      name: lang === 'ar' ? 'التحليل العملي' : 'Practical Analysis',
-      category: lang === 'ar' ? 'التطبيق' : 'Practical',
+      name: language === 'ar' ? 'التحليل العملي' : 'Practical Analysis',
+      category: language === 'ar' ? 'التطبيق' : 'Practical',
       level: Math.min(5, Math.floor(practicalTasks / 2)),
-      description: lang === 'ar' ? 'مهارات التطبيق العملي' : 'Practical application skills',
+      description: language === 'ar' ? 'مهارات التطبيق العملي' : 'Practical application skills',
       color: 'bg-green-500'
     },
     {
       id: '4',
-      name: lang === 'ar' ? 'المفاهيم النظرية' : 'Theoretical Concepts',
-      category: lang === 'ar' ? 'النظرية' : 'Theory',
+      name: language === 'ar' ? 'المفاهيم النظرية' : 'Theoretical Concepts',
+      category: language === 'ar' ? 'النظرية' : 'Theory',
       level: Math.min(5, Math.floor(theoreticalTasks / 2)),
-      description: lang === 'ar' ? 'فهم المفاهيم النظرية' : 'Understanding theoretical concepts',
+      description: language === 'ar' ? 'فهم المفاهيم النظرية' : 'Understanding theoretical concepts',
       color: 'bg-purple-500'
     },
     {
       id: '5',
-      name: lang === 'ar' ? 'السياسات والإجراءات' : 'Policies & Procedures',
-      category: lang === 'ar' ? 'السياسات' : 'Policies',
+      name: language === 'ar' ? 'السياسات والإجراءات' : 'Policies & Procedures',
+      category: language === 'ar' ? 'السياسات' : 'Policies',
       level: Math.min(5, Math.floor(policiesTasks / 2)),
-      description: lang === 'ar' ? 'فهم السياسات والإجراءات' : 'Understanding policies and procedures',
+      description: language === 'ar' ? 'فهم السياسات والإجراءات' : 'Understanding policies and procedures',
       color: 'bg-orange-500'
     },
     {
       id: '6',
-      name: lang === 'ar' ? 'الأمن السيبراني' : 'Cybersecurity',
-      category: lang === 'ar' ? 'الأمن' : 'Security',
+      name: language === 'ar' ? 'الأمن السيبراني' : 'Cybersecurity',
+      category: language === 'ar' ? 'الأمن' : 'Security',
       level: Math.min(5, Math.floor((blueTeamTasks + redTeamTasks) / 4)),
-      description: lang === 'ar' ? 'مهارات الأمن السيبراني الشاملة' : 'Comprehensive cybersecurity skills',
+      description: language === 'ar' ? 'مهارات الأمن السيبراني الشاملة' : 'Comprehensive cybersecurity skills',
       color: 'bg-indigo-500'
     }
   ], [blueTeamTasks, redTeamTasks, practicalTasks, theoreticalTasks, policiesTasks]);
@@ -450,8 +451,8 @@ export default function ProgressPage() {
     if (completedTasks === 0) {
       suggestionsList.push({
         icon: ArrowRight,
-        title: lang === 'ar' ? 'ابدأ رحلتك' : 'Start Your Journey',
-        description: lang === 'ar' ? 'ابدأ بأول مهمة لتبدأ رحلتك في الأمن السيبراني' : 'Start with your first task to begin your cybersecurity journey',
+        title: language === 'ar' ? 'ابدأ رحلتك' : 'Start Your Journey',
+        description: language === 'ar' ? 'ابدأ بأول مهمة لتبدأ رحلتك في الأمن السيبراني' : 'Start with your first task to begin your cybersecurity journey',
         type: 'motivation',
         priority: 'high',
         color: 'text-blue-600',
@@ -462,8 +463,8 @@ export default function ProgressPage() {
     if (completionRate < 30) {
       suggestionsList.push({
         icon: Clock,
-        title: lang === 'ar' ? 'خصص وقتاً منتظماً' : 'Set Regular Time',
-        description: lang === 'ar' ? 'خصص 30 دقيقة يومياً للتعلم لتحسين تقدمك' : 'Set aside 30 minutes daily for learning to improve your progress',
+        title: language === 'ar' ? 'خصص وقتاً منتظماً' : 'Set Regular Time',
+        description: language === 'ar' ? 'خصص 30 دقيقة يومياً للتعلم لتحسين تقدمك' : 'Set aside 30 minutes daily for learning to improve your progress',
         type: 'time-management',
         priority: 'high',
         color: 'text-orange-600',
@@ -474,8 +475,8 @@ export default function ProgressPage() {
     if (currentStreak === 0 && completedTasks > 0) {
       suggestionsList.push({
         icon: Flame,
-        title: lang === 'ar' ? 'استعد نشاطك' : 'Get Back on Track',
-        description: lang === 'ar' ? 'استعد نشاطك اليومي لبناء عادة التعلم' : 'Get back to daily activity to build learning habits',
+        title: language === 'ar' ? 'استعد نشاطك' : 'Get Back on Track',
+        description: language === 'ar' ? 'استعد نشاطك اليومي لبناء عادة التعلم' : 'Get back to daily activity to build learning habits',
         type: 'motivation',
         priority: 'medium',
         color: 'text-red-600',
@@ -486,8 +487,8 @@ export default function ProgressPage() {
     if (blueTeamTasks < redTeamTasks) {
       suggestionsList.push({
         icon: ArrowRight,
-        title: lang === 'ar' ? 'ركز على الدفاع' : 'Focus on Defense',
-        description: lang === 'ar' ? 'ركز على مهام الفريق الأزرق لتحسين مهارات الدفاع' : 'Focus on blue team tasks to improve defensive skills',
+        title: language === 'ar' ? 'ركز على الدفاع' : 'Focus on Defense',
+        description: language === 'ar' ? 'ركز على مهام الفريق الأزرق لتحسين مهارات الدفاع' : 'Focus on blue team tasks to improve defensive skills',
         type: 'skill-balance',
         priority: 'medium',
         color: 'text-blue-600',
@@ -498,8 +499,8 @@ export default function ProgressPage() {
     if (policiesTasks < 2) {
       suggestionsList.push({
         icon: BookOpen,
-        title: lang === 'ar' ? 'تعلم السياسات' : 'Learn Policies',
-        description: lang === 'ar' ? 'ركز على مهام السياسات لفهم الإجراءات الأمنية' : 'Focus on policy tasks to understand security procedures',
+        title: language === 'ar' ? 'تعلم السياسات' : 'Learn Policies',
+        description: language === 'ar' ? 'ركز على مهام السياسات لفهم الإجراءات الأمنية' : 'Focus on policy tasks to understand security procedures',
         type: 'skill-balance',
         priority: 'medium',
         color: 'text-orange-600',
@@ -761,8 +762,8 @@ export default function ProgressPage() {
         {[
           {
             id: 'first-task',
-            title: lang === 'ar' ? 'الخطوة الأولى' : 'First Step',
-            description: lang === 'ar' ? 'أكمل أول مهمة' : 'Complete your first task',
+            title: language === 'ar' ? 'الخطوة الأولى' : 'First Step',
+            description: language === 'ar' ? 'أكمل أول مهمة' : 'Complete your first task',
             icon: Target,
             unlocked: completedTasks >= 1,
             color: 'text-blue-600',
@@ -770,8 +771,8 @@ export default function ProgressPage() {
           },
           {
             id: 'streak-3',
-            title: lang === 'ar' ? 'نشاط مستمر' : 'Consistent Activity',
-            description: lang === 'ar' ? 'حافظ على نشاط 3 أيام متتالية' : 'Maintain 3-day streak',
+            title: language === 'ar' ? 'نشاط مستمر' : 'Consistent Activity',
+            description: language === 'ar' ? 'حافظ على نشاط 3 أيام متتالية' : 'Maintain 3-day streak',
             icon: Flame,
             unlocked: currentStreak >= 3,
             color: 'text-orange-600',
@@ -779,8 +780,8 @@ export default function ProgressPage() {
           },
           {
             id: 'blue-team',
-            title: lang === 'ar' ? 'محلل دفاعي' : 'Defensive Analyst',
-            description: lang === 'ar' ? 'أكمل 5 مهام فريق أزرق' : 'Complete 5 blue team tasks',
+            title: language === 'ar' ? 'محلل دفاعي' : 'Defensive Analyst',
+            description: language === 'ar' ? 'أكمل 5 مهام فريق أزرق' : 'Complete 5 blue team tasks',
             icon: ArrowRight,
             unlocked: blueTeamTasks >= 5,
             color: 'text-blue-600',
@@ -788,8 +789,8 @@ export default function ProgressPage() {
           },
           {
             id: 'red-team',
-            title: lang === 'ar' ? 'مخترق أخلاقي' : 'Ethical Hacker',
-            description: lang === 'ar' ? 'أكمل 5 مهام فريق أحمر' : 'Complete 5 red team tasks',
+            title: language === 'ar' ? 'مخترق أخلاقي' : 'Ethical Hacker',
+            description: language === 'ar' ? 'أكمل 5 مهام فريق أحمر' : 'Complete 5 red team tasks',
             icon: Zap,
             unlocked: redTeamTasks >= 5,
             color: 'text-red-600',
@@ -797,8 +798,8 @@ export default function ProgressPage() {
           },
           {
             id: 'policies',
-            title: lang === 'ar' ? 'خبير السياسات' : 'Policy Expert',
-            description: lang === 'ar' ? 'أكمل 3 مهام سياسات' : 'Complete 3 policy tasks',
+            title: language === 'ar' ? 'خبير السياسات' : 'Policy Expert',
+            description: language === 'ar' ? 'أكمل 3 مهام سياسات' : 'Complete 3 policy tasks',
             icon: BookOpen,
             unlocked: policiesTasks >= 3,
             color: 'text-orange-600',
@@ -806,8 +807,8 @@ export default function ProgressPage() {
           },
           {
             id: 'completion-50',
-            title: lang === 'ar' ? 'نصف الطريق' : 'Halfway There',
-            description: lang === 'ar' ? 'أكمل 50% من المهام' : 'Complete 50% of tasks',
+            title: language === 'ar' ? 'نصف الطريق' : 'Halfway There',
+            description: language === 'ar' ? 'أكمل 50% من المهام' : 'Complete 50% of tasks',
             icon: Trophy,
             unlocked: completionRate >= 50,
             color: 'text-purple-600',
@@ -869,9 +870,9 @@ export default function ProgressPage() {
                       suggestion.priority === 'medium' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' :
                       'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                     }`}>
-                      {suggestion.priority === 'high' ? (lang === 'ar' ? 'عالية' : 'High') :
-                       suggestion.priority === 'medium' ? (lang === 'ar' ? 'متوسطة' : 'Medium') :
-                       (lang === 'ar' ? 'منخفضة' : 'Low')} {lang === 'ar' ? 'الأولوية' : 'Priority'}
+                      {suggestion.priority === 'high' ? (language === 'ar' ? 'عالية' : 'High') :
+                       suggestion.priority === 'medium' ? (language === 'ar' ? 'متوسطة' : 'Medium') :
+                       (language === 'ar' ? 'منخفضة' : 'Low')} {language === 'ar' ? 'الأولوية' : 'Priority'}
                     </span>
                   </div>
                 </div>
@@ -885,10 +886,10 @@ export default function ProgressPage() {
         <Card className="text-center py-12">
           <Trophy className="w-12 h-12 mx-auto mb-4 text-green-600 dark:text-green-400" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            {lang === 'ar' ? 'ممتاز!' : 'Excellent!'}
+            {language === 'ar' ? 'ممتاز!' : 'Excellent!'}
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            {lang === 'ar' ? 'أنت على المسار الصحيح. استمر في التعلم!' : 'You\'re on the right track. Keep learning!'}
+            {language === 'ar' ? 'أنت على المسار الصحيح. استمر في التعلم!' : 'You\'re on the right track. Keep learning!'}
           </p>
         </Card>
       )}
@@ -897,6 +898,21 @@ export default function ProgressPage() {
 
   const ReportsTab = () => (
     <div className="space-y-8">
+      
+      {/* Logo Header for Reports */}
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center mb-4">
+          <Logo size="lg" className="mr-4" />
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {language === 'ar' ? 'تقارير الأمن السيبراني' : 'Cybersecurity Reports'}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              {language === 'ar' ? 'تصدير تقارير مفصلة ومخصصة' : 'Export detailed and customized reports'}
+            </p>
+          </div>
+        </div>
+      </div>
       
       {/* Report Type Selection */}
       <Card>
