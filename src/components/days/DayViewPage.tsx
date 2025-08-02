@@ -716,6 +716,21 @@ export default function DayViewPage() {
             <div className="text-center py-8">
               <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
               <p className="text-gray-500 dark:text-gray-400">لا توجد مدونات لهذا اليوم</p>
+              {selectedDay?.notes_prompt && (
+                <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">
+                    {selectedDay.notes_prompt.title?.ar || 'نص المدونة المقترح'}
+                  </h4>
+                  <div className="space-y-2 text-sm text-purple-700 dark:text-purple-300">
+                    {selectedDay.notes_prompt.points?.map((point: any, index: number) => (
+                      <div key={index} className="flex items-start space-x-2">
+                        <span className="text-purple-600 dark:text-purple-400 font-medium">•</span>
+                        <span>{point.ar || point.en}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
