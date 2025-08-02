@@ -80,13 +80,14 @@ export default function NoteViewPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
+          <button
             onClick={() => navigate(-1)}
-            icon={<ArrowLeft />}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            title="رجوع"
+            aria-label="رجوع"
           >
-            العودة
-          </Button>
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           
           <div className="flex items-center space-x-2">
             <button

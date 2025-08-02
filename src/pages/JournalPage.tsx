@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, Plus, Edit2, Trash2,
+  Plus, Edit2, Trash2,
   Calendar, Clock, MessageSquare, Star, TrendingUp, Tag, X, FileText, ArrowLeft
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -150,7 +150,7 @@ export default function JournalPage() {
                 className="p-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors"
                 title="فتح في صفحة منفصلة"
               >
-                <BookOpen className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <FileText className="w-3 h-3 text-purple-600 dark:text-purple-400" />
               </button>
               <button
                 onClick={(e) => {

@@ -1,7 +1,7 @@
 // Notes Page - Unified Design
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, X, Calendar, Tag, FileText, ArrowLeft, BookOpen } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Calendar, Tag, FileText, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
@@ -138,7 +138,7 @@ export default function NotesPage() {
                 className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
                 title="فتح في صفحة منفصلة"
               >
-                <BookOpen className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                <ArrowLeft className="w-3 h-3 text-blue-600 dark:text-blue-400" />
               </button>
               <button
                 onClick={(e) => {
@@ -291,7 +291,7 @@ export default function NotesPage() {
               <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-4">
                   <div className="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800">
-                    <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <ArrowLeft className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
