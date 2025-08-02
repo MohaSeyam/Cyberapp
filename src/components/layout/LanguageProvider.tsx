@@ -1,27 +1,27 @@
 import React, { useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useLocalization } from '../../hooks/useLocalization';
 
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
 export default function LanguageProvider({ children }: LanguageProviderProps) {
-  const { lang } = useApp();
+  const { language } = useLocalization();
 
   useEffect(() => {
     // Set document direction based on language
-    document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', language);
     
     // Add RTL container class for styling
-    if (lang === 'ar') {
+    if (language === 'ar') {
       document.body.classList.add('rtl-container');
       document.body.classList.add('arabic-font');
     } else {
       document.body.classList.remove('rtl-container');
       document.body.classList.remove('arabic-font');
     }
-  }, [lang]);
+  }, [language]);
 
   return <>{children}</>;
 }

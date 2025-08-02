@@ -1,6 +1,5 @@
 // Localization Hook
 import { useCallback } from 'react';
-import { useApp } from '../context/AppContext';
 import type { Language } from '../types';
 
 interface TranslationData {
@@ -623,7 +622,15 @@ const translations: TranslationData = {
 };
 
 export function useLocalization() {
-  const { language } = useApp();
+  // Get language from localStorage to avoid circular dependency
+  const getLanguage = (): Language => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('app_language') as Language) || 'ar';
+    }
+    return 'ar';
+  };
+  
+  const language = getLanguage();
   
   const t = useCallback((key: string): string => {
     const translation = translations[key];
