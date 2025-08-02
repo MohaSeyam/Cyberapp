@@ -7,16 +7,18 @@ import { useApp } from '../../context/AppContext';
 
 export default function BottomBar() {
   const location = useLocation();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const { theme, setTheme } = useApp();
-  const items = [
+  
+  // إعادة إنشاء العناصر عند تغيير اللغة
+  const items = React.useMemo(() => [
     { icon: Home, label: t('home'), path: '/' },
     { icon: Calendar, label: t('plan'), path: '/plan' },
     { icon: FileText, label: t('notes'), path: '/notes' },
     { icon: BookOpen, label: t('journal'), path: '/journal' },
     { icon: TrendingUp, label: t('progress'), path: '/progress' },
     { icon: Settings, label: t('settings'), path: '/settings' },
-  ];
+  ], [t, language]);
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-around items-center h-16 lg:hidden">
       {items.map(item => {

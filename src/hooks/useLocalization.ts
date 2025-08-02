@@ -89,6 +89,18 @@ const translations: TranslationData = {
     ar: "مدونة التعلم",
     en: "Learning Journal"
   },
+  manageNotes: {
+    ar: "إدارة الملاحظات",
+    en: "Manage Notes"
+  },
+  trackProgress: {
+    ar: "تتبع التقدم",
+    en: "Track Progress"
+  },
+  appSettings: {
+    ar: "إعدادات التطبيق",
+    en: "App Settings"
+  },
   progress: {
     ar: "التقدم",
     en: "Progress"
@@ -108,6 +120,10 @@ const translations: TranslationData = {
   phases: {
     ar: "المراحل",
     en: "Phases"
+  },
+  plan: {
+    ar: "الخطة",
+    en: "Plan"
   },
   weeks: {
     ar: "الأسابيع",

@@ -9,7 +9,7 @@ import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 
 export default function MobileBottomBar() {
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const location = useLocation();
 
   // Safety check for t function
@@ -22,7 +22,8 @@ export default function MobileBottomBar() {
     }
   };
 
-  const navigationItems = [
+  // إعادة إنشاء العناصر عند تغيير اللغة
+  const navigationItems = React.useMemo(() => [
     {
       name: safeT('home'),
       path: '/',
@@ -59,7 +60,7 @@ export default function MobileBottomBar() {
       icon: Settings,
       description: safeT('appSettings')
     }
-  ];
+  ], [safeT, language]);
 
   const isActive = (path: string) => {
     if (path === '/') {
