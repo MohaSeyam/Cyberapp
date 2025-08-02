@@ -415,7 +415,7 @@ export default function DayViewPage() {
 
   return (
     <PageLayout 
-      title={selectedDay?.name?.ar || safeT('dayDetails')}
+      title={selectedDay?.name?.ar || 'اليوم'}
       subtitle={selectedDay?.topic?.ar || ''}
       showBottomBar={true}
     >
@@ -453,12 +453,14 @@ export default function DayViewPage() {
           </div>
           
           <div className="mb-6">
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-3">
               {selectedDay.name?.ar}
             </h1>
-            <p className="text-xl text-gray-200">
-              {selectedDay.topic?.ar}
-            </p>
+            {selectedDay.topic?.ar && (
+              <p className="text-xl text-gray-600 dark:text-gray-400">
+                {selectedDay.topic?.ar}
+              </p>
+            )}
           </div>
         </div>
 
