@@ -1,5 +1,5 @@
 // Progress Page - Enhanced with Tabs, Skills Matrix, and Charts
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Target, Clock, Flame, Trophy, BarChart3, PieChart, 
@@ -64,6 +64,159 @@ interface ReportOptions {
   };
   phaseId?: number;
 }
+
+// Memoized Tab Components for better performance
+const MemoizedOverviewTab = memo(({ 
+  completionRate, 
+  completedTasks, 
+  totalTasks, 
+  completedDuration, 
+  totalDuration, 
+  currentStreak, 
+  blueTeamTasks, 
+  redTeamTasks, 
+  practicalTasks, 
+  theoreticalTasks, 
+  policiesTasks, 
+  language, 
+  safeT 
+}: any) => (
+  <div className="space-y-8">
+    {/* Enhanced Key Metrics */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 border-2 border-blue-200 dark:border-blue-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+          <div className="flex items-center justify-between p-6">
+            <div>
+              <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                {language === 'ar' ? 'معدل الإكمال' : 'Completion Rate'}
+              </h3>
+              <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                {completionRate}%
+              </p>
+              <div className="mt-3 w-full bg-blue-200 dark:bg-blue-700 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${completionRate}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className="p-4 bg-blue-100 dark:bg-blue-800 rounded-full">
+              <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/30 border-2 border-green-200 dark:border-green-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+          <div className="flex items-center justify-between p-6">
+            <div>
+              <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                {language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}
+              </h3>
+              <p className="text-4xl font-bold text-green-600 dark:text-green-400">
+                {completedTasks}
+              </p>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                {language === 'ar' ? 'من أصل' : 'out of'} {totalTasks} {language === 'ar' ? 'مهمة' : 'tasks'}
+              </p>
+            </div>
+            <div className="p-4 bg-green-100 dark:bg-green-800 rounded-full">
+              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+      >
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/30 border-2 border-purple-200 dark:border-purple-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+          <div className="flex items-center justify-between p-6">
+            <div>
+              <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">
+                {language === 'ar' ? 'الوقت المستغرق' : 'Time Spent'}
+              </h3>
+              <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                {Math.round(completedDuration / 60)}h
+              </p>
+              <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">
+                {language === 'ar' ? 'من أصل' : 'out of'} {Math.round(totalDuration / 60)}h {language === 'ar' ? 'إجمالي' : 'total'}
+              </p>
+            </div>
+            <div className="p-4 bg-purple-100 dark:bg-purple-800 rounded-full">
+              <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+      >
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-900/30 border-2 border-orange-200 dark:border-orange-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+          <div className="flex items-center justify-between p-6">
+            <div>
+              <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">
+                {language === 'ar' ? 'المسار الحالي' : 'Current Streak'}
+              </h3>
+              <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                {currentStreak}
+              </p>
+              <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
+                {language === 'ar' ? 'أيام متتالية' : 'days in a row'}
+              </p>
+            </div>
+            <div className="p-4 bg-orange-100 dark:bg-orange-800 rounded-full">
+              <Flame className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+    </div>
+
+    {/* Task Types Distribution */}
+    <Card title={safeT('taskTypesDistribution')} subtitle={safeT('distributionOfCompletedTasks')}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{blueTeamTasks}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('blueTeam')}</div>
+        </div>
+        <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <div className="text-2xl font-bold text-red-600 dark:text-red-400">{redTeamTasks}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('redTeam')}</div>
+        </div>
+        <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div className="text-2xl font-bold text-green-600 dark:text-green-400">{practicalTasks}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('practical')}</div>
+        </div>
+        <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{theoreticalTasks}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('theoretical')}</div>
+        </div>
+        <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{policiesTasks}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('policies')}</div>
+        </div>
+      </div>
+    </Card>
+  </div>
+));
+
+MemoizedOverviewTab.displayName = 'MemoizedOverviewTab';
 
 export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
@@ -203,11 +356,11 @@ export default function ProgressPage() {
     return total + (task?.duration || 0);
   }, 0);
 
-  const getCurrentLanguageText = (obj: any) => {
+  const getCurrentLanguageText = useCallback((obj: any) => {
     return obj[language] || obj.ar || obj.en || '';
-  };
+  }, [language]);
 
-  const handleExport = async () => {
+  const handleExport = useCallback(async () => {
     try {
       console.log('Exporting with options:', reportOptions);
       
@@ -215,14 +368,14 @@ export default function ProgressPage() {
       let content = '';
       const timestamp = new Date().toLocaleDateString('en-US');
       
-      // إضافة عنوان التقرير
+      // Add report title
       content += `# ${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
       content += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}**\n\n`;
       
-      // إضافة شعار التطبيق
+      // Add application logo
       content += `![Logo](data:image/png;base64,${await getLogoBase64()})\n\n`;
       
-      // إضافة محتوى التقرير حسب النوع
+      // Add report content based on type
       if (reportOptions.content === 'progress' || reportOptions.content === 'both') {
         content += `## ${language === 'ar' ? 'تقرير التقدم' : 'Progress Report'}\n\n`;
         content += `- ${language === 'ar' ? 'إجمالي المهام' : 'Total Tasks'}: ${totalTasks}\n`;
@@ -235,7 +388,7 @@ export default function ProgressPage() {
       if (reportOptions.content === 'notes' || reportOptions.content === 'both') {
         content += `## ${language === 'ar' ? 'الملاحظات والمدونات' : 'Notes and Journal Entries'}\n\n`;
         
-        // إضافة الملاحظات
+        // Add notes
         const notes = await getNotes();
         if (notes.length > 0) {
           content += `### ${language === 'ar' ? 'الملاحظات' : 'Notes'}\n\n`;
@@ -246,7 +399,7 @@ export default function ProgressPage() {
           });
         }
         
-        // إضافة المدونات
+        // Add journal entries
         const journalEntries = await getJournalEntries();
         if (journalEntries.length > 0) {
           content += `### ${language === 'ar' ? 'المدونات' : 'Journal Entries'}\n\n`;
@@ -264,7 +417,7 @@ export default function ProgressPage() {
       
       switch (reportOptions.format) {
         case 'pdf':
-          // تحويل إلى PDF
+          // Convert to PDF
           blob = await convertToPDF(content);
           fileName += '.pdf';
           break;
@@ -325,7 +478,7 @@ export default function ProgressPage() {
         }
       );
     }
-  };
+  }, [reportOptions, language, totalTasks, completedTasks, completionRate, currentStreak, longestStreak]);
 
   // Calculate streak information
   const calculateStreak = () => {
@@ -439,10 +592,10 @@ export default function ProgressPage() {
       tempDiv.style.lineHeight = '1.6';
       tempDiv.style.fontSize = '14px';
       
-      // إضافة المحتوى
+      // Add content
       tempDiv.innerHTML = content.replace(/\n/g, '<br>');
       
-      // إضافة الشعار في الأعلى
+      // Add logo at the top
       const logoImg = document.createElement('img');
       logoImg.src = '/src/assets/Gemini_Generated_Image_26mado26mado26ma.png';
       logoImg.style.width = '100px';
@@ -459,14 +612,14 @@ export default function ProgressPage() {
       
       document.body.appendChild(tempDiv);
       
-      // انتظار تحميل الصورة
+      // Wait for image to load
       await new Promise((resolve) => {
         logoImg.onload = resolve;
         logoImg.onerror = resolve;
-        setTimeout(resolve, 1000); // timeout بعد ثانية
+        setTimeout(resolve, 1000); // timeout after 1 second
       });
       
-      // تحويل HTML إلى canvas ثم إلى PDF
+      // Convert HTML to canvas then to PDF
       const { jsPDF } = await import('jspdf');
       const html2canvas = await import('html2canvas');
       
@@ -496,13 +649,13 @@ export default function ProgressPage() {
         heightLeft -= pageHeight;
       }
       
-      // تنظيف العنصر المؤقت
+      // Clean up temporary element
       document.body.removeChild(tempDiv);
       
       return pdf.output('blob');
     } catch (error) {
       console.error('PDF conversion error:', error);
-      // في حالة الفشل، نعيد النص العادي
+      // In case of failure, return plain text
       return new Blob([content], { type: 'text/plain' });
     }
   };
@@ -830,27 +983,27 @@ export default function ProgressPage() {
       </div>
 
       {/* Task Types Distribution */}
-                <Card title={safeT('taskTypesDistribution')} subtitle={safeT('distributionOfCompletedTasks')}>
+      <Card title={safeT('taskTypesDistribution')} subtitle={safeT('distributionOfCompletedTasks')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{blueTeamTasks}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('blueTeam')}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('blueTeam')}</div>
           </div>
           <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
             <div className="text-2xl font-bold text-red-600 dark:text-red-400">{redTeamTasks}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('redTeam')}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('redTeam')}</div>
           </div>
           <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">{practicalTasks}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('practical')}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('practical')}</div>
           </div>
           <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{theoreticalTasks}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('theoretical')}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('theoretical')}</div>
           </div>
           <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{policiesTasks}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('policies')}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('policies')}</div>
           </div>
         </div>
       </Card>
@@ -1252,151 +1405,98 @@ export default function ProgressPage() {
         </div>
       </Card>
 
-              {/* Date/Phase Selection */}
-        {(reportOptions.type === 'weekly' || reportOptions.type === 'phase') && (
-          <Card>
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                <CalendarDays className="w-6 h-6 mr-2 text-indigo-600" />
-                {getCurrentLanguageText({ 
-                  ar: reportOptions.type === 'weekly' ? 'اختر الأسبوع' : 'اختر المرحلة', 
-                  en: reportOptions.type === 'weekly' ? 'Select Week' : 'Select Phase' 
-                })}
-              </h3>
+      {/* Date/Phase Selection */}
+      {(reportOptions.type === 'weekly' || reportOptions.type === 'phase') && (
+        <Card>
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <CalendarDays className="w-6 h-6 mr-2 text-indigo-600" />
+              {getCurrentLanguageText({ 
+                ar: reportOptions.type === 'weekly' ? 'اختر الأسبوع' : 'اختر المرحلة', 
+                en: reportOptions.type === 'weekly' ? 'Select Week' : 'Select Phase' 
+              })}
+            </h3>
 
-            {reportOptions.type === 'weekly' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {getCurrentLanguageText({ ar: 'من أسبوع', en: 'From Week' })}
-                    </label>
-                    <input
-                      type="week"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                      value={reportOptions.dateRange?.start?.toISOString().split('T')[0] || ''}
-                      onChange={(e) => {
-                        const startDate = e.target.value ? new Date(e.target.value) : undefined;
-                        setReportOptions(prev => ({
-                          ...prev,
-                          dateRange: {
-                            start: startDate || new Date(),
-                            end: prev.dateRange?.end || new Date()
-                          }
-                        }));
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {getCurrentLanguageText({ ar: 'إلى أسبوع', en: 'To Week' })}
-                    </label>
-                    <input
-                      type="week"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                      value={reportOptions.dateRange?.end?.toISOString().split('T')[0] || ''}
-                      onChange={(e) => {
-                        const endDate = e.target.value ? new Date(e.target.value) : undefined;
-                        setReportOptions(prev => ({
-                          ...prev,
-                          dateRange: {
-                            start: prev.dateRange?.start || new Date(),
-                            end: endDate || new Date()
-                          }
-                        }));
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {reportOptions.type === 'phase' && (
-              <div className="space-y-4">
+          {reportOptions.type === 'weekly' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}
+                    {getCurrentLanguageText({ ar: 'من أسبوع', en: 'From Week' })}
                   </label>
-                  <select
+                  <input
+                    type="week"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                    value={reportOptions.phaseId || ''}
+                    value={reportOptions.dateRange?.start?.toISOString().split('T')[0] || ''}
                     onChange={(e) => {
+                      const startDate = e.target.value ? new Date(e.target.value) : undefined;
                       setReportOptions(prev => ({
                         ...prev,
-                        phaseId: e.target.value ? parseInt(e.target.value) : undefined
+                        dateRange: {
+                          start: startDate || new Date(),
+                          end: prev.dateRange?.end || new Date()
+                        }
                       }));
                     }}
-                  >
-                    <option value="">
-                      {getCurrentLanguageText({ ar: 'اختر مرحلة...', en: 'Select a phase...' })}
-                    </option>
-                    {safePlan.map((phase, index) => (
-                      <option key={index} value={index}>
-                        {getCurrentLanguageText({ 
-                          ar: `المرحلة ${index + 1}: ${phase.name?.ar || `مرحلة ${index + 1}`}`, 
-                          en: `Phase ${index + 1}: ${phase.name?.en || `Phase ${index + 1}`}` 
-                        })}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {getCurrentLanguageText({ ar: 'إلى أسبوع', en: 'To Week' })}
+                  </label>
+                  <input
+                    type="week"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                    value={reportOptions.dateRange?.end?.toISOString().split('T')[0] || ''}
+                    onChange={(e) => {
+                      const endDate = e.target.value ? new Date(e.target.value) : undefined;
+                      setReportOptions(prev => ({
+                        ...prev,
+                        dateRange: {
+                          start: prev.dateRange?.start || new Date(),
+                          end: endDate || new Date()
+                        }
+                      }));
+                    }}
+                  />
                 </div>
               </div>
-            )}
-          </div>
-        </Card>
-      )}
+            </div>
+          )}
 
-      {/* Language Selection */}
-      <Card>
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-            <FileText className="w-6 h-6 mr-2 text-orange-600" />
-            {getCurrentLanguageText({ ar: 'لغة التصدير', en: 'Export Language' })}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {languageOptions.map((lang) => {
-              const isSelected = reportOptions.language === lang.id;
-              return (
-                <motion.div
-                  key={lang.id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    isSelected 
-                      ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' 
-                      : 'border-gray-200 dark:border-gray-700 hover:border-orange-300'
-                  }`}
-                  onClick={() => setReportOptions(prev => ({ ...prev, language: lang.id as ExportLanguage }))}
+          {reportOptions.type === 'phase' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                  value={reportOptions.phaseId || ''}
+                  onChange={(e) => {
+                    setReportOptions(prev => ({
+                      ...prev,
+                      phaseId: e.target.value ? parseInt(e.target.value) : undefined
+                    }));
+                  }}
                 >
-                  <div className="flex items-center mb-3">
-                    <span className={`font-semibold ${
-                      isSelected ? 'text-orange-600' : 'text-gray-700 dark:text-gray-300'
-                    }`}>
-                      {getCurrentLanguageText(lang.label)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText(lang.description)}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
+                  <option value="">
+                    {getCurrentLanguageText({ ar: 'اختر مرحلة...', en: 'Select a phase...' })}
+                  </option>
+                  {safePlan.map((phase, index) => (
+                    <option key={index} value={index}>
+                      {getCurrentLanguageText({ 
+                        ar: `المرحلة ${index + 1}: ${phase.name?.ar || `مرحلة ${index + 1}`}`, 
+                        en: `Phase ${index + 1}: ${phase.name?.en || `Phase ${index + 1}`}` 
+                      })}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
-
-      {/* Export Button */}
-      <div className="flex justify-center">
-        <Button
-          variant="primary"
-          size="lg"
-          icon={<Download className="w-5 h-5" />}
-          onClick={() => setShowExportModal(true)}
-          className="px-8 py-4 text-lg"
-        >
-          {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
-        </Button>
-      </div>
     </div>
   );
 
@@ -1404,45 +1504,45 @@ export default function ProgressPage() {
   const tabs = [
     { 
       id: 'overview', 
-      label: { ar: 'نظرة عامة', en: 'Overview' }, 
+      label: { ar: 'Overview', en: 'Overview' }, 
       icon: BarChart3,
       color: 'blue',
-      description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' }
+      description: { ar: 'Comprehensive progress summary', en: 'Comprehensive progress summary' }
     },
     { 
       id: 'analytics', 
-      label: { ar: 'التحليلات', en: 'Analytics' }, 
+      label: { ar: 'Analytics', en: 'Analytics' }, 
       icon: LineChart,
       color: 'purple',
-      description: { ar: 'رسوم بيانية مفصلة', en: 'Detailed charts and graphs' }
+      description: { ar: 'Detailed charts and graphs', en: 'Detailed charts and graphs' }
     },
     { 
       id: 'skills', 
-      label: { ar: 'المهارات', en: 'Skills' }, 
+      label: { ar: 'Skills', en: 'Skills' }, 
       icon: Brain,
       color: 'green',
-      description: { ar: 'تقييم المهارات المكتسبة', en: 'Assess acquired skills' }
+      description: { ar: 'Assess acquired skills', en: 'Assess acquired skills' }
     },
     { 
       id: 'achievements', 
-      label: { ar: 'الإنجازات', en: 'Achievements' }, 
+      label: { ar: 'Achievements', en: 'Achievements' }, 
       icon: Trophy,
       color: 'yellow',
-      description: { ar: 'المسارات والإنجازات', en: 'Milestones and achievements' }
+      description: { ar: 'Milestones and achievements', en: 'Milestones and achievements' }
     },
     { 
       id: 'suggestions', 
-      label: { ar: 'الاقتراحات', en: 'Suggestions' }, 
+      label: { ar: 'Suggestions', en: 'Suggestions' }, 
       icon: Lightbulb,
       color: 'orange',
-      description: { ar: 'نصائح للتحسين', en: 'Improvement tips' }
+      description: { ar: 'Improvement tips', en: 'Improvement tips' }
     },
     { 
       id: 'reports', 
-      label: { ar: 'التقارير', en: 'Reports' }, 
+      label: { ar: 'Reports', en: 'Reports' }, 
       icon: Download,
       color: 'red',
-      description: { ar: 'تصدير التقارير', en: 'Export reports' }
+      description: { ar: 'Export reports', en: 'Export reports' }
     }
   ];
 
@@ -1460,11 +1560,11 @@ export default function ProgressPage() {
             <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
               <div className="text-center lg:text-left">
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                  {language === 'ar' ? 'مركز التقدم' : 'Progress Center'}
+                  {language === 'ar' ? 'Progress Center' : 'Progress Center'}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 text-lg">
                   {language === 'ar' 
-                    ? `إكمال ${completionRate}% من المهام - ${completedTasks}/${totalTasks}`
+                    ? `${completionRate}% Complete - ${completedTasks}/${totalTasks} tasks`
                     : `${completionRate}% Complete - ${completedTasks}/${totalTasks} tasks`
                   }
                 </p>
@@ -1475,7 +1575,7 @@ export default function ProgressPage() {
                     {completedTasks}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {language === 'ar' ? 'مهام مكتملة' : 'Completed'}
+                    {language === 'ar' ? 'Completed' : 'Completed'}
                   </div>
                 </div>
                 <div className="text-center">
@@ -1483,7 +1583,7 @@ export default function ProgressPage() {
                     {totalDuration - completedDuration}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {language === 'ar' ? 'ساعات متبقية' : 'Hours Left'}
+                    {language === 'ar' ? 'Hours Left' : 'Hours Left'}
                   </div>
                 </div>
               </div>
@@ -1536,7 +1636,21 @@ export default function ProgressPage() {
               <div className="space-y-6">
                 {/* Overall Progress Card - Using New Component */}
                 <OverallProgressCard />
-                <OverviewTab />
+                <MemoizedOverviewTab 
+                  completionRate={completionRate} 
+                  completedTasks={completedTasks} 
+                  totalTasks={totalTasks} 
+                  completedDuration={completedDuration} 
+                  totalDuration={totalDuration} 
+                  currentStreak={currentStreak} 
+                  blueTeamTasks={blueTeamTasks} 
+                  redTeamTasks={redTeamTasks} 
+                  practicalTasks={practicalTasks} 
+                  theoreticalTasks={theoreticalTasks} 
+                  policiesTasks={policiesTasks} 
+                  language={language} 
+                  safeT={safeT} 
+                />
               </div>
             )}
             {activeTab === 'analytics' && <AnalyticsTab />}
@@ -1545,99 +1659,99 @@ export default function ProgressPage() {
             {activeTab === 'suggestions' && <SuggestionsTab />}
             {activeTab === 'reports' && <ReportsTab />}
           </div>
-                  </motion.div>
-        </PageLayout>
+        </motion.div>
+      </PageLayout>
 
-        {/* Export Modal */}
-        <Modal
-          isOpen={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          title={getCurrentLanguageText({ ar: 'تأكيد التصدير', en: 'Confirm Export' })}
-          size="md"
-        >
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
-                  <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {getCurrentLanguageText({ ar: 'تأكيد تصدير التقرير', en: 'Confirm Report Export' })}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText({ 
-                      ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
-                      en: 'The report will be exported with the selected options. This may take a few moments.'
-                    })}
-                  </p>
-                </div>
+      {/* Export Modal */}
+      <Modal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        title={getCurrentLanguageText({ ar: 'تأكيد التصدير', en: 'Confirm Export' })}
+        size="md"
+      >
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
+                <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg">
-              <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-green-600" />
-                {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText(reportTypes.find(t => t.id === reportOptions.type)?.label || {})}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText(contentTypes.find(c => c.id === reportOptions.content)?.label || {})}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText(fileFormats.find(f => f.id === reportOptions.format)?.label || {})}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'اللغة', en: 'Language' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText(languageOptions.find(l => l.id === reportOptions.language)?.label || {})}
-                  </span>
-                </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  {getCurrentLanguageText({ ar: 'تأكيد تصدير التقرير', en: 'Confirm Report Export' })}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {getCurrentLanguageText({ 
+                    ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
+                    en: 'The report will be exported with the selected options. This may take a few moments.'
+                  })}
+                </p>
               </div>
-            </div>
-            
-            <div className="flex justify-end space-x-4 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setShowExportModal(false)}
-                className="px-6 py-3 text-base font-medium border-2 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                {getCurrentLanguageText({ ar: 'إلغاء', en: 'Cancel' })}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleExport}
-                icon={<Download className="w-5 h-5" />}
-                className="px-8 py-3 text-base font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
-              >
-                {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
-              </Button>
             </div>
           </div>
-        </Modal>
-        
-        {/* Custom Styles */}
-        <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyles }} />
-      </WeekPhaseProvider>
-    );
-  }
+          
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg">
+            <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center">
+              <FileText className="w-5 h-5 mr-2 text-green-600" />
+              {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
+            </h4>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
+                </span>
+                <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
+                  {getCurrentLanguageText(reportTypes.find(t => t.id === reportOptions.type)?.label || {})}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
+                </span>
+                <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
+                  {getCurrentLanguageText(contentTypes.find(c => c.id === reportOptions.content)?.label || {})}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
+                </span>
+                <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
+                  {getCurrentLanguageText(fileFormats.find(f => f.id === reportOptions.format)?.label || {})}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {getCurrentLanguageText({ ar: 'اللغة', en: 'Language' })}:
+                </span>
+                <span className="font-semibold text-gray-900 dark:text-white bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-full text-sm">
+                  {getCurrentLanguageText(languageOptions.find(l => l.id === reportOptions.language)?.label || {})}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-end space-x-4 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowExportModal(false)}
+              className="px-6 py-3 text-base font-medium border-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              {getCurrentLanguageText({ ar: 'إلغاء', en: 'Cancel' })}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleExport}
+              icon={<Download className="w-5 h-5" />}
+              className="px-8 py-3 text-base font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+            >
+              {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+      
+      {/* Custom Styles */}
+      <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyles }} />
+    </WeekPhaseProvider>
+  );
+}

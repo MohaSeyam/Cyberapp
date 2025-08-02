@@ -1,453 +1,248 @@
-import React, { useMemo, useState } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BarChart3, LineChart, PieChart, TrendingUp, Calendar, Clock, Target, 
-  Award, Zap, Brain, Heart, Coffee, Flame, Crown, Medal, Gift, Sparkles,
-  Eye, Timer, Play, Pause, RotateCcw, Wrench, Mic, GraduationCap, Shield, BookOpen
+  TrendingUp, TrendingDown, Activity, Target, 
+  Clock, Users, Award, Star, Zap, BarChart3 
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { useLocalization } from '../../hooks/useLocalization';
 import Card from '../ui/Card';
-import { animations } from '../../constants/theme';
 
-interface LearningPattern {
-  bestTime: string;
-  averageSessionLength: number;
-  preferredTaskType: string;
-  completionRate: number;
-  streakDays: number;
-}
-
-interface PerformanceMetrics {
+interface AnalyticsData {
   totalTasks: number;
   completedTasks: number;
   completionRate: number;
-  averageTaskTime: number;
-  totalLearningHours: number;
   currentStreak: number;
   longestStreak: number;
-  efficiencyScore: number;
+  averageTimePerTask: number;
+  totalTimeSpent: number;
+  weeklyProgress: any[];
+  taskTypeDistribution: any[];
+  categoryDistribution: any[];
 }
 
-interface TaskTypeDistribution {
-  blueTeam: number;
-  redTeam: number;
-  practical: number;
-  theoretical: number;
+interface AdvancedDashboardProps {
+  data: AnalyticsData;
+  language: string;
+  onPeriodChange?: (period: string) => void;
+  selectedPeriod?: string;
 }
 
-export default function AdvancedDashboard() {
-  const { t } = useLocalization();
-  const { plan, progress, lang } = useApp();
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
+const AdvancedDashboard = memo(({ 
+  data, 
+  language, 
+  onPeriodChange, 
+  selectedPeriod = 'all' 
+}: AdvancedDashboardProps) => {
   
-  const safePlan = plan || [];
-  const safeProgress = progress || [];
+  const metrics = useMemo(() => [
+    {
+      id: 'completion',
+      title: language === 'ar' ? 'معدل الإكمال' : 'Completion Rate',
+      value: `${data.completionRate}%`,
+      change: '+5.2%',
+      trend: 'up',
+      icon: Target,
+      color: 'blue'
+    },
+    {
+      id: 'streak',
+      title: language === 'ar' ? 'المسار الحالي' : 'Current Streak',
+      value: `${data.currentStreak} ${language === 'ar' ? 'أيام' : 'days'}`,
+      change: '+2',
+      trend: 'up',
+      icon: Activity,
+      color: 'orange'
+    },
+    {
+      id: 'efficiency',
+      title: language === 'ar' ? 'متوسط الوقت' : 'Avg Time/Task',
+      value: `${data.averageTimePerTask} ${language === 'ar' ? 'دقيقة' : 'min'}`,
+      change: '-3.1%',
+      trend: 'down',
+      icon: Clock,
+      color: 'green'
+    },
+    {
+      id: 'productivity',
+      title: language === 'ar' ? 'الإنتاجية' : 'Productivity',
+      value: `${Math.round((data.completedTasks / data.totalTasks) * 100)}%`,
+      change: '+8.7%',
+      trend: 'up',
+      icon: TrendingUp,
+      color: 'purple'
+    }
+  ], [data, language]);
 
-  // Calculate comprehensive metrics
-  const metrics = useMemo((): PerformanceMetrics => {
-    const totalTasks = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).length;
-    const completedTasks = safeProgress.length;
-    const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-    
-    // Calculate average task time (mock data for demo)
-    const averageTaskTime = 45; // minutes
-    const totalLearningHours = (completedTasks * averageTaskTime) / 60;
-    
-    // Calculate streaks
-    const calculateStreak = () => {
-      if (safeProgress.length === 0) return { current: 0, longest: 0 };
-      
-      const sortedProgress = [...safeProgress].sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
-      let currentStreak = 0;
-      let longestStreak = 0;
-      let tempStreak = 0;
-      
-      for (let i = 0; i < sortedProgress.length; i++) {
-        const currentDate = new Date(sortedProgress[i].completedAt);
-        const nextDate = i < sortedProgress.length - 1 ? new Date(sortedProgress[i + 1].completedAt) : null;
-        
-        if (nextDate) {
-          const diffDays = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
-          if (diffDays <= 1) {
-            tempStreak++;
-          } else {
-            if (tempStreak > longestStreak) longestStreak = tempStreak;
-            tempStreak = 0;
-          }
-        } else {
-          tempStreak++;
-        }
-      }
-      
-      currentStreak = tempStreak;
-      if (tempStreak > longestStreak) longestStreak = tempStreak;
-      
-      return { current: currentStreak, longest: longestStreak };
-    };
-    
-    const { current: currentStreak, longest: longestStreak } = calculateStreak();
-    
-    // Calculate efficiency score (based on completion rate, streak, and consistency)
-    const efficiencyScore = Math.min(100, (completionRate * 0.4) + (currentStreak * 2) + (longestStreak * 1.5));
-    
-    return {
-      totalTasks,
-      completedTasks,
-      completionRate: Math.round(completionRate * 100) / 100,
-      averageTaskTime,
-      totalLearningHours: Math.round(totalLearningHours * 100) / 100,
-      currentStreak,
-      longestStreak,
-      efficiencyScore: Math.round(efficiencyScore)
-    };
-  }, [safePlan, safeProgress]);
+  const handlePeriodChange = useCallback((period: string) => {
+    onPeriodChange?.(period);
+  }, [onPeriodChange]);
 
-  // Calculate task type distribution
-  const taskDistribution = useMemo((): TaskTypeDistribution => {
-    const allTasks = safePlan.flatMap(w => w.days || []).flatMap(d => d.tasks || []);
-    const completedTaskIds = new Set(safeProgress.map(p => p.taskId));
-    
-    let blueTeam = 0, redTeam = 0, practical = 0, theoretical = 0;
-    
-    allTasks.forEach(task => {
-      if (completedTaskIds.has(task.id)) {
-        if (task.type === 'blue_team') blueTeam++;
-        else if (task.type === 'red_team') redTeam++;
-        else if (task.type === 'practical') practical++;
-        else theoretical++;
-      }
-    });
-    
-    return { blueTeam, redTeam, practical, theoretical };
-  }, [safePlan, safeProgress]);
-
-  // Calculate learning patterns
-  const learningPatterns = useMemo((): LearningPattern => {
-    // Mock data for demo - in real app, this would be calculated from actual user behavior
-    return {
-      bestTime: '09:00 - 11:00',
-      averageSessionLength: 75, // minutes
-      preferredTaskType: 'practical',
-      completionRate: metrics.completionRate,
-      streakDays: metrics.currentStreak
-    };
-  }, [metrics.completionRate, metrics.currentStreak]);
-
-  // Weekly performance data (mock data)
-  const weeklyData = useMemo(() => {
-    const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-    return weeks.map((week, index) => ({
-      week,
-      completed: Math.floor(Math.random() * 20) + 5,
-      total: 25,
-      efficiency: Math.floor(Math.random() * 30) + 70
-    }));
-  }, []);
-
-  // Recent achievements
-  const recentAchievements = useMemo(() => [
-    { id: '1', title: 'First Task', description: 'Completed your first task', icon: Target, earned: true },
-    { id: '2', title: 'Streak Master', description: '7-day learning streak', icon: Flame, earned: metrics.currentStreak >= 7 },
-    { id: '3', title: 'Efficiency Expert', description: '90%+ completion rate', icon: Zap, earned: metrics.completionRate >= 90 },
-    { id: '4', title: 'Blue Team Pro', description: 'Completed 10 Blue Team tasks', icon: Shield, earned: taskDistribution.blueTeam >= 10 },
-    { id: '5', title: 'Red Team Pro', description: 'Completed 10 Red Team tasks', icon: Target, earned: taskDistribution.redTeam >= 10 },
-    { id: '6', title: 'Practical Master', description: 'Completed 15 practical tasks', icon: Wrench, earned: taskDistribution.practical >= 15 }
-  ], [metrics.currentStreak, metrics.completionRate, taskDistribution]);
+  const periods = useMemo(() => [
+    { id: 'week', label: language === 'ar' ? 'أسبوع' : 'Week' },
+    { id: 'month', label: language === 'ar' ? 'شهر' : 'Month' },
+    { id: 'quarter', label: language === 'ar' ? 'ربع سنة' : 'Quarter' },
+    { id: 'all', label: language === 'ar' ? 'الكل' : 'All' }
+  ], [language]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('advancedDashboard')}</h2>
-          <p className="text-gray-600 dark:text-gray-400">{t('detailedAnalyticsAndInsights')}</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <select
-            value={selectedTimeframe}
-            onChange={(e) => setSelectedTimeframe(e.target.value as 'week' | 'month' | 'year')}
-            className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
-          >
-            <option value="week">{t('thisWeek')}</option>
-            <option value="month">{t('thisMonth')}</option>
-            <option value="year">{t('thisYear')}</option>
-          </select>
+      {/* Period Selector */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {language === 'ar' ? 'لوحة التحليلات المتقدمة' : 'Advanced Analytics Dashboard'}
+        </h2>
+        <div className="flex space-x-2">
+          {periods.map((period) => (
+            <button
+              key={period.id}
+              onClick={() => handlePeriodChange(period.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                selectedPeriod === period.id
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              {period.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <motion.div {...animations.fadeIn} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('completionRate')}</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.completionRate}%</p>
-            </div>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${metrics.completionRate}%` }}
-              />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.currentStreak}</p>
-            </div>
-            <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <Flame className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            {t('longestStreak')}: {metrics.longestStreak}
-          </p>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('totalHours')}</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.totalLearningHours}h</p>
-            </div>
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <Clock className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            {t('avgTaskTime')}: {metrics.averageTaskTime}m
-          </p>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('efficiencyScore')}</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.efficiencyScore}</p>
-            </div>
-            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-              <Zap className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${metrics.efficiencyScore}%` }}
-              />
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Task Type Distribution */}
-      <motion.div {...animations.fadeIn} transition={{ delay: 0.1 }}>
-        <Card title={t('taskTypeDistribution')} subtitle={t('breakdownByTaskType')}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-2 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">{taskDistribution.blueTeam}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('blueTeamTasks')}</p>
-            </div>
-            
-            <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-2 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
-                <Target className="w-8 h-8 text-red-600 dark:text-red-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">{taskDistribution.redTeam}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('redTeamTasks')}</p>
-            </div>
-            
-            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-2 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <Wrench className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">{taskDistribution.practical}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('practicalTasks')}</p>
-            </div>
-            
-            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-2 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">{taskDistribution.theoretical}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('theoreticalTasks')}</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Learning Patterns */}
-      <motion.div {...animations.fadeIn} transition={{ delay: 0.2 }}>
-        <Card title={t('learningPatterns')} subtitle={t('yourLearningBehavior')}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-                  <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{t('bestLearningTime')}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{learningPatterns.bestTime}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <Timer className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{t('avgSessionLength')}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{learningPatterns.averageSessionLength} {t('minutes')}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                  <Target className="w-4 h-4 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{t('preferredTaskType')}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{learningPatterns.preferredTaskType}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{t('completionRate')}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{learningPatterns.completionRate}%</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                  <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{t('currentStreak')}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{learningPatterns.streakDays} {t('days')}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
-                  <Brain className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{t('learningStyle')}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('visualLearner')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Weekly Performance */}
-      <motion.div {...animations.fadeIn} transition={{ delay: 0.3 }}>
-        <Card title={t('weeklyPerformance')} subtitle={t('performanceOverTime')}>
-          <div className="space-y-4">
-            {weeklyData.map((week, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {metrics.map((metric, index) => {
+          const Icon = metric.icon;
+          const colorClasses = {
+            blue: 'text-blue-600 bg-blue-100 dark:bg-blue-900',
+            orange: 'text-orange-600 bg-orange-100 dark:bg-orange-900',
+            green: 'text-green-600 bg-green-100 dark:bg-green-900',
+            purple: 'text-purple-600 bg-purple-100 dark:bg-purple-900'
+          };
+          
+          return (
+            <motion.div
+              key={metric.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <Card className="p-6 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-lg ${colorClasses[metric.color as keyof typeof colorClasses]}`}>
+                    <Icon className="w-6 h-6" />
                   </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-white">{week.week}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {week.completed}/{week.total} {t('tasks')}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {week.efficiency}%
-                  </div>
-                  <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        week.efficiency >= 90 ? 'bg-green-600' : 
-                        week.efficiency >= 70 ? 'bg-yellow-600' : 'bg-red-600'
-                      }`}
-                      style={{ width: `${week.efficiency}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Recent Achievements */}
-      <motion.div {...animations.fadeIn} transition={{ delay: 0.4 }}>
-        <Card title={t('recentAchievements')} subtitle={t('yourAccomplishments')}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recentAchievements.map(achievement => (
-              <div 
-                key={achievement.id} 
-                className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                  achievement.earned 
-                    ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' 
-                    : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg ${
-                    achievement.earned 
-                      ? 'bg-green-100 dark:bg-green-900' 
-                      : 'bg-gray-100 dark:bg-gray-800'
+                  <div className={`flex items-center text-sm ${
+                    metric.trend === 'up' ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    <achievement.icon className={`w-4 h-4 ${
-                      achievement.earned 
-                        ? 'text-green-600 dark:text-green-400' 
-                        : 'text-gray-400 dark:text-gray-500'
-                    }`} />
+                    {metric.trend === 'up' ? (
+                      <TrendingUp className="w-4 h-4 mr-1" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 mr-1" />
+                    )}
+                    {metric.change}
                   </div>
-                  <div className="flex-1">
-                    <h4 className={`font-medium ${
-                      achievement.earned 
-                        ? 'text-gray-900 dark:text-white' 
-                        : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {achievement.title}
-                    </h4>
-                    <p className={`text-sm ${
-                      achievement.earned 
-                        ? 'text-gray-600 dark:text-gray-300' 
-                        : 'text-gray-400 dark:text-gray-500'
-                    }`}>
-                      {achievement.description}
-                    </p>
-                  </div>
-                  {achievement.earned && (
-                    <Award className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  )}
                 </div>
-              </div>
-            ))}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                  {metric.title}
+                </h3>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {metric.value}
+                </p>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Detailed Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Progress Overview */}
+        <Card title={language === 'ar' ? 'نظرة عامة على التقدم' : 'Progress Overview'}>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">
+                {language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {data.completedTasks} / {data.totalTasks}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+              <div 
+                className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${data.completionRate}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+              <span>{language === 'ar' ? '0%' : '0%'}</span>
+              <span>{language === 'ar' ? '100%' : '100%'}</span>
+            </div>
           </div>
         </Card>
-      </motion.div>
+
+        {/* Time Analytics */}
+        <Card title={language === 'ar' ? 'تحليل الوقت' : 'Time Analytics'}>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">
+                {language === 'ar' ? 'إجمالي الوقت المستغرق' : 'Total Time Spent'}
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {Math.round(data.totalTimeSpent / 60)} {language === 'ar' ? 'ساعة' : 'hours'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">
+                {language === 'ar' ? 'متوسط الوقت لكل مهمة' : 'Average Time per Task'}
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {data.averageTimePerTask} {language === 'ar' ? 'دقيقة' : 'minutes'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">
+                {language === 'ar' ? 'أطول مسار' : 'Longest Streak'}
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {data.longestStreak} {language === 'ar' ? 'أيام' : 'days'}
+              </span>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Performance Insights */}
+      <Card title={language === 'ar' ? 'رؤى الأداء' : 'Performance Insights'}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              {data.completionRate > 80 ? 'ممتاز' : data.completionRate > 60 ? 'جيد' : 'يحتاج تحسين'}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {language === 'ar' ? 'مستوى الأداء' : 'Performance Level'}
+            </div>
+          </div>
+          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {data.currentStreak > data.longestStreak * 0.8 ? 'مستقر' : 'متقلب'}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {language === 'ar' ? 'نمط النشاط' : 'Activity Pattern'}
+            </div>
+          </div>
+          <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              {data.averageTimePerTask < 30 ? 'سريع' : data.averageTimePerTask < 60 ? 'متوسط' : 'بطيء'}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              {language === 'ar' ? 'سرعة الإنجاز' : 'Completion Speed'}
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
-}
+});
+
+AdvancedDashboard.displayName = 'AdvancedDashboard';
+
+export default AdvancedDashboard;
