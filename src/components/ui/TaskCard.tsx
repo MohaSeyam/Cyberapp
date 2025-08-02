@@ -41,6 +41,18 @@ const taskTypeColors = {
     border: 'border-green-200 dark:border-green-700', 
     text: 'text-green-800 dark:text-green-200', 
     icon: '⚡' 
+  },
+  'Policies': {
+    bg: 'bg-purple-50 dark:bg-purple-900/20',
+    border: 'border-purple-200 dark:border-purple-700',
+    text: 'text-purple-800 dark:text-purple-200',
+    icon: '📜'
+  },
+  'Career': {
+    bg: 'bg-orange-50 dark:bg-orange-900/20',
+    border: 'border-orange-200 dark:border-orange-700',
+    text: 'text-orange-800 dark:text-orange-200',
+    icon: '🚀'
   }
 };
 
