@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { Toaster } from 'react-hot-toast';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import LanguageProvider from './components/layout/LanguageProvider';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -23,27 +24,29 @@ const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
 function App() {
   return (
     <AppProvider>
-      <Router>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Toaster />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/export" element={<ExportPage />} />
-            <Route path="/phases" element={<PhasesPage />} />
-            <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
-            <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-            <Route path="/days/:weekId" element={<DaysPage />} />
-            <Route path="/notes" element={<NotesPage />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/note/:noteId" element={<NoteViewPage />} />
-            <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
-            <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
-            <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
-          </Routes>
-        </Suspense>
-      </Router>
+      <LanguageProvider>
+        <Router>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Toaster />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/progress" element={<ProgressPage />} />
+              <Route path="/export" element={<ExportPage />} />
+              <Route path="/phases" element={<PhasesPage />} />
+              <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+              <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+              <Route path="/days/:weekId" element={<DaysPage />} />
+              <Route path="/notes" element={<NotesPage />} />
+              <Route path="/journal" element={<JournalPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/note/:noteId" element={<NoteViewPage />} />
+              <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
+              <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
+              <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
+            </Routes>
+          </Suspense>
+        </Router>
+      </LanguageProvider>
     </AppProvider>
   );
 }

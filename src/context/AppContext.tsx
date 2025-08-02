@@ -11,6 +11,7 @@ import {
   progressService, settingsService 
 } from '../services/database';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../constants';
+import { useLocalization } from '../hooks/useLocalization';
 
 interface AppContextType {
   // State
@@ -71,6 +72,9 @@ export function AppProvider({ children }: AppProviderProps) {
     content: null
   });
   const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Translation function
+  const { t } = useLocalization();
 
   // Load initial data
   const loadInitialData = async () => {
@@ -158,14 +162,14 @@ export function AppProvider({ children }: AppProviderProps) {
             const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
             if (stillMissingWeeks.length > 0) {
               console.error("Still missing weeks after forced import:", stillMissingWeeks);
-              toast.error(`أسابيع مفقودة: ${stillMissingWeeks.join(', ')}`);
+              toast.error(`${t('missingWeeks')}: ${stillMissingWeeks.join(', ')}`);
             } else {
               console.log("All weeks are now present!");
-              toast.success("تم تحميل جميع الأسابيع بنجاح");
+              toast.success(t('dataLoadSuccess'));
             }
           } catch (forcedImportError) {
             console.error("Failed to force import plan:", forcedImportError);
-            toast.error("فشل في تحميل الخطة من الملف");
+            toast.error(t('planLoadFailed'));
           }
         }
       } catch (error) {
@@ -222,7 +226,7 @@ export function AppProvider({ children }: AppProviderProps) {
       
     } catch (error) {
       console.error("Error loading initial data:", error);
-      toast.error("فشل في تحميل البيانات");
+      toast.error(t('dataLoadFailed'));
       // Set default empty values
       setPlan([]);
       setProgress([]);
@@ -631,11 +635,11 @@ export function AppProvider({ children }: AppProviderProps) {
             const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
             if (stillMissingWeeks.length > 0) {
               console.error("Still missing weeks after refresh re-import:", stillMissingWeeks);
-              toast.error(`أسابيع مفقودة: ${stillMissingWeeks.join(', ')}`);
+              toast.error(`${t('missingWeeks')}: ${stillMissingWeeks.join(', ')}`);
             }
           } catch (reimportError) {
             console.error("Failed to re-import plan during refresh:", reimportError);
-            toast.error("فشل في إعادة تحميل الخطة");
+            toast.error(t('refreshFailed'));
           }
         }
       } catch (error) {
@@ -675,7 +679,7 @@ export function AppProvider({ children }: AppProviderProps) {
     } catch (error) {
       console.error('Error refreshing data:', error);
       setLoading(false);
-      toast.error('فشل في تحديث البيانات');
+      toast.error(t('updateDataFailed'));
     }
   }, []);
 
@@ -705,10 +709,10 @@ export function AppProvider({ children }: AppProviderProps) {
       
       if (missingWeeks.length > 0) {
         console.error("Missing weeks after force reload:", missingWeeks);
-        toast.error(`أسابيع مفقودة: ${missingWeeks.join(', ')}`);
+        toast.error(`${t('missingWeeks')}: ${missingWeeks.join(', ')}`);
       } else {
         console.log("All weeks present after force reload!");
-        toast.success("تم إعادة تحميل البيانات بنجاح");
+        toast.success(t('forceReloadSuccess'));
       }
       
       // Update state
@@ -722,7 +726,7 @@ export function AppProvider({ children }: AppProviderProps) {
       
     } catch (error) {
       console.error("Error in force reload:", error);
-      toast.error("فشل في إعادة تحميل البيانات");
+      toast.error(t('forceReloadFailed'));
     } finally {
       setLoading(false);
     }
@@ -756,10 +760,10 @@ export function AppProvider({ children }: AppProviderProps) {
       
       if (missingWeeks.length > 0) {
         console.error("Missing weeks after fix:", missingWeeks);
-        toast.error(`أسابيع مفقودة: ${missingWeeks.join(', ')}`);
+        toast.error(`${t('missingWeeks')}: ${missingWeeks.join(', ')}`);
       } else {
         console.log("All weeks present after fix!");
-        toast.success("تم إصلاح الأسابيع المفقودة بنجاح");
+        toast.success(t('fixWeeksSuccess'));
       }
       
       // Update state
@@ -770,7 +774,7 @@ export function AppProvider({ children }: AppProviderProps) {
       
     } catch (error) {
       console.error("Error fixing missing weeks:", error);
-      toast.error("فشل في إصلاح الأسابيع المفقودة");
+      toast.error(t('fixWeeksFailed'));
     } finally {
       setLoading(false);
     }

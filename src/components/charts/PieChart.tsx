@@ -7,6 +7,7 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
+import ChartWrapper from './ChartWrapper';
 
 interface PieData {
   name: string;
@@ -51,7 +52,7 @@ export default function PieChart({ data, title }: PieChartProps) {
   );
 
   return (
-    <div className="w-full h-64">
+    <ChartWrapper className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPieChart>
           <Pie
@@ -72,6 +73,6 @@ export default function PieChart({ data, title }: PieChartProps) {
           <Legend content={<CustomLegend />} />
         </RechartsPieChart>
       </ResponsiveContainer>
-    </div>
+    </ChartWrapper>
   );
 }

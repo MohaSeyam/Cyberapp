@@ -10,6 +10,7 @@ import {
   BarChart,
   Bar
 } from 'recharts';
+import ChartWrapper from './ChartWrapper';
 
 interface ProgressData {
   week: string;
@@ -41,7 +42,7 @@ export default function ProgressChart({ data, type = 'line', title }: ProgressCh
 
   if (type === 'bar') {
     return (
-      <div className="w-full h-64">
+      <ChartWrapper className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -64,12 +65,12 @@ export default function ProgressChart({ data, type = 'line', title }: ProgressCh
             />
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </ChartWrapper>
     );
   }
 
   return (
-    <div className="w-full h-64">
+    <ChartWrapper className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -95,6 +96,6 @@ export default function ProgressChart({ data, type = 'line', title }: ProgressCh
           />
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </ChartWrapper>
   );
 }

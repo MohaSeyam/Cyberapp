@@ -860,8 +860,8 @@ const translations: TranslationData = {
     en: "Distribution Visualization"
   },
   chartComingSoon: {
-    ar: "الرسم البياني قريباً",
-    en: "Chart Coming Soon"
+    ar: "الرسم البياني متاح الآن",
+    en: "Chart Available Now"
   },
   detailedStatistics: {
     ar: "إحصائيات مفصلة",
@@ -1033,6 +1033,292 @@ const translations: TranslationData = {
   exportTip3: {
     ar: "استخدم PDF للمشاركة والتوثيق",
     en: "Use PDF for sharing and documentation"
+  },
+  
+  // System Messages
+  missingWeeks: {
+    ar: "أسابيع غير مكتملة",
+    en: "Incomplete Weeks"
+  },
+  missingWeeksMessage: {
+    ar: "يوجد أسابيع غير مكتملة في الخطة",
+    en: "There are incomplete weeks in the plan"
+  },
+  dataLoadError: {
+    ar: "خطأ في تحميل البيانات",
+    en: "Data Load Error"
+  },
+  dataSaveError: {
+    ar: "خطأ في حفظ البيانات",
+    en: "Data Save Error"
+  },
+  autoSaveEnabled: {
+    ar: "الحفظ التلقائي مفعل",
+    en: "Auto-save Enabled"
+  },
+  autoSaveDisabled: {
+    ar: "الحفظ التلقائي معطل",
+    en: "Auto-save Disabled"
+  },
+  saving: {
+    ar: "جارٍ الحفظ...",
+    en: "Saving..."
+  },
+  saved: {
+    ar: "تم الحفظ",
+    en: "Saved"
+  },
+  saveError: {
+    ar: "خطأ في الحفظ",
+    en: "Save Error"
+  },
+  
+  // Chart Labels
+  progressOverTime: {
+    ar: "التقدم عبر الزمن",
+    en: "Progress Over Time"
+  },
+  weeklyProgressChart: {
+    ar: "رسم بياني أسبوعي للتقدم",
+    en: "Weekly Progress Chart"
+  },
+  taskTypePieChart: {
+    ar: "توزيع أنواع المهام",
+    en: "Task Type Distribution"
+  },
+  distributionVisualization: {
+    ar: "رسم بياني دائري للتوزيع",
+    en: "Pie Chart Distribution"
+  },
+  detailedStatistics: {
+    ar: "إحصائيات مفصلة",
+    en: "Detailed Statistics"
+  },
+  comprehensiveAnalysis: {
+    ar: "تحليل شامل",
+    en: "Comprehensive Analysis"
+  },
+  totalWeeks: {
+    ar: "إجمالي الأسابيع",
+    en: "Total Weeks"
+  },
+  totalTasks: {
+    ar: "إجمالي المهام",
+    en: "Total Tasks"
+  },
+  completedTasks: {
+    ar: "المهام المكتملة",
+    en: "Completed Tasks"
+  },
+  totalDuration: {
+    ar: "إجمالي المدة",
+    en: "Total Duration"
+  },
+  hours: {
+    ar: "ساعة",
+    en: "hours"
+  },
+  
+  // Skills Matrix
+  skillsMatrix: {
+    ar: "مصفوفة المهارات",
+    en: "Skills Matrix"
+  },
+  yourSkillLevels: {
+    ar: "مستويات مهاراتك",
+    en: "Your Skill Levels"
+  },
+  skillCategories: {
+    ar: "فئات المهارات",
+    en: "Skill Categories"
+  },
+  categoryBreakdown: {
+    ar: "تفصيل الفئات",
+    en: "Category Breakdown"
+  },
+  level: {
+    ar: "مستوى",
+    en: "Level"
+  },
+  skills: {
+    ar: "مهارات",
+    en: "Skills"
+  },
+  
+  // Progress Metrics
+  completionRate: {
+    ar: "نسبة الإنجاز",
+    en: "Completion Rate"
+  },
+  currentStreak: {
+    ar: "التتابع الحالي",
+    en: "Current Streak"
+  },
+  longestStreak: {
+    ar: "أطول تتابع",
+    en: "Longest Streak"
+  },
+  hoursLearned: {
+    ar: "ساعات التعلم",
+    en: "Hours Learned"
+  },
+  taskTypesDistribution: {
+    ar: "توزيع أنواع المهام",
+    en: "Task Types Distribution"
+  },
+  distributionOfCompletedTasks: {
+    ar: "توزيع المهام المكتملة",
+    en: "Distribution of Completed Tasks"
+  },
+  blueTeam: {
+    ar: "الفريق الأزرق",
+    en: "Blue Team"
+  },
+  redTeam: {
+    ar: "الفريق الأحمر",
+    en: "Red Team"
+  },
+  practical: {
+    ar: "عملي",
+    en: "Practical"
+  },
+  theoretical: {
+    ar: "نظري",
+    en: "Theoretical"
+  },
+  policies: {
+    ar: "السياسات",
+    en: "Policies"
+  },
+  
+  // Welcome and Navigation
+  welcome: {
+    ar: "مرحباً",
+    en: "Welcome"
+  },
+  cyberSecurityLearning: {
+    ar: "تعلم الأمن السيبراني",
+    en: "Cyber Security Learning"
+  },
+  trackYourLearning: {
+    ar: "تتبع تعلمك",
+    en: "Track Your Learning"
+  },
+  learningPhases: {
+    ar: "مراحل التعلم",
+    en: "Learning Phases"
+  },
+  choosePhaseToStart: {
+    ar: "اختر المرحلة للبدء",
+    en: "Choose Phase to Start"
+  },
+  phases: {
+    ar: "المراحل",
+    en: "Phases"
+  },
+  week: {
+    ar: "أسبوع",
+    en: "Week"
+  },
+  phaseWeeks: {
+    ar: "أسابيع المرحلة",
+    en: "Phase Weeks"
+  },
+  weekDays: {
+    ar: "أيام الأسبوع",
+    en: "Week Days"
+  },
+  dayDetails: {
+    ar: "تفاصيل اليوم",
+    en: "Day Details"
+  },
+  
+  // System Messages
+  dataLoadSuccess: {
+    ar: "تم تحميل جميع الأسابيع بنجاح",
+    en: "All weeks loaded successfully"
+  },
+  dataLoadFailed: {
+    ar: "فشل في تحميل البيانات",
+    en: "Failed to load data"
+  },
+  planLoadFailed: {
+    ar: "فشل في تحميل الخطة من الملف",
+    en: "Failed to load plan from file"
+  },
+  refreshFailed: {
+    ar: "فشل في إعادة تحميل الخطة",
+    en: "Failed to reload plan"
+  },
+  forceReloadSuccess: {
+    ar: "تم إعادة تحميل البيانات بنجاح",
+    en: "Data reloaded successfully"
+  },
+  forceReloadFailed: {
+    ar: "فشل في إعادة تحميل البيانات",
+    en: "Failed to reload data"
+  },
+  fixWeeksSuccess: {
+    ar: "تم إصلاح الأسابيع المفقودة بنجاح",
+    en: "Missing weeks fixed successfully"
+  },
+  fixWeeksFailed: {
+    ar: "فشل في إصلاح الأسابيع المفقودة",
+    en: "Failed to fix missing weeks"
+  },
+  updateDataFailed: {
+    ar: "فشل في تحديث البيانات",
+    en: "Failed to update data"
+  },
+  
+  // File Upload Messages
+  fileUploadSuccess: {
+    ar: "تم رفع الملف بنجاح",
+    en: "File uploaded successfully"
+  },
+  fileUploadError: {
+    ar: "خطأ في رفع الملف",
+    en: "File upload error"
+  },
+  fileTooLarge: {
+    ar: "حجم الملف كبير جداً",
+    en: "File size too large"
+  },
+  unsupportedFileType: {
+    ar: "نوع الملف غير مدعوم",
+    en: "Unsupported file type"
+  },
+  
+  // Editor Messages
+  editorAutoSave: {
+    ar: "الحفظ التلقائي مفعل",
+    en: "Auto-save enabled"
+  },
+  editorSaving: {
+    ar: "جارٍ الحفظ...",
+    en: "Saving..."
+  },
+  editorSaved: {
+    ar: "تم الحفظ",
+    en: "Saved"
+  },
+  editorSaveError: {
+    ar: "خطأ في الحفظ",
+    en: "Save error"
+  },
+  
+  // Chart Messages
+  chartNoData: {
+    ar: "لا توجد بيانات للعرض",
+    en: "No data to display"
+  },
+  chartLoading: {
+    ar: "جارٍ تحميل الرسم البياني...",
+    en: "Loading chart..."
+  },
+  chartError: {
+    ar: "خطأ في تحميل الرسم البياني",
+    en: "Chart loading error"
   }
 };
 
