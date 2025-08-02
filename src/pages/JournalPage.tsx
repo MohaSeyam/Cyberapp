@@ -391,13 +391,6 @@ export default function JournalPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               المدونات ({filteredAndSortedEntries.length})
             </h2>
-            <Button
-              onClick={() => setJournalModal({ isOpen: true, entry: null })}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Plus className="w-4 h-4 ml-2" />
-              إضافة مدونة
-            </Button>
           </div>
 
           {filteredAndSortedEntries.length === 0 ? (

@@ -397,13 +397,6 @@ export default function NotesPage() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               الملاحظات ({filteredAndSortedNotes.length})
             </h2>
-            <Button
-              onClick={() => setNoteModal({ isOpen: true, note: null })}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Plus className="w-4 h-4 ml-2" />
-              إضافة ملاحظة
-            </Button>
           </div>
 
           {filteredAndSortedNotes.length === 0 ? (
@@ -473,6 +466,19 @@ export default function NotesPage() {
             </div>
           )}
         </Card>
+
+        {/* Floating Add Note Button */}
+        <motion.button
+          onClick={() => setNoteModal({ isOpen: true, note: null })}
+          className="fixed bottom-6 right-6 w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-50"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Plus className="w-8 h-8" />
+        </motion.button>
 
         {/* Note Detail Modal */}
         {selectedNote && (
