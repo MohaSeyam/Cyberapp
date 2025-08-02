@@ -52,8 +52,8 @@ export default function JournalViewPage() {
   };
 
   const handleEditJournalEntry = () => {
-    // يمكن إضافة منطق التعديل هنا
-    toast.info('ميزة التعديل قيد التطوير');
+    // فتح صفحة التعديل في تبويب جديد
+    window.open(`/journal-entry/${entryId}/edit`, '_blank');
   };
 
   if (!journalEntry) {
@@ -89,21 +89,20 @@ export default function JournalViewPage() {
           </Button>
           
           <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
+            <button
               onClick={handleEditJournalEntry}
-              icon={<Edit2 />}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="تعديل المدونة"
             >
-              تعديل
-            </Button>
-            <Button
-              variant="outline"
+              <Edit2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
               onClick={handleDeleteJournalEntry}
-              icon={<Trash2 />}
-              className="text-red-600 hover:text-red-700"
+              className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+              title="حذف المدونة"
             >
-              حذف
-            </Button>
+              <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </button>
           </div>
         </div>
 

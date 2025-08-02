@@ -7,7 +7,7 @@ import {
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
   ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
-  Shield, Eye, Bug, Users, Code, Trash2, X, Tag
+  Shield, Bug, Users, Code, Trash2, X, Tag
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -122,13 +122,13 @@ export default function DayViewPage() {
   const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
   const [selectedDay, setSelectedDay] = useState<Day | null>(null);
   const [noteModal, setNoteModal] = useState({ isOpen: false, taskId: '' });
-  const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null as Resource | null });
-  const [noteContent, setNoteContent] = useState('');
   const [noteForm, setNoteForm] = useState({
     title: '',
     content: '',
     tags: [] as string[]
   });
+  const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null as Resource | null });
+  const [noteContent, setNoteContent] = useState('');
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
@@ -583,14 +583,7 @@ export default function DayViewPage() {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            {/* Preview Button */}
-                            <button
-                              onClick={() => navigate(`/resource-preview/${encodeURIComponent(JSON.stringify(resource))}`)}
-                              className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
-                              title="معاينة المرجع"
-                            >
-                              <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                            </button>
+
                             {/* Open in New Tab Button */}
                             <button
                               onClick={() => openResourceInNewTab(resource.url)}
@@ -710,14 +703,13 @@ export default function DayViewPage() {
               <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <span>المدونات ({journalEntries.length})</span>
             </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              icon={<Plus className="w-4 h-4" />}
+            <button
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
               onClick={() => setJournalModal({ isOpen: true, entry: null })}
+              aria-label="إضافة مدونة جديدة"
             >
-              إضافة مدونة
-            </Button>
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
           
           {journalEntries.length === 0 ? (
@@ -939,6 +931,119 @@ export default function DayViewPage() {
               disabled={!resourceForm.title.trim() || !resourceForm.url.trim() || !isValidUrl(resourceForm.url)}
             >
               {resourceModal.resource ? 'تحديث' : 'إضافة'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Note Modal */}
+      <Modal
+        isOpen={noteModal.isOpen}
+        onClose={() => setNoteModal({ isOpen: false, taskId: '' })}
+        title="إضافة ملاحظة"
+        size="xl"
+      >
+        <div className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              عنوان الملاحظة
+            </label>
+            <input
+              type="text"
+              value={noteForm.title}
+              onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="أدخل عنوان الملاحظة"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              التاقات
+            </label>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {noteForm.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => setNoteForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))}
+                      className="ml-1 hover:text-blue-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="أضف تاق"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const tag = e.currentTarget.value.trim();
+                      if (tag && !noteForm.tags.includes(tag)) {
+                        setNoteForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                        e.currentTarget.value = '';
+                      }
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const tag = input.value.trim();
+                    if (tag && !noteForm.tags.includes(tag)) {
+                      setNoteForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                      input.value = '';
+                    }
+                  }}
+                >
+                  إضافة
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              محتوى الملاحظة
+            </label>
+            <RichTextEditor
+              content={noteForm.content}
+              onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
+              placeholder="اكتب ملاحظتك هنا..."
+              lang={lang}
+              minHeight="400px"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setNoteModal({ isOpen: false, taskId: '' });
+                setNoteForm({ title: '', content: '', tags: [] });
+              }}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddNote}
+              disabled={!noteForm.title.trim() || !noteForm.content.trim()}
+            >
+              حفظ الملاحظة
             </Button>
           </div>
         </div>
