@@ -13,7 +13,6 @@ const DaysPage = lazy(() => import('./components/days/DaysPage'));
 const DayViewPage = lazy(() => import('./components/days/DayViewPage'));
 const ProgressPage = lazy(() => import('./pages/ProgressPage'));
 const ExportPage = lazy(() => import('./pages/ExportPage'));
-const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const NotesPage = lazy(() => import('./pages/NotesPage'));
 const JournalPage = lazy(() => import('./pages/JournalPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
@@ -33,7 +32,6 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/progress" element={<ProgressPage />} />
               <Route path="/export" element={<ExportPage />} />
-              <Route path="/reports" element={<ReportsPage />} />
               <Route path="/phases" element={<PhasesPage />} />
               <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
               <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />

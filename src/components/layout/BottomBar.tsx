@@ -16,7 +16,6 @@ export default function BottomBar() {
     { icon: FileText, label: t('notes'), path: '/notes' },
     { icon: BookOpen, label: t('journal'), path: '/journal' },
     { icon: TrendingUp, label: t('progress'), path: '/progress' },
-    { icon: BarChart3, label: t('reports'), path: '/reports' },
     { icon: Settings, label: t('settings'), path: '/settings' },
   ], [t, language]);
   return (
