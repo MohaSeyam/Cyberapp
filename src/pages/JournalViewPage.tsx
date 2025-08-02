@@ -184,14 +184,7 @@ export default function JournalViewPage() {
             >
               <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
-            <button
-              onClick={() => navigate('/journal')}
-              className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors"
-              title="العودة لقائمة المدونات"
-              aria-label="العودة لقائمة المدونات"
-            >
-              <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                        </button>
+            
           </div>
           
           <div className="flex items-center space-x-2">
