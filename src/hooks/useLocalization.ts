@@ -1,5 +1,5 @@
 // Localization Hook
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { Language } from '../types';
 
 interface TranslationData {
@@ -622,15 +622,21 @@ const translations: TranslationData = {
 };
 
 export function useLocalization() {
-  // Get language from localStorage to avoid circular dependency
-  const getLanguage = (): Language => {
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('app_language') as Language) || 'ar';
     }
     return 'ar';
-  };
+  });
   
-  const language = getLanguage();
+  const setLang = useCallback((newLang: Language) => {
+    setCurrentLanguage(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('app_language', newLang);
+      // Trigger a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('languageChanged', { detail: newLang }));
+    }
+  }, []);
   
   const t = useCallback((key: string): string => {
     const translation = translations[key];
@@ -638,8 +644,8 @@ export function useLocalization() {
       console.warn(`Translation missing for key: ${key}`);
       return key;
     }
-    return translation[language] || translation.ar || key;
-  }, [language]);
+    return translation[currentLanguage] || translation.ar || key;
+  }, [currentLanguage]);
 
-  return { t, language };
+  return { t, language: currentLanguage, setLang };
 }

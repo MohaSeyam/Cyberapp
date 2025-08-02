@@ -6,10 +6,10 @@ import { useLocalization } from '../../hooks/useLocalization';
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useApp();
-  const { lang, setLang } = useLocalization();
+  const { language, setLang } = useLocalization();
 
   const handleLanguageToggle = () => {
-    setLang(lang === 'ar' ? 'en' : 'ar');
+    setLang(language === 'ar' ? 'en' : 'ar');
   };
 
   return (
@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
             <button
               onClick={handleLanguageToggle}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              title={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+              title={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
             >
               <Globe className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>

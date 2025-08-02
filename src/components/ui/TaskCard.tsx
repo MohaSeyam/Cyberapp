@@ -66,7 +66,7 @@ function TaskCard({
   className = ''
 }: TaskCardProps) {
   const { progress, updateProgress, plan } = useApp();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   
   const colors = taskTypeColors[task.type] || taskTypeColors['Blue Team'];
   const isCompleted = progress.some(p => 
@@ -142,7 +142,7 @@ function TaskCard({
             isLocked ? 'text-gray-400 dark:text-gray-500' : 
             'text-gray-900 dark:text-white'
           }`}>
-              {task.description[useApp().lang]}
+              {task.description[language]}
               {isLocked && (
                 <span className="ml-2 text-xs text-gray-400">
                   🔒 {t('locked')}
@@ -204,7 +204,7 @@ function TaskCard({
                 isLocked ? 'text-gray-400 dark:text-gray-500' : 
                 'text-gray-900 dark:text-white'
               }`}>
-                {task.description[useApp().lang]}
+                {task.description[language]}
                 {isLocked && (
                   <span className="ml-2 text-sm text-gray-400">
                     🔒 {t('locked')}
@@ -289,7 +289,7 @@ function TaskCard({
             isLocked ? 'text-gray-400 dark:text-gray-500' : 
             'text-gray-900 dark:text-white'
           }`}>
-            {task.description[useApp().lang]}
+            {task.description[language]}
             {isLocked && (
               <span className="ml-2 text-xs text-gray-400">
                 🔒 {t('locked')}

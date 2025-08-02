@@ -76,6 +76,21 @@ export function AppProvider({ children }: AppProviderProps) {
   // Translation function
   const { t } = useLocalization();
 
+  // Listen for language changes from other components
+  useEffect(() => {
+    const handleLanguageChange = (event: CustomEvent) => {
+      const newLang = event.detail;
+      setLangState(newLang);
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
+    };
+  }, []);
+
   // Load initial data
   const loadInitialData = async () => {
     try {

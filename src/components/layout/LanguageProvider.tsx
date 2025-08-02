@@ -23,5 +23,28 @@ export default function LanguageProvider({ children }: LanguageProviderProps) {
     }
   }, [language]);
 
+  // Listen for language changes from other components
+  useEffect(() => {
+    const handleLanguageChange = (event: CustomEvent) => {
+      const newLang = event.detail;
+      document.documentElement.setAttribute('dir', newLang === 'ar' ? 'rtl' : 'ltr');
+      document.documentElement.setAttribute('lang', newLang);
+      
+      if (newLang === 'ar') {
+        document.body.classList.add('rtl-container');
+        document.body.classList.add('arabic-font');
+      } else {
+        document.body.classList.remove('rtl-container');
+        document.body.classList.remove('arabic-font');
+      }
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
+    };
+  }, []);
+
   return <>{children}</>;
 }
