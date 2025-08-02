@@ -696,3 +696,314 @@
     text-align: right;
   }
 }
+
+/* ===== Additional RTL Improvements ===== */
+
+/* Modal and Dialog RTL Fixes */
+[dir="rtl"] .modal-content {
+  text-align: right;
+}
+
+[dir="rtl"] .modal-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .modal-footer {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .modal-close {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+/* Button RTL Fixes */
+[dir="rtl"] .btn-group {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .btn-icon-left {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .btn-icon-right {
+  flex-direction: row;
+}
+
+/* Form RTL Fixes */
+[dir="rtl"] .form-group {
+  text-align: right;
+}
+
+[dir="rtl"] .form-label {
+  text-align: right;
+}
+
+[dir="rtl"] .form-input {
+  text-align: right;
+}
+
+[dir="rtl"] .form-select {
+  text-align: right;
+}
+
+[dir="rtl"] .form-checkbox {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .form-radio {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Card RTL Fixes */
+[dir="rtl"] .card-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .card-title {
+  text-align: right;
+}
+
+[dir="rtl"] .card-content {
+  text-align: right;
+}
+
+[dir="rtl"] .card-actions {
+  justify-content: flex-start;
+}
+
+/* Navigation RTL Fixes */
+[dir="rtl"] .nav-menu {
+  text-align: right;
+}
+
+[dir="rtl"] .nav-item {
+  text-align: right;
+}
+
+[dir="rtl"] .nav-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .nav-text {
+  margin-right: 0 !important;
+  margin-left: 0.5rem !important;
+}
+
+/* Tab RTL Fixes */
+[dir="rtl"] .tab-list {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .tab-item {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Dropdown RTL Fixes */
+[dir="rtl"] .dropdown-menu {
+  text-align: right;
+}
+
+[dir="rtl"] .dropdown-item {
+  text-align: right;
+}
+
+[dir="rtl"] .dropdown-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Alert RTL Fixes */
+[dir="rtl"] .alert {
+  text-align: right;
+}
+
+[dir="rtl"] .alert-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Toast RTL Fixes */
+[dir="rtl"] .toast {
+  text-align: right;
+}
+
+[dir="rtl"] .toast-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Progress RTL Fixes */
+[dir="rtl"] .progress-bar {
+  direction: ltr;
+}
+
+[dir="rtl"] .progress-text {
+  text-align: right;
+}
+
+/* Chart RTL Fixes */
+[dir="rtl"] .chart-container {
+  direction: ltr;
+}
+
+[dir="rtl"] .chart-title {
+  text-align: right;
+}
+
+[dir="rtl"] .chart-legend {
+  text-align: right;
+}
+
+/* Table RTL Fixes */
+[dir="rtl"] .table-header {
+  text-align: right;
+}
+
+[dir="rtl"] .table-cell {
+  text-align: right;
+}
+
+[dir="rtl"] .table-actions {
+  justify-content: flex-start;
+}
+
+/* List RTL Fixes */
+[dir="rtl"] .list-item {
+  text-align: right;
+}
+
+[dir="rtl"] .list-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Badge RTL Fixes */
+[dir="rtl"] .badge {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
+
+/* Tag RTL Fixes */
+[dir="rtl"] .tag {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
+
+/* Avatar RTL Fixes */
+[dir="rtl"] .avatar {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Tooltip RTL Fixes */
+[dir="rtl"] .tooltip {
+  text-align: right;
+}
+
+/* Popover RTL Fixes */
+[dir="rtl"] .popover {
+  text-align: right;
+}
+
+/* Menu RTL Fixes */
+[dir="rtl"] .menu {
+  text-align: right;
+}
+
+[dir="rtl"] .menu-item {
+  text-align: right;
+}
+
+[dir="rtl"] .menu-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Breadcrumb RTL Fixes */
+[dir="rtl"] .breadcrumb {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .breadcrumb-item {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .breadcrumb-separator {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Pagination RTL Fixes */
+[dir="rtl"] .pagination {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .page-item {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
+
+/* Status RTL Fixes */
+[dir="rtl"] .status-indicator {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .status-text {
+  text-align: right;
+}
+
+/* Loading RTL Fixes */
+[dir="rtl"] .loading-spinner {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .loading-text {
+  text-align: right;
+}
+
+/* Error RTL Fixes */
+[dir="rtl"] .error-message {
+  text-align: right;
+}
+
+[dir="rtl"] .error-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Success RTL Fixes */
+[dir="rtl"] .success-message {
+  text-align: right;
+}
+
+[dir="rtl"] .success-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Warning RTL Fixes */
+[dir="rtl"] .warning-message {
+  text-align: right;
+}
+
+[dir="rtl"] .warning-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Info RTL Fixes */
+[dir="rtl"] .info-message {
+  text-align: right;
+}
+
+[dir="rtl"] .info-icon {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}

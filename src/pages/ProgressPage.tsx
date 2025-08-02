@@ -260,36 +260,29 @@ export default function ProgressPage() {
       
       // إنشاء الملف حسب الصيغة
       let fileName = `cybersecurity-report-${Date.now()}`;
-      let mimeType = 'text/plain';
-      let fileExtension = '.txt';
+      let blob: Blob;
       
       switch (reportOptions.format) {
         case 'pdf':
-          // تحويل Markdown إلى PDF
-          content = await convertToPDF(content);
-          mimeType = 'application/pdf';
-          fileExtension = '.pdf';
+          // تحويل إلى PDF
+          blob = await convertToPDF(content);
           fileName += '.pdf';
           break;
         case 'csv':
-          content = convertToCSV();
-          mimeType = 'text/csv';
-          fileExtension = '.csv';
+          const csvContent = convertToCSV();
+          blob = new Blob([csvContent], { type: 'text/csv' });
           fileName += '.csv';
           break;
         case 'markdown':
-          mimeType = 'text/markdown';
-          fileExtension = '.md';
+          blob = new Blob([content], { type: 'text/markdown' });
           fileName += '.md';
           break;
         default: // txt
-          mimeType = 'text/plain';
-          fileExtension = '.txt';
+          blob = new Blob([content], { type: 'text/plain' });
           fileName += '.txt';
       }
       
-      // إنشاء وتنزيل الملف
-      const blob = new Blob([content], { type: mimeType });
+      // تنزيل الملف
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -430,8 +423,88 @@ export default function ProgressPage() {
   };
 
   const convertToPDF = async (content: string) => {
-    // محاكاة تحويل إلى PDF - في التطبيق الحقيقي ستستخدم مكتبة مثل jsPDF
-    return content;
+    try {
+      // إنشاء عنصر HTML مؤقت لتحويله إلى PDF
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '800px';
+      tempDiv.style.padding = '40px';
+      tempDiv.style.fontFamily = language === 'ar' ? 'Cairo, Arial, sans-serif' : 'Arial, sans-serif';
+      tempDiv.style.direction = language === 'ar' ? 'rtl' : 'ltr';
+      tempDiv.style.textAlign = language === 'ar' ? 'right' : 'left';
+      tempDiv.style.backgroundColor = '#ffffff';
+      tempDiv.style.color = '#000000';
+      tempDiv.style.lineHeight = '1.6';
+      tempDiv.style.fontSize = '14px';
+      
+      // إضافة المحتوى
+      tempDiv.innerHTML = content.replace(/\n/g, '<br>');
+      
+      // إضافة الشعار في الأعلى
+      const logoImg = document.createElement('img');
+      logoImg.src = '/src/assets/Gemini_Generated_Image_26mado26mado26ma.png';
+      logoImg.style.width = '100px';
+      logoImg.style.height = 'auto';
+      logoImg.style.display = 'block';
+      logoImg.style.margin = language === 'ar' ? '0 0 20px auto' : '0 auto 20px 0';
+      
+      const logoContainer = document.createElement('div');
+      logoContainer.style.textAlign = 'center';
+      logoContainer.style.marginBottom = '30px';
+      logoContainer.appendChild(logoImg);
+      
+      tempDiv.insertBefore(logoContainer, tempDiv.firstChild);
+      
+      document.body.appendChild(tempDiv);
+      
+      // انتظار تحميل الصورة
+      await new Promise((resolve) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = resolve;
+        setTimeout(resolve, 1000); // timeout بعد ثانية
+      });
+      
+      // تحويل HTML إلى canvas ثم إلى PDF
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = await import('html2canvas');
+      
+      const canvas = await html2canvas.default(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      // تنظيف العنصر المؤقت
+      document.body.removeChild(tempDiv);
+      
+      return pdf.output('blob');
+    } catch (error) {
+      console.error('PDF conversion error:', error);
+      // في حالة الفشل، نعيد النص العادي
+      return new Blob([content], { type: 'text/plain' });
+    }
   };
 
   const convertToCSV = () => {
