@@ -75,10 +75,6 @@ export default function NotesPage() {
       transition={{ duration: 0.2, delay: index * 0.05 }}
       className="p-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       onClick={() => {
-        setSelectedNote(note);
-        setShowFullNote(true);
-      }}
-      onDoubleClick={() => {
         // فتح الملاحظة في صفحة منفصلة
         window.open(`/note/${note.id}`, '_blank');
       }}
@@ -133,25 +129,7 @@ export default function NotesPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(`/note/${note.id}`, '_blank');
-                }}
-                className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
-                title="فتح في صفحة منفصلة"
-              >
-                <ArrowLeft className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setNoteModal({ isOpen: true, note });
-                  setNoteForm({
-                    title: note.title,
-                    content: note.content,
-                    tags: note.tags || [],
-                    weekId: note.weekId,
-                    dayKey: note.dayKey,
-                    taskId: note.taskId
-                  });
+                  window.open(`/note/${note.id}/edit`, '_blank');
                 }}
                 className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 title="تعديل"

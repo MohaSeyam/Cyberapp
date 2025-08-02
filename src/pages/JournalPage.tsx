@@ -87,10 +87,6 @@ export default function JournalPage() {
       transition={{ duration: 0.2, delay: index * 0.05 }}
       className="p-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       onClick={() => {
-        setSelectedEntry(entry);
-        setShowFullEntry(true);
-      }}
-      onDoubleClick={() => {
         // فتح المدونة في صفحة منفصلة
         window.open(`/journal-entry/${entry.id}`, '_blank');
       }}
@@ -145,22 +141,7 @@ export default function JournalPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(`/journal-entry/${entry.id}`, '_blank');
-                }}
-                className="p-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors"
-                title="فتح في صفحة منفصلة"
-              >
-                <FileText className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setJournalModal({ isOpen: true, entry });
-                  setJournalForm({
-                    title: entry.title,
-                    content: entry.content,
-                    tags: entry.tags || []
-                  });
+                  window.open(`/journal-entry/${entry.id}/edit`, '_blank');
                 }}
                 className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 title="تعديل"
