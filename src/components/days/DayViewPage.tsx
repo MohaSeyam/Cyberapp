@@ -427,6 +427,11 @@ export default function DayViewPage() {
     { label: selectedDay.name?.ar || 'اليوم', icon: DayIcon }
   ];
 
+  // تعريف مفاتيح اليوم
+  const dayKey = selectedWeek && selectedDay ? `${selectedWeek.week}-${selectedDay.key}` : '';
+  const notes = (appState?.notes && dayKey) ? appState.notes[dayKey] || [] : [];
+  const journalEntries = (appState?.journal && dayKey) ? appState.journal[dayKey] || [] : [];
+
   return (
     <PageLayout 
       title={selectedDay?.name?.ar || safeT('dayDetails')}
