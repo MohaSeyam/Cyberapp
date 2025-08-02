@@ -117,6 +117,10 @@ const translations: TranslationData = {
     ar: "تصدير",
     en: "Export"
   },
+  reports: {
+    ar: "التقارير",
+    en: "Reports"
+  },
   phases: {
     ar: "المراحل",
     en: "Phases"

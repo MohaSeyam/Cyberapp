@@ -13,10 +13,10 @@ export default function BottomBar() {
   // إعادة إنشاء العناصر عند تغيير اللغة
   const items = React.useMemo(() => [
     { icon: Home, label: t('home'), path: '/' },
-    { icon: Calendar, label: t('plan'), path: '/plan' },
     { icon: FileText, label: t('notes'), path: '/notes' },
     { icon: BookOpen, label: t('journal'), path: '/journal' },
     { icon: TrendingUp, label: t('progress'), path: '/progress' },
+    { icon: BarChart3, label: t('reports'), path: '/reports' },
     { icon: Settings, label: t('settings'), path: '/settings' },
   ], [t, language]);
   return (
@@ -30,8 +30,8 @@ export default function BottomBar() {
             to={item.path}
             className={`flex flex-col items-center justify-center px-2 py-1 transition-all ${active ? 'text-blue-600 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300'}`}
           >
-            <Icon className="w-6 h-6 mb-1" />
-            <span className="text-xs">{item.label}</span>
+            <Icon className="w-5 h-5 mb-1" />
+            <span className="text-xs text-center leading-tight">{item.label}</span>
           </Link>
         );
       })}
