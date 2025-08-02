@@ -1482,59 +1482,82 @@ export default function ProgressPage() {
           title={getCurrentLanguageText({ ar: 'تأكيد التصدير', en: 'Confirm Export' })}
           size="md"
         >
-          <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
-              {getCurrentLanguageText({ 
-                ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
-                en: 'The report will be exported with the selected options. This may take a few moments.'
-              })}
-            </p>
-            
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">
-                {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
-              </h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
-                  </span>
-                  <span>{getCurrentLanguageText(reportTypes.find(t => t.id === reportOptions.type)?.label || {})}</span>
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
+                  <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
-                  </span>
-                  <span>{getCurrentLanguageText(contentTypes.find(c => c.id === reportOptions.content)?.label || {})}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
-                  </span>
-                  <span>{getCurrentLanguageText(fileFormats.find(f => f.id === reportOptions.format)?.label || {})}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText({ ar: 'اللغة', en: 'Language' })}:
-                  </span>
-                  <span>{getCurrentLanguageText(languageOptions.find(l => l.id === reportOptions.language)?.label || {})}</span>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {getCurrentLanguageText({ ar: 'تأكيد تصدير التقرير', en: 'Confirm Report Export' })}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {getCurrentLanguageText({ 
+                      ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
+                      en: 'The report will be exported with the selected options. This may take a few moments.'
+                    })}
+                  </p>
                 </div>
               </div>
             </div>
             
-            <div className="flex justify-end space-x-3">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg">
+              <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-green-600" />
+                {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
+                    {getCurrentLanguageText(reportTypes.find(t => t.id === reportOptions.type)?.label || {})}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
+                    {getCurrentLanguageText(contentTypes.find(c => c.id === reportOptions.content)?.label || {})}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
+                    {getCurrentLanguageText(fileFormats.find(f => f.id === reportOptions.format)?.label || {})}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'اللغة', en: 'Language' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-full text-sm">
+                    {getCurrentLanguageText(languageOptions.find(l => l.id === reportOptions.language)?.label || {})}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-4 pt-4">
               <Button
                 variant="outline"
                 onClick={() => setShowExportModal(false)}
+                className="px-6 py-3 text-base font-medium border-2 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 {getCurrentLanguageText({ ar: 'إلغاء', en: 'Cancel' })}
               </Button>
               <Button
                 variant="primary"
                 onClick={handleExport}
-                icon={<Download className="w-4 h-4" />}
+                icon={<Download className="w-5 h-5" />}
+                className="px-8 py-3 text-base font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
               >
-                {getCurrentLanguageText({ ar: 'تصدير', en: 'Export' })}
+                {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
               </Button>
             </div>
           </div>
