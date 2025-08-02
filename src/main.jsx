@@ -4,6 +4,7 @@ import App from "./App";
 import "./assets/main.css";
 import "./styles/rtl.css";
 import "./styles/editor.css";
+import "./styles/content-display.css";
 
 console.log("main.jsx loaded");
 
