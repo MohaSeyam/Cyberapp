@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target, FileText } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
