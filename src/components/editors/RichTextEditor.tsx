@@ -330,6 +330,76 @@ export default function RichTextEditor({
     <div className="w-full">
       {showToolbar && <EditorToolbar editor={editor} lang={lang} />}
       <EditorContent editor={editor} />
+      <style jsx>{`
+        .ProseMirror {
+          color: inherit;
+        }
+        .dark .ProseMirror {
+          color: white !important;
+        }
+        .dark .ProseMirror p {
+          color: white !important;
+        }
+        .dark .ProseMirror h1,
+        .dark .ProseMirror h2,
+        .dark .ProseMirror h3,
+        .dark .ProseMirror h4,
+        .dark .ProseMirror h5,
+        .dark .ProseMirror h6 {
+          color: white !important;
+        }
+        .dark .ProseMirror ul,
+        .dark .ProseMirror ol {
+          color: white !important;
+        }
+        .dark .ProseMirror li {
+          color: white !important;
+        }
+        .dark .ProseMirror blockquote {
+          color: white !important;
+        }
+        .dark .ProseMirror code {
+          color: white !important;
+        }
+        .dark .ProseMirror strong {
+          color: white !important;
+        }
+        .dark .ProseMirror em {
+          color: white !important;
+        }
+        .dark .ProseMirror a {
+          color: #60a5fa !important;
+        }
+        .dark .ProseMirror mark {
+          background-color: #fbbf24 !important;
+          color: #1f2937 !important;
+        }
+        .dark .ProseMirror .is-editor-empty:first-child::before {
+          color: #9ca3af !important;
+        }
+        .dark .ProseMirror * {
+          color: white !important;
+        }
+        .dark .ProseMirror span {
+          color: white !important;
+        }
+        .dark .ProseMirror div {
+          color: white !important;
+        }
+        .dark .ProseMirror br {
+          color: white !important;
+        }
+        .dark .ProseMirror hr {
+          color: white !important;
+        }
+        .dark .ProseMirror table {
+          color: white !important;
+        }
+        .dark .ProseMirror th,
+        .dark .ProseMirror td {
+          color: white !important;
+        }
+      `}</style>
     </div>
   );
 }
