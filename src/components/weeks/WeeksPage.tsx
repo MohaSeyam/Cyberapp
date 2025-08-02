@@ -154,7 +154,7 @@ export default function WeeksPage() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {t('week')} {selectedWeek}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 dark:text-gray-300">
                   {currentWeekData.weekData.title[lang]}
                 </p>
               </div>
@@ -183,6 +183,18 @@ export default function WeeksPage() {
               >
                 أسابيع المرحلة
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (window.confirm('هل تريد إصلاح الأسابيع المفقودة؟')) {
+                    useApp().fixMissingWeeks();
+                  }
+                }}
+                className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              >
+                إصلاح الأسابيع المفقودة
+              </Button>
             </div>
           </div>
         </Card>
@@ -194,7 +206,7 @@ export default function WeeksPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                 {t('weekObjective')}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600 dark:text-gray-300">
                 {currentWeekData.weekData.objective[lang]}
               </p>
             </div>
@@ -223,7 +235,7 @@ export default function WeeksPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {currentPhase?.title[lang] || `المرحلة ${currentWeekData.phase}`}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600 dark:text-gray-300">
                 {currentPhase?.focus[lang] || 'لا يوجد وصف للمرحلة'}
               </p>
             </div>
@@ -290,7 +302,7 @@ export default function WeeksPage() {
                         <h4 className="font-medium text-gray-900 dark:text-white">
                           الأسبوع {week.week}
                         </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                           {week.title[lang]}
                         </p>
                       </div>

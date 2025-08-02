@@ -63,7 +63,7 @@ const NoteCard = React.memo(({ note, onEdit, onDelete, onToggleFavorite }) => {
                   />
                 </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
                 {note.content}
               </p>
               <div className="flex items-center justify-between mt-3">
@@ -203,7 +203,7 @@ export default function AdvancedNotesSystem() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('advancedNotes')}</h2>
-          <p className="text-gray-600 dark:text-gray-400">{t('organizeYourLearningNotes')}</p>
+          <p className="text-gray-600 dark:text-gray-300">{t('organizeYourLearningNotes')}</p>
         </div>
         <Button icon={<Plus />} onClick={handleAddNote}>{t('addNote')}</Button>
       </div>
@@ -227,7 +227,7 @@ export default function AdvancedNotesSystem() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Filter className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t('filter')}:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">{t('filter')}:</span>
             </div>
             
             {/* Category Filter */}
@@ -284,7 +284,7 @@ export default function AdvancedNotesSystem() {
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             {searchQuery || selectedCategory !== 'all' || showFavoritesOnly ? t('noNotesFound') : t('noNotesYet')}
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
             {searchQuery || selectedCategory !== 'all' || showFavoritesOnly ? t('tryAdjustingFilters') : t('startAddingNotes')}
           </p>
           {!searchQuery && selectedCategory === 'all' && !showFavoritesOnly && (

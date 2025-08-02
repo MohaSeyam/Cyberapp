@@ -18,10 +18,30 @@ interface TaskCardProps {
 }
 
 const taskTypeColors = {
-  'Blue Team': { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', icon: '🛡️' },
-  'Red Team': { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', icon: '🔥' },
-  'Soft Skills': { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-800', icon: '💡' },
-  'Practical': { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', icon: '⚡' }
+  'Blue Team': { 
+    bg: 'bg-blue-50 dark:bg-blue-900/20', 
+    border: 'border-blue-200 dark:border-blue-700', 
+    text: 'text-blue-800 dark:text-blue-200', 
+    icon: '🛡️' 
+  },
+  'Red Team': { 
+    bg: 'bg-red-50 dark:bg-red-900/20', 
+    border: 'border-red-200 dark:border-red-700', 
+    text: 'text-red-800 dark:text-red-200', 
+    icon: '🔥' 
+  },
+  'Soft Skills': { 
+    bg: 'bg-yellow-50 dark:bg-yellow-900/20', 
+    border: 'border-yellow-200 dark:border-yellow-700', 
+    text: 'text-yellow-800 dark:text-yellow-200', 
+    icon: '💡' 
+  },
+  'Practical': { 
+    bg: 'bg-green-50 dark:bg-green-900/20', 
+    border: 'border-green-200 dark:border-green-700', 
+    text: 'text-green-800 dark:text-green-200', 
+    icon: '⚡' 
+  }
 };
 
 function TaskCard({
@@ -105,11 +125,11 @@ function TaskCard({
           </button>
           
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-semibold leading-relaxed ${
-              isCompleted ? 'text-gray-500 line-through' : 
-              isLocked ? 'text-gray-400' : 
-              'text-gray-900 dark:text-white'
-            }`}>
+                      <p className={`text-sm font-semibold leading-relaxed ${
+            isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 
+            isLocked ? 'text-gray-400 dark:text-gray-500' : 
+            'text-gray-900 dark:text-white'
+          }`}>
               {task.description[useApp().lang]}
               {isLocked && (
                 <span className="ml-2 text-xs text-gray-400">
@@ -168,8 +188,8 @@ function TaskCard({
             
             <div>
               <h3 className={`text-lg font-bold leading-relaxed ${
-                isCompleted ? 'text-gray-500 line-through' : 
-                isLocked ? 'text-gray-400' : 
+                isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 
+                isLocked ? 'text-gray-400 dark:text-gray-500' : 
                 'text-gray-900 dark:text-white'
               }`}>
                 {task.description[useApp().lang]}
@@ -253,8 +273,8 @@ function TaskCard({
           </div>
           
           <p className={`text-sm font-bold leading-relaxed tracking-wide ${
-            isCompleted ? 'text-gray-500 line-through' : 
-            isLocked ? 'text-gray-400' : 
+            isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 
+            isLocked ? 'text-gray-400 dark:text-gray-500' : 
             'text-gray-900 dark:text-white'
           }`}>
             {task.description[useApp().lang]}
