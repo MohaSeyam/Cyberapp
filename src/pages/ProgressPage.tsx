@@ -15,6 +15,8 @@ import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
 import { WeekPhaseProvider } from '../components/WeekPhaseProvider';
 import OverallProgressCard from '../components/progress/OverallProgressCard';
+import ProgressChart from '../components/charts/ProgressChart';
+import PieChart from '../components/charts/PieChart';
 
 // Tab Types
 type TabType = 'overview' | 'analytics' | 'skills' | 'achievements' | 'suggestions';
@@ -150,6 +152,67 @@ export default function ProgressPage() {
   const practicalTasks = completedTaskTypes.filter(type => type === 'Practical').length;
   const theoreticalTasks = completedTaskTypes.filter(type => type === 'Theoretical').length;
   const policiesTasks = completedTaskTypes.filter(type => type === 'Policies').length;
+
+  // Generate chart data
+  const generateProgressData = () => {
+    const weeklyData = safePlan.map((week, index) => {
+      const weekTasks = (week.days || []).filter(day => day.key !== 'fri').flatMap(day => day.tasks || []);
+      const completedTasks = safeProgress.filter(p => 
+        weekTasks.some(task => task.id === p.taskId && p.done)
+      ).length;
+      
+      return {
+        week: `الأسبوع ${week.week}`,
+        completed: completedTasks,
+        total: weekTasks.length,
+        percentage: weekTasks.length > 0 ? Math.round((completedTasks / weekTasks.length) * 100) : 0
+      };
+    });
+
+    return weeklyData.slice(0, 10); // Show last 10 weeks
+  };
+
+  const generateTaskTypeData = () => {
+    const taskTypes = new Map<string, number>();
+    
+    safePlan.forEach(week => {
+      (week.days || []).forEach(day => {
+        (day.tasks || []).forEach(task => {
+          const type = task.type || 'عام';
+          taskTypes.set(type, (taskTypes.get(type) || 0) + 1);
+        });
+      });
+    });
+
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+    
+    return Array.from(taskTypes.entries()).map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length]
+    }));
+  };
+
+  const generateCategoryData = () => {
+    const categories = new Map<string, number>();
+    
+    safePlan.forEach(week => {
+      (week.days || []).forEach(day => {
+        (day.tasks || []).forEach(task => {
+          const category = task.category || 'عام';
+          categories.set(category, (categories.get(category) || 0) + 1);
+        });
+      });
+    });
+
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+    
+    return Array.from(categories.entries()).map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length]
+    }));
+  };
 
   // Skills Matrix Data
   const skillsMatrix: Skill[] = useMemo(() => [
@@ -346,45 +409,52 @@ export default function ProgressPage() {
 
   const AnalyticsTab = () => (
     <div className="space-y-6">
-      {/* Charts Placeholder */}
+      {/* Interactive Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card title={safeT('progressOverTime')} subtitle={safeT('weeklyProgressChart')}>
-          <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="text-center">
-              <BarChart3 className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">{safeT('chartComingSoon')}</p>
-            </div>
-          </div>
+        <Card title="التقدم عبر الزمن" subtitle="رسم بياني أسبوعي للتقدم">
+          <ProgressChart 
+            data={generateProgressData()} 
+            type="line"
+          />
         </Card>
 
-        <Card title={safeT('taskTypePieChart')} subtitle={safeT('distributionVisualization')}>
-          <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="text-center">
-              <PieChart className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">{safeT('chartComingSoon')}</p>
-            </div>
-          </div>
+        <Card title="توزيع أنواع المهام" subtitle="رسم بياني دائري للتوزيع">
+          <PieChart data={generateTaskTypeData()} />
+        </Card>
+      </div>
+
+      {/* Additional Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="التقدم الأسبوعي" subtitle="رسم بياني عمودي">
+          <ProgressChart 
+            data={generateProgressData()} 
+            type="bar"
+          />
+        </Card>
+
+        <Card title="توزيع الفئات" subtitle="توزيع المهام حسب الفئة">
+          <PieChart data={generateCategoryData()} />
         </Card>
       </div>
 
       {/* Detailed Statistics */}
-      <Card title={safeT('detailedStatistics')} subtitle={safeT('comprehensiveAnalysis')}>
+      <Card title="إحصائيات مفصلة" subtitle="تحليل شامل">
         <div className="space-y-4">
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{safeT('totalWeeks')}</span>
+            <span className="text-gray-700 dark:text-gray-300">إجمالي الأسابيع</span>
             <span className="font-semibold text-gray-900 dark:text-white">{totalWeeks}</span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{safeT('totalTasks')}</span>
+            <span className="text-gray-700 dark:text-gray-300">إجمالي المهام</span>
             <span className="font-semibold text-gray-900 dark:text-white">{totalTasks}</span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{safeT('completedTasks')}</span>
+            <span className="text-gray-700 dark:text-gray-300">المهام المكتملة</span>
             <span className="font-semibold text-gray-900 dark:text-white">{completedTasks}</span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <span className="text-gray-700 dark:text-gray-300">{safeT('totalDuration')}</span>
-            <span className="font-semibold text-gray-900 dark:text-white">{Math.round(totalDuration / 60)} {safeT('hours')}</span>
+            <span className="text-gray-700 dark:text-gray-300">إجمالي المدة</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{Math.round(totalDuration / 60)} ساعة</span>
           </div>
         </div>
       </Card>

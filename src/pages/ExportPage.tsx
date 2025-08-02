@@ -1,15 +1,17 @@
-// Export Page - Separate from Progress Page
+// Export Page - Advanced Export System
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Download, FileText, FileSpreadsheet, FileJson,
-  Calendar, Clock, Database, Settings, ArrowDown, CheckCircle
+  Download, FileText, FileSpreadsheet, FileJson, FileImage,
+  Calendar, Clock, Database, Settings, ArrowDown, CheckCircle,
+  Image, File, BookOpen, BarChart3, Filter, Globe
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import Modal from '../components/ui/Modal';
 import { animations } from '../constants/theme';
 
 interface ExportFormat {
@@ -21,12 +23,30 @@ interface ExportFormat {
   extension: string;
 }
 
+interface ExportOptions {
+  content: 'notes' | 'journal' | 'progress' | 'all';
+  timeRange: 'daily' | 'weekly' | 'monthly' | 'phase' | 'all';
+  format: string;
+  language: 'ar' | 'en';
+  selectedDate?: string;
+  selectedWeek?: string;
+  selectedMonth?: string;
+  selectedPhase?: string;
+}
+
 export default function ExportPage() {
   const { plan, progress, appState } = useApp();
   const { t } = useLocalization();
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [lastExport, setLastExport] = useState<Date | null>(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportOptions, setExportOptions] = useState<ExportOptions>({
+    content: 'all',
+    timeRange: 'all',
+    format: 'pdf',
+    language: 'ar'
+  });
 
   // Safe translation function
   const safeT = (key: string) => {
@@ -40,170 +60,219 @@ export default function ExportPage() {
 
   const exportFormats: ExportFormat[] = [
     {
-      id: 'json',
-      name: safeT('jsonFormat'),
-      description: safeT('jsonDescription'),
-      icon: FileJson,
-      mimeType: 'application/json',
-      extension: 'json'
+      id: 'pdf',
+      name: 'PDF',
+      description: 'تقارير رسمية قابلة للطباعة',
+      icon: FileText,
+      mimeType: 'application/pdf',
+      extension: 'pdf'
     },
     {
       id: 'csv',
-      name: safeT('csvFormat'),
-      description: safeT('csvDescription'),
+      name: 'CSV/Excel',
+      description: 'لتحليل البيانات في برامج الجداول الإلكترونية',
       icon: FileSpreadsheet,
       mimeType: 'text/csv',
       extension: 'csv'
     },
     {
-      id: 'pdf',
-      name: safeT('pdfFormat'),
-      description: safeT('pdfDescription'),
-      icon: FileText, // استبدال FilePdf بـ FileText
-      mimeType: 'application/pdf',
-      extension: 'pdf'
+      id: 'markdown',
+      name: 'Markdown (.md)',
+      description: 'نسخة نصية مرنة',
+      icon: FileText,
+      mimeType: 'text/markdown',
+      extension: 'md'
+    },
+    {
+      id: 'txt',
+      name: 'نص عادي (.txt)',
+      description: 'نسخة بسيطة من الملاحظات',
+      icon: FileText,
+      mimeType: 'text/plain',
+      extension: 'txt'
     }
   ];
 
-  const generateExportData = (format: ExportFormat) => {
-    const data = {
-      plan: plan || [],
-      progress: progress || [],
-      notes: appState?.notes || {},
-      journal: appState?.journal || {},
-      settings: appState?.settings || {},
+  const contentOptions = [
+    { id: 'notes', name: 'الملاحظات والمدونات', icon: BookOpen },
+    { id: 'progress', name: 'تقارير التقدم', icon: BarChart3 },
+    { id: 'all', name: 'كلاهما معًا', icon: Database }
+  ];
+
+  const timeRangeOptions = [
+    { id: 'daily', name: 'يومي', icon: Calendar },
+    { id: 'weekly', name: 'أسبوعي', icon: Calendar },
+    { id: 'monthly', name: 'شهري', icon: Calendar },
+    { id: 'phase', name: 'حسب المرحلة', icon: Calendar },
+    { id: 'all', name: 'كامل', icon: Database }
+  ];
+
+  const languageOptions = [
+    { id: 'ar', name: 'العربية', icon: Globe },
+    { id: 'en', name: 'English', icon: Globe }
+  ];
+
+  const getFilteredData = (options: ExportOptions) => {
+    const data: any = {
       exportDate: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
+      options: options
     };
 
-    switch (format.id) {
-      case 'json':
-        return JSON.stringify(data, null, 2);
-      case 'csv':
-        return generateCSV(data);
+    // Filter by content type
+    if (options.content === 'notes' || options.content === 'all') {
+      data.notes = appState?.notes || {};
+      data.journal = appState?.journal || {};
+    }
+
+    if (options.content === 'progress' || options.content === 'all') {
+      data.plan = plan || [];
+      data.progress = progress || [];
+    }
+
+    // Filter by time range
+    if (options.timeRange !== 'all') {
+      // Apply time filtering logic here
+      // This is a simplified version - you can enhance it based on your needs
+    }
+
+    return data;
+  };
+
+  const generateExportData = (options: ExportOptions) => {
+    const data = getFilteredData(options);
+
+    switch (options.format) {
       case 'pdf':
-        return generatePDF(data);
+        return generatePDF(data, options);
+      case 'csv':
+        return generateCSV(data, options);
+      case 'markdown':
+        return generateMarkdown(data, options);
+      case 'txt':
+        return generateTXT(data, options);
       default:
         return JSON.stringify(data, null, 2);
     }
   };
 
-  const generateCSV = (data: any) => {
+  const generatePDF = (data: any, options: ExportOptions) => {
+    // Simplified PDF generation - you can enhance this with a proper PDF library
+    let content = `تقرير التصدير\n`;
+    content += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+    
+    if (data.notes) {
+      content += `الملاحظات:\n`;
+      Object.entries(data.notes).forEach(([day, notes]: [string, any]) => {
+        notes.forEach((note: any) => {
+          content += `- ${note.title}: ${note.content.replace(/<[^>]*>/g, '')}\n`;
+        });
+      });
+    }
+
+    if (data.progress) {
+      content += `\nالتقدم:\n`;
+      data.progress.forEach((p: any) => {
+        content += `- ${p.taskId}: ${p.done ? 'مكتمل' : 'غير مكتمل'}\n`;
+      });
+    }
+
+    return content;
+  };
+
+  const generateCSV = (data: any, options: ExportOptions) => {
     const headers = ['Task ID', 'Task Name', 'Week', 'Day', 'Status', 'Completed Date'];
-    const rows = data.progress.map((p: any) => {
+    const rows = data.progress?.map((p: any) => {
       const task = data.plan
-        .flatMap((w: any) => w.days || [])
-        .flatMap((d: any) => d.tasks || [])
-        .find((t: any) => t.id === p.taskId);
+        ?.flatMap((w: any) => w.days || [])
+        ?.flatMap((d: any) => d.tasks || [])
+        ?.find((t: any) => t.id === p.taskId);
       
       return [
         p.taskId,
-        task?.title || 'Unknown Task',
-        task?.week || 'Unknown',
-        task?.day || 'Unknown',
+        task?.title || 'Unknown',
+        p.weekId || '',
+        p.dayKey || '',
         p.done ? 'Completed' : 'Pending',
         p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : ''
       ];
-    });
+    }) || [];
 
-    return [headers, ...rows]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
   };
 
-  const generatePDF = (data: any) => {
-    // Simple HTML to PDF conversion
-    const html = `
-      <html>
-        <head>
-          <title>Cyber Security Journey Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .section { margin-bottom: 20px; }
-            .task { margin: 5px 0; padding: 5px; border-left: 3px solid #3b82f6; }
-            .completed { border-left-color: #10b981; }
-            .pending { border-left-color: #f59e0b; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Cyber Security Journey Report</h1>
-            <p>Generated on: ${new Date().toLocaleDateString()}</p>
-          </div>
-          
-          <div class="section">
-            <h2>Progress Summary</h2>
-            <p>Total Tasks: ${data.plan.reduce((total: number, week: any) => 
-              total + (week.days || []).filter((day: any) => day.key !== 'fri')
-                .reduce((dayTotal: number, day: any) => dayTotal + (day.tasks || []).length, 0), 0
-            )}</p>
-            <p>Completed Tasks: ${data.progress.filter((p: any) => p.done).length}</p>
-          </div>
-          
-          <div class="section">
-            <h2>Recent Progress</h2>
-            ${data.progress.slice(0, 10).map((p: any) => {
-              const task = data.plan
-                .flatMap((w: any) => w.days || [])
-                .flatMap((d: any) => d.tasks || [])
-                .find((t: any) => t.id === p.taskId);
-              return `<div class="task ${p.done ? 'completed' : 'pending'}">
-                <strong>${task?.title || 'Unknown Task'}</strong> - ${p.done ? 'Completed' : 'Pending'}
-              </div>`;
-            }).join('')}
-          </div>
-        </body>
-      </html>
-    `;
+  const generateMarkdown = (data: any, options: ExportOptions) => {
+    let content = `# تقرير التصدير\n\n`;
+    content += `**تاريخ التصدير:** ${new Date().toLocaleDateString('ar-SA')}\n\n`;
     
-    return html;
+    if (data.notes) {
+      content += `## الملاحظات\n\n`;
+      Object.entries(data.notes).forEach(([day, notes]: [string, any]) => {
+        notes.forEach((note: any) => {
+          content += `### ${note.title}\n`;
+          content += `${note.content.replace(/<[^>]*>/g, '')}\n\n`;
+        });
+      });
+    }
+
+    if (data.progress) {
+      content += `## التقدم\n\n`;
+      data.progress.forEach((p: any) => {
+        content += `- ${p.taskId}: ${p.done ? '✅ مكتمل' : '⏳ غير مكتمل'}\n`;
+      });
+    }
+
+    return content;
   };
 
-  const handleExport = async (format: ExportFormat) => {
+  const generateTXT = (data: any, options: ExportOptions) => {
+    let content = `تقرير التصدير\n`;
+    content += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+    
+    if (data.notes) {
+      content += `الملاحظات:\n`;
+      Object.entries(data.notes).forEach(([day, notes]: [string, any]) => {
+        notes.forEach((note: any) => {
+          content += `- ${note.title}: ${note.content.replace(/<[^>]*>/g, '')}\n`;
+        });
+      });
+    }
+
+    return content;
+  };
+
+  const handleExport = async () => {
     setExporting(true);
     setExportProgress(0);
 
     try {
-      // Simulate export progress
-      for (let i = 0; i <= 100; i += 20) {
+      const format = exportFormats.find(f => f.id === exportOptions.format);
+      if (!format) throw new Error('Format not found');
+
+      const data = generateExportData(exportOptions);
+      
+      // Simulate progress
+      for (let i = 0; i <= 100; i += 10) {
         setExportProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      const data = generateExportData(format);
-      
-      if (format.id === 'pdf') {
-        // For PDF, we'll create a blob and download
-        const blob = new Blob([data], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cyber-security-journey-${new Date().toISOString().split('T')[0]}.html`;
-        a.click();
-        URL.revokeObjectURL(url);
-      } else {
-        // For JSON and CSV
-        const blob = new Blob([data], { type: format.mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cyber-security-journey-${new Date().toISOString().split('T')[0]}.${format.extension}`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      // Create and download file
+      const blob = new Blob([data], { type: format.mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `export-${new Date().toISOString().split('T')[0]}.${format.extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
       setLastExport(new Date());
-      setExportProgress(100);
-      
-      // Reset after 2 seconds
-      setTimeout(() => {
-        setExporting(false);
-        setExportProgress(0);
-      }, 2000);
-
+      setShowExportModal(false);
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error('Export error:', error);
+    } finally {
       setExporting(false);
       setExportProgress(0);
     }
@@ -211,9 +280,8 @@ export default function ExportPage() {
 
   const getProgressStats = () => {
     const totalTasks = plan?.reduce((total, week) => 
-      total + (week.days || []).filter(day => day.key !== 'fri')
-        .reduce((dayTotal, day) => dayTotal + (day.tasks || []).length, 0), 0
-    ) || 0;
+      total + (week.days || []).filter(day => day.key !== 'fri').reduce((dayTotal, day) => 
+        dayTotal + (day.tasks || []).length, 0), 0) || 0;
     
     const completedTasks = progress?.filter(p => p.done).length || 0;
     const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -221,130 +289,249 @@ export default function ExportPage() {
     return { totalTasks, completedTasks, completionRate };
   };
 
-  const { totalTasks, completedTasks, completionRate } = getProgressStats();
+  const stats = getProgressStats();
 
   return (
     <PageLayout 
-      title={safeT('exportData')}
-      subtitle={safeT('exportDataDescription')}
+      title={safeT('export')}
+      subtitle={safeT('exportDescription')}
     >
-      <div className="space-y-6">
-        {/* Progress Summary */}
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {safeT('progressSummary')}
-            </h3>
-            <Database className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {totalTasks}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {safeT('totalTasks')}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {completedTasks}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {safeT('completedTasks')}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {completionRate}%
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {safeT('completionRate')}
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Export Formats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {exportFormats.map((format) => {
-            const Icon = format.icon;
-            return (
-              <Card key={format.id} className="hover:shadow-lg transition-shadow">
-                <div className="flex items-start space-x-4">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      {format.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      {format.description}
-                    </p>
-                    
-                    <Button
-                      onClick={() => handleExport(format)}
-                      disabled={exporting}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      {exporting ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                          <span>{safeT('exporting')}... {exportProgress}%</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <Download className="w-4 h-4" />
-                          <span>{safeT('export')}</span>
-                        </div>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Last Export Info */}
-        {lastExport && (
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={animations.page}
+        className="space-y-6"
+      >
+        {/* Export Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {safeT('lastExport')}: {lastExport.toLocaleString()}
-                </p>
-              </div>
+            <div className="text-center">
+              <Database className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {stats.totalTasks}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                إجمالي المهام
+              </p>
             </div>
           </Card>
-        )}
 
-        {/* Export Tips */}
+          <Card>
+            <div className="text-center">
+              <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {stats.completedTasks}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                المهام المكتملة
+              </p>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="text-center">
+              <BarChart3 className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {stats.completionRate}%
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                نسبة الإنجاز
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Export Options */}
+        <Card>
+          <div className="space-y-6">
+            <div className="text-center">
+              <Download className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                تصدير البيانات
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                اختر الخيارات المناسبة لتصدير بياناتك
+              </p>
+            </div>
+
+            <Button
+              onClick={() => setShowExportModal(true)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+              size="lg"
+            >
+              <Download className="w-5 h-5 ml-2" />
+              تصدير البيانات
+            </Button>
+
+            {lastExport && (
+              <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                آخر تصدير: {lastExport.toLocaleDateString('ar-SA')}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Export Formats Info */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {safeT('exportTips')}
+            صيغ التصدير المتاحة
           </h3>
-          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <li className="flex items-start space-x-2">
-              <span className="text-blue-600 dark:text-blue-400">•</span>
-              <span>{safeT('exportTip1')}</span>
-            </li>
-            <li className="flex items-start space-x-2">
-              <span className="text-blue-600 dark:text-blue-400">•</span>
-              <span>{safeT('exportTip2')}</span>
-            </li>
-            <li className="flex items-start space-x-2">
-              <span className="text-blue-600 dark:text-blue-400">•</span>
-              <span>{safeT('exportTip3')}</span>
-            </li>
-          </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {exportFormats.map((format) => (
+              <div key={format.id} className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <format.icon className="w-6 h-6 text-blue-600" />
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white">
+                    {format.name}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {format.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
-      </div>
+      </motion.div>
+
+      {/* Export Modal */}
+      <Modal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        title="خيارات التصدير"
+        size="lg"
+      >
+        <div className="space-y-6">
+          {/* Content Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              تحديد المحتوى للتصدير
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {contentOptions.map((option) => (
+                <label key={option.id} className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <input
+                    type="radio"
+                    name="content"
+                    value={option.id}
+                    checked={exportOptions.content === option.id}
+                    onChange={(e) => setExportOptions(prev => ({ ...prev, content: e.target.value as any }))}
+                    className="text-blue-600"
+                  />
+                  <option.icon className="w-5 h-5 text-blue-600" />
+                  <span className="text-gray-900 dark:text-white">{option.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Time Range Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              تحديد النطاق الزمني
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {timeRangeOptions.map((option) => (
+                <label key={option.id} className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <input
+                    type="radio"
+                    name="timeRange"
+                    value={option.id}
+                    checked={exportOptions.timeRange === option.id}
+                    onChange={(e) => setExportOptions(prev => ({ ...prev, timeRange: e.target.value as any }))}
+                    className="text-blue-600"
+                  />
+                  <option.icon className="w-5 h-5 text-blue-600" />
+                  <span className="text-gray-900 dark:text-white">{option.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Format Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              اختيار صيغة الملف
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {exportFormats.map((format) => (
+                <label key={format.id} className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <input
+                    type="radio"
+                    name="format"
+                    value={format.id}
+                    checked={exportOptions.format === format.id}
+                    onChange={(e) => setExportOptions(prev => ({ ...prev, format: e.target.value }))}
+                    className="text-blue-600"
+                  />
+                  <format.icon className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <span className="text-gray-900 dark:text-white font-medium">{format.name}</span>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{format.description}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Language Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              تحديد لغة التصدير
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {languageOptions.map((option) => (
+                <label key={option.id} className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <input
+                    type="radio"
+                    name="language"
+                    value={option.id}
+                    checked={exportOptions.language === option.id}
+                    onChange={(e) => setExportOptions(prev => ({ ...prev, language: e.target.value as any }))}
+                    className="text-blue-600"
+                  />
+                  <option.icon className="w-5 h-5 text-blue-600" />
+                  <span className="text-gray-900 dark:text-white">{option.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Export Progress */}
+          {exporting && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                <span>جارٍ التصدير...</span>
+                <span>{exportProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${exportProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex space-x-3">
+            <Button
+              onClick={() => setShowExportModal(false)}
+              variant="outline"
+              className="flex-1"
+            >
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleExport}
+              disabled={exporting}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {exporting ? 'جارٍ التصدير...' : 'تصدير'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </PageLayout>
   );
 }

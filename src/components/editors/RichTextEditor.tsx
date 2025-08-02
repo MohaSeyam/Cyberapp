@@ -13,11 +13,12 @@ import { BulletList } from "@tiptap/extension-bullet-list";
 import { OrderedList } from "@tiptap/extension-ordered-list";
 import { ListItem } from "@tiptap/extension-list-item";
 import Blockquote from "@tiptap/extension-blockquote";
+import Image from "@tiptap/extension-image";
 import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
-  Code as CodeIcon, Highlighter, Quote, Link as LinkIcon
+  Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, Image as ImageIcon, Upload
 } from "lucide-react";
 import type { Language } from "../../types";
 
@@ -29,10 +30,13 @@ interface RichTextEditorProps {
   className?: string;
   showToolbar?: boolean;
   minHeight?: string;
+  autoSave?: boolean;
+  onSave?: () => void;
+  saveStatus?: 'saving' | 'saved' | 'error';
 }
 
 // Toolbar Component
-function EditorToolbar({ editor, lang = 'ar' }: { editor: any; lang?: Language }) {
+function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   
@@ -61,6 +65,34 @@ function EditorToolbar({ editor, lang = 'ar' }: { editor: any; lang?: Language }
     if (url) {
       editor.chain().focus().setLink({ href: url }).run();
     }
+  };
+
+  // Save Status Component
+  const SaveStatus = ({ status }: { status?: 'saving' | 'saved' | 'error' }) => {
+    if (!status) return null;
+    
+    return (
+      <div className="flex items-center space-x-2 text-xs">
+        {status === 'saving' && (
+          <>
+            <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-blue-600">جارٍ الحفظ...</span>
+          </>
+        )}
+        {status === 'saved' && (
+          <>
+            <CheckCircle className="w-3 h-3 text-green-600" />
+            <span className="text-green-600">تم الحفظ</span>
+          </>
+        )}
+        {status === 'error' && (
+          <>
+            <AlertCircle className="w-3 h-3 text-red-600" />
+            <span className="text-red-600">خطأ في الحفظ</span>
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -318,6 +350,62 @@ function EditorToolbar({ editor, lang = 'ar' }: { editor: any; lang?: Language }
             <Quote size={14} />
           </button>
         </div>
+
+        {/* Image */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => {
+              const url = window.prompt('أدخل رابط الصورة:');
+              if (url) {
+                editor.chain().focus().setImage({ src: url }).run();
+              }
+            }} 
+            className="p-1.5 rounded text-xs transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            title="إدراج صورة"
+          >
+            <ImageIcon size={14} />
+          </button>
+        </div>
+
+        {/* File Upload */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*,.pdf,.doc,.docx,.txt';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const result = e.target?.result as string;
+                      editor.chain().focus().setImage({ src: result }).run();
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    // For non-image files, create a link
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const result = e.target?.result as string;
+                      editor.chain().focus().setLink({ href: result }).run();
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }
+              };
+              input.click();
+            }} 
+            className="p-1.5 rounded text-xs transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            title="رفع ملف"
+          >
+            <Upload size={14} />
+          </button>
+        </div>
+        
+        {/* Save Status */}
+        <SaveStatus status={saveStatus} />
       </div>
     </div>
   );
@@ -330,8 +418,32 @@ export default function RichTextEditor({
   lang = 'ar',
   className = "",
   showToolbar = true,
-  minHeight = "150px"
+  minHeight = "150px",
+  autoSave = false,
+  onSave,
+  saveStatus
 }: RichTextEditorProps) {
+  // Auto-save functionality
+  const [lastSavedContent, setLastSavedContent] = useState(content);
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const handleAutoSave = (newContent: string) => {
+    if (autoSave && onSave && newContent !== lastSavedContent) {
+      // Clear existing timeout
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+      
+      // Set new timeout for auto-save (2 seconds delay)
+      const timeout = setTimeout(() => {
+        onSave();
+        setLastSavedContent(newContent);
+      }, 2000);
+      
+      setAutoSaveTimeout(timeout);
+    }
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -384,6 +496,11 @@ export default function RichTextEditor({
           class: 'border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-2 bg-gray-50 dark:bg-gray-700 italic'
         }
       }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg shadow-md'
+        }
+      }),
       Highlight.configure({
         HTMLAttributes: {
           class: 'bg-yellow-200 dark:bg-yellow-800 px-1 rounded'
@@ -414,9 +531,34 @@ export default function RichTextEditor({
     }
   }, [content, editor]);
 
+  // Auto-save effect
+  useEffect(() => {
+    if (editor && autoSave) {
+      const handleUpdate = () => {
+        const newContent = editor.getHTML();
+        onChange(newContent);
+        handleAutoSave(newContent);
+      };
+
+      editor.on('update', handleUpdate);
+      return () => {
+        editor.off('update', handleUpdate);
+      };
+    }
+  }, [editor, autoSave, onChange]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+    };
+  }, [autoSaveTimeout]);
+
   return (
     <div className="w-full">
-      {showToolbar && <EditorToolbar editor={editor} lang={lang} />}
+      {showToolbar && <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} />}
       <EditorContent editor={editor} />
       <style jsx>{`
         .ProseMirror {
