@@ -59,11 +59,19 @@ export default function JournalPage() {
     const day = week?.days?.find(d => d.key === dayKey);
     
     if (day?.name?.ar) {
-      return day.name.ar;
+      let title = day.name.ar;
+      if (day.topic?.ar) {
+        title += ` - ${day.topic.ar}`;
+      }
+      return title;
     }
     
     if (day?.name?.en) {
-      return day.name.en;
+      let title = day.name.en;
+      if (day.topic?.en) {
+        title += ` - ${day.topic.en}`;
+      }
+      return title;
     }
     
     // Fallback to day name
