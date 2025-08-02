@@ -48,7 +48,7 @@ interface Skill {
 }
 
 // Report Types
-type ReportType = 'daily' | 'weekly' | 'phase' | 'complete';
+type ReportType = 'weekly' | 'phase' | 'complete';
 type ContentType = 'progress' | 'notes' | 'both';
 type FileFormat = 'pdf' | 'csv' | 'markdown' | 'txt';
 type ExportLanguage = 'ar' | 'en';
@@ -92,26 +92,20 @@ export default function ProgressPage() {
   // Report type options
   const reportTypes = [
     { 
-      id: 'daily', 
-      label: { ar: 'تقرير يومي', en: 'Daily Report' },
-      icon: Calendar,
-      description: { ar: 'تقرير شامل ليوم واحد', en: 'Comprehensive report for a single day' }
-    },
-    { 
       id: 'weekly', 
       label: { ar: 'تقرير أسبوعي', en: 'Weekly Report' },
       icon: CalendarDays,
-      description: { ar: 'تقرير شامل لأسبوع كامل', en: 'Comprehensive report for a full week' }
+      description: { ar: 'تقرير شامل لأسبوع كامل من 50 أسبوع', en: 'Comprehensive report for a full week from 50 weeks' }
     },
     { 
       id: 'phase', 
       label: { ar: 'تقرير مرحلي', en: 'Phase Report' },
       icon: Target,
-      description: { ar: 'تقرير شامل لمرحلة كاملة', en: 'Comprehensive report for a complete phase' }
+      description: { ar: 'تقرير شامل لمرحلة كاملة من 8 مراحل', en: 'Comprehensive report for a complete phase from 8 phases' }
     },
     { 
       id: 'complete', 
-      label: { ar: 'تقرير كامل', en: 'Complete Report' },
+      label: { ar: 'تقرير شامل', en: 'Complete Report' },
       icon: BarChart3,
       description: { ar: 'تقرير شامل لجميع البيانات', en: 'Comprehensive report for all data' }
     }
@@ -1185,66 +1179,17 @@ export default function ProgressPage() {
         </div>
       </Card>
 
-      {/* Date/Phase Selection */}
-      {(reportOptions.type === 'daily' || reportOptions.type === 'weekly' || reportOptions.type === 'phase') && (
-        <Card>
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-              <CalendarDays className="w-6 h-6 mr-2 text-indigo-600" />
-              {getCurrentLanguageText({ 
-                ar: reportOptions.type === 'daily' ? 'اختر اليوم' : 
-                    reportOptions.type === 'weekly' ? 'اختر الأسبوع' : 'اختر المرحلة', 
-                en: reportOptions.type === 'daily' ? 'Select Day' : 
-                    reportOptions.type === 'weekly' ? 'Select Week' : 'Select Phase' 
-              })}
-            </h3>
-            
-            {reportOptions.type === 'daily' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {getCurrentLanguageText({ ar: 'من تاريخ', en: 'From Date' })}
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                      value={reportOptions.dateRange?.start?.toISOString().split('T')[0] || ''}
-                      onChange={(e) => {
-                        const startDate = e.target.value ? new Date(e.target.value) : undefined;
-                        setReportOptions(prev => ({
-                          ...prev,
-                          dateRange: {
-                            start: startDate || new Date(),
-                            end: prev.dateRange?.end || new Date()
-                          }
-                        }));
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {getCurrentLanguageText({ ar: 'إلى تاريخ', en: 'To Date' })}
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                      value={reportOptions.dateRange?.end?.toISOString().split('T')[0] || ''}
-                      onChange={(e) => {
-                        const endDate = e.target.value ? new Date(e.target.value) : undefined;
-                        setReportOptions(prev => ({
-                          ...prev,
-                          dateRange: {
-                            start: prev.dateRange?.start || new Date(),
-                            end: endDate || new Date()
-                          }
-                        }));
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+              {/* Date/Phase Selection */}
+        {(reportOptions.type === 'weekly' || reportOptions.type === 'phase') && (
+          <Card>
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <CalendarDays className="w-6 h-6 mr-2 text-indigo-600" />
+                {getCurrentLanguageText({ 
+                  ar: reportOptions.type === 'weekly' ? 'اختر الأسبوع' : 'اختر المرحلة', 
+                  en: reportOptions.type === 'weekly' ? 'Select Week' : 'Select Phase' 
+                })}
+              </h3>
 
             {reportOptions.type === 'weekly' && (
               <div className="space-y-4">
