@@ -74,7 +74,7 @@ export default function JournalEditPage() {
       });
       
       toast.success('تم حفظ المدونة بنجاح');
-      navigate(`/journal-entry/${entryId}`);
+      navigate(-1);
     } catch (error) {
       console.error('Error updating journal entry:', error);
       toast.error('فشل في حفظ المدونة');

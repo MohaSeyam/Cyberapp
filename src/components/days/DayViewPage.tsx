@@ -713,11 +713,9 @@ export default function DayViewPage() {
           </div>
           
           {journalEntries.length === 0 ? (
-            <div className="text-center py-8">
-              <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">لا توجد مدونات لهذا اليوم</p>
+            <div>
               {selectedDay?.notes_prompt && (
-                <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div className="mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
                   <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">
                     {selectedDay.notes_prompt.title?.ar || 'نص المدونة المقترح'}
                   </h4>
@@ -731,6 +729,10 @@ export default function DayViewPage() {
                   </div>
                 </div>
               )}
+              <div className="text-center py-8">
+                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p className="text-gray-500 dark:text-gray-400">لا توجد مدونات لهذا اليوم</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">

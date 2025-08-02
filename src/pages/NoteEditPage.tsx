@@ -74,7 +74,7 @@ export default function NoteEditPage() {
       });
       
       toast.success('تم حفظ الملاحظة بنجاح');
-      navigate(`/note/${noteId}`);
+      navigate(-1);
     } catch (error) {
       console.error('Error updating note:', error);
       toast.error('فشل في حفظ الملاحظة');
