@@ -106,8 +106,8 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const navigate = useNavigate();
-  const { plan, progress, addNote, addResource, lang, updateResource, deleteResource, deleteNote, deleteJournalEntry, addJournalEntry, refreshData, appState } = useApp();
-  const { t } = useLocalization();
+  const { plan, progress, addNote, addResource, updateResource, deleteResource, deleteNote, deleteJournalEntry, addJournalEntry, refreshData, appState } = useApp();
+  const { t, language } = useLocalization();
 
   // Safe translation function
   const safeT = (key: string) => {
@@ -664,7 +664,7 @@ export default function DayViewPage() {
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                         {note.title}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 break-words overflow-hidden">
                         {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
@@ -717,13 +717,13 @@ export default function DayViewPage() {
               {selectedDay?.notes_prompt && (
                 <div className="mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
                   <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">
-                    {selectedDay.notes_prompt.title?.ar || 'نص المدونة المقترح'}
+                    {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'نص المدونة المقترح'}
                   </h4>
                   <div className="space-y-2 text-sm text-purple-700 dark:text-purple-300">
                     {selectedDay.notes_prompt.points?.map((point: any, index: number) => (
                       <div key={index} className="flex items-start space-x-2">
                         <span className="text-purple-600 dark:text-purple-400 font-medium">•</span>
-                        <span>{point.ar || point.en}</span>
+                        <span>{point[language] || point.ar || point.en}</span>
                       </div>
                     ))}
                   </div>
@@ -749,7 +749,7 @@ export default function DayViewPage() {
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                         {entry.title}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 break-words overflow-hidden">
                         {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
