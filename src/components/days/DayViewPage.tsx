@@ -668,7 +668,7 @@ export default function DayViewPage() {
                         {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{new Date(note.createdAt).toLocaleDateString('ar-SA')}</span>
+                        <span>{new Date(note.createdAt).toLocaleDateString('en-US')}</span>
                         {note.tags && note.tags.length > 0 && (
                           <div className="flex items-center space-x-1">
                             <Tag className="w-3 h-3" />
@@ -753,7 +753,7 @@ export default function DayViewPage() {
                         {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
+                        <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
                         {entry.tags && entry.tags.length > 0 && (
                           <div className="flex items-center space-x-1">
                             <Tag className="w-3 h-3" />

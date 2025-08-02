@@ -159,7 +159,7 @@ export default function ExportPage() {
   const generatePDF = (data: any, options: ExportOptions) => {
     // Simplified PDF generation - you can enhance this with a proper PDF library
     let content = `تقرير التصدير\n`;
-    content += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+    content += `تاريخ التصدير: ${new Date().toLocaleDateString('en-US')}\n\n`;
     
     if (data.notes) {
       content += `الملاحظات:\n`;
@@ -203,7 +203,7 @@ export default function ExportPage() {
 
   const generateMarkdown = (data: any, options: ExportOptions) => {
     let content = `# تقرير التصدير\n\n`;
-    content += `**تاريخ التصدير:** ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+    content += `**تاريخ التصدير:** ${new Date().toLocaleDateString('en-US')}\n\n`;
     
     if (data.notes) {
       content += `## الملاحظات\n\n`;
@@ -227,7 +227,7 @@ export default function ExportPage() {
 
   const generateTXT = (data: any, options: ExportOptions) => {
     let content = `تقرير التصدير\n`;
-    content += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+    content += `تاريخ التصدير: ${new Date().toLocaleDateString('en-US')}\n\n`;
     
     if (data.notes) {
       content += `الملاحظات:\n`;

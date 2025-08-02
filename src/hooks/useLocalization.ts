@@ -86,6 +86,10 @@ const translations: TranslationData = {
     ar: "المدونة",
     en: "Journal"
   },
+  learningJournal: {
+    ar: "مدونة التعلم",
+    en: "Learning Journal"
+  },
   progress: {
     ar: "التقدم",
     en: "Progress"
@@ -98,627 +102,13 @@ const translations: TranslationData = {
     ar: "لوحة التحكم",
     en: "Dashboard"
   },
-  dailyTasks: {
-    ar: "مهام اليوم",
-    en: "Daily Tasks"
-  },
-  manageNotes: {
-    ar: "إدارة الملاحظات",
-    en: "Manage Notes"
-  },
-  learningJournal: {
-    ar: "مدونة التعلم",
-    en: "Learning Journal"
-  },
-  trackProgress: {
-    ar: "تتبع التقدم",
-    en: "Track Progress"
-  },
-  appSettings: {
-    ar: "إعدادات التطبيق",
-    en: "App Settings"
-  },
-  cyberSecurity: {
-    ar: "الأمن السيبراني",
-    en: "Cyber Security"
-  },
-  dailyTasksAndResources: {
-    ar: "مهام ومراجع اليوم",
-    en: "Daily Tasks and Resources"
-  },
-  trackYourLearning: {
-    ar: "تتبع رحلة تعلمك",
-    en: "Track Your Learning Journey"
-  },
-  customizeYourExperience: {
-    ar: "خصص تجربتك",
-    en: "Customize Your Experience"
-  },
-  
-  // Tasks
-  tasks: {
-    ar: "المهام",
-    en: "Tasks"
-  },
-  todayTasks: {
-    ar: "مهام اليوم",
-    en: "Today's Tasks"
-  },
-  activeTasks: {
-    ar: "المهام النشطة",
-    en: "Active Tasks"
-  },
-  completedTasks: {
-    ar: "المهام المكتملة",
-    en: "Completed Tasks"
-  },
-  taskDuration: {
-    ar: "مدة المهمة",
-    en: "Task Duration"
-  },
-  minutes: {
-    ar: "دقيقة",
-    en: "minutes"
-  },
-  hours: {
-    ar: "ساعة",
-    en: "hours"
-  },
-  
-  // Resources
-  resources: {
-    ar: "المراجع",
-    en: "Resources"
-  },
-  suggestedResources: {
-    ar: "المراجع المقترحة",
-    en: "Suggested Resources"
-  },
-  resourcesForToday: {
-    ar: "المراجع لليوم",
-    en: "Resources for Today"
-  },
-  addResource: {
-    ar: "إضافة مرجع",
-    en: "Add Resource"
-  },
-  resourceTitle: {
-    ar: "عنوان المرجع",
-    en: "Resource Title"
-  },
-  resourceUrl: {
-    ar: "رابط المرجع",
-    en: "Resource URL"
-  },
-  resourceType: {
-    ar: "نوع المرجع",
-    en: "Resource Type"
-  },
-  video: {
-    ar: "فيديو",
-    en: "Video"
-  },
-  article: {
-    ar: "مقال",
-    en: "Article"
-  },
-  book: {
-    ar: "كتاب",
-    en: "Book"
-  },
-  tool: {
-    ar: "أداة",
-    en: "Tool"
-  },
-  podcast: {
-    ar: "بودكاست",
-    en: "Podcast"
-  },
-  course: {
-    ar: "دورة",
-    en: "Course"
-  },
-  noResourcesYet: {
-    ar: "لا توجد مراجع بعد",
-    en: "No resources yet"
-  },
-  addYourFirstResource: {
-    ar: "أضف مرجعك الأول",
-    en: "Add your first resource"
-  },
-  
-  // Notes
-  addNote: {
-    ar: "إضافة ملاحظة",
-    en: "Add Note"
-  },
-  editNote: {
-    ar: "تعديل الملاحظة",
-    en: "Edit Note"
-  },
-  saveNote: {
-    ar: "حفظ الملاحظة",
-    en: "Save Note"
-  },
-  updateNote: {
-    ar: "تحديث الملاحظة",
-    en: "Update Note"
-  },
-  noteTitle: {
-    ar: "عنوان الملاحظة",
-    en: "Note Title"
-  },
-  noteContent: {
-    ar: "محتوى الملاحظة",
-    en: "Note Content"
-  },
-  writeTaskNote: {
-    ar: "اكتب ملاحظة على المهمة",
-    en: "Write a note about the task"
-  },
-  writeHere: {
-    ar: "اكتب هنا...",
-    en: "Write here..."
-  },
-  searchNotes: {
-    ar: "البحث في الملاحظات",
-    en: "Search notes"
-  },
-  allTags: {
-    ar: "جميع العلامات",
-    en: "All Tags"
-  },
-  tags: {
-    ar: "العلامات",
-    en: "Tags"
-  },
-  addTag: {
-    ar: "إضافة علامة",
-    en: "Add Tag"
-  },
-  keywords: {
-    ar: "الكلمات المفتاحية",
-    en: "Keywords"
-  },
-  enterTitle: {
-    ar: "أدخل العنوان",
-    en: "Enter title"
-  },
-  enterKeywords: {
-    ar: "أدخل الكلمات المفتاحية",
-    en: "Enter keywords"
-  },
-  enterUrl: {
-    ar: "أدخل الرابط",
-    en: "Enter URL"
-  },
-  noNotesYet: {
-    ar: "لا توجد ملاحظات بعد",
-    en: "No notes yet"
-  },
-  noNotesFound: {
-    ar: "لم يتم العثور على ملاحظات",
-    en: "No notes found"
-  },
-  createYourFirstNote: {
-    ar: "أنشئ ملاحظتك الأولى",
-    en: "Create your first note"
-  },
-  tryDifferentSearch: {
-    ar: "جرب بحثاً مختلفاً",
-    en: "Try a different search"
-  },
-  confirmDeleteNote: {
-    ar: "هل أنت متأكد من حذف هذه الملاحظة؟",
-    en: "Are you sure you want to delete this note?"
-  },
-  manageYourNotes: {
-    ar: "إدارة ملاحظاتك",
-    en: "Manage your notes"
-  },
-  
-  // Journal
-  addEntry: {
-    ar: "إضافة مدخل",
-    en: "Add Entry"
-  },
-  editJournalEntry: {
-    ar: "تعديل مدخل المدونة",
-    en: "Edit Journal Entry"
-  },
-  addJournalEntry: {
-    ar: "إضافة مدخل للمدونة",
-    en: "Add Journal Entry"
-  },
-  saveEntry: {
-    ar: "حفظ المدخل",
-    en: "Save Entry"
-  },
-  updateEntry: {
-    ar: "تحديث المدخل",
-    en: "Update Entry"
-  },
-  journalTitle: {
-    ar: "عنوان المدونة",
-    en: "Journal Title"
-  },
-  journalContent: {
-    ar: "محتوى المدونة",
-    en: "Journal Content"
-  },
-  writeJournalEntry: {
-    ar: "اكتب مدخل المدونة",
-    en: "Write journal entry"
-  },
-  searchJournal: {
-    ar: "البحث في المدونة",
-    en: "Search journal"
-  },
-  allWeeks: {
-    ar: "جميع الأسابيع",
-    en: "All Weeks"
-  },
-  selectWeek: {
-    ar: "اختر الأسبوع",
-    en: "Select Week"
-  },
-  noJournalEntries: {
-    ar: "لا توجد مداخل في المدونة",
-    en: "No journal entries"
-  },
-  noEntriesFound: {
-    ar: "لم يتم العثور على مداخل",
-    en: "No entries found"
-  },
-  startYourJournal: {
-    ar: "ابدأ مدونتك",
-    en: "Start your journal"
-  },
-  confirmDeleteJournal: {
-    ar: "هل أنت متأكد من حذف هذا المدخل؟",
-    en: "Are you sure you want to delete this entry?"
-  },
-  yourLearningJourney: {
-    ar: "رحلة تعلمك",
-    en: "Your Learning Journey"
-  },
-  totalEntries: {
-    ar: "إجمالي المداخل",
-    en: "Total Entries"
-  },
-  thisWeek: {
-    ar: "هذا الأسبوع",
-    en: "This Week"
-  },
-  totalWords: {
-    ar: "إجمالي الكلمات",
-    en: "Total Words"
-  },
-  words: {
-    ar: "كلمات",
-    en: "words"
-  },
-  navigation: {
-    ar: "التنقل",
-    en: "Navigation"
-  },
-  journalEntry: {
-    ar: "مدخل المدونة",
-    en: "Journal Entry"
-  },
-  entries: {
-    ar: "مداخل",
-    en: "entries"
-  },
-  
-  // Progress
-  trackYourLearningJourney: {
-    ar: "تتبع رحلة تعلمك",
-    en: "Track Your Learning Journey"
-  },
-  totalTasks: {
-    ar: "إجمالي المهام",
-    en: "Total Tasks"
-  },
-  completionRate: {
-    ar: "معدل الإكمال",
-    en: "Completion Rate"
-  },
-  totalHours: {
-    ar: "إجمالي الساعات",
-    en: "Total Hours"
-  },
-  progressOverview: {
-    ar: "نظرة عامة على التقدم",
-    en: "Progress Overview"
-  },
-  yourLearningProgress: {
-    ar: "تقدمك في التعلم",
-    en: "Your Learning Progress"
-  },
-  overallProgress: {
-    ar: "التقدم العام",
-    en: "Overall Progress"
-  },
-  currentWeek: {
-    ar: "الأسبوع الحالي",
-    en: "Current Week"
-  },
-  timeSpent: {
-    ar: "الوقت المستغرق",
-    en: "Time Spent"
-  },
-  phaseProgress: {
-    ar: "تقدم المراحل",
-    en: "Phase Progress"
-  },
-  progressByPhase: {
-    ar: "التقدم حسب المرحلة",
-    en: "Progress by Phase"
-  },
-  achievements: {
-    ar: "الإنجازات",
-    en: "Achievements"
-  },
-  unlockYourAchievements: {
-    ar: "افتح إنجازاتك",
-    en: "Unlock Your Achievements"
-  },
-  firstTask: {
-    ar: "المهمة الأولى",
-    en: "First Task"
-  },
-  completedFirstTask: {
-    ar: "أكملت مهمتك الأولى",
-    en: "Completed your first task"
-  },
-  weekWarrior: {
-    ar: "محارب الأسبوع",
-    en: "Week Warrior"
-  },
-  completedWeek: {
-    ar: "أكملت أسبوعاً كاملاً",
-    en: "Completed a full week"
-  },
-  speedLearner: {
-    ar: "المتعلم السريع",
-    en: "Speed Learner"
-  },
-  completed5Tasks: {
-    ar: "أكملت 5 مهام",
-    en: "Completed 5 tasks"
-  },
-  recentActivity: {
-    ar: "النشاط الأخير",
-    en: "Recent Activity"
-  },
-  yourLatestProgress: {
-    ar: "أحدث تقدمك",
-    en: "Your Latest Progress"
-  },
-  completedTask: {
-    ar: "مهمة مكتملة",
-    en: "Completed Task"
-  },
-  noRecentActivity: {
-    ar: "لا يوجد نشاط حديث",
-    en: "No recent activity"
-  },
-  completeTasksToSeeActivity: {
-    ar: "أكمل المهام لرؤية النشاط",
-    en: "Complete tasks to see activity"
-  },
-  
-  // Settings
-  quickSettings: {
-    ar: "الإعدادات السريعة",
-    en: "Quick Settings"
-  },
-  mostUsedSettings: {
-    ar: "الإعدادات الأكثر استخداماً",
-    en: "Most Used Settings"
-  },
-  language: {
-    ar: "اللغة",
-    en: "Language"
-  },
-  theme: {
-    ar: "المظهر",
-    en: "Theme"
-  },
-  light: {
-    ar: "نهاري",
-    en: "Light"
-  },
-  dark: {
-    ar: "ليلي",
-    en: "Dark"
-  },
-  appearance: {
-    ar: "المظهر",
-    en: "Appearance"
-  },
-  fontSize: {
-    ar: "حجم الخط",
-    en: "Font Size"
-  },
-  small: {
-    ar: "صغير",
-    en: "Small"
-  },
-  medium: {
-    ar: "متوسط",
-    en: "Medium"
-  },
-  large: {
-    ar: "كبير",
-    en: "Large"
-  },
-  compactMode: {
-    ar: "الوضع المضغوط",
-    en: "Compact Mode"
-  },
-  notifications: {
-    ar: "الإشعارات",
-    en: "Notifications"
-  },
-  enableNotifications: {
-    ar: "تفعيل الإشعارات",
-    en: "Enable Notifications"
-  },
-  soundEffects: {
-    ar: "المؤثرات الصوتية",
-    en: "Sound Effects"
-  },
-  data: {
-    ar: "البيانات",
-    en: "Data"
-  },
-  autoSave: {
-    ar: "الحفظ التلقائي",
-    en: "Auto Save"
-  },
-  dataManagement: {
-    ar: "إدارة البيانات",
-    en: "Data Management"
-  },
-  manageYourData: {
-    ar: "إدارة بياناتك",
-    en: "Manage Your Data"
-  },
-  exportSettings: {
-    ar: "تصدير الإعدادات",
-    en: "Export Settings"
-  },
-  importSettings: {
-    ar: "استيراد الإعدادات",
-    en: "Import Settings"
-  },
-  refreshData: {
-    ar: "تحديث البيانات",
-    en: "Refresh Data"
-  },
-  clearData: {
-    ar: "مسح البيانات",
-    en: "Clear Data"
-  },
-  confirmClearData: {
-    ar: "هل أنت متأكد من مسح جميع البيانات؟",
-    en: "Are you sure you want to clear all data?"
-  },
-  forceReloadData: {
-    ar: "إعادة تحميل البيانات",
-    en: "Force Reload Data"
-  },
-  about: {
-    ar: "حول",
-    en: "About"
-  },
-  appInformation: {
-    ar: "معلومات التطبيق",
-    en: "App Information"
-  },
-  appName: {
-    ar: "اسم التطبيق",
-    en: "App Name"
-  },
-  version: {
-    ar: "الإصدار",
-    en: "Version"
-  },
-  lastUpdated: {
-    ar: "آخر تحديث",
-    en: "Last Updated"
-  },
-  
-  // Home Page
-  totalWeeks: {
-    ar: "إجمالي الأسابيع",
-    en: "Total Weeks"
-  },
-  week: {
-    ar: "أسبوع",
-    en: "Week"
-  },
-  learningPhases: {
-    ar: "مراحل التعلم",
-    en: "Learning Phases"
-  },
-  quickActions: {
-    ar: "الإجراءات السريعة",
-    en: "Quick Actions"
-  },
-  startLearning: {
-    ar: "ابدأ التعلم",
-    en: "Start Learning"
-  },
-  beginYourJourney: {
-    ar: "ابدأ رحلتك",
-    en: "Begin Your Journey"
-  },
-  community: {
-    ar: "المجتمع",
-    en: "Community"
-  },
-  joinDiscord: {
-    ar: "انضم للديسكورد",
-    en: "Join Discord"
-  },
-  viewAnalytics: {
-    ar: "عرض التحليلات",
-    en: "View Analytics"
-  },
-  currentProgress: {
-    ar: "التقدم الحالي",
-    en: "Current Progress"
-  },
-  completed: {
-    ar: "مكتمل",
-    en: "Completed"
-  },
-  total: {
-    ar: "إجمالي",
-    en: "Total"
-  },
-  noActivityYet: {
-    ar: "لا يوجد نشاط بعد",
-    en: "No activity yet"
-  },
-  startYourJourney: {
-    ar: "ابدأ رحلتك",
-    en: "Start Your Journey"
-  },
-  cybersecurityBasics: {
-    ar: "أساسيات الأمن السيبراني",
-    en: "Cybersecurity Basics"
-  },
-  
-  // Evening Journaling
-  eveningJournaling: {
-    ar: "كتابة المساء",
-    en: "Evening Journaling"
-  },
-  journalingPoints: {
-    ar: "نقاط الكتابة",
-    en: "Journaling Points"
-  },
-  startJournaling: {
-    ar: "ابدأ الكتابة",
-    en: "Start Journaling"
-  },
-  
-  // Loading
-  loadingDayContent: {
-    ar: "جاري تحميل محتوى اليوم...",
-    en: "Loading day content..."
-  },
-  plan: {
-    ar: "الخطة",
-    en: "Plan"
-  },
-  planSubtitle: {
-    ar: "تصفح المراحل والأسابيع والأيام بسهولة",
-    en: "Browse phases, weeks, and days easily"
+  export: {
+    ar: "تصدير",
+    en: "Export"
+  },
+  phases: {
+    ar: "المراحل",
+    en: "Phases"
   },
   weeks: {
     ar: "الأسابيع",
@@ -728,121 +118,194 @@ const translations: TranslationData = {
     ar: "الأيام",
     en: "Days"
   },
-  templates: {
-    ar: "القوالب الجاهزة",
-    en: "Templates"
+  
+  // Actions
+  addNote: {
+    ar: "إضافة ملاحظة",
+    en: "Add Note"
   },
-  dailyReflection: {
-    ar: "تأمل يومي",
-    en: "Daily Reflection"
+  addJournal: {
+    ar: "إضافة مدونة",
+    en: "Add Journal"
   },
-  dailyReflectionTitle: {
-    ar: "تأملاتي اليومية",
-    en: "My Daily Reflections"
+  addTask: {
+    ar: "إضافة مهمة",
+    en: "Add Task"
   },
-  dailyReflectionTemplate: {
-    ar: "<h2>ما تعلمته اليوم:</h2><p>...</p><h2>التحديات التي واجهتها:</h2><p>...</p><h2>كيف يمكنني التحسن:</h2><p>...</p>",
-    en: "<h2>What I learned today:</h2><p>...</p><h2>Challenges I faced:</h2><p>...</p><h2>How I can improve:</h2><p>...</p>"
+  saveNote: {
+    ar: "حفظ الملاحظة",
+    en: "Save Note"
   },
-  learningSummary: {
-    ar: "ملخص التعلم",
-    en: "Learning Summary"
+  saveJournal: {
+    ar: "حفظ المدونة",
+    en: "Save Journal"
   },
-  learningSummaryTitle: {
-    ar: "ملخص ما تعلمته",
-    en: "Learning Summary"
+  deleteNote: {
+    ar: "حذف الملاحظة",
+    en: "Delete Note"
   },
-  learningSummaryTemplate: {
-    ar: "<h2>المفاهيم الرئيسية:</h2><ul><li>...</li></ul><h2>النقاط المهمة:</h2><ul><li>...</li></ul><h2>الأسئلة المتبقية:</h2><ul><li>...</li></ul>",
-    en: "<h2>Key Concepts:</h2><ul><li>...</li></ul><h2>Important Points:</h2><ul><li>...</li></ul><h2>Remaining Questions:</h2><ul><li>...</li></ul>"
+  deleteJournal: {
+    ar: "حذف المدونة",
+    en: "Delete Journal"
   },
-  challengeAnalysis: {
-    ar: "تحليل التحديات",
-    en: "Challenge Analysis"
+  editNote: {
+    ar: "تعديل الملاحظة",
+    en: "Edit Note"
   },
-  challengeAnalysisTitle: {
-    ar: "تحليل التحديات",
-    en: "Challenge Analysis"
+  editJournal: {
+    ar: "تعديل المدونة",
+    en: "Edit Journal"
   },
-  challengeAnalysisTemplate: {
-    ar: "<h2>التحدي:</h2><p>...</p><h2>السبب:</h2><p>...</p><h2>الحلول المقترحة:</h2><ul><li>...</li></ul><h2>الخطوات التالية:</h2><ul><li>...</li></ul>",
-    en: "<h2>The Challenge:</h2><p>...</p><h2>Why it happened:</h2><p>...</p><h2>Proposed Solutions:</h2><ul><li>...</li></ul><h2>Next Steps:</h2><ul><li>...</li></ul>"
+  copyContent: {
+    ar: "نسخ المحتوى",
+    en: "Copy Content"
   },
-  goalSetting: {
-    ar: "تحديد الأهداف",
-    en: "Goal Setting"
+  printContent: {
+    ar: "طباعة المحتوى",
+    en: "Print Content"
   },
-  goalSettingTitle: {
-    ar: "أهدافي الجديدة",
-    en: "My New Goals"
+  back: {
+    ar: "رجوع",
+    en: "Back"
   },
-  goalSettingTemplate: {
-    ar: "<h2>أهدافي قصيرة المدى:</h2><ul><li>...</li></ul><h2>أهدافي طويلة المدى:</h2><ul><li>...</li></ul><h2>خطة العمل:</h2><ul><li>...</li></ul><h2>مؤشرات النجاح:</h2><ul><li>...</li></ul>",
-    en: "<h2>Short-term Goals:</h2><ul><li>...</li></ul><h2>Long-term Goals:</h2><ul><li>...</li></ul><h2>Action Plan:</h2><ul><li>...</li></ul><h2>Success Indicators:</h2><ul><li>...</li></ul>"
+  backToList: {
+    ar: "العودة للقائمة",
+    en: "Back to List"
   },
-  switchToLight: {
-    ar: "التبديل للوضع النهاري",
-    en: "Switch to Light Mode"
+  
+  // Search and Filter
+  search: {
+    ar: "البحث",
+    en: "Search"
   },
-  switchToDark: {
-    ar: "التبديل للوضع الليلي",
-    en: "Switch to Dark Mode"
+  searchNotes: {
+    ar: "البحث في الملاحظات...",
+    en: "Search notes..."
   },
-  // Task related
-  inProgress: {
-    ar: "قيد التنفيذ",
-    en: "In Progress"
+  searchJournal: {
+    ar: "البحث في المدونات...",
+    en: "Search journal..."
   },
-  locked: {
-    ar: "مقفل",
-    en: "Locked"
+  filter: {
+    ar: "فلترة",
+    en: "Filter"
   },
-  taskTypes: {
-    ar: "أنواع المهام",
-    en: "Task Types"
+  sortBy: {
+    ar: "ترتيب حسب",
+    en: "Sort by"
   },
-  blueTeam: {
-    ar: "الفريق الأزرق",
-    en: "Blue Team"
+  newest: {
+    ar: "الأحدث",
+    en: "Newest"
   },
-  redTeam: {
-    ar: "الفريق الأحمر",
-    en: "Red Team"
+  oldest: {
+    ar: "الأقدم",
+    en: "Oldest"
   },
-  practical: {
-    ar: "عملي",
-    en: "Practical"
+  title: {
+    ar: "العنوان",
+    en: "Title"
   },
-  theoretical: {
-    ar: "نظري",
-    en: "Theoretical"
+  date: {
+    ar: "التاريخ",
+    en: "Date"
   },
-  policies: {
-    ar: "السياسات",
-    en: "Policies"
+  allItems: {
+    ar: "الكل",
+    en: "All"
   },
-  softSkills: {
-    ar: "المهارات الناعمة",
-    en: "Soft Skills"
+  
+  // Status Messages
+  noResults: {
+    ar: "لا توجد نتائج للبحث",
+    en: "No search results"
   },
-
-  // Progress related
-  hoursLearned: {
-    ar: "ساعات التعلم",
-    en: "Hours Learned"
+  noNotes: {
+    ar: "لا توجد ملاحظات",
+    en: "No notes"
   },
-  remaining: {
-    ar: "متبقي",
-    en: "Remaining"
+  noJournalEntries: {
+    ar: "لا توجد مدونات",
+    en: "No journal entries"
   },
-  taskTypesDistribution: {
-    ar: "توزيع أنواع المهام",
-    en: "Task Types Distribution"
+  noTasks: {
+    ar: "لا توجد مهام",
+    en: "No tasks"
   },
-  distributionOfCompletedTasks: {
-    ar: "توزيع المهام المكتملة",
-    en: "Distribution of Completed Tasks"
+  loadingData: {
+    ar: "جاري تحميل البيانات...",
+    en: "Loading data..."
   },
+  savingData: {
+    ar: "جاري حفظ البيانات...",
+    en: "Saving data..."
+  },
+  dataSaved: {
+    ar: "تم حفظ البيانات",
+    en: "Data saved"
+  },
+  dataLoadError: {
+    ar: "خطأ في تحميل البيانات",
+    en: "Error loading data"
+  },
+  dataSaveError: {
+    ar: "خطأ في حفظ البيانات",
+    en: "Error saving data"
+  },
+  missingWeeks: {
+    ar: "أسابيع مفقودة",
+    en: "Missing weeks"
+  },
+  dataLoadSuccess: {
+    ar: "تم تحميل جميع الأسابيع بنجاح",
+    en: "All weeks loaded successfully"
+  },
+  
+  // Editor
+  titlePlaceholder: {
+    ar: "عنوان الملاحظة...",
+    en: "Note title..."
+  },
+  contentPlaceholder: {
+    ar: "اكتب ملاحظتك هنا...",
+    en: "Write your note here..."
+  },
+  journalTitlePlaceholder: {
+    ar: "عنوان المدونة...",
+    en: "Journal title..."
+  },
+  journalContentPlaceholder: {
+    ar: "اكتب مدونتك هنا...",
+    en: "Write your journal entry here..."
+  },
+  tags: {
+    ar: "العلامات",
+    en: "Tags"
+  },
+  addTag: {
+    ar: "إضافة علامة",
+    en: "Add tag"
+  },
+  tagPlaceholder: {
+    ar: "اكتب علامة جديدة...",
+    en: "Type a new tag..."
+  },
+  
+  // Auto-save
+  saving: {
+    ar: "جارٍ الحفظ...",
+    en: "Saving..."
+  },
+  saved: {
+    ar: "تم الحفظ",
+    en: "Saved"
+  },
+  saveError: {
+    ar: "خطأ في الحفظ",
+    en: "Save Error"
+  },
+  
+  // Charts and Statistics
   progressOverTime: {
     ar: "التقدم عبر الزمن",
     en: "Progress Over Time"
@@ -923,7 +386,8 @@ const translations: TranslationData = {
     ar: "تقدم الأسبوع",
     en: "Week Progress"
   },
-
+  
+  // Data Sync
   syncData: {
     ar: "مزامنة البيانات",
     en: "Sync Data"
@@ -938,166 +402,160 @@ const translations: TranslationData = {
   },
   syncSuccess: {
     ar: "تمت المزامنة بنجاح",
-    en: "Sync Successful"
+    en: "Sync successful"
   },
-  syncFailed: {
-    ar: "فشلت المزامنة",
-    en: "Sync Failed"
-  },
-  noInternetConnection: {
-    ar: "لا يوجد اتصال بالإنترنت",
-    en: "No Internet Connection"
-  },
-  performanceMetrics: {
-    ar: "مقاييس الأداء",
-    en: "Performance Metrics"
-  },
-  loadTime: {
-    ar: "وقت التحميل",
-    en: "Load Time"
-  },
-  renderTime: {
-    ar: "وقت العرض",
-    en: "Render Time"
-  },
-  memoryUsage: {
-    ar: "استخدام الذاكرة",
-    en: "Memory Usage"
-  },
-  bundleSize: {
-    ar: "حجم الحزمة",
-    en: "Bundle Size"
+  syncError: {
+    ar: "خطأ في المزامنة",
+    en: "Sync error"
   },
   
-  // Export Page
+  // Export
   exportData: {
     ar: "تصدير البيانات",
     en: "Export Data"
   },
-  exportDataDescription: {
-    ar: "تصدير بيانات رحلتك في الأمن السيبراني",
-    en: "Export your cyber security journey data"
+  exportOptions: {
+    ar: "خيارات التصدير",
+    en: "Export Options"
   },
-  jsonFormat: {
-    ar: "تنسيق JSON",
-    en: "JSON Format"
+  selectContent: {
+    ar: "اختر المحتوى",
+    en: "Select Content"
   },
-  jsonDescription: {
-    ar: "تصدير البيانات بصيغة JSON للنسخ الاحتياطية",
-    en: "Export data as JSON for backup"
+  notesAndJournals: {
+    ar: "الملاحظات والمدونات",
+    en: "Notes and Journals"
   },
-  csvFormat: {
-    ar: "تنسيق CSV",
-    en: "CSV Format"
+  progressReports: {
+    ar: "تقارير التقدم",
+    en: "Progress Reports"
   },
-  csvDescription: {
-    ar: "تصدير البيانات بصيغة CSV للتحليل",
-    en: "Export data as CSV for analysis"
+  both: {
+    ar: "كلاهما",
+    en: "Both"
   },
-  pdfFormat: {
-    ar: "تنسيق PDF",
-    en: "PDF Format"
+  timeRange: {
+    ar: "النطاق الزمني",
+    en: "Time Range"
   },
-  pdfDescription: {
-    ar: "تصدير تقرير بصيغة PDF",
-    en: "Export report as PDF"
+  daily: {
+    ar: "يومي",
+    en: "Daily"
   },
-  progressSummary: {
-    ar: "ملخص التقدم",
-    en: "Progress Summary"
+  weekly: {
+    ar: "أسبوعي",
+    en: "Weekly"
   },
-  export: {
-    ar: "تصدير",
-    en: "Export"
+  monthly: {
+    ar: "شهري",
+    en: "Monthly"
   },
-  exporting: {
-    ar: "جاري التصدير",
-    en: "Exporting"
+  byPhase: {
+    ar: "حسب المرحلة",
+    en: "By Phase"
   },
-  lastExport: {
-    ar: "آخر تصدير",
-    en: "Last Export"
+  allData: {
+    ar: "كامل",
+    en: "All"
   },
-  exportTips: {
-    ar: "نصائح التصدير",
-    en: "Export Tips"
+  fileFormat: {
+    ar: "صيغة الملف",
+    en: "File Format"
   },
-  exportTip1: {
-    ar: "استخدم JSON للنسخ الاحتياطية الكاملة",
-    en: "Use JSON for complete backups"
+  pdf: {
+    ar: "PDF",
+    en: "PDF"
   },
-  exportTip2: {
-    ar: "استخدم CSV لتحليل البيانات في Excel",
-    en: "Use CSV for data analysis in Excel"
+  csvExcel: {
+    ar: "CSV/Excel",
+    en: "CSV/Excel"
   },
-  exportTip3: {
-    ar: "استخدم PDF للمشاركة والتوثيق",
-    en: "Use PDF for sharing and documentation"
+  markdown: {
+    ar: "Markdown",
+    en: "Markdown"
   },
-  
-  // System Messages
-  missingWeeks: {
-    ar: "أسابيع غير مكتملة",
-    en: "Incomplete Weeks"
+  plainText: {
+    ar: "نص عادي",
+    en: "Plain Text"
   },
-  missingWeeksMessage: {
-    ar: "يوجد أسابيع غير مكتملة في الخطة",
-    en: "There are incomplete weeks in the plan"
+  exportLanguage: {
+    ar: "لغة التصدير",
+    en: "Export Language"
   },
-  dataLoadError: {
-    ar: "خطأ في تحميل البيانات",
-    en: "Data Load Error"
+  arabic: {
+    ar: "العربية",
+    en: "Arabic"
   },
-  dataSaveError: {
-    ar: "خطأ في حفظ البيانات",
-    en: "Data Save Error"
+  english: {
+    ar: "الإنجليزية",
+    en: "English"
   },
-  autoSaveEnabled: {
-    ar: "الحفظ التلقائي مفعل",
-    en: "Auto-save Enabled"
+  generateExport: {
+    ar: "إنشاء التصدير",
+    en: "Generate Export"
   },
-  autoSaveDisabled: {
-    ar: "الحفظ التلقائي معطل",
-    en: "Auto-save Disabled"
+  exportGenerated: {
+    ar: "تم إنشاء التصدير",
+    en: "Export generated"
   },
-  saving: {
-    ar: "جارٍ الحفظ...",
-    en: "Saving..."
-  },
-  saved: {
-    ar: "تم الحفظ",
-    en: "Saved"
-  },
-  saveError: {
-    ar: "خطأ في الحفظ",
-    en: "Save Error"
+  exportError: {
+    ar: "خطأ في التصدير",
+    en: "Export error"
   },
   
-  // Chart Labels
-  progressOverTime: {
-    ar: "التقدم عبر الزمن",
-    en: "Progress Over Time"
+  // File Upload
+  uploadFile: {
+    ar: "رفع ملف",
+    en: "Upload File"
   },
-  weeklyProgressChart: {
-    ar: "رسم بياني أسبوعي للتقدم",
-    en: "Weekly Progress Chart"
+  dragAndDrop: {
+    ar: "اسحب وأفلت الملفات هنا",
+    en: "Drag and drop files here"
   },
-  taskTypePieChart: {
-    ar: "توزيع أنواع المهام",
-    en: "Task Type Distribution"
+  orClickToSelect: {
+    ar: "أو انقر لاختيار الملفات",
+    en: "Or click to select files"
   },
-  distributionVisualization: {
-    ar: "رسم بياني دائري للتوزيع",
-    en: "Pie Chart Distribution"
+  fileTooLarge: {
+    ar: "الملف كبير جداً",
+    en: "File too large"
   },
-  detailedStatistics: {
-    ar: "إحصائيات مفصلة",
-    en: "Detailed Statistics"
+  unsupportedFileType: {
+    ar: "نوع ملف غير مدعوم",
+    en: "Unsupported file type"
   },
-  comprehensiveAnalysis: {
-    ar: "تحليل شامل",
-    en: "Comprehensive Analysis"
+  uploadSuccess: {
+    ar: "تم رفع الملف بنجاح",
+    en: "File uploaded successfully"
   },
+  uploadError: {
+    ar: "خطأ في رفع الملف",
+    en: "Upload error"
+  },
+  
+  // Welcome Messages
+  welcome: {
+    ar: "مرحباً",
+    en: "Welcome"
+  },
+  cyberSecurityLearning: {
+    ar: "تعلم الأمن السيبراني",
+    en: "Cyber Security Learning"
+  },
+  trackYourLearning: {
+    ar: "تتبع تعلمك",
+    en: "Track Your Learning"
+  },
+  learningPhases: {
+    ar: "مراحل التعلم",
+    en: "Learning Phases"
+  },
+  week: {
+    ar: "أسبوع",
+    en: "Week"
+  },
+  
+  // Additional Statistics
   totalWeeks: {
     ar: "إجمالي الأسابيع",
     en: "Total Weeks"
@@ -1118,34 +576,6 @@ const translations: TranslationData = {
     ar: "ساعة",
     en: "hours"
   },
-  
-  // Skills Matrix
-  skillsMatrix: {
-    ar: "مصفوفة المهارات",
-    en: "Skills Matrix"
-  },
-  yourSkillLevels: {
-    ar: "مستويات مهاراتك",
-    en: "Your Skill Levels"
-  },
-  skillCategories: {
-    ar: "فئات المهارات",
-    en: "Skill Categories"
-  },
-  categoryBreakdown: {
-    ar: "تفصيل الفئات",
-    en: "Category Breakdown"
-  },
-  level: {
-    ar: "مستوى",
-    en: "Level"
-  },
-  skills: {
-    ar: "مهارات",
-    en: "Skills"
-  },
-  
-  // Progress Metrics
   completionRate: {
     ar: "نسبة الإنجاز",
     en: "Completion Rate"
@@ -1189,149 +619,20 @@ const translations: TranslationData = {
   policies: {
     ar: "السياسات",
     en: "Policies"
-  },
-  
-  // Welcome and Navigation
-  welcome: {
-    ar: "مرحباً",
-    en: "Welcome"
-  },
-  cyberSecurityLearning: {
-    ar: "تعلم الأمن السيبراني",
-    en: "Cyber Security Learning"
-  },
-  trackYourLearning: {
-    ar: "تتبع تعلمك",
-    en: "Track Your Learning"
-  },
-  learningPhases: {
-    ar: "مراحل التعلم",
-    en: "Learning Phases"
-  },
-  choosePhaseToStart: {
-    ar: "اختر المرحلة للبدء",
-    en: "Choose Phase to Start"
-  },
-  phases: {
-    ar: "المراحل",
-    en: "Phases"
-  },
-  week: {
-    ar: "أسبوع",
-    en: "Week"
-  },
-  phaseWeeks: {
-    ar: "أسابيع المرحلة",
-    en: "Phase Weeks"
-  },
-  weekDays: {
-    ar: "أيام الأسبوع",
-    en: "Week Days"
-  },
-  dayDetails: {
-    ar: "تفاصيل اليوم",
-    en: "Day Details"
-  },
-  
-  // System Messages
-  dataLoadSuccess: {
-    ar: "تم تحميل جميع الأسابيع بنجاح",
-    en: "All weeks loaded successfully"
-  },
-  dataLoadFailed: {
-    ar: "فشل في تحميل البيانات",
-    en: "Failed to load data"
-  },
-  planLoadFailed: {
-    ar: "فشل في تحميل الخطة من الملف",
-    en: "Failed to load plan from file"
-  },
-  refreshFailed: {
-    ar: "فشل في إعادة تحميل الخطة",
-    en: "Failed to reload plan"
-  },
-  forceReloadSuccess: {
-    ar: "تم إعادة تحميل البيانات بنجاح",
-    en: "Data reloaded successfully"
-  },
-  forceReloadFailed: {
-    ar: "فشل في إعادة تحميل البيانات",
-    en: "Failed to reload data"
-  },
-  fixWeeksSuccess: {
-    ar: "تم إصلاح الأسابيع المفقودة بنجاح",
-    en: "Missing weeks fixed successfully"
-  },
-  fixWeeksFailed: {
-    ar: "فشل في إصلاح الأسابيع المفقودة",
-    en: "Failed to fix missing weeks"
-  },
-  updateDataFailed: {
-    ar: "فشل في تحديث البيانات",
-    en: "Failed to update data"
-  },
-  
-  // File Upload Messages
-  fileUploadSuccess: {
-    ar: "تم رفع الملف بنجاح",
-    en: "File uploaded successfully"
-  },
-  fileUploadError: {
-    ar: "خطأ في رفع الملف",
-    en: "File upload error"
-  },
-  fileTooLarge: {
-    ar: "حجم الملف كبير جداً",
-    en: "File size too large"
-  },
-  unsupportedFileType: {
-    ar: "نوع الملف غير مدعوم",
-    en: "Unsupported file type"
-  },
-  
-  // Editor Messages
-  editorAutoSave: {
-    ar: "الحفظ التلقائي مفعل",
-    en: "Auto-save enabled"
-  },
-  editorSaving: {
-    ar: "جارٍ الحفظ...",
-    en: "Saving..."
-  },
-  editorSaved: {
-    ar: "تم الحفظ",
-    en: "Saved"
-  },
-  editorSaveError: {
-    ar: "خطأ في الحفظ",
-    en: "Save error"
-  },
-  
-  // Chart Messages
-  chartNoData: {
-    ar: "لا توجد بيانات للعرض",
-    en: "No data to display"
-  },
-  chartLoading: {
-    ar: "جارٍ تحميل الرسم البياني...",
-    en: "Loading chart..."
-  },
-  chartError: {
-    ar: "خطأ في تحميل الرسم البياني",
-    en: "Chart loading error"
   }
 };
 
 export function useLocalization() {
-  const { lang, setLang } = useApp();
-
+  const { language } = useApp();
+  
   const t = useCallback((key: string): string => {
-    return translations[key]?.[lang] || key;
-  }, [lang]);
+    const translation = translations[key];
+    if (!translation) {
+      console.warn(`Translation missing for key: ${key}`);
+      return key;
+    }
+    return translation[language] || translation.ar || key;
+  }, [language]);
 
-  const tWithLang = useCallback((key: string, language: Language): string => {
-    return translations[key]?.[language] || key;
-  }, []);
-
-  return { t, tWithLang, lang, setLang };
+  return { t, language };
 }

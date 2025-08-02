@@ -83,7 +83,7 @@ const NoteCard = React.memo(({ note, onEdit, onDelete, onToggleFavorite }) => {
                 </div>
                 <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
                   <Calendar className="w-3 h-3" />
-                  <span>{new Date(note.createdAt).toLocaleDateString('ar-SA', { 
+                                          <span>{new Date(note.createdAt).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short', 
                     day: 'numeric',

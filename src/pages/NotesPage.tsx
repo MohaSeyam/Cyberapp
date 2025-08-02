@@ -450,7 +450,7 @@ export default function NotesPage() {
                     <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                       <div className="flex items-center space-x-4">
                         <span>
-                          {new Date(note.createdAt).toLocaleDateString('ar-SA')}
+                          {new Date(note.createdAt).toLocaleDateString('en-US')}
                         </span>
                         {note.dayInfo?.day && (
                           <span className="text-blue-600 dark:text-blue-400">
@@ -499,7 +499,7 @@ export default function NotesPage() {
                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(selectedNote.createdAt).toLocaleDateString('ar-SA', { 
+                        <span>{new Date(selectedNote.createdAt).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric',
@@ -510,7 +510,7 @@ export default function NotesPage() {
                       {selectedNote.updatedAt && selectedNote.updatedAt !== selectedNote.createdAt && (
                         <div className="flex items-center space-x-1">
                           <Edit2 className="w-4 h-4" />
-                          <span>تم التحديث: {new Date(selectedNote.updatedAt).toLocaleDateString('ar-SA')}</span>
+                          <span>تم التحديث: {new Date(selectedNote.updatedAt).toLocaleDateString('en-US')}</span>
                         </div>
                       )}
                     </div>

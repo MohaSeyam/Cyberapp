@@ -128,7 +128,7 @@ export default function NoteViewPage() {
           <div class="header">
             <div class="title">${note.title}</div>
             <div class="meta">
-              التاريخ: ${new Date(note.createdAt).toLocaleDateString('ar-SA')}<br>
+              التاريخ: ${new Date(note.createdAt).toLocaleDateString('en-US')}<br>
               الوقت: ${new Date(note.createdAt).toLocaleTimeString('ar-SA')}
               ${dayInfo && dayInfo.day ? `<br>اليوم: ${dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}` : ''}
               ${dayInfo && dayInfo.day && dayInfo.day.topic?.ar ? `<br>الموضوع: ${dayInfo.day.topic.ar}` : ''}
@@ -273,7 +273,7 @@ export default function NoteViewPage() {
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4" />
                     <span>
-                      {new Date(note.createdAt).toLocaleDateString('ar-SA', {
+                                              {new Date(note.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

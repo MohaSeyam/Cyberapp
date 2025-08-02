@@ -442,7 +442,7 @@ export default function JournalPage() {
                     <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                       <div className="flex items-center space-x-4">
                         <span>
-                          {new Date(entry.createdAt).toLocaleDateString('ar-SA')}
+                          {new Date(entry.createdAt).toLocaleDateString('en-US')}
                         </span>
                         {entry.dayInfo?.day && (
                           <span className="text-purple-600 dark:text-purple-400">
@@ -491,7 +491,7 @@ export default function JournalPage() {
                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(selectedEntry.createdAt).toLocaleDateString('ar-SA', { 
+                        <span>{new Date(selectedEntry.createdAt).toLocaleDateString('en-US', { 
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric',
@@ -502,7 +502,7 @@ export default function JournalPage() {
                       {selectedEntry.updatedAt && selectedEntry.updatedAt !== selectedEntry.createdAt && (
                         <div className="flex items-center space-x-1">
                           <Edit2 className="w-4 h-4" />
-                          <span>تم التحديث: {new Date(selectedEntry.updatedAt).toLocaleDateString('ar-SA')}</span>
+                          <span>تم التحديث: {new Date(selectedEntry.updatedAt).toLocaleDateString('en-US')}</span>
                         </div>
                       )}
                     </div>
