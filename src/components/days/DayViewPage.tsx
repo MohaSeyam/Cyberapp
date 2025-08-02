@@ -133,6 +133,9 @@ export default function DayViewPage() {
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
   const [selectedJournalEntry, setSelectedJournalEntry] = useState<any>(null);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [previewResource, setPreviewResource] = useState(null);
+  const [showResourcePreview, setShowResourcePreview] = useState(false);
   
   // Get resources for current day (combine plan resources with user-added resources)
   const currentDayResources = useMemo(() => {
@@ -321,11 +324,33 @@ export default function DayViewPage() {
   // دالة التحقق من صحة الرابط
   const isValidUrl = (url: string): boolean => {
     try {
-      const urlObj = new URL(url);
-      return urlObj.protocol === 'https:' || urlObj.protocol === 'http:';
+      new URL(url);
+      return true;
     } catch {
       return false;
     }
+  };
+
+  const previewResource = (resource: any) => {
+    // التحقق من أن الرابط آمن للمعاينة
+    if (!isValidUrl(resource.url)) {
+      toast.error('الرابط غير صالح للمعاينة');
+      return;
+    }
+    
+    // التحقق من أن الرابط يدعم iframe
+    const url = new URL(resource.url);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      toast.error('يمكن معاينة روابط HTTP و HTTPS فقط');
+      return;
+    }
+    
+    setPreviewResource(resource);
+    setShowResourcePreview(true);
+  };
+
+  const openResourceInNewTab = (url: string) => {
+    window.open(url, '_blank');
   };
 
   // Navigation functions
@@ -553,11 +578,8 @@ export default function DayViewPage() {
                       {...animations.stagger(0.3 + index * 0.1)}
                       className="group relative"
                     >
-                      {/* Resource Card as Button */}
-                      <button
-                        onClick={() => window.open(resource.url, '_blank')}
-                        className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-300 text-left"
-                      >
+                      {/* Resource Card */}
+                      <div className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-300">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
@@ -575,12 +597,25 @@ export default function DayViewPage() {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
+                            {/* Preview Button */}
+                            <button
+                              onClick={() => previewResource(resource)}
+                              className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                              title="معاينة المرجع"
+                            >
+                              <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            </button>
+                            {/* Open in New Tab Button */}
+                            <button
+                              onClick={() => openResourceInNewTab(resource.url)}
+                              className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors"
+                              title="فتح في تبويب جديد"
+                            >
+                              <ExternalLink className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            </button>
                             {/* Edit Button */}
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setResourceModal({ isOpen: true, resource });
-                              }}
+                              onClick={() => setResourceModal({ isOpen: true, resource })}
                               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                               title="تعديل المرجع"
                             >
@@ -588,10 +623,7 @@ export default function DayViewPage() {
                             </button>
                             {/* Delete Button */}
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteResource(resource.id);
-                              }}
+                              onClick={() => handleDeleteResource(resource.id)}
                               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
                               title="حذف المرجع"
                             >
@@ -599,7 +631,7 @@ export default function DayViewPage() {
                             </button>
                           </div>
                         </div>
-                      </button>
+                      </div>
                     </motion.div>
                   );
                 })
@@ -1237,6 +1269,72 @@ export default function DayViewPage() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Resource Preview Modal */}
+      {showResourcePreview && previewResource && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800">
+                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {previewResource.title}
+                  </h2>
+                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center space-x-1">
+                      <ExternalLink className="w-4 h-4" />
+                      <span>{previewResource.url}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => openResourceInNewTab(previewResource.url)}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  title="فتح في تبويب جديد"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  فتح في تبويب جديد
+                </button>
+                <button
+                  onClick={() => {
+                    setShowResourcePreview(false);
+                    setPreviewResource(null);
+                  }}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  title="إغلاق"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="h-[calc(90vh-120px)]">
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center space-x-2 text-yellow-800 dark:text-yellow-200">
+                  <Shield className="w-4 h-4" />
+                  <span className="text-sm font-medium">تحذير أمني: يتم عرض المحتوى من موقع خارجي</span>
+                </div>
+              </div>
+              <iframe
+                src={previewResource.url}
+                className="w-full h-full border-0"
+                title={previewResource.title}
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                referrerPolicy="no-referrer"
+                onError={() => {
+                  toast.error('فشل في تحميل المعاينة. قد يكون الموقع لا يدعم العرض في iframe');
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </PageLayout>
   );
