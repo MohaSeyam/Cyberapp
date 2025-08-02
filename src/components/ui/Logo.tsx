@@ -1,5 +1,5 @@
 import React from 'react';
-import geminiLogo from '../../assets/gemini-logo.svg';
+import geminiLogo from '../../assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -18,7 +18,7 @@ export default function Logo({ size = 'md', className = '' }: LogoProps) {
       <img 
         src={geminiLogo} 
         alt="Gemini Logo" 
-        className="w-full h-full"
+        className="w-full h-full object-contain"
       />
     </div>
   );

@@ -606,7 +606,7 @@ export default function ProgressPage() {
                   {language === 'ar' ? 'المسار الحالي' : 'Current Streak'}
                 </h3>
                 <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
-                  {streak.currentStreak}
+                  {currentStreak}
                 </p>
                 <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
                   {language === 'ar' ? 'أيام متتالية' : 'days in a row'}
