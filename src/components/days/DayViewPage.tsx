@@ -621,146 +621,173 @@ export default function DayViewPage() {
           </Card>
         </motion.div>
 
-        {/* Journal Section - Combined */}
-        <motion.div
-          {...animations.fadeIn}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-          <Card>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <MessageSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                    التدوين والمدونات
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    تدويناتك وتأملاتك
-                  </p>
-                </div>
-              </div>
-              <button
-                className="w-14 h-14 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
-                onClick={() => setJournalModal({ isOpen: true, entry: null })}
-                aria-label="إضافة مدونة جديدة"
-              >
-                <Plus className="w-8 h-8" />
-              </button>
+        {/* Notes Section */}
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+              <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span>الملاحظات ({notes.length})</span>
+            </h3>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={handleAddNote}
+            >
+              إضافة ملاحظة
+            </Button>
+          </div>
+          
+          {notes.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-500 dark:text-gray-400">لا توجد ملاحظات لهذا اليوم</p>
             </div>
-
-            {/* Journal Prompt from Plan */}
-            {selectedDay.notes_prompt && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                <div className="flex items-start space-x-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
-                    <MessageSquare className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">
-                      {selectedDay.notes_prompt.title?.[lang] || 'مهمة التدوين المسائية'}
-                    </h4>
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
-                      <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2 text-sm">
-                        نقاط التدوين:
-                      </h5>
-                      <ul className="space-y-1">
-                        {(selectedDay.notes_prompt.points || []).map((point, index) => (
-                          <li key={index} className="flex items-start space-x-2 text-sm text-purple-700 dark:text-purple-300">
-                            <span className="text-purple-500 dark:text-purple-400 mt-1 text-xs">•</span>
-                            <span>{point?.[lang] || 'Point'}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Journal Entries List */}
-            <div className="space-y-4">
-              {(() => {
-                const dayKey = `${selectedWeek.week}-${selectedDay.key}`;
-                const dayJournalEntries = appState?.journal?.[dayKey] || [];
-                
-                if (dayJournalEntries.length > 0) {
-                  return dayJournalEntries.map((entry, index) => (
-                    <motion.div
-                      key={entry.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                      onClick={() => setSelectedJournalEntry(entry)}
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 dark:text-white text-lg mb-2">
-                              {entry.title}
-                            </h4>
-                            <p className="text-sm text-gray-700 dark:text-white line-clamp-2">
-                              {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                            </p>
+          ) : (
+            <div className="space-y-3">
+              {notes.map((note) => (
+                <motion.div
+                  key={note.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
+                  onClick={() => setSelectedNote(note)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        {note.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                        {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{new Date(note.createdAt).toLocaleDateString('ar-SA')}</span>
+                        {note.tags && note.tags.length > 0 && (
+                          <div className="flex items-center space-x-1">
+                            <Tag className="w-3 h-3" />
+                            <span>{note.tags.length} وسوم</span>
                           </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-300">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
-                            </div>
-                          </div>
-                          
-                          {entry.tags && entry.tags.length > 0 && (
-                            <div className="flex items-center space-x-1">
-                              <Tag className="w-3 h-3 text-gray-400" />
-                              <div className="flex space-x-1">
-                                {entry.tags.slice(0, 2).map((tag, tagIndex) => (
-                                  <span
-                                    key={tagIndex}
-                                    className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                                {entry.tags.length > 2 && (
-                                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                                    +{entry.tags.length - 2}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
-                    </motion.div>
-                  ));
-                } else {
-                  return (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <h4 className="text-base font-medium mb-2">لا توجد مدونات بعد</h4>
-                      <p className="text-sm mb-4">ابدأ بتدوين أفكارك وتأملاتك</p>
-                      <Button
-                        variant="outline"
-                        icon={<Plus className="w-4 h-4" />}
-                        onClick={() => setJournalModal({ isOpen: true, entry: null })}
-                        className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40"
-                      >
-                        إضافة أول مدونة
-                      </Button>
                     </div>
-                  );
-                }
-              })()}
+                    <div className="flex items-center space-x-1 ml-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNoteForm({
+                            title: note.title,
+                            content: note.content,
+                            tags: note.tags || []
+                          });
+                          setNoteModal({ isOpen: true, note });
+                        }}
+                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title="تعديل"
+                      >
+                        <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNote(note.id);
+                        }}
+                        className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                        title="حذف"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </Card>
-        </motion.div>
+          )}
+        </Card>
+
+        {/* Journal Section */}
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+              <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <span>المدونات ({journalEntries.length})</span>
+            </h3>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={handleAddJournalEntry}
+            >
+              إضافة مدونة
+            </Button>
+          </div>
+          
+          {journalEntries.length === 0 ? (
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-500 dark:text-gray-400">لا توجد مدونات لهذا اليوم</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {journalEntries.map((entry) => (
+                <motion.div
+                  key={entry.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
+                  onClick={() => setSelectedJournalEntry(entry)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        {entry.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                        {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{new Date(entry.createdAt).toLocaleDateString('ar-SA')}</span>
+                        {entry.tags && entry.tags.length > 0 && (
+                          <div className="flex items-center space-x-1">
+                            <Tag className="w-3 h-3" />
+                            <span>{entry.tags.length} وسوم</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setJournalForm({
+                            title: entry.title,
+                            content: entry.content,
+                            tags: entry.tags || []
+                          });
+                          setJournalModal({ isOpen: true, entry });
+                        }}
+                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title="تعديل"
+                      >
+                        <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteJournalEntry(entry.id);
+                        }}
+                        className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                        title="حذف"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </Card>
 
         {/* Navigation Footer */}
         <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
@@ -1147,8 +1174,20 @@ export default function DayViewPage() {
               <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center space-x-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{new Date(selectedJournalEntry.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span>{new Date(selectedJournalEntry.createdAt).toLocaleDateString('ar-SA', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</span>
                 </div>
+                {selectedJournalEntry.updatedAt && selectedJournalEntry.updatedAt !== selectedJournalEntry.createdAt && (
+                  <div className="flex items-center space-x-1">
+                    <Edit2 className="w-4 h-4" />
+                    <span>تم التحديث: {new Date(selectedJournalEntry.updatedAt).toLocaleDateString('ar-SA')}</span>
+                  </div>
+                )}
               </div>
               
               <div className="flex items-center space-x-2">
@@ -1162,14 +1201,14 @@ export default function DayViewPage() {
                     setJournalModal({ isOpen: true, entry: selectedJournalEntry });
                     setSelectedJournalEntry(null);
                   }}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors"
                   title="تعديل المدونة"
                 >
-                  <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <Edit2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </button>
                 <button
                   onClick={() => handleDeleteJournalEntry(selectedJournalEntry.id)}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                  className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
                   title="حذف المدونة"
                 >
                   <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
@@ -1184,9 +1223,9 @@ export default function DayViewPage() {
                   {selectedJournalEntry.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full"
+                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full font-medium"
                     >
-                      {tag}
+                      #{tag}
                     </span>
                   ))}
                 </div>

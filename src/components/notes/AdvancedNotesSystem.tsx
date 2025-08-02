@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, Plus, Tag, Edit2, Trash2, BookOpen, MessageSquare, Star, Filter, X
+  Search, Plus, Tag, Edit2, Trash2, BookOpen, MessageSquare, Star, Filter, X, Calendar
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -31,15 +31,19 @@ const NoteCard = React.memo(({ note, onEdit, onDelete, onToggleFavorite }) => {
       exit={{ opacity: 0, y: -20 }}
       className="group"
     >
-      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer">
+      <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer border-l-4 border-l-blue-500 dark:border-l-blue-400">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3 flex-1">
-            <div className={`p-2 rounded-lg bg-${category?.color}-100 dark:bg-${category?.color}-900`}>
-              <IconComponent className={`w-4 h-4 text-${category?.color}-600 dark:text-${category?.color}-400`} />
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${category?.color === 'blue' ? 'from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800' : 
+              category?.color === 'green' ? 'from-green-100 to-green-200 dark:from-green-900 dark:to-green-800' :
+              category?.color === 'red' ? 'from-red-100 to-red-200 dark:from-red-900 dark:to-red-800' :
+              category?.color === 'yellow' ? 'from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800' :
+              'from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800'}`}>
+              <IconComponent className={`w-5 h-5 text-${category?.color}-600 dark:text-${category?.color}-400`} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">
                   {note.title}
                 </h3>
                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -63,17 +67,45 @@ const NoteCard = React.memo(({ note, onEdit, onDelete, onToggleFavorite }) => {
                   />
                 </div>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
                 {note.content}
               </p>
-              <div className="flex items-center justify-between mt-3">
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${category?.color}-100 text-${category?.color}-800 dark:bg-${category?.color}-900 dark:text-${category?.color}-200`}>
-                  {category?.label}
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {new Date(note.createdAt).toLocaleDateString()}
-                </span>
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center space-x-2">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${category?.color}-100 text-${category?.color}-800 dark:bg-${category?.color}-900 dark:text-${category?.color}-200`}>
+                    {category?.label}
+                  </span>
+                  {note.favorite && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                      ⭐ مفضلة
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                  <Calendar className="w-3 h-3" />
+                  <span>{new Date(note.createdAt).toLocaleDateString('ar-SA', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</span>
+                </div>
               </div>
+              {note.tags && note.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-3">
+                  {note.tags.slice(0, 3).map(tag => (
+                    <span key={tag} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-md">
+                      #{tag}
+                    </span>
+                  ))}
+                  {note.tags.length > 3 && (
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-md">
+                      +{note.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

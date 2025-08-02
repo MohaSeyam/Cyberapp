@@ -1,7 +1,7 @@
 // Notes Page - Unified Design
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit2, Trash2, X, Calendar, Tag, FileText, ArrowLeft } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Calendar, Tag, FileText, ArrowLeft, BookOpen } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
@@ -237,90 +237,92 @@ export default function NotesPage() {
           />
         </Card>
 
-        {/* Full Note View */}
-        {showFullNote && selectedNote && (
-          <div className="fixed inset-0 bg-white dark:bg-gray-800 z-50 overflow-y-auto flex items-center justify-center">
-            <div className="max-w-2xl w-full mx-auto my-8 px-4 py-6 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
-              {/* Header */}
-                              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10 rounded-t-xl">
-                <div className="px-2 py-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={() => {
-                        setShowFullNote(false);
-                        setSelectedNote(null);
-                      }}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      title="العودة للملاحظات"
-                    >
-                      <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    <div>
-                      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {selectedNote.title}
-                      </h1>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {selectedNote.dayKey === 'general' ? getDayTitle(selectedNote.dayKey, selectedNote.weekId) : `الأسبوع ${selectedNote.weekId} - ${getDayTitle(selectedNote.dayKey, selectedNote.weekId)}`}
-                      </p>
-                    </div>
+        {/* Note Detail Modal */}
+        {selectedNote && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800">
+                    <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => {
-                        setNoteForm({
-                          title: selectedNote.title,
-                          content: selectedNote.content,
-                          tags: selectedNote.tags || [],
-                          weekId: selectedNote.weekId,
-                          dayKey: selectedNote.dayKey,
-                          taskId: selectedNote.taskId
-                        });
-                        setNoteModal({ isOpen: true, note: selectedNote });
-                        setShowFullNote(false);
-                        setSelectedNote(null);
-                      }}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      title="تعديل الملاحظة"
-                    >
-                      <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteNote(selectedNote.id)}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
-                      title="حذف الملاحظة"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                    </button>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {selectedNote.title}
+                    </h2>
+                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(selectedNote.createdAt).toLocaleDateString('ar-SA', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
+                      </div>
+                      {selectedNote.updatedAt && selectedNote.updatedAt !== selectedNote.createdAt && (
+                        <div className="flex items-center space-x-1">
+                          <Edit2 className="w-4 h-4" />
+                          <span>تم التحديث: {new Date(selectedNote.updatedAt).toLocaleDateString('ar-SA')}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setNoteForm({
+                        title: selectedNote.title,
+                        content: selectedNote.content,
+                        tags: selectedNote.tags || []
+                      });
+                      setNoteModal({ isOpen: true, note: selectedNote });
+                      setSelectedNote(null);
+                    }}
+                    className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                    title="تعديل الملاحظة"
+                  >
+                    <Edit2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteNote(selectedNote.id)}
+                    className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
+                    title="حذف الملاحظة"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedNote(null)}
+                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    title="إغلاق"
+                  >
+                    <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </div>
               </div>
-              {/* Content */}
-              <div className="py-6">
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-white">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(selectedNote.createdAt).toLocaleDateString('en-US')}</span>
+              
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                {selectedNote.tags && selectedNote.tags.length > 0 && (
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Tag className="w-4 h-4 text-gray-400" />
+                    <div className="flex flex-wrap gap-2">
+                      {selectedNote.tags.map((tag: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full font-medium"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  {selectedNote.tags && selectedNote.tags.length > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <Tag className="w-4 h-4 text-gray-400" />
-                      <div className="flex flex-wrap gap-2">
-                        {selectedNote.tags.map((tag: string, index: number) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-blue-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white">
-                    <div dangerouslySetInnerHTML={{ __html: selectedNote.content }} />
-                  </div>
+                )}
+                
+                <div className="prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-blue-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white">
+                  <div dangerouslySetInnerHTML={{ __html: selectedNote.content }} />
                 </div>
               </div>
             </div>

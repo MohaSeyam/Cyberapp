@@ -225,87 +225,92 @@ export default function JournalPage() {
           />
         </Card>
 
-        {/* Full Journal Entry View */}
-        {showFullEntry && selectedEntry && (
-          <div className="fixed inset-0 bg-white dark:bg-gray-800 z-50 overflow-y-auto flex items-center justify-center">
-            <div className="max-w-2xl w-full mx-auto my-8 px-4 py-6 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
-              {/* Header */}
-                              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10 rounded-t-xl">
-                <div className="px-2 py-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={() => {
-                        setShowFullEntry(false);
-                        setSelectedEntry(null);
-                      }}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      title="العودة للمدونات"
-                    >
-                      <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    <div>
-                      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {selectedEntry.title}
-                      </h1>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {selectedEntry.dayKey === 'general' ? getDayTitle(selectedEntry.dayKey, selectedEntry.weekId) : `الأسبوع ${selectedEntry.weekId} - ${getDayTitle(selectedEntry.dayKey, selectedEntry.weekId)}`}
-                      </p>
-                    </div>
+        {/* Journal Entry Detail Modal */}
+        {selectedEntry && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800">
+                    <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => {
-                        setJournalForm({
-                          title: selectedEntry.title,
-                          content: selectedEntry.content,
-                          tags: selectedEntry.tags || []
-                        });
-                        setJournalModal({ isOpen: true, entry: selectedEntry });
-                        setShowFullEntry(false);
-                        setSelectedEntry(null);
-                      }}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      title="تعديل المدونة"
-                    >
-                      <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteEntry(selectedEntry.id)}
-                      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
-                      title="حذف المدونة"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                    </button>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {selectedEntry.title}
+                    </h2>
+                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(selectedEntry.createdAt).toLocaleDateString('ar-SA', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
+                      </div>
+                      {selectedEntry.updatedAt && selectedEntry.updatedAt !== selectedEntry.createdAt && (
+                        <div className="flex items-center space-x-1">
+                          <Edit2 className="w-4 h-4" />
+                          <span>تم التحديث: {new Date(selectedEntry.updatedAt).toLocaleDateString('ar-SA')}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setJournalForm({
+                        title: selectedEntry.title,
+                        content: selectedEntry.content,
+                        tags: selectedEntry.tags || []
+                      });
+                      setJournalModal({ isOpen: true, entry: selectedEntry });
+                      setSelectedEntry(null);
+                    }}
+                    className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors"
+                    title="تعديل المدونة"
+                  >
+                    <Edit2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEntry(selectedEntry.id)}
+                    className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
+                    title="حذف المدونة"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedEntry(null)}
+                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    title="إغلاق"
+                  >
+                    <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </button>
+                </div>
               </div>
-              {/* Content */}
-              <div className="py-6">
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-white">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(selectedEntry.createdAt).toLocaleDateString('en-US')}</span>
+              
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                {selectedEntry.tags && selectedEntry.tags.length > 0 && (
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Tag className="w-4 h-4 text-gray-400" />
+                    <div className="flex flex-wrap gap-2">
+                      {selectedEntry.tags.map((tag: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full font-medium"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  {selectedEntry.tags && selectedEntry.tags.length > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <Tag className="w-4 h-4 text-gray-400" />
-                      <div className="flex flex-wrap gap-2">
-                        {selectedEntry.tags.map((tag: string, index: number) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white">
-                    <div dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
-                  </div>
+                )}
+                
+                <div className="prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white">
+                  <div dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
                 </div>
               </div>
             </div>
