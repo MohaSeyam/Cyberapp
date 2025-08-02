@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 export default function JournalViewPage() {
   const { entryId } = useParams<{ entryId: string }>();
   const navigate = useNavigate();
-  const { appState, deleteJournalEntry } = useApp();
+  const { appState, deleteJournalEntry, plan } = useApp();
 
   // البحث عن المدونة في جميع الأيام
   const journalEntry = React.useMemo(() => {
@@ -24,6 +24,19 @@ export default function JournalViewPage() {
     }
     return null;
   }, [appState?.journal, entryId]);
+
+  // البحث عن اليوم المرتبط بالمدونة
+  const dayInfo = React.useMemo(() => {
+    if (!journalEntry?.dayKey || !plan) return null;
+    
+    const [weekId, dayKey] = journalEntry.dayKey.split('-');
+    const week = plan.find(w => w.week === parseInt(weekId));
+    if (week) {
+      const day = week.days?.find(d => d.key === dayKey);
+      return { week, day };
+    }
+    return null;
+  }, [journalEntry, plan]);
 
   const handleDeleteJournalEntry = async () => {
     if (window.confirm('هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء.')) {
@@ -103,27 +116,35 @@ export default function JournalViewPage() {
                 {journalEntry.title}
               </h1>
               
-              <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {new Date(journalEntry.createdAt).toLocaleDateString('ar-SA', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4" />
-                  <span>
-                    {new Date(journalEntry.createdAt).toLocaleTimeString('ar-SA', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </div>
+                          <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4" />
+                <span>
+                  {new Date(journalEntry.createdAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </span>
               </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4" />
+                <span>
+                  {new Date(journalEntry.createdAt).toLocaleTimeString('ar-SA', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
+              {dayInfo && (
+                <div className="flex items-center space-x-2">
+                  <Target className="w-4 h-4" />
+                  <span className="text-purple-600 dark:text-purple-400 font-medium">
+                    {dayInfo.day.name?.ar} - الأسبوع {dayInfo.week.week}
+                  </span>
+                </div>
+              )}
+            </div>
             </div>
 
             {/* Tags */}

@@ -646,20 +646,15 @@ export default function DayViewPage() {
               <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <span>الملاحظات ({notes.length})</span>
             </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={handleAddNote}
-            >
-              إضافة ملاحظة
-            </Button>
           </div>
           
           {notes.length === 0 ? (
             <div className="text-center py-8">
               <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
               <p className="text-gray-500 dark:text-gray-400">لا توجد ملاحظات لهذا اليوم</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                أضف ملاحظات من كروت المهام
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -693,21 +688,6 @@ export default function DayViewPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setNoteForm({
-                            title: note.title,
-                            content: note.content,
-                            tags: note.tags || []
-                          });
-                          setNoteModal({ isOpen: true, note });
-                        }}
-                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        title="تعديل"
-                      >
-                        <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
                           handleDeleteNote(note.id);
                         }}
                         className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
@@ -734,7 +714,7 @@ export default function DayViewPage() {
               variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
-              onClick={handleAddJournalEntry}
+              onClick={() => setJournalModal({ isOpen: true, entry: null })}
             >
               إضافة مدونة
             </Button>
@@ -844,112 +824,7 @@ export default function DayViewPage() {
         </motion.div>
       </motion.div>
 
-      {/* Note Modal */}
-      <Modal
-        isOpen={noteModal.isOpen}
-        onClose={() => setNoteModal({ isOpen: false, taskId: '' })}
-        title="إضافة ملاحظة"
-        size="xl"
-      >
-        <div className="space-y-4 pb-20">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              عنوان الملاحظة
-            </label>
-            <input
-              type="text"
-              value={noteForm.title}
-              onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="أدخل عنوان الملاحظة"
-            />
-          </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              التاقات
-            </label>
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
-                {noteForm.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
-                  >
-                    <span>{tag}</span>
-                    <button
-                      onClick={() => removeTag(tag)}
-                      className="ml-1 hover:text-blue-600"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="أضف تاق"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      addTag(e.currentTarget.value);
-                      e.currentTarget.value = '';
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                    addTag(input.value);
-                    input.value = '';
-                  }}
-                >
-                  إضافة
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              محتوى الملاحظة
-            </label>
-            <RichTextEditor
-              content={noteForm.content}
-              onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
-              placeholder="اكتب ملاحظتك هنا..."
-              lang={lang}
-              minHeight="400px"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setNoteModal({ isOpen: false, taskId: '' });
-                setNoteForm({ title: '', content: '', tags: [] });
-              }}
-            >
-              إلغاء
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleAddNote}
-              disabled={!noteForm.title.trim() || !noteForm.content.trim()}
-            >
-              حفظ الملاحظة
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
       {/* Resource Modal */}
       <Modal
