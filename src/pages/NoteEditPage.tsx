@@ -123,12 +123,12 @@ export default function NoteEditPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => navigate(`/note/${noteId}`)}
+            onClick={() => navigate(-1)}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="رجوع"
             aria-label="رجوع"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
           </button>
           
           <Button

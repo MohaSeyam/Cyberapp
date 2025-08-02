@@ -52,8 +52,8 @@ export default function NoteViewPage() {
   };
 
   const handleEditNote = () => {
-    // فتح صفحة التعديل في تبويب جديد
-    window.open(`/note/${noteId}/edit`, '_blank');
+    // فتح صفحة التعديل في نفس الصفحة
+    navigate(`/note/${noteId}/edit`);
   };
 
   if (!note) {
