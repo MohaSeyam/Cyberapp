@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تغيير اللغة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            direction: rtl;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .language-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>اختبار تغيير اللغة</h1>
+        
+        <div class="language-info">
+            <h3>معلومات اللغة الحالية:</h3>
+            <p>اللغة: <span id="current-lang">العربية</span></p>
+            <p>اتجاه النص: <span id="current-dir">RTL</span></p>
+            <p>قيمة localStorage: <span id="localstorage-value">-</span></p>
+        </div>
+        
+        <div>
+            <button onclick="changeLanguage('ar')">العربية</button>
+            <button onclick="changeLanguage('en')">English</button>
+        </div>
+        
+        <div class="language-info">
+            <h3>محتوى تجريبي:</h3>
+            <p>هذا نص تجريبي باللغة العربية</p>
+            <p>This is a test text in English</p>
+        </div>
+    </div>
+
+    <script>
+        function updateDisplay() {
+            const lang = localStorage.getItem('app_language') || 'ar';
+            const dir = lang === 'ar' ? 'RTL' : 'LTR';
+            const langName = lang === 'ar' ? 'العربية' : 'English';
+            
+            document.getElementById('current-lang').textContent = langName;
+            document.getElementById('current-dir').textContent = dir;
+            document.getElementById('localstorage-value').textContent = lang;
+            
+            // تحديث اتجاه الصفحة
+            document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', lang);
+        }
+        
+        function changeLanguage(lang) {
+            console.log('Changing language to:', lang);
+            localStorage.setItem('app_language', lang);
+            
+            // إرسال حدث تغيير اللغة
+            window.dispatchEvent(new CustomEvent('languageChanged', { detail: lang }));
+            
+            updateDisplay();
+        }
+        
+        // تحديث العرض عند التحميل
+        updateDisplay();
+        
+        // الاستماع لتغييرات localStorage
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'app_language') {
+                console.log('Storage changed:', e.newValue);
+                updateDisplay();
+            }
+        });
+        
+        // الاستماع لحدث تغيير اللغة
+        window.addEventListener('languageChanged', function(e) {
+            console.log('Language changed event:', e.detail);
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

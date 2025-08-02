@@ -15,7 +15,7 @@ import { animations } from '../constants/theme';
 export default function NotesPage() {
   const { appState, addNote, updateNote, deleteNote, plan } = useApp();
   const notes = appState?.notes || {};
-  const { t, lang } = useLocalization();
+  const { t, language } = useLocalization();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');

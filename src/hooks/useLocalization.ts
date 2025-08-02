@@ -1,5 +1,5 @@
 // Localization Hook
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import type { Language } from '../types';
 
 interface TranslationData {
@@ -629,7 +629,31 @@ export function useLocalization() {
     return 'ar';
   });
   
+  // Listen for language changes from other components
+  useEffect(() => {
+    const handleLanguageChange = (event: CustomEvent) => {
+      const newLang = event.detail;
+      setCurrentLanguage(newLang);
+    };
+
+    const handleStorageChange = () => {
+      const newLang = localStorage.getItem('app_language') as Language;
+      if (newLang && newLang !== currentLanguage) {
+        setCurrentLanguage(newLang);
+      }
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange as EventListener);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [currentLanguage]);
+  
   const setLang = useCallback((newLang: Language) => {
+    console.log('useLocalization setLang called with:', newLang);
     setCurrentLanguage(newLang);
     if (typeof window !== 'undefined') {
       localStorage.setItem('app_language', newLang);

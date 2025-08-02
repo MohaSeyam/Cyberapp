@@ -17,7 +17,7 @@ import toast from 'react-hot-toast';
 export default function JournalPage() {
   const { appState, addJournalEntry, updateJournalEntry, deleteJournalEntry, plan } = useApp();
   const journal = appState?.journal || {};
-  const { t, lang } = useLocalization();
+  const { t, language } = useLocalization();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');

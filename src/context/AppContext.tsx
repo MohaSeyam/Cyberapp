@@ -80,6 +80,7 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     const handleLanguageChange = (event: CustomEvent) => {
       const newLang = event.detail;
+      console.log('AppContext received language change:', newLang);
       setLangState(newLang);
       localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
     };
@@ -808,7 +809,11 @@ export function AppProvider({ children }: AppProviderProps) {
     notifications,
     
     // Actions
-    setLang,
+    setLang: (newLang: Language) => {
+      setLangState(newLang);
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
+      window.dispatchEvent(new CustomEvent('languageChanged', { detail: newLang }));
+    },
     setTheme,
     toggleTheme,
     updateSettings,

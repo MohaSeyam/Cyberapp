@@ -9,7 +9,9 @@ const Navbar: React.FC = () => {
   const { language, setLang } = useLocalization();
 
   const handleLanguageToggle = () => {
-    setLang(language === 'ar' ? 'en' : 'ar');
+    const newLang = language === 'ar' ? 'en' : 'ar';
+    console.log('Changing language from', language, 'to', newLang);
+    setLang(newLang);
   };
 
   return (
