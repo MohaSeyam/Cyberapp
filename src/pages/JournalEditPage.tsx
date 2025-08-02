@@ -145,11 +145,11 @@ export default function JournalEditPage() {
         <Card>
           <div className="space-y-6">
             {/* Day Info */}
-            {dayInfo && (
+            {dayInfo && dayInfo.day && (
               <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                 <div className="flex items-center space-x-2 text-purple-700 dark:text-purple-300">
                   <span className="font-medium">اليوم:</span>
-                  <span>{dayInfo.day.name?.ar}</span>
+                  <span>{dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}</span>
                   {dayInfo.day.topic?.ar && (
                     <>
                       <span>-</span>

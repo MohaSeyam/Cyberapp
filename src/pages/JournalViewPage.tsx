@@ -153,11 +153,11 @@ export default function JournalViewPage() {
                   })}
                 </span>
               </div>
-              {dayInfo && (
+              {dayInfo && dayInfo.day && (
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4" />
                   <span className="text-purple-600 dark:text-purple-400 font-medium">
-                    {dayInfo.day.name?.ar}
+                    {dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}
                   </span>
                   {dayInfo.day.topic?.ar && (
                     <span className="text-gray-500 dark:text-gray-400">

@@ -145,11 +145,11 @@ export default function NoteEditPage() {
         <Card>
           <div className="space-y-6">
             {/* Day Info */}
-            {dayInfo && (
+            {dayInfo && dayInfo.day && (
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <div className="flex items-center space-x-2 text-blue-700 dark:text-blue-300">
                   <span className="font-medium">اليوم:</span>
-                  <span>{dayInfo.day.name?.ar}</span>
+                  <span>{dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}</span>
                   {dayInfo.day.topic?.ar && (
                     <>
                       <span>-</span>
