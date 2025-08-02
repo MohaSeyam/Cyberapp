@@ -21,6 +21,7 @@ import ProgressChart from '../components/charts/ProgressChart';
 import PieChart from '../components/charts/PieChart';
 import Logo from '../components/ui/Logo';
 import toast from 'react-hot-toast';
+import { openDB } from 'idb';
 
 // Custom CSS for hiding scrollbar
 const scrollbarHideStyles = `
@@ -214,11 +215,95 @@ export default function ProgressPage() {
 
   const handleExport = async () => {
     try {
-      // هنا سيتم تنفيذ عملية التصدير الفعلية
       console.log('Exporting with options:', reportOptions);
       
-      // محاكاة عملية التصدير
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // جمع البيانات حسب الخيارات
+      let content = '';
+      const timestamp = new Date().toLocaleDateString('en-US');
+      
+      // إضافة عنوان التقرير
+      content += `# ${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
+      content += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}**\n\n`;
+      
+      // إضافة شعار التطبيق
+      content += `![Logo](data:image/png;base64,${await getLogoBase64()})\n\n`;
+      
+      // إضافة محتوى التقرير حسب النوع
+      if (reportOptions.content === 'progress' || reportOptions.content === 'both') {
+        content += `## ${language === 'ar' ? 'تقرير التقدم' : 'Progress Report'}\n\n`;
+        content += `- ${language === 'ar' ? 'إجمالي المهام' : 'Total Tasks'}: ${totalTasks}\n`;
+        content += `- ${language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}: ${completedTasks}\n`;
+        content += `- ${language === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate'}: ${completionRate.toFixed(1)}%\n`;
+        content += `- ${language === 'ar' ? 'المسار الحالي' : 'Current Streak'}: ${currentStreak} ${language === 'ar' ? 'أيام' : 'days'}\n`;
+        content += `- ${language === 'ar' ? 'أطول مسار' : 'Longest Streak'}: ${longestStreak} ${language === 'ar' ? 'أيام' : 'days'}\n\n`;
+      }
+      
+      if (reportOptions.content === 'notes' || reportOptions.content === 'both') {
+        content += `## ${language === 'ar' ? 'الملاحظات والمدونات' : 'Notes and Journal Entries'}\n\n`;
+        
+        // إضافة الملاحظات
+        const notes = await getNotes();
+        if (notes.length > 0) {
+          content += `### ${language === 'ar' ? 'الملاحظات' : 'Notes'}\n\n`;
+          notes.forEach(note => {
+            content += `#### ${note.title}\n`;
+            content += `**${language === 'ar' ? 'التاريخ' : 'Date'}: ${new Date(note.createdAt).toLocaleDateString('en-US')}**\n\n`;
+            content += `${note.content.replace(/<[^>]*>/g, '')}\n\n`;
+          });
+        }
+        
+        // إضافة المدونات
+        const journalEntries = await getJournalEntries();
+        if (journalEntries.length > 0) {
+          content += `### ${language === 'ar' ? 'المدونات' : 'Journal Entries'}\n\n`;
+          journalEntries.forEach(entry => {
+            content += `#### ${entry.title}\n`;
+            content += `**${language === 'ar' ? 'التاريخ' : 'Date'}: ${new Date(entry.createdAt).toLocaleDateString('en-US')}**\n\n`;
+            content += `${entry.content.replace(/<[^>]*>/g, '')}\n\n`;
+          });
+        }
+      }
+      
+      // إنشاء الملف حسب الصيغة
+      let fileName = `cybersecurity-report-${Date.now()}`;
+      let mimeType = 'text/plain';
+      let fileExtension = '.txt';
+      
+      switch (reportOptions.format) {
+        case 'pdf':
+          // تحويل Markdown إلى PDF
+          content = await convertToPDF(content);
+          mimeType = 'application/pdf';
+          fileExtension = '.pdf';
+          fileName += '.pdf';
+          break;
+        case 'csv':
+          content = convertToCSV();
+          mimeType = 'text/csv';
+          fileExtension = '.csv';
+          fileName += '.csv';
+          break;
+        case 'markdown':
+          mimeType = 'text/markdown';
+          fileExtension = '.md';
+          fileName += '.md';
+          break;
+        default: // txt
+          mimeType = 'text/plain';
+          fileExtension = '.txt';
+          fileName += '.txt';
+      }
+      
+      // إنشاء وتنزيل الملف
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       toast.success(
         language === 'ar' 
@@ -310,6 +395,63 @@ export default function ProgressPage() {
   };
   
   const { currentStreak, longestStreak } = calculateStreak();
+
+  // Helper functions for export
+  const getLogoBase64 = async () => {
+    try {
+      const response = await fetch('/src/assets/Gemini_Generated_Image_26mado26mado26ma.png');
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]);
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error loading logo:', error);
+      return '';
+    }
+  };
+
+  const getNotes = async () => {
+    try {
+      const db = await openDB('cyberplan', 1);
+      return await db.getAll('notes');
+    } catch (error) {
+      console.error('Error getting notes:', error);
+      return [];
+    }
+  };
+
+  const getJournalEntries = async () => {
+    try {
+      const db = await openDB('cyberplan', 1);
+      return await db.getAll('journal');
+    } catch (error) {
+      console.error('Error getting journal entries:', error);
+      return [];
+    }
+  };
+
+  const convertToPDF = async (content: string) => {
+    // محاكاة تحويل إلى PDF - في التطبيق الحقيقي ستستخدم مكتبة مثل jsPDF
+    return content;
+  };
+
+  const convertToCSV = () => {
+    const csvData = [
+      ['Metric', 'Value'],
+      ['Total Tasks', totalTasks],
+      ['Completed Tasks', completedTasks],
+      ['Completion Rate', `${completionRate.toFixed(1)}%`],
+      ['Current Streak', currentStreak],
+      ['Longest Streak', longestStreak]
+    ];
+    
+    return csvData.map(row => row.join(',')).join('\n');
+  };
 
   // Get last activity
   const lastActivity = safeProgress
