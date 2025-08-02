@@ -49,7 +49,7 @@ const taskTypeConfig = {
     borderColor: 'border-red-200 dark:border-red-700'
   },
   'Particular': {
-    icon: Eye,
+    icon: Target,
     color: 'purple',
     bgColor: 'bg-purple-100 dark:bg-purple-900',
     textColor: 'text-purple-600 dark:text-purple-400',

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Shield, Server, Eye, Search, Cloud, 
+  Shield, Server, Search, Cloud, 
   Calendar, Clock, Target, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
   Home, ChevronRight, CheckCircle, Bug, FileText
@@ -19,7 +19,7 @@ import phasesData from '../../data/phases.json';
 const phaseIcons = {
   shield: Shield,
   server: Server,
-  eye: Eye,
+  eye: Target,
   search: Search,
   cloud: Cloud,
   target: Target,
@@ -125,7 +125,7 @@ export default function PhasesPage() {
       textColor: 'text-red-600 dark:text-red-400'
     },
     'Particular': {
-      icon: Eye,
+      icon: Target,
       color: 'purple',
       bgColor: 'bg-purple-100 dark:bg-purple-900',
       textColor: 'text-purple-600 dark:text-purple-400'

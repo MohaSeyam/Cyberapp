@@ -5,7 +5,7 @@ import {
   Calendar, ChevronRight, ChevronLeft, Target, Clock, 
   CheckCircle, PlayCircle, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, Eye, FileText
+  Home, ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -181,7 +181,7 @@ export default function DaysPage() {
       textColor: 'text-red-600 dark:text-red-400'
     },
     'Particular': {
-      icon: Eye,
+      icon: Target,
       color: 'purple',
       bgColor: 'bg-purple-100 dark:bg-purple-900',
       textColor: 'text-purple-600 dark:text-purple-400'

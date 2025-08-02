@@ -5,7 +5,7 @@ import {
   Calendar, ChevronRight, ChevronLeft, Target, Clock, 
   CheckCircle, PlayCircle, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ArrowLeft, Shield, Server, Eye, Search, Cloud, Bug, FileText
+  Home, ArrowLeft, Shield, Server, Search, Cloud, Bug, FileText
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -19,7 +19,7 @@ import phasesData from '../../data/phases.json';
 const phaseIcons = {
   shield: Shield,
   server: Server,
-  eye: Eye,
+  eye: Target,
   search: Search,
   cloud: Cloud,
   target: Target,

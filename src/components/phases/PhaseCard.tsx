@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Shield, Server, Eye, Search, Cloud, Target, Zap, Trophy,
+  Shield, Server, Search, Cloud, Target, Zap, Trophy,
   Clock, TrendingUp, CheckCircle, ArrowRight
 } from 'lucide-react';
 import Card from '../ui/Card';
@@ -26,7 +26,7 @@ const getPhaseIcon = (iconName: string) => {
   const icons: { [key: string]: React.ComponentType<any> } = {
     shield: Shield,
     server: Server,
-    eye: Eye,
+    eye: Target,
     search: Search,
     cloud: Cloud,
     target: Target,
