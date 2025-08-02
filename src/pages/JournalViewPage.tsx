@@ -1,0 +1,155 @@
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import PageLayout from '../components/layout/PageLayout';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import toast from 'react-hot-toast';
+
+export default function JournalViewPage() {
+  const { entryId } = useParams<{ entryId: string }>();
+  const navigate = useNavigate();
+  const { appState, deleteJournalEntry } = useApp();
+
+  // البحث عن المدونة في جميع الأيام
+  const journalEntry = React.useMemo(() => {
+    if (!appState?.journal || !entryId) return null;
+    
+    for (const [dayKey, entries] of Object.entries(appState.journal)) {
+      const foundEntry = entries.find(e => e.id === parseInt(entryId));
+      if (foundEntry) {
+        return { ...foundEntry, dayKey };
+      }
+    }
+    return null;
+  }, [appState?.journal, entryId]);
+
+  const handleDeleteJournalEntry = async () => {
+    if (window.confirm('هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      try {
+        await deleteJournalEntry(parseInt(entryId!));
+        toast.success('تم حذف المدونة بنجاح');
+        navigate(-1);
+      } catch (error) {
+        console.error('Error deleting journal entry:', error);
+        toast.error('فشل في حذف المدونة');
+      }
+    }
+  };
+
+  const handleEditJournalEntry = () => {
+    // يمكن إضافة منطق التعديل هنا
+    toast.info('ميزة التعديل قيد التطوير');
+  };
+
+  if (!journalEntry) {
+    return (
+      <PageLayout title="مدونة غير موجودة">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📖</div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            المدونة غير موجودة
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            قد تكون المدونة قد تم حذفها أو الرابط غير صحيح
+          </p>
+          <Button onClick={() => navigate(-1)} variant="primary">
+            العودة للصفحة السابقة
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout title={journalEntry.title}>
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            icon={<ArrowLeft />}
+          >
+            العودة
+          </Button>
+          
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={handleEditJournalEntry}
+              icon={<Edit2 />}
+            >
+              تعديل
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDeleteJournalEntry}
+              icon={<Trash2 />}
+              className="text-red-600 hover:text-red-700"
+            >
+              حذف
+            </Button>
+          </div>
+        </div>
+
+        {/* Journal Entry Content */}
+        <Card>
+          <div className="space-y-6">
+            {/* Journal Entry Header */}
+            <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                {journalEntry.title}
+              </h1>
+              
+              <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>
+                    {new Date(journalEntry.createdAt).toLocaleDateString('ar-SA', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4" />
+                  <span>
+                    {new Date(journalEntry.createdAt).toLocaleTimeString('ar-SA', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            {journalEntry.tags && journalEntry.tags.length > 0 && (
+              <div className="flex items-center space-x-2">
+                <Tag className="w-4 h-4 text-gray-400" />
+                <div className="flex flex-wrap gap-2">
+                  {journalEntry.tags.map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full font-medium"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Journal Entry Content */}
+            <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white">
+              <div dangerouslySetInnerHTML={{ __html: journalEntry.content }} />
+            </div>
+          </div>
+        </Card>
+      </div>
+    </PageLayout>
+  );
+}

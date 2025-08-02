@@ -15,6 +15,9 @@ const ExportPage = lazy(() => import('./pages/ExportPage'));
 const NotesPage = lazy(() => import('./pages/NotesPage'));
 const JournalPage = lazy(() => import('./pages/JournalPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const NoteViewPage = lazy(() => import('./pages/NoteViewPage'));
+const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
+const ResourcePreviewPage = lazy(() => import('./pages/ResourcePreviewPage'));
 
 function App() {
   return (
@@ -33,6 +36,9 @@ function App() {
             <Route path="/notes" element={<NotesPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/note/:noteId" element={<NoteViewPage />} />
+            <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
+            <Route path="/resource-preview/:resourceId" element={<ResourcePreviewPage />} />
           </Routes>
         </Suspense>
       </Router>

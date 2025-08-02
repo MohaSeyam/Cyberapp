@@ -132,10 +132,7 @@ export default function DayViewPage() {
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
-  const [selectedJournalEntry, setSelectedJournalEntry] = useState<any>(null);
-  const [selectedResource, setSelectedResource] = useState(null);
-  const [previewResource, setPreviewResource] = useState(null);
-  const [showResourcePreview, setShowResourcePreview] = useState(false);
+
   
   // Get resources for current day (combine plan resources with user-added resources)
   const currentDayResources = useMemo(() => {
@@ -331,23 +328,7 @@ export default function DayViewPage() {
     }
   };
 
-  const handlePreviewResource = (resource: any) => {
-    // التحقق من أن الرابط آمن للمعاينة
-    if (!isValidUrl(resource.url)) {
-      toast.error('الرابط غير صالح للمعاينة');
-      return;
-    }
-    
-    // التحقق من أن الرابط يدعم iframe
-    const url = new URL(resource.url);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-      toast.error('يمكن معاينة روابط HTTP و HTTPS فقط');
-      return;
-    }
-    
-    setPreviewResource(resource);
-    setShowResourcePreview(true);
-  };
+
 
   const openResourceInNewTab = (url: string) => {
     window.open(url, '_blank');
@@ -604,7 +585,7 @@ export default function DayViewPage() {
                           <div className="flex items-center space-x-2">
                             {/* Preview Button */}
                             <button
-                              onClick={() => handlePreviewResource(resource)}
+                              onClick={() => navigate(`/resource-preview/${encodeURIComponent(JSON.stringify(resource))}`)}
                               className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
                               title="معاينة المرجع"
                             >
@@ -688,7 +669,7 @@ export default function DayViewPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
-                  onClick={() => setSelectedNote(note)}
+                  onClick={() => navigate(`/note/${note.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -772,7 +753,7 @@ export default function DayViewPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
-                  onClick={() => setSelectedJournalEntry(entry)}
+                  onClick={() => navigate(`/journal-entry/${entry.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -1198,149 +1179,7 @@ export default function DayViewPage() {
         </div>
       </Modal>
 
-      {/* Journal Entry Detail Modal */}
-      {selectedJournalEntry && (
-        <Modal
-          isOpen={!!selectedJournalEntry}
-          onClose={() => setSelectedJournalEntry(null)}
-          title={selectedJournalEntry.title}
-          size="xl"
-        >
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>{new Date(selectedJournalEntry.createdAt).toLocaleDateString('ar-SA', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</span>
-                </div>
-                {selectedJournalEntry.updatedAt && selectedJournalEntry.updatedAt !== selectedJournalEntry.createdAt && (
-                  <div className="flex items-center space-x-1">
-                    <Edit2 className="w-4 h-4" />
-                    <span>تم التحديث: {new Date(selectedJournalEntry.updatedAt).toLocaleDateString('ar-SA')}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => {
-                    setJournalForm({
-                      title: selectedJournalEntry.title,
-                      content: selectedJournalEntry.content,
-                      tags: selectedJournalEntry.tags || []
-                    });
-                    setJournalModal({ isOpen: true, entry: selectedJournalEntry });
-                    setSelectedJournalEntry(null);
-                  }}
-                  className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors"
-                  title="تعديل المدونة"
-                >
-                  <Edit2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                </button>
-                <button
-                  onClick={() => handleDeleteJournalEntry(selectedJournalEntry.id)}
-                  className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
-                  title="حذف المدونة"
-                >
-                  <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                </button>
-              </div>
-            </div>
 
-            {selectedJournalEntry.tags && selectedJournalEntry.tags.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <Tag className="w-4 h-4 text-gray-400" />
-                <div className="flex flex-wrap gap-2">
-                  {selectedJournalEntry.tags.map((tag: string, index: number) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full font-medium"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-purple-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white">
-              <div dangerouslySetInnerHTML={{ __html: selectedJournalEntry.content }} />
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* Resource Preview Modal */}
-      {showResourcePreview && previewResource && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800">
-                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {previewResource.title}
-                  </h2>
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center space-x-1">
-                      <ExternalLink className="w-4 h-4" />
-                      <span>{previewResource.url}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => openResourceInNewTab(previewResource.url)}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                  title="فتح في تبويب جديد"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  فتح في تبويب جديد
-                </button>
-                <button
-                  onClick={() => {
-                    setShowResourcePreview(false);
-                    setPreviewResource(null);
-                  }}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  title="إغلاق"
-                >
-                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="h-[calc(90vh-120px)]">
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
-                <div className="flex items-center space-x-2 text-yellow-800 dark:text-yellow-200">
-                  <Shield className="w-4 h-4" />
-                  <span className="text-sm font-medium">تحذير أمني: يتم عرض المحتوى من موقع خارجي</span>
-                </div>
-              </div>
-              <iframe
-                src={previewResource.url}
-                className="w-full h-full border-0"
-                title={previewResource.title}
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-                referrerPolicy="no-referrer"
-                onError={() => {
-                  toast.error('فشل في تحميل المعاينة. قد يكون الموقع لا يدعم العرض في iframe');
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </PageLayout>
   );
 }
