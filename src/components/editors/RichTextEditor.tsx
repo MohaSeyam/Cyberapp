@@ -1,5 +1,5 @@
 // Unified Rich Text Editor Component
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
-  Code as CodeIcon, Highlighter, Quote
+  Code as CodeIcon, Highlighter, Quote, Link as LinkIcon
 } from "lucide-react";
 import type { Language } from "../../types";
 
@@ -33,8 +33,36 @@ interface RichTextEditorProps {
 
 // Toolbar Component
 function EditorToolbar({ editor, lang = 'ar' }: { editor: any; lang?: Language }) {
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  
   if (!editor) return null;
   
+  const addLink = () => {
+    if (linkUrl.trim()) {
+      // إذا كان هناك نص محدد، أضف الرابط له
+      if (editor.isActive('link')) {
+        editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl.trim() }).run();
+      } else {
+        // إذا لم يكن هناك نص محدد، أضف الرابط للنص الحالي
+        editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
+      }
+      setLinkUrl('');
+      setShowLinkInput(false);
+    }
+  };
+
+  const removeLink = () => {
+    editor.chain().focus().unsetLink().run();
+  };
+
+  const setLink = () => {
+    const url = window.prompt('أدخل الرابط:');
+    if (url) {
+      editor.chain().focus().setLink({ href: url }).run();
+    }
+  };
+
   return (
     <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-3">
       <div className="flex flex-wrap gap-1 items-center">
@@ -85,6 +113,66 @@ function EditorToolbar({ editor, lang = 'ar' }: { editor: any; lang?: Language }
             <Strikethrough size={14} />
           </button>
         </div>
+
+        {/* Link Controls */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={() => setShowLinkInput(!showLinkInput)} 
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              editor.isActive('link') 
+                ? 'bg-blue-500 text-white' 
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title="إضافة رابط"
+          >
+            <LinkIcon size={14} />
+          </button>
+          {editor.isActive('link') && (
+            <button 
+              onClick={removeLink} 
+              className="p-1.5 rounded text-xs transition-all duration-200 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400"
+              title="إزالة الرابط"
+            >
+              <Strikethrough size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Link Input */}
+        {showLinkInput && (
+          <div className="mt-2 p-2 bg-white dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-600">
+            <div className="flex items-center gap-2">
+              <input
+                type="url"
+                placeholder="أدخل الرابط هنا..."
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    addLink();
+                  }
+                }}
+                className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                autoFocus
+              />
+              <button
+                onClick={addLink}
+                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                إضافة
+              </button>
+              <button
+                onClick={() => {
+                  setShowLinkInput(false);
+                  setLinkUrl('');
+                }}
+                className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Headings */}
         <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
@@ -256,9 +344,9 @@ export default function RichTextEditor({
         alignments: ['left', 'center', 'right']
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: true,
         HTMLAttributes: {
-          class: 'text-blue-600 underline hover:text-blue-800'
+          class: 'text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 cursor-pointer'
         }
       }),
       Placeholder.configure({ 
@@ -369,6 +457,10 @@ export default function RichTextEditor({
         }
         .dark .ProseMirror a {
           color: #60a5fa !important;
+          text-decoration: underline;
+        }
+        .dark .ProseMirror a:hover {
+          color: #93c5fd !important;
         }
         .dark .ProseMirror mark {
           background-color: #fbbf24 !important;
