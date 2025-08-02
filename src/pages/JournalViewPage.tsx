@@ -42,11 +42,27 @@ export default function JournalViewPage() {
     if (window.confirm('هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء.')) {
       try {
         await deleteJournalEntry(parseInt(entryId!));
-        toast.success('تم حذف المدونة بنجاح');
+        toast.success('✓ تم حذف المدونة بنجاح', {
+          icon: '🗑️',
+          style: {
+            background: '#10B981',
+            color: '#ffffff',
+            borderRadius: '8px',
+            fontSize: '14px'
+          }
+        });
         navigate(-1);
       } catch (error) {
         console.error('Error deleting journal entry:', error);
-        toast.error('فشل في حذف المدونة');
+        toast.error('✕ فشل في حذف المدونة', {
+          icon: '❌',
+          style: {
+            background: '#EF4444',
+            color: '#ffffff',
+            borderRadius: '8px',
+            fontSize: '14px'
+          }
+        });
       }
     }
   };
@@ -61,10 +77,26 @@ export default function JournalViewPage() {
       // نسخ العنوان والمحتوى
       const contentToCopy = `${journalEntry.title}\n\n${journalEntry.content.replace(/<[^>]*>/g, '')}`;
       await navigator.clipboard.writeText(contentToCopy);
-      toast.success('تم نسخ المحتوى بنجاح');
+      toast.success('✓ تم نسخ المحتوى بنجاح', {
+        icon: '📋',
+        style: {
+          background: '#10B981',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
     } catch (error) {
       console.error('Error copying content:', error);
-      toast.error('فشل في نسخ المحتوى');
+      toast.error('✕ فشل في نسخ المحتوى', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
     }
   };
 
