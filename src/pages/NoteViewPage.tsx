@@ -241,10 +241,20 @@ export default function NoteViewPage() {
                 {/* Enhanced Day/Subject Info */}
                 {dayInfo && dayInfo.day && (
                   <motion.div 
-                    className="inline-block bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-xl px-6 py-4 mb-4"
+                    className="inline-block bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-xl px-6 py-4 mb-4 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors duration-200"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
+                    onClick={() => {
+                      if (dayInfo.week && dayInfo.day) {
+                        // البحث عن فهرس اليوم في الأسبوع
+                        const dayIndex = dayInfo.week.days?.findIndex(d => d.key === dayInfo.day.key);
+                        if (dayIndex !== undefined && dayIndex !== -1) {
+                          navigate(`/day/${dayInfo.week.week}/${dayIndex}`);
+                        }
+                      }
+                    }}
+                    title="انقر للانتقال إلى هذا اليوم"
                   >
                     <div className="flex items-center justify-center space-x-3 text-blue-700 dark:text-blue-300">
                       <Target className="w-5 h-5" />

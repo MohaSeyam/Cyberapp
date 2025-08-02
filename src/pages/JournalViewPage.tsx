@@ -241,10 +241,20 @@ export default function JournalViewPage() {
                 {/* Enhanced Day/Subject Info */}
                 {dayInfo && dayInfo.day && (
                   <motion.div 
-                    className="inline-block bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-xl px-6 py-4 mb-4"
+                    className="inline-block bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-xl px-6 py-4 mb-4 cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors duration-200"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
+                    onClick={() => {
+                      if (dayInfo.week && dayInfo.day) {
+                        // البحث عن فهرس اليوم في الأسبوع
+                        const dayIndex = dayInfo.week.days?.findIndex(d => d.key === dayInfo.day.key);
+                        if (dayIndex !== undefined && dayIndex !== -1) {
+                          navigate(`/day/${dayInfo.week.week}/${dayIndex}`);
+                        }
+                      }
+                    }}
+                    title="انقر للانتقال إلى هذا اليوم"
                   >
                     <div className="flex items-center justify-center space-x-3 text-purple-700 dark:text-purple-300">
                       <Target className="w-5 h-5" />
