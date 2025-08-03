@@ -392,7 +392,7 @@ export default function ProgressPage() {
       }
       
       if (reportOptions.content === 'notes' || reportOptions.content === 'both') {
-                  content += '## ' + (language === 'ar' ? 'الملاحظات والمدونات' : 'Notes and Journal Entries') + '\n\n';
+        content += `## ${language === 'ar' ? 'الملاحظات والمدونات' : 'Notes and Journal Entries'}\n\n`;
         
         // Add notes
         const notes = await getNotes();
@@ -401,7 +401,7 @@ export default function ProgressPage() {
           notes.forEach(note => {
             content += '#### ' + note.title + '\n';
             content += '**' + (language === 'ar' ? 'التاريخ' : 'Date') + ': ' + new Date(note.createdAt).toLocaleDateString('en-US') + '**\n\n';
-                          content += note.content.replace(/<[^>]*>/g, '') + '\n\n';
+            content += `${note.content.replace(/<[^>]*>/g, '')}\n\n`;
           });
         }
         
@@ -412,7 +412,7 @@ export default function ProgressPage() {
           journalEntries.forEach(entry => {
             content += '#### ' + entry.title + '\n';
             content += '**' + (language === 'ar' ? 'التاريخ' : 'Date') + ': ' + new Date(entry.createdAt).toLocaleDateString('en-US') + '**\n\n';
-                          content += entry.content.replace(/<[^>]*>/g, '') + '\n\n';
+            content += `${entry.content.replace(/<[^>]*>/g, '')}\n\n`;
           });
         }
       }
@@ -1657,7 +1657,7 @@ const tabs = [
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Icon className={'w-6 h-6 mb-2 ' + (isActive ? '' : TAB_STYLES[tab.color as keyof typeof TAB_STYLES].text)} />
+                    <Icon className={`w-6 h-6 mb-2 ${isActive ? '' : TAB_STYLES[tab.color as keyof typeof TAB_STYLES].text}`} />
                     <span className="font-semibold text-sm">
                       {getCurrentLanguageText(tab.label)}
                     </span>
