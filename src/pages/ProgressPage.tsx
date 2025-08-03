@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Target, Clock, Flame, Trophy, BarChart3, PieChart, 
+  Target, Clock, Flame, Trophy, BarChart3, PieChart as PieChartIcon, 
   TrendingUp, Award, Star, Users, BookOpen, Zap,
   CheckCircle, Circle, Calendar, Activity, ArrowRight,
   LineChart, Brain, Lightbulb, Download, FileText, 
@@ -18,10 +18,14 @@ import { animations } from '../constants/theme';
 import { WeekPhaseProvider } from '../components/WeekPhaseProvider';
 import OverallProgressCard from '../components/progress/OverallProgressCard';
 import ProgressChart from '../components/charts/ProgressChart';
-import PieChart from '../components/charts/PieChart';
+// FIX: Renamed import to avoid collision with the lucide-react icon
+import PieChartComponent from '../components/charts/PieChart';
 import Logo from '../components/ui/Logo';
 import toast from 'react-hot-toast';
 import { openDB } from 'idb';
+// FIX: Import the image so the build tool can handle the path correctly
+import appLogo from '../assets/Gemini_Generated_Image_26mado26mado26ma.png';
+
 
 // Custom CSS for hiding scrollbar
 const scrollbarHideStyles = `
@@ -65,12 +69,6 @@ interface ReportOptions {
   phaseId?: number;
 }
 
-// Helper function to avoid template literal issues
-const getProgressText = (rate: number, completed: number, total: number, lang: string) => {
-  const baseText = rate + '% Complete - ' + completed + '/' + total + ' tasks';
-  return lang === 'ar' ? baseText : baseText;
-};
-
 // Memoized Tab Components for better performance
 const MemoizedOverviewTab = memo(({ 
   completionRate, 
@@ -107,7 +105,7 @@ const MemoizedOverviewTab = memo(({
               <div className="mt-3 w-full bg-blue-200 dark:bg-blue-700 rounded-full h-2">
                 <div 
                   className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-500"
-                  style={{ width: completionRate + '%' }}
+                  style={{ width: `${completionRate}%` }}
                 ></div>
               </div>
             </div>
@@ -228,6 +226,8 @@ export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
   const { t, language } = useLocalization();
   const [showExportModal, setShowExportModal] = useState(false);
+  
+  // FIX: Changed initial type to a valid option 'weekly' to prevent crash
   const [reportOptions, setReportOptions] = useState<ReportOptions>({
     type: 'weekly',
     content: 'both',
@@ -375,50 +375,50 @@ export default function ProgressPage() {
       const timestamp = new Date().toLocaleDateString('en-US');
       
       // Add report title
-      content += '# ' + (language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report') + '\n';
-      content += '**' + (language === 'ar' ? 'تاريخ التصدير' : 'Export Date') + ': ' + timestamp + '**\n\n';
+      content += `# ${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
+      content += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}**\n\n`;
       
       // Add application logo
-              content += '![Logo](data:image/png;base64,' + (await getLogoBase64()) + ')\n\n';
+      content += `![Logo](data:image/png;base64,${await getLogoBase64()})\n\n`;
       
       // Add report content based on type
       if (reportOptions.content === 'progress' || reportOptions.content === 'both') {
-        content += '## ' + (language === 'ar' ? 'تقرير التقدم' : 'Progress Report') + '\n\n';
-        content += '- ' + (language === 'ar' ? 'إجمالي المهام' : 'Total Tasks') + ': ' + totalTasks + '\n';
-        content += '- ' + (language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks') + ': ' + completedTasks + '\n';
-        content += '- ' + (language === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate') + ': ' + completionRate.toFixed(1) + '%\n';
-        content += '- ' + (language === 'ar' ? 'المسار الحالي' : 'Current Streak') + ': ' + currentStreak + ' ' + (language === 'ar' ? 'أيام' : 'days') + '\n';
-        content += '- ' + (language === 'ar' ? 'أطول مسار' : 'Longest Streak') + ': ' + longestStreak + ' ' + (language === 'ar' ? 'أيام' : 'days') + '\n\n';
+        content += `## ${language === 'ar' ? 'تقرير التقدم' : 'Progress Report'}\n\n`;
+        content += `- ${language === 'ar' ? 'إجمالي المهام' : 'Total Tasks'}: ${totalTasks}\n`;
+        content += `- ${language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}: ${completedTasks}\n`;
+        content += `- ${language === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate'}: ${completionRate.toFixed(1)}%\n`;
+        content += `- ${language === 'ar' ? 'المسار الحالي' : 'Current Streak'}: ${currentStreak} ${language === 'ar' ? 'أيام' : 'days'}\n`;
+        content += `- ${language === 'ar' ? 'أطول مسار' : 'Longest Streak'}: ${longestStreak} ${language === 'ar' ? 'أيام' : 'days'}\n\n`;
       }
       
       if (reportOptions.content === 'notes' || reportOptions.content === 'both') {
-                  content += '## ' + (language === 'ar' ? 'الملاحظات والمدونات' : 'Notes and Journal Entries') + '\n\n';
+        content += `## ${language === 'ar' ? 'الملاحظات والمدونات' : 'Notes and Journal Entries'}\n\n`;
         
         // Add notes
         const notes = await getNotes();
         if (notes.length > 0) {
-          content += '### ' + (language === 'ar' ? 'الملاحظات' : 'Notes') + '\n\n';
+          content += `### ${language === 'ar' ? 'الملاحظات' : 'Notes'}\n\n`;
           notes.forEach(note => {
-            content += '#### ' + note.title + '\n';
-            content += '**' + (language === 'ar' ? 'التاريخ' : 'Date') + ': ' + new Date(note.createdAt).toLocaleDateString('en-US') + '**\n\n';
-                          content += note.content.replace(/<[^>]*>/g, '') + '\n\n';
+            content += `#### ${note.title}\n`;
+            content += `**${language === 'ar' ? 'التاريخ' : 'Date'}: ${new Date(note.createdAt).toLocaleDateString('en-US')}**\n\n`;
+            content += `${note.content.replace(/<[^>]*>/g, '')}\n\n`;
           });
         }
         
         // Add journal entries
         const journalEntries = await getJournalEntries();
         if (journalEntries.length > 0) {
-          content += '### ' + (language === 'ar' ? 'المدونات' : 'Journal Entries') + '\n\n';
+          content += `### ${language === 'ar' ? 'المدونات' : 'Journal Entries'}\n\n`;
           journalEntries.forEach(entry => {
-            content += '#### ' + entry.title + '\n';
-            content += '**' + (language === 'ar' ? 'التاريخ' : 'Date') + ': ' + new Date(entry.createdAt).toLocaleDateString('en-US') + '**\n\n';
-                          content += entry.content.replace(/<[^>]*>/g, '') + '\n\n';
+            content += `#### ${entry.title}\n`;
+            content += `**${language === 'ar' ? 'التاريخ' : 'Date'}: ${new Date(entry.createdAt).toLocaleDateString('en-US')}**\n\n`;
+            content += `${entry.content.replace(/<[^>]*>/g, '')}\n\n`;
           });
         }
       }
       
       // إنشاء الملف حسب الصيغة
-      let fileName = 'cybersecurity-report-' + Date.now();
+      let fileName = `cybersecurity-report-${Date.now()}`;
       let blob: Blob;
       
       switch (reportOptions.format) {
@@ -545,9 +545,16 @@ export default function ProgressPage() {
   // Helper functions for export
   const getLogoBase64 = async () => {
     try {
-      // Use a simple data URL instead of fetching from assets
-      const logoDataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-      return logoDataUrl.split(',')[1];
+      const response = await fetch(appLogo); // Use the imported logo variable
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]);
+        };
+        reader.readAsDataURL(blob);
+      });
     } catch (error) {
       console.error('Error loading logo:', error);
       return '';
@@ -596,7 +603,7 @@ export default function ProgressPage() {
       
       // Add logo at the top
       const logoImg = document.createElement('img');
-      logoImg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      logoImg.src = appLogo; // Use the imported logo variable
       logoImg.style.width = '100px';
       logoImg.style.height = 'auto';
       logoImg.style.display = 'block';
@@ -664,7 +671,7 @@ export default function ProgressPage() {
       ['Metric', 'Value'],
       ['Total Tasks', totalTasks],
       ['Completed Tasks', completedTasks],
-      ['Completion Rate', completionRate.toFixed(1) + '%'],
+      ['Completion Rate', `${completionRate.toFixed(1)}%`],
       ['Current Streak', currentStreak],
       ['Longest Streak', longestStreak]
     ];
@@ -701,7 +708,7 @@ export default function ProgressPage() {
       ).length;
       
       return {
-        week: 'الأسبوع ' + week.week,
+        week: `الأسبوع ${week.week}`,
         completed: completedTasks,
         total: weekTasks.length,
         percentage: weekTasks.length > 0 ? Math.round((completedTasks / weekTasks.length) * 100) : 0
@@ -803,7 +810,7 @@ export default function ProgressPage() {
       description: language === 'ar' ? 'مهارات الأمن السيبراني الشاملة' : 'Comprehensive cybersecurity skills',
       color: 'bg-indigo-500'
     }
-  ], [blueTeamTasks, redTeamTasks, practicalTasks, theoreticalTasks, policiesTasks]);
+  ], [blueTeamTasks, redTeamTasks, practicalTasks, theoreticalTasks, policiesTasks, language]);
 
   // Smart Suggestions System
   const suggestions = useMemo(() => {
@@ -870,145 +877,9 @@ export default function ProgressPage() {
     }
 
     return suggestionsList;
-  }, [completedTasks, completionRate, currentStreak, blueTeamTasks, redTeamTasks, policiesTasks]);
+  }, [completedTasks, completionRate, currentStreak, blueTeamTasks, redTeamTasks, policiesTasks, language]);
 
   // Tab Components
-  const OverviewTab = () => (
-    <div className="space-y-8">
-      {/* Enhanced Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 border-2 border-blue-200 dark:border-blue-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-            <div className="flex items-center justify-between p-6">
-              <div>
-                <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                  {language === 'ar' ? 'معدل الإكمال' : 'Completion Rate'}
-                </h3>
-                <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-                  {completionRate}%
-                </p>
-                <div className="mt-3 w-full bg-blue-200 dark:bg-blue-700 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-500"
-                    style={{ width: completionRate + '%' }}
-                  ></div>
-                </div>
-              </div>
-              <div className="p-4 bg-blue-100 dark:bg-blue-800 rounded-full">
-                <Target className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/30 border-2 border-green-200 dark:border-green-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-            <div className="flex items-center justify-between p-6">
-              <div>
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                  {language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}
-                </h3>
-                <p className="text-4xl font-bold text-green-600 dark:text-green-400">
-                  {completedTasks}
-                </p>
-                <p className="text-sm text-green-600 dark:text-green-400 mt-2">
-                  {language === 'ar' ? 'من أصل' : 'out of'} {totalTasks} {language === 'ar' ? 'مهمة' : 'tasks'}
-                </p>
-              </div>
-              <div className="p-4 bg-green-100 dark:bg-green-800 rounded-full">
-                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-        >
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/30 border-2 border-purple-200 dark:border-purple-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-            <div className="flex items-center justify-between p-6">
-              <div>
-                <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">
-                  {language === 'ar' ? 'الوقت المستغرق' : 'Time Spent'}
-                </h3>
-                <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">
-                  {Math.round(completedDuration / 60)}h
-                </p>
-                <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">
-                  {language === 'ar' ? 'من أصل' : 'out of'} {Math.round(totalDuration / 60)}h {language === 'ar' ? 'إجمالي' : 'total'}
-                </p>
-              </div>
-              <div className="p-4 bg-purple-100 dark:bg-purple-800 rounded-full">
-                <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-        >
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-900/30 border-2 border-orange-200 dark:border-orange-700 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-            <div className="flex items-center justify-between p-6">
-              <div>
-                <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">
-                  {language === 'ar' ? 'المسار الحالي' : 'Current Streak'}
-                </h3>
-                <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
-                  {currentStreak}
-                </p>
-                <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">
-                  {language === 'ar' ? 'أيام متتالية' : 'days in a row'}
-                </p>
-              </div>
-              <div className="p-4 bg-orange-100 dark:bg-orange-800 rounded-full">
-                <Flame className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Task Types Distribution */}
-      <Card title={safeT('taskTypesDistribution')} subtitle={safeT('distributionOfCompletedTasks')}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{blueTeamTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('blueTeam')}</div>
-          </div>
-          <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{redTeamTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('redTeam')}</div>
-          </div>
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{practicalTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('practical')}</div>
-          </div>
-          <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{theoreticalTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('theoretical')}</div>
-          </div>
-          <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{policiesTasks}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{safeT('policies')}</div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-
   const AnalyticsTab = () => (
     <div className="space-y-6">
       {/* Interactive Charts */}
@@ -1021,7 +892,7 @@ export default function ProgressPage() {
         </Card>
 
         <Card title="توزيع أنواع المهام" subtitle="رسم بياني دائري للتوزيع">
-          <PieChart data={generateTaskTypeData()} />
+          <PieChartComponent data={generateTaskTypeData()} />
         </Card>
       </div>
 
@@ -1035,7 +906,7 @@ export default function ProgressPage() {
         </Card>
 
         <Card title="توزيع الفئات" subtitle="توزيع المهام حسب الفئة">
-          <PieChart data={generateCategoryData()} />
+          <PieChartComponent data={generateCategoryData()} />
         </Card>
       </div>
 
@@ -1073,7 +944,7 @@ export default function ProgressPage() {
               <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-gray-900 dark:text-white">{skill.name}</h4>
-                  <div className={'w-3 h-3 rounded-full ' + skill.color}></div>
+                  <div className={`w-3 h-3 rounded-full ${skill.color}`}></div>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{skill.description}</p>
                 <div className="flex space-x-1">
@@ -1213,13 +1084,13 @@ export default function ProgressPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {suggestions.map((suggestion, index) => (
           <motion.div key={index} {...animations.stagger(index * 0.1)}>
-                            <Card className={'p-6 ' + suggestion.bg + ' dark:bg-gray-800'}>
-                  <div className="flex items-start space-x-4">
-                    <div className={'p-2 rounded-lg ' + suggestion.bg.replace('bg-', 'bg-').replace('-50', '-100')}>
-                      <suggestion.icon className={'w-6 h-6 ' + suggestion.color} />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className={'font-semibold mb-2 ' + suggestion.color}>
+            <Card className={`p-6 ${suggestion.bg} dark:bg-gray-800`}>
+              <div className="flex items-start space-x-4">
+                <div className={`p-2 rounded-lg ${suggestion.bg.replace('bg-', 'bg-').replace('-50', '-100')}`}>
+                  <suggestion.icon className={`w-6 h-6 ${suggestion.color}`} />
+                </div>
+                <div className="flex-1">
+                  <h4 className={`font-semibold mb-2 ${suggestion.color}`}>
                     {suggestion.title}
                   </h4>
                   <p className="text-gray-700 dark:text-gray-300 text-sm">
@@ -1232,8 +1103,8 @@ export default function ProgressPage() {
                       'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                     }`}>
                       {suggestion.priority === 'high' ? (language === 'ar' ? 'عالية' : 'High') :
-                       suggestion.priority === 'medium' ? (language === 'ar' ? 'متوسطة' : 'Medium') :
-                       (language === 'ar' ? 'منخفضة' : 'Low')} {language === 'ar' ? 'الأولوية' : 'Priority'}
+                        suggestion.priority === 'medium' ? (language === 'ar' ? 'متوسطة' : 'Medium') :
+                        (language === 'ar' ? 'منخفضة' : 'Low')} {language === 'ar' ? 'الأولوية' : 'Priority'}
                     </span>
                   </div>
                 </div>
@@ -1250,6 +1121,7 @@ export default function ProgressPage() {
             {language === 'ar' ? 'ممتاز!' : 'Excellent!'}
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
+            {/* FIX: Use double quotes to avoid escaping the apostrophe, which causes the build error */}
             {language === 'ar' ? 'أنت على المسار الصحيح. استمر في التعلم!' : "You're on the right track. Keep learning!"}
           </p>
         </Card>
@@ -1482,69 +1354,54 @@ export default function ProgressPage() {
                   <option value="">
                     {getCurrentLanguageText({ ar: 'اختر مرحلة...', en: 'Select a phase...' })}
                   </option>
-                  {safePlan.map((phase, index) => {
-                    const phaseNumber = index + 1;
-                    const phaseNameAr = phase.name?.ar || 'Phase ' + phaseNumber;
-                    const phaseNameEn = phase.name?.en || 'Phase ' + phaseNumber;
-                    return (
-                      <option key={index} value={index}>
-                        {getCurrentLanguageText({ 
-                          ar: 'Phase ' + phaseNumber + ': ' + phaseNameAr, 
-                          en: 'Phase ' + phaseNumber + ': ' + phaseNameEn 
-                        })}
-                      </option>
-                    );
-                  })}
+                  {safePlan.map((phase, index) => (
+                    <option key={index} value={index}>
+                      {getCurrentLanguageText({ 
+                        ar: `Phase ${index + 1}: ${phase.name?.ar || 'Phase ' + (index + 1)}`, 
+                        en: `Phase ${index + 1}: ${phase.name?.en || 'Phase ' + (index + 1)}` 
+                      })}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
           )}
-        </div>
-      </Card>
+          </div>
+        </Card>
+      )}
     </div>
   );
 
-  // Tab Configuration with enhanced design
-const TAB_STYLES = {
-  blue: {
-    border: 'border-blue-500',
-    text: 'text-blue-600',
-    hover: 'hover:bg-blue-50 dark:hover:bg-blue-900/20',
-    active: 'bg-blue-500 text-white'
-  },
-  purple: {
-    border: 'border-purple-500',
-    text: 'text-purple-600',
-    hover: 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
-    active: 'bg-purple-500 text-white'
-  },
-  green: {
-    border: 'border-green-500',
-    text: 'text-green-600',
-    hover: 'hover:bg-green-50 dark:hover:bg-green-900/20',
-    active: 'bg-green-500 text-white'
-  },
-  yellow: {
-    border: 'border-yellow-500',
-    text: 'text-yellow-600',
-    hover: 'hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
-    active: 'bg-yellow-500 text-white'
-  },
-  orange: {
-    border: 'border-orange-500',
-    text: 'text-orange-600',
-    hover: 'hover:bg-orange-50 dark:hover:bg-orange-900/20',
-    active: 'bg-orange-500 text-white'
-  },
-  red: {
-    border: 'border-red-500',
-    text: 'text-red-600',
-    hover: 'hover:bg-red-50 dark:hover:bg-red-900/20',
-    active: 'bg-red-500 text-white'
-  }
-} as const;
+  // FIX: Created a map for dynamic Tailwind classes to ensure they are detected by the JIT compiler.
+  const colorClassesMap = {
+    blue: {
+      active: 'bg-blue-500 text-white border-blue-500',
+      inactive: 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20',
+    },
+    purple: {
+      active: 'bg-purple-500 text-white border-purple-500',
+      inactive: 'text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20',
+    },
+    green: {
+      active: 'bg-green-500 text-white border-green-500',
+      inactive: 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20',
+    },
+    yellow: {
+      active: 'bg-yellow-500 text-white border-yellow-500',
+      inactive: 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
+    },
+    orange: {
+      active: 'bg-orange-500 text-white border-orange-500',
+      inactive: 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20',
+    },
+    red: {
+      active: 'bg-red-500 text-white border-red-500',
+      inactive: 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20',
+    },
+  };
 
-const tabs = [
+  // Tab Configuration with enhanced design
+  const tabs = [
     { 
       id: 'overview', 
       label: { ar: 'Overview', en: 'Overview' }, 
@@ -1606,7 +1463,10 @@ const tabs = [
                   {language === 'ar' ? 'Progress Center' : 'Progress Center'}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 text-lg">
-                  {getProgressText(completionRate, completedTasks, totalTasks, language)}
+                  {language === 'ar' 
+                    ? `${completionRate}% Complete - ${completedTasks}/${totalTasks} tasks`
+                    : `${completionRate}% Complete - ${completedTasks}/${totalTasks} tasks`
+                  }
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -1620,7 +1480,7 @@ const tabs = [
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {totalDuration - completedDuration}
+                    {Math.round((totalDuration - completedDuration) / 60)}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {language === 'ar' ? 'Hours Left' : 'Hours Left'}
@@ -1636,28 +1496,22 @@ const tabs = [
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
-                const colorClasses = {
-                  blue: isActive ? 'bg-blue-500 text-white' : 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20',
-                  purple: isActive ? 'bg-purple-500 text-white' : 'text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20',
-                  green: isActive ? 'bg-green-500 text-white' : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20',
-                  yellow: isActive ? 'bg-yellow-500 text-white' : 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
-                  orange: isActive ? 'bg-orange-500 text-white' : 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20',
-                  red: isActive ? 'bg-red-500 text-white' : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
-                };
+                const colorKey = tab.color as keyof typeof colorClassesMap;
+                const colorClasses = colorClassesMap[colorKey];
                 
                 return (
                   <motion.button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => setActiveTab(tab.id as TabType)}
                     className={`flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[120px] transition-all duration-300 border-b-2 ${
                       isActive 
-                        ? TAB_STYLES[tab.color as keyof typeof TAB_STYLES].border + ' ' + TAB_STYLES[tab.color as keyof typeof TAB_STYLES].active
-                        : 'border-transparent hover:border-gray-300'
+                        ? colorClasses.active
+                        : `${colorClasses.inactive} border-transparent hover:border-gray-300`
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Icon className={'w-6 h-6 mb-2 ' + (isActive ? '' : TAB_STYLES[tab.color as keyof typeof TAB_STYLES].text)} />
+                    <Icon className={`w-6 h-6 mb-2 ${isActive ? '' : colorClasses.inactive.split(' ')[0]}`} />
                     <span className="font-semibold text-sm">
                       {getCurrentLanguageText(tab.label)}
                     </span>
