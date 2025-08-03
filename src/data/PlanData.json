@@ -13,411 +13,140 @@
     "days": [
       {
         "key": "sat",
-        "day": {
-          "en": "Saturday",
-          "ar": "السبت"
-        },
-        "topic": {
-          "en": "What is Cybersecurity & the CIA Triad",
-          "ar": "ما هو الأمن السيبراني ومبدأ الـ CIA Triad"
-        },
+        "day": { "en": "Saturday", "ar": "السبت" },
+        "topic": { "en": "What is Cybersecurity & the CIA Triad", "ar": "ما هو الأمن السيبراني ومبدأ الـ CIA Triad" },
         "tasks": [
-          {
-            "id": "w1d1t1",
-            "type": "Blue Team",
-            "duration": 75,
-            "description": {
-              "en": "Watch a comprehensive intro video and read a detailed article on the CIA Triad.",
-              "ar": "شاهد فيديو مقدمة شاملة واقرأ مقالاً مفصلاً عن مبدأ CIA Triad."
-            }
-          },
-          {
-            "id": "w1d1t2",
-            "type": "Soft Skills",
-            "duration": 45,
-            "description": {
-              "en": "Analyze how 3 services you use daily (Gmail, WhatsApp) apply the CIA principles.",
-              "ar": "حلل كيف تطبق 3 خدمات تستخدمها يوميًا (Gmail, WhatsApp) مبادئ CIA."
-            }
-          }
+          { "id": "w1d1t1", "type": "Blue Team", "duration": 75, "description": { "en": "Watch a comprehensive intro video and read a detailed article on the CIA Triad.", "ar": "شاهد فيديو مقدمة شاملة واقرأ مقالاً مفصلاً عن مبدأ CIA Triad." } },
+          { "id": "w1d1t2", "type": "Soft Skills", "duration": 45, "description": { "en": "Analyze how 3 services you use daily (Gmail, WhatsApp) apply the CIA principles.", "ar": "حلل كيف تطبق 3 خدمات تستخدمها يوميًا (Gmail, WhatsApp) مبادئ CIA." } }
         ],
         "resources": [
-          {
-            "type": "video",
-            "title": "Cybersecurity Full Course for Beginners (freeCodeCamp)",
-            "url": "https://www.youtube.com/watch?v=2e--p8o4KjA"
-          },
-          {
-            "type": "article",
-            "title": "What is the CIA Triad - Fortinet",
-            "url": "https://www.fortinet.com/resources/cyberglossary/cia-triad"
-          }
+          { "type": "video", "title": "Cybersecurity Full Course for Beginners (freeCodeCamp)", "url": "https://www.youtube.com/watch?v=2e--p8o4KjA" },
+          { "type": "article", "title": "What is the CIA Triad - Fortinet", "url": "https://www.fortinet.com/resources/cyberglossary/cia-triad" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "The Core Concept: Answer 'What is Cybersecurity?' in your own paragraph.",
-              "ar": "المفهوم الأساسي: أجب عن سؤال \"ما هو الأمن السيبراني؟\" بفقرة من صياغتك الخاصة."
-            },
-            {
-              "en": "CIA Triad Table: Create a table (Confidentiality, Integrity, Availability) with a definition, a technical example, and a violation example for each.",
-              "ar": "جدول CIA Triad: أنشئ جدولاً (السرية، النزاهة، التوفر) مع تعريف ومثال تقني ومثال لانتهاك كل مبدأ."
-            },
-            {
-              "en": "New Terms: Define Asset, Threat, Vulnerability, Risk.",
-              "ar": "مصطلحات جديدة: عرّف Asset, Threat, Vulnerability, Risk."
-            }
+            { "en": "The Core Concept: Answer 'What is Cybersecurity?' in your own paragraph.", "ar": "المفهوم الأساسي: أجب عن سؤال \"ما هو الأمن السيبراني؟\" بفقرة من صياغتك الخاصة." },
+            { "en": "CIA Triad Table: Create a table (Confidentiality, Integrity, Availability) with a definition, a technical example, and a violation example for each.", "ar": "جدول CIA Triad: أنشئ جدولاً (السرية، النزاهة، التوفر) مع تعريف ومثال تقني ومثال لانتهاك كل مبدأ." },
+            { "en": "New Terms: Define Asset, Threat, Vulnerability, Risk.", "ar": "مصطلحات جديدة: عرّف Asset, Threat, Vulnerability, Risk." }
           ]
         }
       },
       {
         "key": "sun",
-        "day": {
-          "en": "Sunday",
-          "ar": "الأحد"
-        },
-        "topic": {
-          "en": "Threat Types and Threat Actors",
-          "ar": "أنواع التهديدات والجهات الفاعلة"
-        },
+        "day": { "en": "Sunday", "ar": "الأحد" },
+        "topic": { "en": "Threat Types and Threat Actors", "ar": "أنواع التهديدات والجهات الفاعلة" },
         "tasks": [
-          {
-            "id": "w1d2t1",
-            "type": "Blue Team",
-            "duration": 60,
-            "description": {
-              "en": "Study threat types (Malware, Phishing).",
-              "ar": "ادرس أنواع التهديدات (Malware, Phishing)."
-            }
-          },
-          {
-            "id": "w1d2t2",
-            "type": "Red Team",
-            "duration": 45,
-            "description": {
-              "en": "Study threat actors (Script Kiddies, APTs).",
-              "ar": "ادرس الجهات الفاعلة (Script Kiddies, APTs)."
-            }
-          },
-          {
-            "id": "w1d2t3",
-            "type": "Practical",
-            "duration": 15,
-            "description": {
-              "en": "Read a summary of the 'Stuxnet' attack.",
-              "ar": "اقرأ ملخصا عن هجوم \"Stuxnet\"."
-            }
-          }
+          { "id": "w1d2t1", "type": "Blue Team", "duration": 60, "description": { "en": "Study threat types (Malware, Phishing).", "ar": "ادرس أنواع التهديدات (Malware, Phishing)." } },
+          { "id": "w1d2t2", "type": "Red Team", "duration": 45, "description": { "en": "Study threat actors (Script Kiddies, APTs).", "ar": "ادرس الجهات الفاعلة (Script Kiddies, APTs)." } },
+          { "id": "w1d2t3", "type": "Practical", "duration": 15, "description": { "en": "Read a summary of the 'Stuxnet' attack.", "ar": "اقرأ ملخصا عن هجوم \"Stuxnet\"." } }
         ],
         "resources": [
-          {
-            "type": "article",
-            "title": "Common cyber attack types - IBM",
-            "url": "https://www.ibm.com/topics/cyberattacks"
-          },
-          {
-            "type": "article",
-            "title": "Who are the threat actors? - CrowdStrike",
-            "url": "https://www.crowdstrike.com/cybersecurity-101/threat-actors/"
-          }
+          { "type": "article", "title": "Common cyber attack types - IBM", "url": "https://www.ibm.com/topics/cyberattacks" },
+          { "type": "article", "title": "Who are the threat actors? - CrowdStrike", "url": "https://www.crowdstrike.com/cybersecurity-101/threat-actors/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Threat Classification: Create a list of threats with a brief definition and an example.",
-              "ar": "تصنيف التهديدات: أنشئ قائمة بالتهديدات مع تعريف موجز ومثال."
-            },
-            {
-              "en": "Threat Actor Profile: Create a comparison table for threat actors (Category, Motive, Skill).",
-              "ar": "ملف الجهات الفاعلة: أنشئ جدولاً للمقارنة بين الجهات الفاعلة (الفئة، الدافع، المهارة)."
-            },
-            {
-              "en": "Connecting Concepts: Link the 'Stuxnet' attack to a potential 'threat actor' and 'motive'.",
-              "ar": "ربط المفاهيم: اربط هجوم \"Stuxnet\" بـ \"الجهة الفاعلة\" المحتملة\" و \"الدافع\"."
-            }
+            { "en": "Threat Classification: Create a list of threats with a brief definition and an example.", "ar": "تصنيف التهديدات: أنشئ قائمة بالتهديدات مع تعريف موجز ومثال." },
+            { "en": "Threat Actor Profile: Create a comparison table for threat actors (Category, Motive, Skill).", "ar": "ملف الجهات الفاعلة: أنشئ جدولاً للمقارنة بين الجهات الفاعلة (الفئة، الدافع، المهارة)." },
+            { "en": "Connecting Concepts: Link the 'Stuxnet' attack to a potential 'threat actor' and 'motive'.", "ar": "ربط المفاهيم: اربط هجوم \"Stuxnet\" بـ \"الجهة الفاعلة\" المحتملة\" و \"الدافع\"." }
           ]
         }
       },
       {
         "key": "mon",
-        "day": {
-          "en": "Monday",
-          "ar": "الإثنين"
-        },
-        "topic": {
-          "en": "Security Teams & Roles",
-          "ar": "الفرق الأمنية والأدوار"
-        },
+        "day": { "en": "Monday", "ar": "الإثنين" },
+        "topic": { "en": "Security Teams & Roles", "ar": "الفرق الأمنية والأدوار" },
         "tasks": [
-          {
-            "id": "w1d3t1",
-            "type": "Blue Team",
-            "duration": 60,
-            "description": {
-              "en": "Learn about Blue Team (defense), Red Team (offense), and Purple Team (collaboration).",
-              "ar": "تعرف على الفريق الأزرق (الدفاع)، الفريق الأحمر (الهجوم)، والفريق البنفسجي (التكامل)."
-            }
-          },
-          {
-            "id": "w1d3t2",
-            "type": "Soft Skills",
-            "duration": 45,
-            "description": {
-              "en": "Research typical roles in each team (SOC Analyst, Penetration Tester, etc.).",
-              "ar": "ابحث عن الأدوار النموذجية في كل فريق (محلل مركز عمليات الأمن، مختبر اختراق، إلخ)."
-            }
-          }
+          { "id": "w1d3t1", "type": "Blue Team", "duration": 60, "description": { "en": "Learn about Blue Team (defense), Red Team (offense), and Purple Team (collaboration).", "ar": "تعرف على الفريق الأزرق (الدفاع)، الفريق الأحمر (الهجوم)، والفريق البنفسجي (التكامل)." } },
+          { "id": "w1d3t2", "type": "Soft Skills", "duration": 45, "description": { "en": "Research typical roles in each team (SOC Analyst, Penetration Tester, etc.).", "ar": "ابحث عن الأدوار النموذجية في كل فريق (محلل مركز عمليات الأمن، مختبر اختراق، إلخ)." } }
         ],
         "resources": [
-          {
-            "type": "article",
-            "title": "Blue Team vs Red Team vs Purple Team – CrowdStrike",
-            "url": "https://www.crowdstrike.com/cybersecurity-101/blue-team-vs-red-team-vs-purple-team/"
-          },
-          {
-            "type": "article",
-            "title": "SOC Roles Explained – SANS",
-            "url": "https://www.sans.org/blog/understanding-soc-roles/"
-          }
+          { "type": "article", "title": "Blue Team vs Red Team vs Purple Team – CrowdStrike", "url": "https://www.crowdstrike.com/cybersecurity-101/blue-team-vs-red-team-vs-purple-team/" },
+          { "type": "article", "title": "SOC Roles Explained – SANS", "url": "https://www.sans.org/blog/understanding-soc-roles/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "List the main security team types and their core mission.",
-              "ar": "عدد أنواع الفرق الأمنية الرئيسية ومهمتها الأساسية."
-            },
-            {
-              "en": "Write a short paragraph about which team interests you most and why.",
-              "ar": "اكتب فقرة قصيرة حول أي فريق يثير اهتمامك أكثر ولماذا."
-            }
+            { "en": "List the main security team types and their core mission.", "ar": "عدد أنواع الفرق الأمنية الرئيسية ومهمتها الأساسية." },
+            { "en": "Write a short paragraph about which team interests you most and why.", "ar": "اكتب فقرة قصيرة حول أي فريق يثير اهتمامك أكثر ولماذا." }
           ]
         }
       },
       {
         "key": "tue",
-        "day": {
-          "en": "Tuesday",
-          "ar": "الثلاثاء"
-        },
-        "topic": {
-          "en": "Cybersecurity Domains & Specializations",
-          "ar": "مجالات وتخصصات الأمن السيبراني"
-        },
+        "day": { "en": "Tuesday", "ar": "الثلاثاء" },
+        "topic": { "en": "Cybersecurity Domains & Specializations", "ar": "مجالات وتخصصات الأمن السيبراني" },
         "tasks": [
-          {
-            "id": "w1d4t1",
-            "type": "Blue Team",
-            "duration": 60,
-            "description": {
-              "en": "Explore main cybersecurity domains: Network Security, Application Security, Incident Response, GRC, etc.",
-              "ar": "استكشف مجالات الأمن السيبراني الرئيسية: أمن الشبكات، أمن التطبيقات، الاستجابة للحوادث، الحوكمة والمخاطر والامتثال، إلخ."
-            }
-          },
-          {
-            "id": "w1d4t2",
-            "type": "Soft Skills",
-            "duration": 45,
-            "description": {
-              "en": "Map which domains relate to which team roles.",
-              "ar": "اربط بين المجالات المختلفة والأدوار المرتبطة بها في الفرق الأمنية."
-            }
-          }
+          { "id": "w1d4t1", "type": "Blue Team", "duration": 60, "description": { "en": "Explore main cybersecurity domains: Network Security, Application Security, Incident Response, GRC, etc.", "ar": "استكشف مجالات الأمن السيبراني الرئيسية: أمن الشبكات، أمن التطبيقات، الاستجابة للحوادث، الحوكمة والمخاطر والامتثال، إلخ." } },
+          { "id": "w1d4t2", "type": "Soft Skills", "duration": 45, "description": { "en": "Map which domains relate to which team roles.", "ar": "اربط بين المجالات المختلفة والأدوار المرتبطة بها في الفرق الأمنية." } }
         ],
         "resources": [
-          {
-            "type": "article",
-            "title": "Cybersecurity Domains Overview – NIST",
-            "url": "https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center"
-          },
-          {
-            "type": "article",
-            "title": "Cybersecurity Career Pathways – SANS",
-            "url": "https://www.sans.org/cyber-security-courses/cybersecurity-career-pathways/"
-          }
+          { "type": "article", "title": "Cybersecurity Domains Overview – NIST", "url": "https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center" },
+          { "type": "article", "title": "Cybersecurity Career Pathways – SANS", "url": "https://www.sans.org/cyber-security-courses/cybersecurity-career-pathways/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Draw a mind map of cybersecurity domains.",
-              "ar": "ارسم خريطة ذهنية لمجالات الأمن السيبراني."
-            },
-            {
-              "en": "List three domains you want to explore further.",
-              "ar": "عدد ثلاثة مجالات ترغب في استكشافها أكثر."
-            }
+            { "en": "Draw a mind map of cybersecurity domains.", "ar": "ارسم خريطة ذهنية لمجالات الأمن السيبراني." },
+            { "en": "List three domains you want to explore further.", "ar": "عدد ثلاثة مجالات ترغب في استكشافها أكثر." }
           ]
         }
       },
       {
         "key": "wed",
-        "day": {
-          "en": "Wednesday",
-          "ar": "الأربعاء"
-        },
-        "topic": {
-          "en": "Setting Up the Practical Lab",
-          "ar": "إعداد المعمل العملي"
-        },
+        "day": { "en": "Wednesday", "ar": "الأربعاء" },
+        "topic": { "en": "Setting Up the Practical Lab", "ar": "إعداد المعمل العملي" },
         "tasks": [
-          {
-            "id": "w1d5t1",
-            "type": "Practical",
-            "duration": 90,
-            "description": {
-              "en": "Prepare your cyber lab: install a VM (Kali Linux or Windows), set up Wireshark and basic tools.",
-              "ar": "جهز معملك السيبراني: ثبت جهاز افتراضي (Kali Linux أو Windows)، وأدوات مثل Wireshark."
-            }
-          },
-          {
-            "id": "w1d5t2",
-            "type": "Practical",
-            "duration": 30,
-            "description": {
-              "en": "Test connectivity and take a screenshot of your setup.",
-              "ar": "اختبر الاتصال بالشبكة والتقط صورة لإعدادك."
-            }
-          }
+          { "id": "w1d5t1", "type": "Practical", "duration": 90, "description": { "en": "Prepare your cyber lab: install a VM (Kali Linux or Windows), set up Wireshark and basic tools.", "ar": "جهز معملك السيبراني: ثبت جهاز افتراضي (Kali Linux أو Windows)، وأدوات مثل Wireshark." } },
+          { "id": "w1d5t2", "type": "Practical", "duration": 30, "description": { "en": "Test connectivity and take a screenshot of your setup.", "ar": "اختبر الاتصال بالشبكة والتقط صورة لإعدادك." } }
         ],
         "resources": [
-          {
-            "type": "guide",
-            "title": "Setting Up a Cybersecurity Lab – TryHackMe",
-            "url": "https://tryhackme.com/blog/setting-up-a-cybersecurity-lab/"
-          },
-          {
-            "type": "guide",
-            "title": "Wireshark Quickstart Guide – Wireshark Docs",
-            "url": "https://www.wireshark.org/docs/wsug_html_chunked/"
-          }
+          { "type": "guide", "title": "Setting Up a Cybersecurity Lab – TryHackMe", "url": "https://tryhackme.com/blog/setting-up-a-cybersecurity-lab/" },
+          { "type": "guide", "title": "Wireshark Quickstart Guide – Wireshark Docs", "url": "https://www.wireshark.org/docs/wsug_html_chunked/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Describe your lab setup and any challenges faced.",
-              "ar": "صف إعداد معملك وأي تحديات واجهتها."
-            },
-            {
-              "en": "List the main tools you installed.",
-              "ar": "عدد الأدوات الأساسية التي ثبتها."
-            }
+            { "en": "Describe your lab setup and any challenges faced.", "ar": "صف إعداد معملك وأي تحديات واجهتها." },
+            { "en": "List the main tools you installed.", "ar": "عدد الأدوات الأساسية التي ثبتها." }
           ]
         }
       },
       {
         "key": "thu",
-        "day": {
-          "en": "Thursday",
-          "ar": "الخميس"
-        },
-        "topic": {
-          "en": "Cybersecurity News & Community",
-          "ar": "أخبار الأمن السيبراني والمجتمع"
-        },
+        "day": { "en": "Thursday", "ar": "الخميس" },
+        "topic": { "en": "Cybersecurity News & Community", "ar": "أخبار الأمن السيبراني والمجتمع" },
         "tasks": [
-          {
-            "id": "w1d6t1",
-            "type": "Soft Skills",
-            "duration": 60,
-            "description": {
-              "en": "Subscribe to two cybersecurity news sources (e.g., KrebsOnSecurity, The Hacker News).",
-              "ar": "اشترك في مصدرين لأخبار الأمن السيبراني (مثل KrebsOnSecurity، The Hacker News)."
-            }
-          },
-          {
-            "id": "w1d6t2",
-            "type": "Soft Skills",
-            "duration": 30,
-            "description": {
-              "en": "Join a cybersecurity community/forum (e.g., r/cybersecurity, TryHackMe Discord).",
-              "ar": "انضم إلى مجتمع أو منتدى للأمن السيبراني (مثل r/cybersecurity أو TryHackMe Discord)."
-            }
-          }
+          { "id": "w1d6t1", "type": "Soft Skills", "duration": 60, "description": { "en": "Subscribe to two cybersecurity news sources (e.g., KrebsOnSecurity, The Hacker News).", "ar": "اشترك في مصدرين لأخبار الأمن السيبراني (مثل KrebsOnSecurity، The Hacker News)." } },
+          { "id": "w1d6t2", "type": "Soft Skills", "duration": 30, "description": { "en": "Join a cybersecurity community/forum (e.g., r/cybersecurity, TryHackMe Discord).", "ar": "انضم إلى مجتمع أو منتدى للأمن السيبراني (مثل r/cybersecurity أو TryHackMe Discord)." } }
         ],
         "resources": [
-          {
-            "type": "news",
-            "title": "Krebs on Security",
-            "url": "https://krebsonsecurity.com/"
-          },
-          {
-            "type": "news",
-            "title": "The Hacker News",
-            "url": "https://thehackernews.com/"
-          }
+          { "type": "news", "title": "Krebs on Security", "url": "https://krebsonsecurity.com/" },
+          { "type": "news", "title": "The Hacker News", "url": "https://thehackernews.com/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Summarize one interesting news item you read today.",
-              "ar": "لخص خبراً مهماً قرأته اليوم."
-            },
-            {
-              "en": "List the communities you joined.",
-              "ar": "عدد المجتمعات التي انضممت إليها."
-            }
+            { "en": "Summarize one interesting news item you read today.", "ar": "لخص خبراً مهماً قرأته اليوم." },
+            { "en": "List the communities you joined.", "ar": "عدد المجتمعات التي انضممت إليها." }
           ]
         }
       },
       {
         "key": "fri",
-        "day": {
-          "en": "Friday",
-          "ar": "الجمعة"
-        },
-        "topic": {
-          "en": "Review & Reflection",
-          "ar": "مراجعة وتأمل"
-        },
+        "day": { "en": "Friday", "ar": "الجمعة" },
+        "topic": { "en": "Review & Reflection", "ar": "مراجعة وتأمل" },
         "tasks": [
-          {
-            "id": "w1d7t1",
-            "type": "Soft Skills",
-            "duration": 60,
-            "description": {
-              "en": "Review all concepts learned this week and discuss with a peer or mentor what you found most interesting or challenging.",
-              "ar": "راجع جميع المفاهيم التي تعلمتها هذا الأسبوع وناقش مع زميل أو مشرف أكثر ما وجدته مثيراً أو صعباً."
-            }
-          }
+          { "id": "w1d7t1", "type": "Soft Skills", "duration": 60, "description": { "en": "Review all concepts learned this week and discuss with a peer or mentor what you found most interesting or challenging.", "ar": "راجع جميع المفاهيم التي تعلمتها هذا الأسبوع وناقش مع زميل أو مشرف أكثر ما وجدته مثيراً أو صعباً." } }
         ],
         "resources": [],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Write a summary of your key takeaways from week 1.",
-              "ar": "اكتب ملخصاً لأهم ما استفدته من الأسبوع الأول."
-            },
-            {
-              "en": "Set one goal for next week.",
-              "ar": "حدد هدفاً واحداً للأسبوع القادم."
-            }
+            { "en": "Write a summary of your key takeaways from week 1.", "ar": "اكتب ملخصاً لأهم ما استفدته من الأسبوع الأول." },
+            { "en": "Set one goal for next week.", "ar": "حدد هدفاً واحداً للأسبوع القادم." }
           ]
         }
       }
@@ -426,1105 +155,399 @@
   {
     "week": 2,
     "phase": 1,
-    "title": {
-      "en": "Networking Fundamentals",
-      "ar": "أساسيات الشبكات"
-    },
-    "objective": {
-      "en": "Understand how devices communicate over networks, models, and protocols. Master Wireshark basics.",
-      "ar": "فهم كيفية تواصل الأجهزة عبر الشبكات ونماذجها وبروتوكولاتها، وإتقان أساسيات Wireshark."
-    },
+    "title": { "en": "Networking Fundamentals", "ar": "أساسيات الشبكات" },
+    "objective": { "en": "Understand how devices communicate over networks, models, and protocols. Master Wireshark basics.", "ar": "فهم كيفية تواصل الأجهزة عبر الشبكات ونماذجها وبروتوكولاتها، وإتقان أساسيات Wireshark." },
     "days": [
       {
         "key": "sat",
-        "day": {
-          "en": "Saturday",
-          "ar": "السبت"
-        },
-        "topic": {
-          "en": "OSI Model",
-          "ar": "نموذج OSI"
-        },
+        "day": { "en": "Saturday", "ar": "السبت" },
+        "topic": { "en": "OSI Model", "ar": "نموذج OSI" },
         "tasks": [
-          {
-            "id": "w2d1t1",
-            "type": "Blue Team",
-            "duration": 75,
-            "description": {
-              "en": "Study the seven OSI layers and their functions.",
-              "ar": "ادرس طبقات OSI السبع ووظائفها."
-            }
-          },
-          {
-            "id": "w2d1t2",
-            "type": "Practical",
-            "duration": 45,
-            "description": {
-              "en": "Draw the OSI layers and use a mnemonic to memorize them.",
-              "ar": "ارسم طبقات OSI واستخدم جملة مساعدة للتذكر."
-            }
-          }
+          { "id": "w2d1t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study the seven OSI layers and their functions.", "ar": "ادرس طبقات OSI السبع ووظائفها." } },
+          { "id": "w2d1t2", "type": "Practical", "duration": 45, "description": { "en": "Draw the OSI layers and use a mnemonic to memorize them.", "ar": "ارسم طبقات OSI واستخدم جملة مساعدة للتذكر." } }
         ],
         "resources": [
-          {
-            "type": "video",
-            "title": "OSI Model Explained - Professor Messer",
-            "url": "https://www.youtube.com/watch?v=vv4y_uOneC0"
-          },
-          {
-            "type": "article",
-            "title": "What is the OSI Model - Cloudflare",
-            "url": "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/"
-          }
+          { "type": "video", "title": "OSI Model Explained - Professor Messer", "url": "https://www.youtube.com/watch?v=vv4y_uOneC0" },
+          { "type": "article", "title": "What is the OSI Model - Cloudflare", "url": "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "OSI Table: Create a table for OSI layers (number, name, function, protocol example).",
-              "ar": "جدول OSI: أنشئ جدولاً لطبقات OSI (الرقم، الاسم، الوظيفة، مثال على بروتوكول)."
-            },
-            {
-              "en": "New Terms: Define Encapsulation, Decapsulation.",
-              "ar": "مصطلحات جديدة: عرّف Encapsulation, Decapsulation."
-            }
+            { "en": "OSI Table: Create a table for OSI layers (number, name, function, protocol example).", "ar": "جدول OSI: أنشئ جدولاً لطبقات OSI (الرقم، الاسم، الوظيفة، مثال على بروتوكول)." },
+            { "en": "New Terms: Define Encapsulation, Decapsulation.", "ar": "مصطلحات جديدة: عرّف Encapsulation, Decapsulation." }
           ]
         }
       },
       {
         "key": "sun",
-        "day": {
-          "en": "Sunday",
-          "ar": "الأحد"
-        },
-        "topic": {
-          "en": "TCP/IP Model and TCP vs UDP",
-          "ar": "نموذج TCP/IP و TCP مقابل UDP"
-        },
+        "day": { "en": "Sunday", "ar": "الأحد" },
+        "topic": { "en": "TCP/IP Model and TCP vs UDP", "ar": "نموذج TCP/IP و TCP مقابل UDP" },
         "tasks": [
-          {
-            "id": "w2d2t1",
-            "type": "Blue Team",
-            "duration": 75,
-            "description": {
-              "en": "Study TCP/IP model and compare it to OSI. Focus on TCP 3-way handshake.",
-              "ar": "ادرس نموذج TCP/IP وقارنه بـ OSI. ركز على المصافحة الثلاثية في TCP."
-            }
-          },
-          {
-            "id": "w2d2t2",
-            "type": "Practical",
-            "duration": 45,
-            "description": {
-              "en": "Create a comparison table between TCP and UDP.",
-              "ar": "أنشئ جدول مقارنة بين TCP و UDP."
-            }
-          }
+          { "id": "w2d2t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study TCP/IP model and compare it to OSI. Focus on TCP 3-way handshake.", "ar": "ادرس نموذج TCP/IP وقارنه بـ OSI. ركز على المصافحة الثلاثية في TCP." } },
+          { "id": "w2d2t2", "type": "Practical", "duration": 45, "description": { "en": "Create a comparison table between TCP and UDP.", "ar": "أنشئ جدول مقارنة بين TCP و UDP." } }
         ],
         "resources": [
-          {
-            "type": "video",
-            "title": "TCP vs UDP",
-            "url": "https://www.youtube.com/watch?v=Vdc8TCESIg8"
-          },
-          {
-            "type": "video",
-            "title": "TCP 3-Way Handshake Explained",
-            "url": "https://www.youtube.com/watch?v=xrN2yPzhu6A"
-          }
+          { "type": "video", "title": "TCP vs UDP", "url": "https://www.youtube.com/watch?v=Vdc8TCESIg8" },
+          { "type": "video", "title": "TCP 3-Way Handshake Explained", "url": "https://www.youtube.com/watch?v=xrN2yPzhu6A" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Comparison Table: Document TCP vs UDP (reliability, speed, usage).",
-              "ar": "جدول مقارنة: وثق المقارنة بين TCP و UDP (الموثوقية، السرعة، أمثلة الاستخدام)."
-            },
-            {
-              "en": "Diagram: Draw the 3-way handshake steps.",
-              "ar": "رسم بياني: ارسم خطوات المصافحة الثلاثية (SYN, SYN-ACK, ACK)."
-            }
+            { "en": "Comparison Table: Document TCP vs UDP (reliability, speed, usage).", "ar": "جدول مقارنة: وثق المقارنة بين TCP و UDP (الموثوقية، السرعة، أمثلة الاستخدام)." },
+            { "en": "Diagram: Draw the 3-way handshake steps.", "ar": "رسم بياني: ارسم خطوات المصافحة الثلاثية (SYN, SYN-ACK, ACK)." }
           ]
         }
       },
       {
         "key": "mon",
-        "day": {
-          "en": "Monday",
-          "ar": "الإثنين"
-        },
-        "topic": {
-          "en": "Common Protocols and Policies",
-          "ar": "البروتوكولات الشائعة والسياسات"
-        },
+        "day": { "en": "Monday", "ar": "الإثنين" },
+        "topic": { "en": "Common Protocols and Policies", "ar": "البروتوكولات الشائعة والسياسات" },
         "tasks": [
-          {
-            "id": "w2d3t1",
-            "type": "Blue Team",
-            "duration": 75,
-            "description": {
-              "en": "Study how DNS, HTTP, DHCP work.",
-              "ar": "ادرس آلية عمل DNS, HTTP, DHCP."
-            }
-          },
-          {
-            "id": "w2d3t2",
-            "type": "Policies",
-            "duration": 45,
-            "description": {
-              "en": "Design a 3-point checklist for employees to verify links before clicking.",
-              "ar": "صمم قائمة تحقق من 3 نقاط للموظفين للتحقق من شرعية رابط قبل النقر عليه."
-            }
-          }
+          { "id": "w2d3t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study how DNS, HTTP, DHCP work.", "ar": "ادرس آلية عمل DNS, HTTP, DHCP." } },
+          { "id": "w2d3t2", "type": "Policies", "duration": 45, "description": { "en": "Design a 3-point checklist for employees to verify links before clicking.", "ar": "صمم قائمة تحقق من 3 نقاط للموظفين للتحقق من شرعية رابط قبل النقر عليه." } }
         ],
         "resources": [
-          {
-            "type": "article",
-            "title": "How DNS Works",
-            "url": "https://www.cloudflare.com/learning/dns/what-is-dns/"
-          },
-          {
-            "type": "article",
-            "title": "What is DHCP",
-            "url": "https://www.cisco.com/c/en/us/products/collateral/switches/campus-lan-switches-802-11ac/white-paper-c11-740091.html"
-          },
-          {
-            "type": "tool",
-            "title": "who.is",
-            "url": "https://who.is/"
-          }
+          { "type": "article", "title": "How DNS Works", "url": "https://www.cloudflare.com/learning/dns/what-is-dns/" },
+          { "type": "article", "title": "What is DHCP", "url": "https://www.cisco.com/c/en/us/products/collateral/switches/campus-lan-switches-802-11ac/white-paper-c11-740091.html" },
+          { "type": "tool", "title": "who.is", "url": "https://who.is/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Protocol Summary: Write a 2-line summary for each protocol.",
-              "ar": "ملخص البروتوكولات: اكتب ملخصا من سطرين لكل بروتوكول."
-            },
-            {
-              "en": "Checklist: Write your designed checklist.",
-              "ar": "قائمة التحقق: اكتب قائمة التحقق التي صممتها."
-            }
+            { "en": "Protocol Summary: Write a 2-line summary for each protocol.", "ar": "ملخص البروتوكولات: اكتب ملخصا من سطرين لكل بروتوكول." },
+            { "en": "Checklist: Write your designed checklist.", "ar": "قائمة التحقق: اكتب قائمة التحقق التي صممتها." }
           ]
         }
       },
       {
         "key": "tue",
-        "day": {
-          "en": "Tuesday",
-          "ar": "الثلاثاء"
-        },
-        "topic": {
-          "en": "Introduction to Wireshark",
-          "ar": "مقدمة إلى Wireshark"
-        },
+        "day": { "en": "Tuesday", "ar": "الثلاثاء" },
+        "topic": { "en": "Introduction to Wireshark", "ar": "مقدمة إلى Wireshark" },
         "tasks": [
-          {
-            "id": "w2d4t1",
-            "type": "Practical",
-            "duration": 45,
-            "description": {
-              "en": "Download and install Wireshark and Npcap.",
-              "ar": "قم بتنزيل وتثبيت Wireshark و Npcap."
-            }
-          },
-          {
-            "id": "w2d4t2",
-            "type": "Blue Team",
-            "duration": 75,
-            "description": {
-              "en": "Explore the main interface and three main windows.",
-              "ar": "تعرف على الواجهة الرئيسية والنوافذ الثلاث."
-            }
-          }
+          { "id": "w2d4t1", "type": "Practical", "duration": 45, "description": { "en": "Download and install Wireshark and Npcap.", "ar": "قم بتنزيل وتثبيت Wireshark و Npcap." } },
+          { "id": "w2d4t2", "type": "Blue Team", "duration": 75, "description": { "en": "Explore the main interface and three main windows.", "ar": "تعرف على الواجهة الرئيسية والنوافذ الثلاث." } }
         ],
         "resources": [
-          {
-            "type": "program",
-            "title": "Wireshark",
-            "url": "https://www.wireshark.org/"
-          },
-          {
-            "type": "video",
-            "title": "Wireshark Tutorial for Beginners",
-            "url": "https://www.youtube.com/watch?v=TkCSr30UojM"
-          }
+          { "type": "program", "title": "Wireshark", "url": "https://www.wireshark.org/" },
+          { "type": "video", "title": "Wireshark Tutorial for Beginners", "url": "https://www.youtube.com/watch?v=TkCSr30UojM" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Screenshots: Take screenshots of Wireshark interface and label the three windows.",
-              "ar": "توثيق الواجهة: خذ لقطات شاشة لواجهة Wireshark وقم بتسمية النوافذ الثلاث عليها."
-            },
-            {
-              "en": "New Terms: Define PCAP, Display Filter.",
-              "ar": "مصطلحات جديدة: عرّف PCAP, Display Filter."
-            }
+            { "en": "Screenshots: Take screenshots of Wireshark interface and label the three windows.", "ar": "توثيق الواجهة: خذ لقطات شاشة لواجهة Wireshark وقم بتسمية النوافذ الثلاث عليها." },
+            { "en": "New Terms: Define PCAP, Display Filter.", "ar": "مصطلحات جديدة: عرّف PCAP, Display Filter." }
           ]
         }
       },
       {
         "key": "wed",
-        "day": {
-          "en": "Wednesday",
-          "ar": "الأربعاء"
-        },
-        "topic": {
-          "en": "Lab: Packet Analysis",
-          "ar": "مختبر عملي: تحليل الحزم"
-        },
+        "day": { "en": "Wednesday", "ar": "الأربعاء" },
+        "topic": { "en": "Lab: Packet Analysis", "ar": "مختبر عملي: تحليل الحزم" },
         "tasks": [
-          {
-            "id": "w2d5t1",
-            "type": "Practical",
-            "duration": 120,
-            "description": {
-              "en": "Capture and analyze ping, nslookup, and http traffic using Wireshark filters.",
-              "ar": "التقط حركة مرور ناتجة عن ping و nslookup وتصفح موقع http. استخدم فلاتر العرض (icmp, dns, http) لعزل كل نوع."
-            }
-          }
+          { "id": "w2d5t1", "type": "Practical", "duration": 120, "description": { "en": "Capture and analyze ping, nslookup, and http traffic using Wireshark filters.", "ar": "التقط حركة مرور ناتجة عن ping و nslookup وتصفح موقع http. استخدم فلاتر العرض (icmp, dns, http) لعزل كل نوع." } }
         ],
         "resources": [
-          {
-            "type": "site",
-            "title": "example.com",
-            "url": "http://example.com"
-          },
-          {
-            "type": "reference",
-            "title": "Wireshark Display Filters Cheat Sheet",
-            "url": "https://cheatography.com/ashlyn-black/cheat-sheets/wireshark-display-filters/"
-          }
+          { "type": "site", "title": "example.com", "url": "http://example.com" },
+          { "type": "reference", "title": "Wireshark Display Filters Cheat Sheet", "url": "https://cheatography.com/ashlyn-black/cheat-sheets/wireshark-display-filters/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Document: Record result for each filter. For one DNS packet, write the 'question' and 'answer'.",
-              "ar": "توثيق التحليل: وثق نتيجة كل فلتر استخدمته. اختر حزمة DNS واحدة واكتب \"السؤال\" و \"الإجابة\"."
-            },
-            {
-              "en": "Save: Save the capture file (.pcapng) in your projects folder.",
-              "ar": "حفظ الدليل: احفظ ملف الالتقاط (.pcapng) في مجلد مشاريعك."
-            }
+            { "en": "Document: Record result for each filter. For one DNS packet, write the 'question' and 'answer'.", "ar": "توثيق التحليل: وثق نتيجة كل فلتر استخدمته. اختر حزمة DNS واحدة واكتب \"السؤال\" و \"الإجابة\"." },
+            { "en": "Save: Save the capture file (.pcapng) in your projects folder.", "ar": "حفظ الدليل: احفظ ملف الالتقاط (.pcapng) في مجلد مشاريعك." }
           ]
         }
       },
       {
         "key": "thu",
-        "day": {
-          "en": "Thursday",
-          "ar": "الخميس"
-        },
-        "topic": {
-          "en": "Review & Attacker Perspective",
-          "ar": "المراجعة ومنظور المهاجم"
-        },
+        "day": { "en": "Thursday", "ar": "الخميس" },
+        "topic": { "en": "Review & Attacker Perspective", "ar": "المراجعة ومنظور المهاجم" },
         "tasks": [
-          {
-            "id": "w2d6t1",
-            "type": "Blue Team",
-            "duration": 60,
-            "description": {
-              "en": "Review notes and common ports (80, 443, 53).",
-              "ar": "راجع ملاحظاتك والمنافذ الشهيرة (80, 443, 53)."
-            }
-          },
-          {
-            "id": "w2d6t2",
-            "type": "Red Team",
-            "duration": 60,
-            "description": {
-              "en": "Research Man-in-the-Middle (MITM) and ARP Spoofing attacks.",
-              "ar": "ابحث عن هجوم Man-in-the-Middle (MITM) و ARP Spoofing."
-            }
-          }
+          { "id": "w2d6t1", "type": "Blue Team", "duration": 60, "description": { "en": "Review notes and common ports (80, 443, 53).", "ar": "راجع ملاحظاتك والمنافذ الشهيرة (80, 443, 53)." } },
+          { "id": "w2d6t2", "type": "Red Team", "duration": 60, "description": { "en": "Research Man-in-the-Middle (MITM) and ARP Spoofing attacks.", "ar": "ابحث عن هجوم Man-in-the-Middle (MITM) و ARP Spoofing." } }
         ],
         "resources": [
-          {
-            "type": "article",
-            "title": "What is a Man-in-the-Middle Attack?",
-            "url": "https://www.kaspersky.com/resource-center/definitions/man-in-the-middle-attack"
-          },
-          {
-            "type": "article",
-            "title": "ARP Spoofing",
-            "url": "https://www.imperva.com/learn/application-security/arp-spoofing/"
-          }
+          { "type": "article", "title": "What is a Man-in-the-Middle Attack?", "url": "https://www.kaspersky.com/resource-center/definitions/man-in-the-middle-attack" },
+          { "type": "article", "title": "ARP Spoofing", "url": "https://www.imperva.com/learn/application-security/arp-spoofing/" }
         ],
         "notes_prompt": {
-          "title": {
-            "en": "Evening Journaling Task",
-            "ar": "مهمة التدوين المسائية"
-          },
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
           "points": [
-            {
-              "en": "Attack Summary: Write a paragraph on MITM risks.",
-              "ar": "ملخص الهجوم: اكتب فقرة تشرح خطورة هجوم MITM."
-            },
-            {
-              "en": "Self-Review: Answer weekly review questions.",
-              "ar": "مراجعة ذاتية: أجب عن أسئلة المراجعة الأسبوعية."
-            }
+            { "en": "Attack Summary: Write a paragraph on MITM risks.", "ar": "ملخص الهجوم: اكتب فقرة تشرح خطورة هجوم MITM." },
+            { "en": "Self-Review: Answer weekly review questions.", "ar": "مراجعة ذاتية: أجب عن أسئلة المراجعة الأسبوعية." }
           ]
         }
       },
       {
         "key": "fri",
-        "day": {
-          "en": "Friday",
-          "ar": "الجمعة"
-        },
-        "topic": {
-          "en": "Rest and Preparation",
-          "ar": "راحة واستعداد"
-        },
+        "day": { "en": "Friday", "ar": "الجمعة" },
+        "topic": { "en": "Rest and Preparation", "ar": "راحة واستعداد" },
         "tasks": [],
         "resources": [],
-        "notes_prompt": {
-          "title": {
-            "en": "",
-            "ar": ""
-          },
-          "points": []
-        }
+        "notes_prompt": { "title": { "en": "", "ar": "" }, "points": [] }
       }
     ]
   },
   {
     "week": 3,
-      "phase": 1,
-      "title": {
-        "en": "Network Security Fundamentals",
-        "ar": "أساسيات أمن الشبكات"
-      },
-      "objective": {
-        "en": "Understand the role and function of basic network security controls (firewalls, IDS), and get to know their tools.",
-        "ar": "فهم دور ووظيفة الضوابط الأمنية الأساسية للشبكة (الجدران النارية، أنظمة كشف التسلل)، والتعرف على أدواتها."
-      },
-      "days": [
-        {
-          "key": "sat",
-          "day": {
-            "en": "Saturday",
-            "ar": "السبت"
-          },
-          "topic": {
-            "en": "Firewalls",
-            "ar": "الجدران النارية"
-          },
-          "tasks": [
-            {
-              "id": "w3d1t1",
-              "type": "Blue Team",
-              "duration": 75,
-              "description": {
-                "en": "Study stateful vs stateless firewalls and WAF.",
-                "ar": "ادرس الفرق بين جدار الحماية ذي الحالة وعديم الحالة وجدار حماية تطبيقات الويب (WAF)."
-              }
-            },
-            {
-              "id": "w3d1t2",
-              "type": "Practical",
-              "duration": 45,
-              "description": {
-                "en": "Draw a simple network diagram showing firewall and WAF placement.",
-                "ar": "ارسم مخطط شبكة بسيطة توضح أين يجب وضع جدار الحماية الرئيسي وأين يوضع الـ WAF."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "video",
-              "title": "Firewalls Explained",
-              "url": "https://www.youtube.com/watch?v=3QhU9jd03a0"
-            },
-            {
-              "type": "article",
-              "title": "What is a WAF (Web Application Firewall)?",
-              "url": "https://www.cloudflare.com/learning/ddos/glossary/web-application-firewall-waf/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Comparison Table: Create a table comparing firewall types (layer, protection, example).",
-                "ar": "جدول مقارنة: أنشئ جدولاً يقارن بين أنواع الجدران النارية (الطبقة التي تعمل بها، مستوى الحماية، أمثلة)."
-              },
-              {
-                "en": "New Terms: Define Stateful/Stateless Inspection, WAF, Proxy.",
-                "ar": "مصطلحات جديدة: عرّف Stateful/Stateless Inspection, WAF, Proxy."
-              }
-            ]
-          }
-        },
-        {
-          "key": "sun",
-          "day": {
-            "en": "Sunday",
-            "ar": "الأحد"
-          },
-          "topic": {
-            "en": "IDS/IPS",
-            "ar": "أنظمة كشف ومنع التسلل"
-          },
-          "tasks": [
-            {
-              "id": "w3d2t1",
-              "type": "Blue Team",
-              "duration": 75,
-              "description": {
-                "en": "Study IDS vs IPS and signature-based vs anomaly-based detection.",
-                "ar": "ادرس الفرق بين IDS (يكتشف ويبلغ) و IPS (يكتشف ويمنع). قارن بين الكشف المعتمد على التوقيع والسلوك."
-              }
-            },
-            {
-              "id": "w3d2t2",
-              "type": "Blue Team",
-              "duration": 45,
-              "description": {
-                "en": "Understand the difference between NIDS and HIDS.",
-                "ar": "افهم الفرق بين NIDS (على الشبكة) و HIDS (على الجهاز)."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "video",
-              "title": "IDS vs IPS Explained",
-              "url": "https://www.youtube.com/watch?v=6KXy4l5S6l0"
-            },
-            {
-              "type": "article",
-              "title": "Signature vs Anomaly Based IDS",
-              "url": "https://www.geeksforgeeks.org/signature-based-vs-anomaly-based-ids/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Scenarios: Write when to use IDS vs IPS.",
-                "ar": "سيناريوهات: اكتب متى يكون استخدام IDS أفضل من IPS والعكس."
-              },
-              {
-                "en": "Comparison Table: Summarize NIDS vs HIDS.",
-                "ar": "جدول مقارنة: لخص الفروقات بين NIDS و HIDS (مكان التثبيت، نوع البيانات التي يراها، مثال)."
-              }
-            ]
-          }
-        },
-        {
-          "key": "mon",
-          "day": {
-            "en": "Monday",
-            "ar": "الإثنين"
-          },
-          "topic": {
-            "en": "Vulnerability Management & Policies",
-            "ar": "مقدمة لإدارة الثغرات والسياسات"
-          },
-          "tasks": [
-            {
-              "id": "w3d3t1",
-              "type": "Blue Team",
-              "duration": 75,
-              "description": {
-                "en": "Study vulnerability management lifecycle and CVSS.",
-                "ar": "ادرس دورة حياة إدارة الثغرات (اكتشاف، تقييم، معالجة، إبلاغ). ادرس نظام تسجيل الثغرات (CVSS)."
-              }
-            },
-            {
-              "id": "w3d3t2",
-              "type": "Policies",
-              "duration": 45,
-              "description": {
-                "en": "Write a vulnerability management policy clause for remediation timeframes.",
-                "ar": "اكتب بندا في سياسة إدارة الثغرات يحدد الإطار الزمني لمعالجة الثغرات بناءً على شدتها."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "video",
-              "title": "What is Vulnerability Management?",
-              "url": "https://www.youtube.com/watch?v=5ZyQK6l1GvY"
-            },
-            {
-              "type": "article",
-              "title": "CVSS Score Explained",
-              "url": "https://www.first.org/cvss/v3-1/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Diagram: Draw vulnerability management lifecycle.",
-                "ar": "رسم بياني: ارسم مخططا يوضح دورة حياة إدارة الثغرات."
-              },
-              {
-                "en": "Policy Draft: Write your policy clause.",
-                "ar": "مسودات السياسات: اكتب البند الذي صغته لسياسة إدارة الثغرات."
-              }
-            ]
-          }
-        },
-        {
-          "key": "tue",
-          "day": {
-            "en": "Tuesday",
-            "ar": "الثلاثاء"
-          },
-          "topic": {
-            "en": "Network Security Tools",
-            "ar": "التعرف على أدوات أمن الشبكات"
-          },
-          "tasks": [
-            {
-              "id": "w3d4t1",
-              "type": "Blue Team",
-              "duration": 75,
-              "description": {
-                "en": "Read about ufw, Snort, and OpenVAS.",
-                "ar": "اقرأ عن ufw (جدار حماية بسيط في لينكس). شاهد مقدمة عن أداة Snort وأداة OpenVAS."
-              }
-            },
-            {
-              "id": "w3d4t2",
-              "type": "Soft Skills",
-              "duration": 45,
-              "description": {
-                "en": "Prepare a simple explanation for a non-technical manager about firewall vs IDS.",
-                "ar": "جهز شرحًا مبسطا لمدير غير تقني، تشرح فيه الفرق بين جدار الحماية ونظام كشف التسلل."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "article",
-              "title": "ufw firewall tutorial",
-              "url": "https://help.ubuntu.com/community/UFW"
-            },
-            {
-              "type": "video",
-              "title": "Introduction to Snort",
-              "url": "https://www.youtube.com/watch?v=9tC2uBq8QGk"
-            },
-            {
-              "type": "video",
-              "title": "OpenVAS tutorial",
-              "url": "https://www.youtube.com/watch?v=6p5j3QG6nEw"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Tool List: List the three tools with a one-line description.",
-                "ar": "قائمة أدوات: أنشئ قائمة بالأدوات الثلاث مع وصف من سطر واحد لكل أداة والغرض منها."
-              },
-              {
-                "en": "Question for the future: How is a Snort rule written?",
-                "ar": "سؤال للمستقبل: كيف يتم كتابة قاعدة (rule) في Snort؟"
-              }
-            ]
-          }
-        },
-        {
-          "key": "wed",
-          "day": {
-            "en": "Wednesday",
-            "ar": "الأربعاء"
-          },
-          "topic": {
-            "en": "Lab: Basic Firewall Setup",
-            "ar": "مختبر عملي: إعداد جدار حماية بسيط"
-          },
-          "tasks": [
-            {
-              "id": "w3d5t1",
-              "type": "Practical",
-              "duration": 120,
-              "description": {
-                "en": "On your Ubuntu VM, use ufw to enable firewall, deny all incoming, allow SSH (22) and HTTP (80) only.",
-                "ar": "على جهازك الافتراضي (Ubuntu)، استخدم ufw لتفعيل جدار الحماية، رفض جميع الاتصالات القادمة، والسماح باتصالات SSH (منفذ 22) و HTTP (منفذ 80) فقط."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "guide",
-              "title": "How to set up a firewall with UFW on Ubuntu",
-              "url": "https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Document commands: List all ufw commands used with explanations.",
-                "ar": "توثيق الأوامر: اكتب جميع أوامر ufw التي استخدمتها مع شرح لما يفعله كل أمر."
-              },
-              {
-                "en": "Screenshot: Take a screenshot of sudo ufw status output.",
-                "ar": "لقطات شاشة: خذ لقطة شاشة لناتج أمر sudo ufw status بعد تطبيق القواعد."
-              }
-            ]
-          }
-        },
-        {
-          "key": "thu",
-          "day": {
-            "en": "Thursday",
-            "ar": "الخميس"
-          },
-          "topic": {
-            "en": "Review & Attacker Perspective",
-            "ar": "المراجعة ومنظور المهاجم"
-          },
-          "tasks": [
-            {
-              "id": "w3d6t1",
-              "type": "Blue Team",
-              "duration": 60,
-              "description": {
-                "en": "Review all week concepts.",
-                "ar": "راجع جميع مفاهيم الأسبوع."
-              }
-            },
-            {
-              "id": "w3d6t2",
-              "type": "Red Team",
-              "duration": 60,
-              "description": {
-                "en": "Research firewall and IDS evasion techniques.",
-                "ar": "ابحث عن تقنيات Firewall Evasion وكيف يحاول المهاجمون تجنب كشف الـ IDS."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "article",
-              "title": "Firewall and IDS Evasion Techniques",
-              "url": "https://www.varonis.com/blog/ids-evasion"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Attack Summary: Summarize two IDS evasion techniques.",
-                "ar": "ملخص الهجوم: لخص طريقتين لتجنب كشف الـ IDS."
-              },
-              {
-                "en": "Self-Review: Answer weekly review questions.",
-                "ar": "مراجعة ذاتية: أجب عن أسئلة المراجعة الأسبوعية."
-              }
-            ]
-          }
-        },
-        {
-          "key": "fri",
-          "day": {
-            "en": "Friday",
-            "ar": "الجمعة"
-          },
-          "topic": {
-            "en": "Rest and Preparation",
-            "ar": "راحة واستعداد"
-          },
-          "tasks": [],
-          "resources": [],
-          "notes_prompt": {
-            "title": {
-              "en": "",
-              "ar": ""
-            },
-            "points": []
-          }
+    "phase": 1,
+    "title": { "en": "Network Security Fundamentals", "ar": "أساسيات أمن الشبكات" },
+    "objective": { "en": "Understand the role and function of basic network security controls (firewalls, IDS), and get to know their tools.", "ar": "فهم دور ووظيفة الضوابط الأمنية الأساسية للشبكة (الجدران النارية، أنظمة كشف التسلل)، والتعرف على أدواتها." },
+    "days": [
+      {
+        "key": "sat",
+        "day": { "en": "Saturday", "ar": "السبت" },
+        "topic": { "en": "Firewalls", "ar": "الجدران النارية" },
+        "tasks": [
+          { "id": "w3d1t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study stateful vs stateless firewalls and WAF.", "ar": "ادرس الفرق بين جدار الحماية ذي الحالة وعديم الحالة وجدار حماية تطبيقات الويب (WAF)." } },
+          { "id": "w3d1t2", "type": "Practical", "duration": 45, "description": { "en": "Draw a simple network diagram showing firewall and WAF placement.", "ar": "ارسم مخطط شبكة بسيطة توضح أين يجب وضع جدار الحماية الرئيسي وأين يوضع الـ WAF." } }
+        ],
+        "resources": [
+          { "type": "video", "title": "Firewalls Explained", "url": "https://www.youtube.com/watch?v=3QhU9jd03a0" },
+          { "type": "article", "title": "What is a WAF (Web Application Firewall)?", "url": "https://www.cloudflare.com/learning/ddos/glossary/web-application-firewall-waf/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Comparison Table: Create a table comparing firewall types (layer, protection, example).", "ar": "جدول مقارنة: أنشئ جدولاً يقارن بين أنواع الجدران النارية (الطبقة التي تعمل بها، مستوى الحماية، أمثلة)." },
+            { "en": "New Terms: Define Stateful/Stateless Inspection, WAF, Proxy.", "ar": "مصطلحات جديدة: عرّف Stateful/Stateless Inspection, WAF, Proxy." }
+          ]
         }
-      ]
-    },
-    {
-      "week": 4,
-      "phase": 1,
-      "title": {
-        "en": "Secure Internet Communication (VPN, Tor, DNS Security)",
-        "ar": "الاتصال الآمن بالإنترنت (VPN, Tor, DNS Security)"
       },
-      "objective": {
-        "en": "Understand the risks of insecure internet connections and master tools and techniques (VPN, Tor, Secure DNS) for privacy and security.",
-        "ar": "فهم مخاطر الاتصالات غير الآمنة بالإنترنت، وإتقان الأدوات والتقنيات (VPN, Tor, Secure DNS) لضمان الخصوصية والأمان."
-      },
-      "days": [
-        {
-          "key": "sat",
-          "day": {
-            "en": "Saturday",
-            "ar": "السبت"
-          },
-          "topic": {
-            "en": "DNS Security",
-            "ar": "أمن نظام أسماء النطاقات (DNS Security)"
-          },
-          "tasks": [
-            {
-              "id": "w4d1t1",
-              "type": "Blue Team",
-              "duration": 75,
-              "description": {
-                "en": "Study how regular DNS requests are unencrypted. Learn about DNS over HTTPS (DoH) and DNS over TLS (DoT).",
-                "ar": "ادرس كيف أن طلبات DNS العادية غير مشفرة. تعرف على تقنيتي DNS over HTTPS (DoH) وDNS over TLS (DoT)."
-              }
-            },
-            {
-              "id": "w4d1t2",
-              "type": "Practical",
-              "duration": 45,
-              "description": {
-                "en": "Change your DNS settings in your browser or OS to use a secure DNS server like Cloudflare (1.1.1.1).",
-                "ar": "قم بتغيير إعدادات DNS في متصفحك أو نظام التشغيل لاستخدام خادم DNS آمن مثل Cloudflare (1.1.1.1)."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "video",
-              "title": "DNS over HTTPS (DoH) Explained",
-              "url": "https://www.youtube.com/watch?v=Zt3F1a6L5lY"
-            },
-            {
-              "type": "guide",
-              "title": "How to Change DNS on Windows/Linux/Mac",
-              "url": "https://www.cloudflare.com/learning/dns/dns-over-https/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Summarize the difference between classic DNS and DoH/DoT.",
-                "ar": "لخص الفرق بين DNS التقليدي و DoH/DoT."
-              },
-              {
-                "en": "List two privacy risks of using unsecured DNS.",
-                "ar": "اذكر خطرين على الخصوصية عند استخدام DNS غير آمن."
-              }
-            ]
-          }
-        },
-        {
-          "key": "sun",
-          "day": {
-            "en": "Sunday",
-            "ar": "الأحد"
-          },
-          "topic": {
-            "en": "VPN Fundamentals",
-            "ar": "أساسيات الشبكات الافتراضية الخاصة (VPN)"
-          },
-          "tasks": [
-            {
-              "id": "w4d2t1",
-              "type": "Blue Team",
-              "duration": 60,
-              "description": {
-                "en": "Study how VPNs work and their use cases for privacy and bypassing censorship.",
-                "ar": "ادرس كيف تعمل الشبكات الافتراضية الخاصة (VPN) واستخداماتها للخصوصية وتجاوز الحجب."
-              }
-            },
-            {
-              "id": "w4d2t2",
-              "type": "Practical",
-              "duration": 60,
-              "description": {
-                "en": "Install a free VPN client and test connecting to a secure server.",
-                "ar": "قم بتثبيت عميل VPN مجاني وجرب الاتصال بخادم آمن."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "video",
-              "title": "How VPNs Work",
-              "url": "https://www.youtube.com/watch?v=_wQTRMBAvzg"
-            },
-            {
-              "type": "guide",
-              "title": "Best Free VPN Clients",
-              "url": "https://www.techradar.com/vpn/best-free-vpn"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Describe a scenario where using a VPN is critical.",
-                "ar": "صف سيناريو يكون فيه استخدام VPN ضروريًا."
-              }
-            ]
-          }
-        },
-        {
-          "key": "mon",
-          "day": {
-            "en": "Monday",
-            "ar": "الإثنين"
-          },
-          "topic": {
-            "en": "Tor Network",
-            "ar": "شبكة تور (Tor)"
-          },
-          "tasks": [
-            {
-              "id": "w4d3t1",
-              "type": "Blue Team",
-              "duration": 60,
-              "description": {
-                "en": "Understand the basics of Tor, its architecture, and its privacy features.",
-                "ar": "افهم أساسيات شبكة Tor، بنيتها، وميزات الخصوصية فيها."
-              }
-            },
-            {
-              "id": "w4d3t2",
-              "type": "Practical",
-              "duration": 60,
-              "description": {
-                "en": "Download and use Tor Browser to access a .onion site.",
-                "ar": "قم بتنزيل واستخدام متصفح Tor للدخول إلى موقع .onion."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "video",
-              "title": "How Tor Works",
-              "url": "https://www.youtube.com/watch?v=2aHkqB6n6pM"
-            },
-            {
-              "type": "guide",
-              "title": "Official Tor Browser Download",
-              "url": "https://www.torproject.org/download/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "List two advantages and two limitations of Tor.",
-                "ar": "اذكر ميزتين وعيبين لشبكة Tor."
-              }
-            ]
-          }
-        },
-        {
-          "key": "tue",
-          "day": {
-            "en": "Tuesday",
-            "ar": "الثلاثاء"
-          },
-          "topic": {
-            "en": "Comparing Privacy Tools",
-            "ar": "مقارنة أدوات الخصوصية"
-          },
-          "tasks": [
-            {
-              "id": "w4d4t1",
-              "type": "Blue Team",
-              "duration": 60,
-              "description": {
-                "en": "Compare VPN, Tor, and Secure DNS for privacy and security.",
-                "ar": "قارن بين VPN وTor وDNS الآمن من حيث الخصوصية والأمان."
-              }
-            },
-            {
-              "id": "w4d4t2",
-              "type": "Soft Skills",
-              "duration": 60,
-              "description": {
-                "en": "Prepare a table or infographic to present your comparison.",
-                "ar": "جهز جدولاً أو رسمًا بيانيًا لعرض المقارنة."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "article",
-              "title": "VPN vs Tor vs Secure DNS",
-              "url": "https://restoreprivacy.com/tools/vpn-vs-tor-vs-proxy/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Which tool would you recommend to a journalist? Why?",
-                "ar": "أي أداة توصي بها لصحفي؟ ولماذا؟"
-              }
-            ]
-          }
-        },
-        {
-          "key": "wed",
-          "day": {
-            "en": "Wednesday",
-            "ar": "الأربعاء"
-          },
-          "topic": {
-            "en": "Practical Lab: Secure Browsing",
-            "ar": "مختبر عملي: التصفح الآمن"
-          },
-          "tasks": [
-            {
-              "id": "w4d5t1",
-              "type": "Practical",
-              "duration": 120,
-              "description": {
-                "en": "Set up your browser with a secure DNS, test VPN and Tor, and document your findings.",
-                "ar": "قم بإعداد متصفحك مع DNS آمن، وجرب VPN وTor، ووثق النتائج."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "guide",
-              "title": "Browser Security Settings Guide",
-              "url": "https://www.privacyguides.org/browsers/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Document any issues faced during setup.",
-                "ar": "وثق أي مشاكل واجهتها أثناء الإعداد."
-              }
-            ]
-          }
-        },
-        {
-          "key": "thu",
-          "day": {
-            "en": "Thursday",
-            "ar": "الخميس"
-          },
-          "topic": {
-            "en": "Weekly Review & Attacker Perspective",
-            "ar": "مراجعة أسبوعية ومنظور المهاجم"
-          },
-          "tasks": [
-            {
-              "id": "w4d6t1",
-              "type": "Blue Team",
-              "duration": 60,
-              "description": {
-                "en": "Review all concepts and privacy tools learned this week.",
-                "ar": "راجع جميع المفاهيم وأدوات الخصوصية التي تعلمتها هذا الأسبوع."
-              }
-            },
-            {
-              "id": "w4d6t2",
-              "type": "Red Team",
-              "duration": 60,
-              "description": {
-                "en": "Research how attackers can bypass VPN and Tor.",
-                "ar": "ابحث كيف يمكن للمهاجمين تجاوز VPN وTor."
-              }
-            }
-          ],
-          "resources": [
-            {
-              "type": "article",
-              "title": "How Attackers Bypass Privacy Tools",
-              "url": "https://www.kaspersky.com/blog/vpn-vulnerabilities/44547/"
-            }
-          ],
-          "notes_prompt": {
-            "title": {
-              "en": "Evening Journaling Task",
-              "ar": "مهمة التدوين المسائية"
-            },
-            "points": [
-              {
-                "en": "Summarize two attack techniques targeting privacy tools.",
-                "ar": "لخص تقنيتين للهجوم تستهدفان أدوات الخصوصية."
-              }
-            ]
-          }
-        },
-        {
-          "key": "fri",
-          "day": {
-            "en": "Friday",
-            "ar": "الجمعة"
-          },
-          "topic": {
-            "en": "Rest and Preparation",
-            "ar": "راحة واستعداد"
-          },
-          "tasks": [],
-          "resources": [],
-          "notes_prompt": {
-            "title": {
-              "en": "",
-              "ar": ""
-            },
-            "points": []
-          }
+      {
+        "key": "sun",
+        "day": { "en": "Sunday", "ar": "الأحد" },
+        "topic": { "en": "IDS/IPS", "ar": "أنظمة كشف ومنع التسلل" },
+        "tasks": [
+          { "id": "w3d2t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study IDS vs IPS and signature-based vs anomaly-based detection.", "ar": "ادرس الفرق بين IDS (يكتشف ويبلغ) و IPS (يكتشف ويمنع). قارن بين الكشف المعتمد على التوقيع والسلوك." } },
+          { "id": "w3d2t2", "type": "Blue Team", "duration": 45, "description": { "en": "Understand the difference between NIDS and HIDS.", "ar": "افهم الفرق بين NIDS (على الشبكة) و HIDS (على الجهاز)." } }
+        ],
+        "resources": [
+          { "type": "video", "title": "IDS vs IPS Explained", "url": "https://www.youtube.com/watch?v=6KXy4l5S6l0" },
+          { "type": "article", "title": "Signature vs Anomaly Based IDS", "url": "https://www.geeksforgeeks.org/signature-based-vs-anomaly-based-ids/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Scenarios: Write when to use IDS vs IPS.", "ar": "سيناريوهات: اكتب متى يكون استخدام IDS أفضل من IPS والعكس." },
+            { "en": "Comparison Table: Summarize NIDS vs HIDS.", "ar": "جدول مقارنة: لخص الفروقات بين NIDS و HIDS (مكان التثبيت، نوع البيانات التي يراها، مثال)." }
+          ]
         }
-      ]
-    }
+      },
+      {
+        "key": "mon",
+        "day": { "en": "Monday", "ar": "الإثنين" },
+        "topic": { "en": "Vulnerability Management & Policies", "ar": "مقدمة لإدارة الثغرات والسياسات" },
+        "tasks": [
+          { "id": "w3d3t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study vulnerability management lifecycle and CVSS.", "ar": "ادرس دورة حياة إدارة الثغرات (اكتشاف، تقييم، معالجة، إبلاغ). ادرس نظام تسجيل الثغرات (CVSS)." } },
+          { "id": "w3d3t2", "type": "Policies", "duration": 45, "description": { "en": "Write a vulnerability management policy clause for remediation timeframes.", "ar": "اكتب بندا في سياسة إدارة الثغرات يحدد الإطار الزمني لمعالجة الثغرات بناءً على شدتها." } }
+        ],
+        "resources": [
+          { "type": "video", "title": "What is Vulnerability Management?", "url": "https://www.youtube.com/watch?v=5ZyQK6l1GvY" },
+          { "type": "article", "title": "CVSS Score Explained", "url": "https://www.first.org/cvss/v3-1/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Diagram: Draw vulnerability management lifecycle.", "ar": "رسم بياني: ارسم مخططا يوضح دورة حياة إدارة الثغرات." },
+            { "en": "Policy Draft: Write your policy clause.", "ar": "مسودات السياسات: اكتب البند الذي صغته لسياسة إدارة الثغرات." }
+          ]
+        }
+      },
+      {
+        "key": "tue",
+        "day": { "en": "Tuesday", "ar": "الثلاثاء" },
+        "topic": { "en": "Network Security Tools", "ar": "التعرف على أدوات أمن الشبكات" },
+        "tasks": [
+          { "id": "w3d4t1", "type": "Blue Team", "duration": 75, "description": { "en": "Read about ufw, Snort, and OpenVAS.", "ar": "اقرأ عن ufw (جدار حماية بسيط في لينكس). شاهد مقدمة عن أداة Snort وأداة OpenVAS." } },
+          { "id": "w3d4t2", "type": "Soft Skills", "duration": 45, "description": { "en": "Prepare a simple explanation for a non-technical manager about firewall vs IDS.", "ar": "جهز شرحًا مبسطا لمدير غير تقني، تشرح فيه الفرق بين جدار الحماية ونظام كشف التسلل." } }
+        ],
+        "resources": [
+          { "type": "article", "title": "ufw firewall tutorial", "url": "https://help.ubuntu.com/community/UFW" },
+          { "type": "video", "title": "Introduction to Snort", "url": "https://www.youtube.com/watch?v=9tC2uBq8QGk" },
+          { "type": "video", "title": "OpenVAS tutorial", "url": "https://www.youtube.com/watch?v=6p5j3QG6nEw" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Tool List: List the three tools with a one-line description.", "ar": "قائمة أدوات: أنشئ قائمة بالأدوات الثلاث مع وصف من سطر واحد لكل أداة والغرض منها." },
+            { "en": "Question for the future: How is a Snort rule written?", "ar": "سؤال للمستقبل: كيف يتم كتابة قاعدة (rule) في Snort؟" }
+          ]
+        }
+      },
+      {
+        "key": "wed",
+        "day": { "en": "Wednesday", "ar": "الأربعاء" },
+        "topic": { "en": "Lab: Basic Firewall Setup", "ar": "مختبر عملي: إعداد جدار حماية بسيط" },
+        "tasks": [
+          { "id": "w3d5t1", "type": "Practical", "duration": 120, "description": { "en": "On your Ubuntu VM, use ufw to enable firewall, deny all incoming, allow SSH (22) and HTTP (80) only.", "ar": "على جهازك الافتراضي (Ubuntu)، استخدم ufw لتفعيل جدار الحماية، رفض جميع الاتصالات القادمة، والسماح باتصالات SSH (منفذ 22) و HTTP (منفذ 80) فقط." } }
+        ],
+        "resources": [
+          { "type": "guide", "title": "How to set up a firewall with UFW on Ubuntu", "url": "https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Document commands: List all ufw commands used with explanations.", "ar": "توثيق الأوامر: اكتب جميع أوامر ufw التي استخدمتها مع شرح لما يفعله كل أمر." },
+            { "en": "Screenshot: Take a screenshot of sudo ufw status output.", "ar": "لقطات شاشة: خذ لقطة شاشة لناتج أمر sudo ufw status بعد تطبيق القواعد." }
+          ]
+        }
+      },
+      {
+        "key": "thu",
+        "day": { "en": "Thursday", "ar": "الخميس" },
+        "topic": { "en": "Review & Attacker Perspective", "ar": "المراجعة ومنظور المهاجم" },
+        "tasks": [
+          { "id": "w3d6t1", "type": "Blue Team", "duration": 60, "description": { "en": "Review all week concepts.", "ar": "راجع جميع مفاهيم الأسبوع." } },
+          { "id": "w3d6t2", "type": "Red Team", "duration": 60, "description": { "en": "Research firewall and IDS evasion techniques.", "ar": "ابحث عن تقنيات Firewall Evasion وكيف يحاول المهاجمون تجنب كشف الـ IDS." } }
+        ],
+        "resources": [
+          { "type": "article", "title": "Firewall and IDS Evasion Techniques", "url": "https://www.varonis.com/blog/ids-evasion" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Attack Summary: Summarize two IDS evasion techniques.", "ar": "ملخص الهجوم: لخص طريقتين لتجنب كشف الـ IDS." },
+            { "en": "Self-Review: Answer weekly review questions.", "ar": "مراجعة ذاتية: أجب عن أسئلة المراجعة الأسبوعية." }
+          ]
+        }
+      },
+      {
+        "key": "fri",
+        "day": { "en": "Friday", "ar": "الجمعة" },
+        "topic": { "en": "Rest and Preparation", "ar": "راحة واستعداد" },
+        "tasks": [],
+        "resources": [],
+        "notes_prompt": { "title": { "en": "", "ar": "" }, "points": [] }
+      }
+    ]
+  },
+  {
+    "week": 4,
+    "phase": 1,
+    "title": { "en": "Secure Internet Communication (VPN, Tor, DNS Security)", "ar": "الاتصال الآمن بالإنترنت (VPN, Tor, DNS Security)" },
+    "objective": { "en": "Understand the risks of insecure internet connections and master tools and techniques (VPN, Tor, Secure DNS) for privacy and security.", "ar": "فهم مخاطر الاتصالات غير الآمنة بالإنترنت، وإتقان الأدوات والتقنيات (VPN, Tor, Secure DNS) لضمان الخصوصية والأمان." },
+    "days": [
+      {
+        "key": "sat",
+        "day": { "en": "Saturday", "ar": "السبت" },
+        "topic": { "en": "DNS Security", "ar": "أمن نظام أسماء النطاقات (DNS Security)" },
+        "tasks": [
+          { "id": "w4d1t1", "type": "Blue Team", "duration": 75, "description": { "en": "Study how regular DNS requests are unencrypted. Learn about DNS over HTTPS (DoH) and DNS over TLS (DoT).", "ar": "ادرس كيف أن طلبات DNS العادية غير مشفرة. تعرف على تقنيتي DNS over HTTPS (DoH) وDNS over TLS (DoT)." } },
+          { "id": "w4d1t2", "type": "Practical", "duration": 45, "description": { "en": "Change your DNS settings in your browser or OS to use a secure DNS server like Cloudflare (1.1.1.1).", "ar": "قم بتغيير إعدادات DNS في متصفحك أو نظام التشغيل لاستخدام خادم DNS آمن مثل Cloudflare (1.1.1.1)." } }
+        ],
+        "resources": [
+          { "type": "video", "title": "DNS over HTTPS (DoH) Explained", "url": "https://www.youtube.com/watch?v=Zt3F1a6L5lY" },
+          { "type": "guide", "title": "How to Change DNS on Windows/Linux/Mac", "url": "https://www.cloudflare.com/learning/dns/dns-over-https/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Summarize the difference between classic DNS and DoH/DoT.", "ar": "لخص الفرق بين DNS التقليدي و DoH/DoT." },
+            { "en": "List two privacy risks of using unsecured DNS.", "ar": "اذكر خطرين على الخصوصية عند استخدام DNS غير آمن." }
+          ]
+        }
+      },
+      {
+        "key": "sun",
+        "day": { "en": "Sunday", "ar": "الأحد" },
+        "topic": { "en": "VPN Fundamentals", "ar": "أساسيات الشبكات الافتراضية الخاصة (VPN)" },
+        "tasks": [
+          { "id": "w4d2t1", "type": "Blue Team", "duration": 60, "description": { "en": "Study how VPNs work and their use cases for privacy and bypassing censorship.", "ar": "ادرس كيف تعمل الشبكات الافتراضية الخاصة (VPN) واستخداماتها للخصوصية وتجاوز الحجب." } },
+          { "id": "w4d2t2", "type": "Practical", "duration": 60, "description": { "en": "Install a free VPN client and test connecting to a secure server.", "ar": "قم بتثبيت عميل VPN مجاني وجرب الاتصال بخادم آمن." } }
+        ],
+        "resources": [
+          { "type": "video", "title": "How VPNs Work", "url": "https://www.youtube.com/watch?v=_wQTRMBAvzg" },
+          { "type": "guide", "title": "Best Free VPN Clients", "url": "https://www.techradar.com/vpn/best-free-vpn" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Describe a scenario where using a VPN is critical.", "ar": "صف سيناريو يكون فيه استخدام VPN ضروريًا." }
+          ]
+        }
+      },
+      {
+        "key": "mon",
+        "day": { "en": "Monday", "ar": "الإثنين" },
+        "topic": { "en": "Tor Network", "ar": "شبكة تور (Tor)" },
+        "tasks": [
+          { "id": "w4d3t1", "type": "Blue Team", "duration": 60, "description": { "en": "Understand the basics of Tor, its architecture, and its privacy features.", "ar": "افهم أساسيات شبكة Tor، بنيتها، وميزات الخصوصية فيها." } },
+          { "id": "w4d3t2", "type": "Practical", "duration": 60, "description": { "en": "Download and use Tor Browser to access a .onion site.", "ar": "قم بتنزيل واستخدام متصفح Tor للدخول إلى موقع .onion." } }
+        ],
+        "resources": [
+          { "type": "video", "title": "How Tor Works", "url": "https://www.youtube.com/watch?v=2aHkqB6n6pM" },
+          { "type": "guide", "title": "Official Tor Browser Download", "url": "https://www.torproject.org/download/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "List two advantages and two limitations of Tor.", "ar": "اذكر ميزتين وعيبين لشبكة Tor." }
+          ]
+        }
+      },
+      {
+        "key": "tue",
+        "day": { "en": "Tuesday", "ar": "الثلاثاء" },
+        "topic": { "en": "Comparing Privacy Tools", "ar": "مقارنة أدوات الخصوصية" },
+        "tasks": [
+          { "id": "w4d4t1", "type": "Blue Team", "duration": 60, "description": { "en": "Compare VPN, Tor, and Secure DNS for privacy and security.", "ar": "قارن بين VPN وTor وDNS الآمن من حيث الخصوصية والأمان." } },
+          { "id": "w4d4t2", "type": "Soft Skills", "duration": 60, "description": { "en": "Prepare a table or infographic to present your comparison.", "ar": "جهز جدولاً أو رسمًا بيانيًا لعرض المقارنة." } }
+        ],
+        "resources": [
+          { "type": "article", "title": "VPN vs Tor vs Secure DNS", "url": "https://restoreprivacy.com/tools/vpn-vs-tor-vs-proxy/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Which tool would you recommend to a journalist? Why?", "ar": "أي أداة توصي بها لصحفي؟ ولماذا؟" }
+          ]
+        }
+      },
+      {
+        "key": "wed",
+        "day": { "en": "Wednesday", "ar": "الأربعاء" },
+        "topic": { "en": "Practical Lab: Secure Browsing", "ar": "مختبر عملي: التصفح الآمن" },
+        "tasks": [
+          { "id": "w4d5t1", "type": "Practical", "duration": 120, "description": { "en": "Set up your browser with a secure DNS, test VPN and Tor, and document your findings.", "ar": "قم بإعداد متصفحك مع DNS آمن، وجرب VPN وTor، ووثق النتائج." } }
+        ],
+        "resources": [
+          { "type": "guide", "title": "Browser Security Settings Guide", "url": "https://www.privacyguides.org/browsers/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Document any issues faced during setup.", "ar": "وثق أي مشاكل واجهتها أثناء الإعداد." }
+          ]
+        }
+      },
+      {
+        "key": "thu",
+        "day": { "en": "Thursday", "ar": "الخميس" },
+        "topic": { "en": "Weekly Review & Attacker Perspective", "ar": "مراجعة أسبوعية ومنظور المهاجم" },
+        "tasks": [
+          { "id": "w4d6t1", "type": "Blue Team", "duration": 60, "description": { "en": "Review all concepts and privacy tools learned this week.", "ar": "راجع جميع المفاهيم وأدوات الخصوصية التي تعلمتها هذا الأسبوع." } },
+          { "id": "w4d6t2", "type": "Red Team", "duration": 60, "description": { "en": "Research how attackers can bypass VPN and Tor.", "ar": "ابحث كيف يمكن للمهاجمين تجاوز VPN وTor." } }
+        ],
+        "resources": [
+          { "type": "article", "title": "How Attackers Bypass Privacy Tools", "url": "https://www.kaspersky.com/blog/vpn-vulnerabilities/44547/" }
+        ],
+        "notes_prompt": {
+          "title": { "en": "Evening Journaling Task", "ar": "مهمة التدوين المسائية" },
+          "points": [
+            { "en": "Summarize two attack techniques targeting privacy tools.", "ar": "لخص تقنيتين للهجوم تستهدفان أدوات الخصوصية." }
+          ]
+        }
+      },
+      {
+        "key": "fri",
+        "day": { "en": "Friday", "ar": "الجمعة" },
+        "topic": { "en": "Rest and Preparation", "ar": "راحة واستعداد" },
+        "tasks": [],
+        "resources": [],
+        "notes_prompt": { "title": { "en": "", "ar": "" }, "points": [] }
+      }
+    ]
   },
   {
     "week": 5,
