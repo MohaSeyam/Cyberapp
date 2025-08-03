@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
+// import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({
+    // VitePWA({
     //   registerType: 'autoUpdate',
     //   manifest: {
     //     name: 'CyberPlan - تطبيق تعلم الأمن السيبراني',
@@ -87,7 +87,7 @@ export default defineConfig({
     //     type: 'module',
     //   },
     //         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-    }),
+    // }),
   ],
   publicDir: 'public',
   build: {
