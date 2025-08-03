@@ -1251,7 +1251,7 @@ export default function ProgressPage() {
             {language === 'ar' ? 'ممتاز!' : 'Excellent!'}
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            {language === 'ar' ? 'أنت على المسار الصحيح. استمر في التعلم!' : 'You\'re on the right track. Keep learning!'}
+            {language === 'ar' ? 'أنت على المسار الصحيح. استمر في التعلم!' : "You're on the right track. Keep learning!"}
           </p>
         </Card>
       )}
@@ -1483,14 +1483,19 @@ export default function ProgressPage() {
                   <option value="">
                     {getCurrentLanguageText({ ar: 'اختر مرحلة...', en: 'Select a phase...' })}
                   </option>
-                  {safePlan.map((phase, index) => (
-                    <option key={index} value={index}>
-                      {getCurrentLanguageText({ 
-                        ar: `Phase ${index + 1}: ${phase.name?.ar || 'Phase ' + (index + 1)}`, 
-                        en: `Phase ${index + 1}: ${phase.name?.en || 'Phase ' + (index + 1)}` 
-                      })}
-                    </option>
-                  ))}
+                  {safePlan.map((phase, index) => {
+                    const phaseNumber = index + 1;
+                    const phaseNameAr = phase.name?.ar || 'Phase ' + phaseNumber;
+                    const phaseNameEn = phase.name?.en || 'Phase ' + phaseNumber;
+                    return (
+                      <option key={index} value={index}>
+                        {getCurrentLanguageText({ 
+                          ar: 'Phase ' + phaseNumber + ': ' + phaseNameAr, 
+                          en: 'Phase ' + phaseNumber + ': ' + phaseNameEn 
+                        })}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -1611,13 +1616,13 @@ export default function ProgressPage() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[120px] transition-all duration-300 border-b-2 ${
                       isActive 
-                        ? `border-${tab.color}-500 ${colorClasses[tab.color as keyof typeof colorClasses]}`
+                        ? `border-${tab.color}-500 ${colorClasses[tab.color as keyof typeof colorClasses] || ''}`
                         : 'border-transparent hover:border-gray-300'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Icon className={`w-6 h-6 mb-2 ${isActive ? '' : colorClasses[tab.color as keyof typeof colorClasses].split(' ')[0]}`} />
+                    <Icon className={`w-6 h-6 mb-2 ${isActive ? '' : (colorClasses[tab.color as keyof typeof colorClasses] || '').split(' ')[0]}`} />
                     <span className="font-semibold text-sm">
                       {getCurrentLanguageText(tab.label)}
                     </span>
