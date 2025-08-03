@@ -807,9 +807,8 @@
       }
     ]
   },
-  [
-    {
-      "week": 3,
+  {
+    "week": 3,
       "phase": 1,
       "title": {
         "en": "Network Security Fundamentals",
@@ -1526,7 +1525,7 @@
         }
       ]
     }
-  ],
+  },
   {
     "week": 5,
     "phase": 2,
