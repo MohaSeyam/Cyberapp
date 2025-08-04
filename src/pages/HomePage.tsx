@@ -95,7 +95,8 @@ export default function HomePage() {
       variant: 'primary' as const,
       action: () => navigate('/phases'),
       gradient: 'from-blue-500 to-indigo-600',
-      bg: 'bg-blue-50 dark:bg-blue-900/20'
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      iconPosition: language === 'ar' ? 'right' : 'left'
     },
     {
       icon: BarChart3,
@@ -104,7 +105,8 @@ export default function HomePage() {
       variant: 'secondary' as const,
       action: () => navigate('/progress'),
       gradient: 'from-green-500 to-emerald-600',
-      bg: 'bg-green-50 dark:bg-green-900/20'
+      bg: 'bg-green-50 dark:bg-green-900/20',
+      iconPosition: language === 'ar' ? 'right' : 'left'
     },
     {
       icon: FileText,
@@ -113,7 +115,8 @@ export default function HomePage() {
       variant: 'outline' as const,
       action: () => navigate('/notes'),
       gradient: 'from-purple-500 to-violet-600',
-      bg: 'bg-purple-50 dark:bg-purple-900/20'
+      bg: 'bg-purple-50 dark:bg-purple-900/20',
+      iconPosition: language === 'ar' ? 'right' : 'left'
     },
     {
       icon: BookOpen,
@@ -122,7 +125,8 @@ export default function HomePage() {
       variant: 'outline' as const,
       action: () => navigate('/journal'),
       gradient: 'from-orange-500 to-amber-600',
-      bg: 'bg-orange-50 dark:bg-orange-900/20'
+      bg: 'bg-orange-50 dark:bg-orange-900/20',
+      iconPosition: language === 'ar' ? 'right' : 'left'
     }
   ];
 
@@ -221,8 +225,17 @@ export default function HomePage() {
                         onClick={() => navigate('/phases')}
                         className="text-lg px-8 py-4"
                       >
-                        <Rocket className="w-5 h-5 ml-2" />
-                        {t('startLearning')}
+                        {language === 'ar' ? (
+                          <>
+                            {t('startLearning')}
+                            <Rocket className="w-5 h-5 mr-2" />
+                          </>
+                        ) : (
+                          <>
+                            <Rocket className="w-5 h-5 ml-2" />
+                            {t('startLearning')}
+                          </>
+                        )}
                       </Button>
 
                       <Button
@@ -231,8 +244,17 @@ export default function HomePage() {
                         onClick={() => navigate('/progress')}
                         className="text-lg px-8 py-4"
                       >
-                        <BarChart3 className="w-5 h-5 ml-2" />
-                        {t('viewProgress')}
+                        {language === 'ar' ? (
+                          <>
+                            {t('viewProgress')}
+                            <BarChart3 className="w-5 h-5 mr-2" />
+                          </>
+                        ) : (
+                          <>
+                            <BarChart3 className="w-5 h-5 ml-2" />
+                            {t('viewProgress')}
+                          </>
+                        )}
                       </Button>
 
                       <Button
@@ -241,8 +263,17 @@ export default function HomePage() {
                         onClick={() => navigate('/features')}
                         className="text-lg px-8 py-4"
                       >
-                        <Lightbulb className="w-5 h-5 ml-2" />
-                        {language === 'ar' ? 'المميزات الجديدة' : 'New Features'}
+                        {language === 'ar' ? (
+                          <>
+                            {language === 'ar' ? 'المميزات الجديدة' : 'New Features'}
+                            <Lightbulb className="w-5 h-5 mr-2" />
+                          </>
+                        ) : (
+                          <>
+                            <Lightbulb className="w-5 h-5 ml-2" />
+                            {language === 'ar' ? 'المميزات الجديدة' : 'New Features'}
+                          </>
+                        )}
                       </Button>
                     </motion.div>
       </motion.div>

@@ -48,7 +48,7 @@
   letter-spacing: 0.01em;
 }
 
-/* ===== Flex Direction Adjustments ===== */
+/* ===== Enhanced Flex Direction Adjustments ===== */
 [dir="rtl"] .flex {
   flex-direction: row-reverse;
 }
@@ -131,23 +131,24 @@
 
 /* ===== Enhanced Icon Positioning ===== */
 [dir="rtl"] .icon-left {
-  margin-left: 0.5rem !important;
   margin-right: 0 !important;
+  margin-left: 0.5rem !important;
 }
 
 [dir="rtl"] .icon-right {
-  margin-right: 0.5rem !important;
   margin-left: 0 !important;
+  margin-right: 0.5rem !important;
 }
 
-/* ===== Enhanced Input Styling for RTL ===== */
+/* ===== Enhanced Form Elements ===== */
 [dir="rtl"] input,
 [dir="rtl"] textarea,
 [dir="rtl"] select {
   text-align: right;
   direction: rtl;
   font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  padding-right: 0.75rem !important;
+  padding-left: 0.75rem !important;
 }
 
 [dir="rtl"] input::placeholder,
@@ -157,7 +158,7 @@
   font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ===== Enhanced Button Styling ===== */
+/* ===== Enhanced Button Layout ===== */
 [dir="rtl"] .btn-icon {
   flex-direction: row-reverse;
 }
@@ -172,13 +173,13 @@
   margin-left: 0 !important;
 }
 
-/* ===== Enhanced Card Styling ===== */
+/* ===== Enhanced Card Layout ===== */
 [dir="rtl"] .card-header {
-  text-align: right;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .card-actions {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .card-title {
@@ -187,31 +188,31 @@
 
 [dir="rtl"] .card-content {
   text-align: right;
-  line-height: 1.8;
+  direction: rtl;
 }
 
 /* ===== Enhanced Navigation ===== */
 [dir="rtl"] .nav-item {
-  text-align: right;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .nav-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
 }
 
 [dir="rtl"] .nav-text {
-  margin-right: 0.75rem !important;
+  margin-right: 0.5rem !important;
   margin-left: 0 !important;
 }
 
-/* ===== Enhanced Modal Styling ===== */
+/* ===== Enhanced Modal Layout ===== */
 [dir="rtl"] .modal-header {
-  text-align: right;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .modal-actions {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .modal-title {
@@ -220,10 +221,10 @@
 
 [dir="rtl"] .modal-content {
   text-align: right;
-  line-height: 1.8;
+  direction: rtl;
 }
 
-/* ===== Enhanced Table Styling ===== */
+/* ===== Enhanced Table Layout ===== */
 [dir="rtl"] table th,
 [dir="rtl"] table td {
   text-align: right;
@@ -235,13 +236,14 @@
 
 [dir="rtl"] .table-cell {
   text-align: right;
+  direction: rtl;
 }
 
-/* ===== Enhanced List Styling ===== */
+/* ===== Enhanced List Layout ===== */
 [dir="rtl"] ul,
 [dir="rtl"] ol {
-  padding-right: 1.5rem;
-  padding-left: 0;
+  padding-right: 1.5rem !important;
+  padding-left: 0 !important;
 }
 
 [dir="rtl"] .list-disc {
@@ -254,7 +256,7 @@
 
 [dir="rtl"] .list-item {
   text-align: right;
-  line-height: 1.8;
+  direction: rtl;
 }
 
 /* ===== Enhanced Progress Indicators ===== */
@@ -263,47 +265,49 @@
 }
 
 [dir="rtl"] .status-indicator {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .progress-text {
   text-align: right;
-  margin-right: 0.5rem !important;
-  margin-left: 0 !important;
+  direction: rtl;
 }
 
 /* ===== Enhanced Tooltips and Popovers ===== */
 [dir="rtl"] .tooltip {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .popover {
   text-align: right;
+  direction: rtl;
 }
 
-/* ===== Enhanced Chart Styling ===== */
+/* ===== Enhanced Chart Containers ===== */
 [dir="rtl"] .chart-container {
-  direction: rtl;
+  direction: ltr; /* Charts should remain LTR */
 }
 
 [dir="rtl"] .chart-title {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .chart-legend {
   text-align: right;
+  direction: rtl;
 }
 
-/* ===== Enhanced Editor Styling ===== */
+/* ===== Enhanced Editor Layout ===== */
 [dir="rtl"] .editor-toolbar {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .editor-content {
-  direction: rtl;
   text-align: right;
-  line-height: 1.8;
+  direction: rtl;
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 [dir="rtl"] .editor-button {
@@ -311,11 +315,13 @@
   margin-right: 0 !important;
 }
 
-/* ===== Enhanced Form Styling ===== */
+/* ===== Enhanced Error Messages ===== */
 [dir="rtl"] .error-message,
 [dir="rtl"] .success-message,
-[dir="rtl"] .warning-message {
+[dir="rtl"] .warning-message,
+[dir="rtl"] .info-message {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .form-label {
@@ -324,7 +330,7 @@
 
 [dir="rtl"] .form-help {
   text-align: right;
-  line-height: 1.6;
+  direction: rtl;
 }
 
 /* ===== Enhanced Loading States ===== */
@@ -335,24 +341,26 @@
 
 [dir="rtl"] .loading-text {
   text-align: right;
+  direction: rtl;
 }
 
-/* ===== Enhanced Badge and Tag Styling ===== */
+/* ===== Enhanced Badges and Tags ===== */
 [dir="rtl"] .badge {
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
+  text-align: center;
+  direction: rtl;
 }
 
 [dir="rtl"] .tag {
+  text-align: center;
+  direction: rtl;
   margin-left: 0.25rem !important;
   margin-right: 0 !important;
-  padding-right: 0.5rem !important;
-  padding-left: 0.5rem !important;
 }
 
-/* ===== Enhanced Dropdown Styling ===== */
+/* ===== Enhanced Dropdown Menus ===== */
 [dir="rtl"] .dropdown-menu {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .menu-item {
@@ -361,13 +369,14 @@
 
 [dir="rtl"] .dropdown-item {
   text-align: right;
+  direction: rtl;
   padding-right: 1rem !important;
   padding-left: 1rem !important;
 }
 
 /* ===== Enhanced Pagination ===== */
 [dir="rtl"] .pagination {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .page-item {
@@ -375,9 +384,9 @@
   margin-right: 0 !important;
 }
 
-/* ===== Enhanced Breadcrumb ===== */
+/* ===== Enhanced Breadcrumbs ===== */
 [dir="rtl"] .breadcrumb {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .breadcrumb-item {
@@ -390,28 +399,30 @@
   margin-right: 0 !important;
 }
 
-/* ===== Enhanced Alert and Notification ===== */
+/* ===== Enhanced Alerts and Notifications ===== */
 [dir="rtl"] .alert {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .notification {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .alert-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
 }
 
 /* ===== Mobile Responsive RTL ===== */
 @media (max-width: 768px) {
   [dir="rtl"] .mobile-nav {
-    direction: rtl;
+    flex-direction: row-reverse;
   }
 
   [dir="rtl"] .mobile-actions {
-    justify-content: flex-start;
+    flex-direction: row-reverse;
   }
 
   [dir="rtl"] .mobile-menu {
@@ -419,9 +430,8 @@
   }
 
   [dir="rtl"] .mobile-item {
+    flex-direction: row-reverse;
     text-align: right;
-    padding-right: 1rem !important;
-    padding-left: 1rem !important;
   }
 }
 
@@ -447,7 +457,7 @@
   }
 }
 
-/* ===== Dark Mode RTL Enhancements ===== */
+/* ===== Dark Mode RTL Support ===== */
 .dark [dir="rtl"] {
   color-scheme: dark;
 }
@@ -455,17 +465,17 @@
 .dark [dir="rtl"] input,
 .dark [dir="rtl"] textarea,
 .dark [dir="rtl"] select {
-  background-color: rgb(31 41 55);
-  border-color: rgb(75 85 99);
-  color: rgb(243 244 246);
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
 }
 
 .dark [dir="rtl"] input::placeholder,
 .dark [dir="rtl"] textarea::placeholder {
-  color: rgb(156 163 175);
+  color: #9ca3af;
 }
 
-/* ===== Enhanced Animation Support ===== */
+/* ===== Enhanced Animations for RTL ===== */
 [dir="rtl"] .slide-in-right {
   animation: slideInRightRTL 0.3s ease-out;
 }
@@ -496,17 +506,17 @@
   }
 }
 
-/* ===== Enhanced Focus States ===== */
+/* ===== Enhanced Focus States for RTL ===== */
 [dir="rtl"] .focus-ring {
   outline-offset: 2px;
 }
 
 [dir="rtl"] .focus-visible {
-  outline: 2px solid rgb(59 130 246);
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 
-/* ===== Enhanced Accessibility ===== */
+/* ===== Enhanced Accessibility for RTL ===== */
 [dir="rtl"] [aria-label] {
   text-align: right;
 }
@@ -523,80 +533,81 @@
   border: 0;
 }
 
-/* ===== Enhanced Tab Styling ===== */
+/* ===== Enhanced Tab Layout ===== */
 [dir="rtl"] .tab-container {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .tab-item {
+  flex-direction: row-reverse;
   text-align: right;
-  padding-right: 1rem !important;
-  padding-left: 1rem !important;
 }
 
-/* ===== Enhanced Note Card Styling ===== */
+/* ===== Enhanced Card Layout ===== */
 [dir="rtl"] .note-card,
 [dir="rtl"] .journal-card {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .card-meta {
-  text-align: right;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .card-actions {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 /* ===== Enhanced Bottom Navigation ===== */
 [dir="rtl"] .bottom-nav {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .nav-item {
+  flex-direction: column;
   text-align: center;
-  padding-right: 0.5rem !important;
-  padding-left: 0.5rem !important;
 }
 
-/* ===== Enhanced Header Styling ===== */
+/* ===== Enhanced Header Layout ===== */
 [dir="rtl"] .header {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .header-actions {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .header-title {
   text-align: right;
-  margin-right: 1rem !important;
-  margin-left: 0 !important;
+  direction: rtl;
+  margin-right: 0 !important;
+  margin-left: 1rem !important;
 }
 
 /* ===== Enhanced Search and Filter ===== */
 [dir="rtl"] .search-container {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .filter-container {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .search-input {
   text-align: right;
+  direction: rtl;
   padding-right: 2.5rem !important;
   padding-left: 0.75rem !important;
 }
 
-/* ===== Enhanced Form Groups ===== */
+/* ===== Enhanced Form Layout ===== */
 [dir="rtl"] .form-group {
   text-align: right;
 }
 
 [dir="rtl"] .form-label {
   text-align: right;
-  margin-bottom: 0.5rem;
+  direction: rtl;
 }
 
 [dir="rtl"] .form-input {
@@ -611,60 +622,55 @@
 
 /* ===== Enhanced Button Groups ===== */
 [dir="rtl"] .button-group {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .action-buttons {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .primary-button {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
+  flex-direction: row-reverse;
 }
 
-/* ===== Enhanced Modal Components ===== */
+/* ===== Enhanced Modal Layout ===== */
 [dir="rtl"] .modal-header {
+  flex-direction: row-reverse;
   text-align: right;
-  padding-right: 1.5rem !important;
-  padding-left: 1.5rem !important;
 }
 
 [dir="rtl"] .modal-footer {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .modal-title {
   text-align: right;
-  font-weight: 600;
+  direction: rtl;
 }
 
 [dir="rtl"] .modal-content {
   text-align: right;
-  line-height: 1.8;
-  padding-right: 1.5rem !important;
-  padding-left: 1.5rem !important;
+  direction: rtl;
 }
 
 /* ===== Enhanced List Items ===== */
 [dir="rtl"] .list-item {
+  flex-direction: row-reverse;
   text-align: right;
-  padding-right: 1rem !important;
-  padding-left: 1rem !important;
+  direction: rtl;
 }
 
 [dir="rtl"] .item-meta {
-  text-align: right;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .item-actions {
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 /* ===== Enhanced Status Indicators ===== */
 [dir="rtl"] .status-indicator {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .progress-indicator {
@@ -673,14 +679,13 @@
 
 [dir="rtl"] .status-text {
   text-align: right;
-  margin-right: 0.5rem !important;
-  margin-left: 0 !important;
+  direction: rtl;
 }
 
-/* ===== Enhanced Chart Components ===== */
+/* ===== Enhanced Chart Titles ===== */
 [dir="rtl"] .chart-title {
   text-align: right;
-  margin-bottom: 1rem;
+  direction: rtl;
 }
 
 [dir="rtl"] .chart-legend {
@@ -689,208 +694,163 @@
 }
 
 [dir="rtl"] .chart-container {
-  direction: rtl;
-  text-align: right;
+  direction: ltr; /* Keep charts LTR */
 }
 
 /* ===== Enhanced Editor Toolbar ===== */
 [dir="rtl"] .editor-toolbar {
-  direction: rtl;
-  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .toolbar-group {
-  direction: rtl;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .toolbar-button {
   margin-left: 0.25rem !important;
   margin-right: 0 !important;
-  padding-right: 0.5rem !important;
-  padding-left: 0.5rem !important;
 }
 
 /* ===== Enhanced Dropdown Menus ===== */
 [dir="rtl"] .dropdown-menu {
   text-align: right;
-  right: auto !important;
-  left: 0 !important;
+  direction: rtl;
 }
 
 [dir="rtl"] .dropdown-item {
   text-align: right;
-  padding: 0.5rem 1rem;
+  direction: rtl;
 }
 
-/* ===== Enhanced Menu Items ===== */
 [dir="rtl"] .menu-item {
   text-align: right;
-  padding: 0.5rem 1rem;
+  direction: rtl;
 }
 
-/* ===== Enhanced Alert Components ===== */
+/* ===== Enhanced Alerts ===== */
 [dir="rtl"] .alert {
   text-align: right;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
+  direction: rtl;
 }
 
 [dir="rtl"] .alert-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
 }
 
-/* ===== Enhanced Toast Components ===== */
+/* ===== Enhanced Toasts ===== */
 [dir="rtl"] .toast {
   text-align: right;
   direction: rtl;
 }
 
 [dir="rtl"] .toast-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
 }
 
-/* ===== Enhanced Progress Components ===== */
+/* ===== Enhanced Progress Bars ===== */
 [dir="rtl"] .progress-bar {
   direction: rtl;
-  width: 100%;
-  height: 0.5rem;
-  background-color: rgb(229 231 235);
-  border-radius: 0.25rem;
-  overflow: hidden;
 }
 
 [dir="rtl"] .progress-text {
   text-align: right;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: rgb(107 114 128);
+  direction: rtl;
 }
 
-/* ===== Enhanced Chart Components ===== */
+/* ===== Enhanced Chart Containers ===== */
 [dir="rtl"] .chart-container {
-  direction: rtl;
-  text-align: right;
-  margin: 1rem 0;
+  direction: ltr; /* Keep charts LTR for proper rendering */
 }
 
 [dir="rtl"] .chart-title {
   text-align: right;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  direction: rtl;
 }
 
 [dir="rtl"] .chart-legend {
   text-align: right;
   direction: rtl;
-  margin-top: 1rem;
 }
 
-/* ===== Enhanced Table Components ===== */
+/* ===== Enhanced Table Headers ===== */
 [dir="rtl"] .table-header {
   text-align: right;
-  font-weight: 600;
-  padding: 0.75rem;
-  border-bottom: 1px solid rgb(229 231 235);
+  direction: rtl;
 }
 
 [dir="rtl"] .table-cell {
   text-align: right;
-  padding: 0.75rem;
-  border-bottom: 1px solid rgb(229 231 235);
+  direction: rtl;
 }
 
 [dir="rtl"] .table-actions {
-  text-align: left;
-  padding: 0.75rem;
+  flex-direction: row-reverse;
 }
 
-/* ===== Enhanced List Components ===== */
+/* ===== Enhanced List Items ===== */
 [dir="rtl"] .list-item {
+  flex-direction: row-reverse;
   text-align: right;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgb(229 231 235);
+  direction: rtl;
 }
 
 [dir="rtl"] .list-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
 }
 
-/* ===== Enhanced Badge Components ===== */
+/* ===== Enhanced Badges ===== */
 [dir="rtl"] .badge {
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  text-align: center;
+  direction: rtl;
 }
 
 [dir="rtl"] .tag {
+  text-align: center;
+  direction: rtl;
   margin-left: 0.25rem !important;
   margin-right: 0 !important;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  background-color: rgb(243 244 246);
-  color: rgb(107 114 128);
 }
 
-/* ===== Enhanced Avatar Components ===== */
+/* ===== Enhanced Avatar ===== */
 [dir="rtl"] .avatar {
   margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  overflow: hidden;
 }
 
-/* ===== Enhanced Tooltip Components ===== */
+/* ===== Enhanced Tooltips ===== */
 [dir="rtl"] .tooltip {
   text-align: right;
-  max-width: 200px;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  direction: rtl;
 }
 
-/* ===== Enhanced Popover Components ===== */
+/* ===== Enhanced Popovers ===== */
 [dir="rtl"] .popover {
   text-align: right;
-  max-width: 300px;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  direction: rtl;
 }
 
-/* ===== Enhanced Menu Components ===== */
+/* ===== Enhanced Menus ===== */
 [dir="rtl"] .menu {
+  text-align: right;
   direction: rtl;
 }
 
 [dir="rtl"] .menu-item {
   text-align: right;
-  padding: 0.5rem 1rem;
+  direction: rtl;
 }
 
 [dir="rtl"] .menu-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
 }
 
-/* ===== Enhanced Breadcrumb Components ===== */
+/* ===== Enhanced Breadcrumbs ===== */
 [dir="rtl"] .breadcrumb {
-  direction: rtl;
-  display: flex;
-  align-items: center;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .breadcrumb-item {
@@ -901,14 +861,11 @@
 [dir="rtl"] .breadcrumb-separator {
   margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  color: rgb(156 163 175);
 }
 
-/* ===== Enhanced Pagination Components ===== */
+/* ===== Enhanced Pagination ===== */
 [dir="rtl"] .pagination {
-  direction: rtl;
-  display: flex;
-  align-items: center;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .page-item {
@@ -916,108 +873,72 @@
   margin-right: 0 !important;
 }
 
-/* ===== Enhanced Status Components ===== */
+/* ===== Enhanced Status Indicators ===== */
 [dir="rtl"] .status-indicator {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
+  flex-direction: row-reverse;
 }
 
 [dir="rtl"] .status-text {
   text-align: right;
-  margin-right: 0.5rem !important;
-  margin-left: 0 !important;
+  direction: rtl;
 }
 
-/* ===== Enhanced Loading Components ===== */
+/* ===== Enhanced Loading Spinner ===== */
 [dir="rtl"] .loading-spinner {
   margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid rgb(229 231 235);
-  border-top: 2px solid rgb(59 130 246);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
 }
 
 [dir="rtl"] .loading-text {
-  text-align: center;
-  margin-top: 0.5rem;
-  color: rgb(107 114 128);
+  text-align: right;
+  direction: rtl;
 }
 
-/* ===== Enhanced Error Components ===== */
+/* ===== Enhanced Error Messages ===== */
 [dir="rtl"] .error-message {
   text-align: right;
-  color: rgb(239 68 68);
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  background-color: rgb(254 242 242);
-  border: 1px solid rgb(252 165 165);
+  direction: rtl;
 }
 
 [dir="rtl"] .error-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
-  color: rgb(239 68 68);
 }
 
-/* ===== Enhanced Success Components ===== */
+/* ===== Enhanced Success Messages ===== */
 [dir="rtl"] .success-message {
   text-align: right;
-  color: rgb(16 185 129);
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  background-color: rgb(236 253 245);
-  border: 1px solid rgb(167 243 208);
+  direction: rtl;
 }
 
 [dir="rtl"] .success-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
-  color: rgb(16 185 129);
 }
 
-/* ===== Enhanced Warning Components ===== */
+/* ===== Enhanced Warning Messages ===== */
 [dir="rtl"] .warning-message {
   text-align: right;
-  color: rgb(245 158 11);
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  background-color: rgb(255 251 235);
-  border: 1px solid rgb(251 191 36);
+  direction: rtl;
 }
 
 [dir="rtl"] .warning-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
-  color: rgb(245 158 11);
 }
 
-/* ===== Enhanced Info Components ===== */
+/* ===== Enhanced Info Messages ===== */
 [dir="rtl"] .info-message {
   text-align: right;
-  color: rgb(59 130 246);
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  background-color: rgb(239 246 255);
-  border: 1px solid rgb(191 219 254);
+  direction: rtl;
 }
 
 [dir="rtl"] .info-icon {
-  margin-left: 0.75rem !important;
+  margin-left: 0.5rem !important;
   margin-right: 0 !important;
-  flex-shrink: 0;
-  color: rgb(59 130 246);
 }
 
-/* ===== Animation Keyframes ===== */
+/* ===== Enhanced Animations ===== */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -1025,4 +946,365 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ===== Additional RTL Enhancements ===== */
+
+/* Enhanced Grid Layout for RTL */
+[dir="rtl"] .grid {
+  direction: rtl;
+}
+
+/* Enhanced Flexbox for RTL */
+[dir="rtl"] .flex-col {
+  flex-direction: column;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+/* Enhanced Spacing for RTL */
+[dir="rtl"] .gap-1 { gap: 0.25rem !important; }
+[dir="rtl"] .gap-2 { gap: 0.5rem !important; }
+[dir="rtl"] .gap-3 { gap: 0.75rem !important; }
+[dir="rtl"] .gap-4 { gap: 1rem !important; }
+[dir="rtl"] .gap-6 { gap: 1.5rem !important; }
+[dir="rtl"] .gap-8 { gap: 2rem !important; }
+
+/* Enhanced Text Utilities for RTL */
+[dir="rtl"] .text-center {
+  text-align: center;
+}
+
+[dir="rtl"] .text-justify {
+  text-align: justify;
+}
+
+/* Enhanced Border Radius for RTL */
+[dir="rtl"] .rounded-l-lg {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
+}
+
+[dir="rtl"] .rounded-r-lg {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
+}
+
+/* Enhanced Border Colors for RTL */
+[dir="rtl"] .border-l {
+  border-left: none !important;
+  border-right: 1px solid !important;
+}
+
+[dir="rtl"] .border-r {
+  border-right: none !important;
+  border-left: 1px solid !important;
+}
+
+/* Enhanced Shadow for RTL */
+[dir="rtl"] .shadow-l {
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+[dir="rtl"] .shadow-r {
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Enhanced Transform for RTL */
+[dir="rtl"] .scale-x-flip {
+  transform: scaleX(-1) !important;
+}
+
+/* Enhanced Position for RTL */
+[dir="rtl"] .left-0 {
+  left: auto !important;
+  right: 0 !important;
+}
+
+[dir="rtl"] .right-0 {
+  right: auto !important;
+  left: 0 !important;
+}
+
+/* Enhanced Z-Index for RTL */
+[dir="rtl"] .z-10 {
+  z-index: 10;
+}
+
+[dir="rtl"] .z-20 {
+  z-index: 20;
+}
+
+[dir="rtl"] .z-30 {
+  z-index: 30;
+}
+
+[dir="rtl"] .z-40 {
+  z-index: 40;
+}
+
+[dir="rtl"] .z-50 {
+  z-index: 50;
+}
+
+/* Enhanced Overflow for RTL */
+[dir="rtl"] .overflow-x-auto {
+  direction: rtl;
+}
+
+[dir="rtl"] .overflow-y-auto {
+  direction: rtl;
+}
+
+/* Enhanced Scroll for RTL */
+[dir="rtl"] .scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Cursor for RTL */
+[dir="rtl"] .cursor-pointer {
+  cursor: pointer;
+}
+
+[dir="rtl"] .cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* Enhanced User Select for RTL */
+[dir="rtl"] .select-none {
+  user-select: none;
+}
+
+[dir="rtl"] .select-text {
+  user-select: text;
+}
+
+/* Enhanced Pointer Events for RTL */
+[dir="rtl"] .pointer-events-none {
+  pointer-events: none;
+}
+
+[dir="rtl"] .pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* Enhanced Visibility for RTL */
+[dir="rtl"] .visible {
+  visibility: visible;
+}
+
+[dir="rtl"] .invisible {
+  visibility: hidden;
+}
+
+/* Enhanced Opacity for RTL */
+[dir="rtl"] .opacity-0 {
+  opacity: 0;
+}
+
+[dir="rtl"] .opacity-25 {
+  opacity: 0.25;
+}
+
+[dir="rtl"] .opacity-50 {
+  opacity: 0.5;
+}
+
+[dir="rtl"] .opacity-75 {
+  opacity: 0.75;
+}
+
+[dir="rtl"] .opacity-100 {
+  opacity: 1;
+}
+
+/* Enhanced Display for RTL */
+[dir="rtl"] .block {
+  display: block;
+}
+
+[dir="rtl"] .inline-block {
+  display: inline-block;
+}
+
+[dir="rtl"] .inline {
+  display: inline;
+}
+
+[dir="rtl"] .flex {
+  display: flex;
+}
+
+[dir="rtl"] .inline-flex {
+  display: inline-flex;
+}
+
+[dir="rtl"] .grid {
+  display: grid;
+}
+
+[dir="rtl"] .hidden {
+  display: none;
+}
+
+/* Enhanced Position for RTL */
+[dir="rtl"] .static {
+  position: static;
+}
+
+[dir="rtl"] .fixed {
+  position: fixed;
+}
+
+[dir="rtl"] .absolute {
+  position: absolute;
+}
+
+[dir="rtl"] .relative {
+  position: relative;
+}
+
+[dir="rtl"] .sticky {
+  position: sticky;
+}
+
+/* Enhanced Top/Bottom for RTL */
+[dir="rtl"] .top-0 {
+  top: 0;
+}
+
+[dir="rtl"] .bottom-0 {
+  bottom: 0;
+}
+
+[dir="rtl"] .inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* Enhanced Width/Height for RTL */
+[dir="rtl"] .w-full {
+  width: 100%;
+}
+
+[dir="rtl"] .h-full {
+  height: 100%;
+}
+
+[dir="rtl"] .w-screen {
+  width: 100vw;
+}
+
+[dir="rtl"] .h-screen {
+  height: 100vh;
+}
+
+/* Enhanced Min/Max Width/Height for RTL */
+[dir="rtl"] .min-w-0 {
+  min-width: 0;
+}
+
+[dir="rtl"] .min-h-0 {
+  min-height: 0;
+}
+
+[dir="rtl"] .max-w-full {
+  max-width: 100%;
+}
+
+[dir="rtl"] .max-h-full {
+  max-height: 100%;
+}
+
+/* Enhanced Object Fit for RTL */
+[dir="rtl"] .object-cover {
+  object-fit: cover;
+}
+
+[dir="rtl"] .object-contain {
+  object-fit: contain;
+}
+
+[dir="rtl"] .object-fill {
+  object-fit: fill;
+}
+
+[dir="rtl"] .object-none {
+  object-fit: none;
+}
+
+/* Enhanced Object Position for RTL */
+[dir="rtl"] .object-center {
+  object-position: center;
+}
+
+[dir="rtl"] .object-top {
+  object-position: top;
+}
+
+[dir="rtl"] .object-bottom {
+  object-position: bottom;
+}
+
+[dir="rtl"] .object-left {
+  object-position: left;
+}
+
+[dir="rtl"] .object-right {
+  object-position: right;
+}
+
+/* Enhanced Overflow for RTL */
+[dir="rtl"] .overflow-auto {
+  overflow: auto;
+}
+
+[dir="rtl"] .overflow-hidden {
+  overflow: hidden;
+}
+
+[dir="rtl"] .overflow-visible {
+  overflow: visible;
+}
+
+[dir="rtl"] .overflow-scroll {
+  overflow: scroll;
+}
+
+/* Enhanced Float for RTL */
+[dir="rtl"] .float-right {
+  float: left !important;
+}
+
+[dir="rtl"] .float-left {
+  float: right !important;
+}
+
+[dir="rtl"] .float-none {
+  float: none;
+}
+
+/* Enhanced Clear for RTL */
+[dir="rtl"] .clear-left {
+  clear: right !important;
+}
+
+[dir="rtl"] .clear-right {
+  clear: left !important;
+}
+
+[dir="rtl"] .clear-both {
+  clear: both;
+}
+
+[dir="rtl"] .clear-none {
+  clear: none;
 }

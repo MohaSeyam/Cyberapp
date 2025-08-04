@@ -1219,6 +1219,7 @@ export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
   const { language } = useLocalization();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [isExporting, setIsExporting] = useState(false);
 
   // Memoized complex calculations
   const streaks = useMemo(() => {
