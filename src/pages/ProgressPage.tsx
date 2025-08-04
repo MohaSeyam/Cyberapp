@@ -24,10 +24,7 @@ import Logo from '../components/ui/Logo';
 import toast from 'react-hot-toast';
 import { openDB } from 'idb';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
-import Papa from 'papaparse';
-import QRCode from 'qrcode';
+import { loadLibrary } from '../utils/lazyImports';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -1414,6 +1411,7 @@ export default function ProgressPage() {
       // --- QR Code ---
       let qrDataUrl = '';
       try {
+        const QRCode = await loadLibrary('QRCode');
         qrDataUrl = await QRCode.toDataURL(appUrl);
       } catch {}
       // --- ملاحظات المشرف ---
@@ -1475,6 +1473,7 @@ export default function ProgressPage() {
           break;
         }
         case 'pdf': {
+          const jsPDF = await loadLibrary('jsPDF');
           const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
           // لوجو
           try {
@@ -1589,6 +1588,7 @@ export default function ProgressPage() {
           break;
         }
         case 'csv': {
+          const Papa = await loadLibrary('Papa');
           const csv = Papa.unparse([
             ...rows,
             [],

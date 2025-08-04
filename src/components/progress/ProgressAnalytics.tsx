@@ -4,8 +4,7 @@ import { BarChart3, PieChart, TrendingUp, Activity } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 import Card from '../ui/Card';
-import ProgressChart from '../charts/ProgressChart';
-import PieChartComponent from '../charts/PieChart';
+import ChartWrapper from '../charts/ChartWrapper';
 import { animations } from '../../constants/theme';
 
 export default function ProgressAnalytics() {
@@ -110,7 +109,7 @@ export default function ProgressAnalytics() {
             <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="h-64">
-            <ProgressChart data={progressData} />
+            <ChartWrapper type="progress" data={progressData} />
           </div>
         </Card>
 
@@ -123,7 +122,7 @@ export default function ProgressAnalytics() {
             <PieChart className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
           <div className="h-64">
-            <PieChartComponent data={pieData} />
+            <ChartWrapper type="pie" data={pieData} />
           </div>
         </Card>
       </motion.div>

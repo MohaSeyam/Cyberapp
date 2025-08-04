@@ -1,24 +1,21 @@
-import React from 'react';
-import { useApp } from '../../context/AppContext';
+import React, { lazy, Suspense } from 'react';
+import LoadingSpinner from '../ui/LoadingSpinner';
+
+// Lazy load chart components to reduce initial bundle size
+const ProgressChart = lazy(() => import('./ProgressChart'));
+const PieChartComponent = lazy(() => import('./PieChart'));
 
 interface ChartWrapperProps {
-  children: React.ReactNode;
+  type: 'progress' | 'pie';
+  data: any[];
   className?: string;
 }
 
-export default function ChartWrapper({ children, className = '' }: ChartWrapperProps) {
-  const { lang } = useApp();
-  const isRTL = lang === 'ar';
-
+export default function ChartWrapper({ type, data, className = '' }: ChartWrapperProps) {
   return (
-    <div 
-      className={`chart-container ${className}`}
-      style={{ 
-        direction: 'ltr', // Charts should always be LTR
-        textAlign: isRTL ? 'right' : 'left'
-      }}
-    >
-      {children}
-    </div>
+    <Suspense fallback={<LoadingSpinner />}>
+      {type === 'progress' && <ProgressChart data={data} className={className} />}
+      {type === 'pie' && <PieChartComponent data={data} className={className} />}
+    </Suspense>
   );
 }
