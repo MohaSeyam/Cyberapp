@@ -1,5 +1,5 @@
 // Progress Page - Enhanced with Tabs, Skills Matrix, and Charts
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Target, Clock, Flame, Trophy, BarChart3, PieChart, 
@@ -23,6 +23,7 @@ import PieChartComponent from '../components/charts/PieChart';
 import Logo from '../components/ui/Logo';
 import toast from 'react-hot-toast';
 import { openDB } from 'idb';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 // Custom CSS for enhanced tabs
 const enhancedTabStyles = `
@@ -234,7 +235,7 @@ const ENHANCED_TAB_STYLES = {
 } as const;
 
 // --- 1. Custom Hook for Logic Separation ---
-const useProgressStats = (plan, progress) => {
+const useProgressStats = (plan, progress, streaks) => {
   return useMemo(() => {
     const allTasks = plan.flatMap(w => w.days || []).flatMap(d => d.tasks || []);
     const taskMap = new Map(allTasks.map(t => [t.id, t]));
@@ -258,25 +259,21 @@ const useProgressStats = (plan, progress) => {
     const theoreticalTasks = completedTaskTypes.filter(type => type === 'Theoretical').length;
     const policiesTasks = completedTaskTypes.filter(type => type === 'Policies').length;
 
-    // Simplified streak logic
-    const currentStreak = 5;
-    const longestStreak = 12;
-
     return {
       completionRate,
       completedTasks: completedTasksCount,
       totalTasks,
       completedDuration,
       totalDuration,
-      currentStreak,
-      longestStreak,
+      currentStreak: streaks.current,
+      longestStreak: streaks.longest,
       blueTeamTasks,
       redTeamTasks,
       practicalTasks,
       theoreticalTasks,
       policiesTasks,
     };
-  }, [plan, progress]);
+  }, [plan, progress, streaks]);
 };
 
 // Enhanced Overview Tab Component
@@ -630,9 +627,28 @@ export default function ProgressPage() {
     format: 'pdf',
     language: language as ExportLanguage
   });
+  const [isExporting, setIsExporting] = useState(false);
 
   // All complex calculations are now handled by the custom hook
-  const stats = useProgressStats(plan, progress);
+  const getStreaks = (progress) => {
+    let current = 0, longest = 0, streak = 0;
+    let lastDate = null;
+    const sorted = [...progress.filter(p => p.done)].sort((a, b) => a.dayKey.localeCompare(b.dayKey));
+    for (let i = 0; i < sorted.length; i++) {
+      const date = new Date(sorted[i].dayKey);
+      if (lastDate && (date - lastDate) / (1000 * 60 * 60 * 24) === 1) {
+        streak++;
+      } else {
+        streak = 1;
+      }
+      if (streak > longest) longest = streak;
+      lastDate = date;
+    }
+    current = streak;
+    return { current, longest };
+  };
+  const streaks = useMemo(() => getStreaks(progress), [progress]);
+  const stats = useProgressStats(plan, progress, streaks);
 
   const safeT = (key: string) => {
     const translations = {
@@ -668,6 +684,7 @@ export default function ProgressPage() {
   };
 
   const handleExport = useCallback(async () => {
+    setIsExporting(true);
     try {
       console.log('Exporting with options:', reportOptions);
       
@@ -730,179 +747,197 @@ export default function ProgressPage() {
           ? '❌ فشل في تصدير التقرير' 
           : '❌ Failed to export report'
       );
+    } finally {
+      setIsExporting(false);
     }
   }, [reportOptions, language, stats]);
 
+  const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
+
   return (
     <WeekPhaseProvider>
-      <PageLayout 
-        title={safeT('progress')}
-        subtitle={safeT('trackYourLearning')}
-        showBottomBar={true}
-      >
-        <motion.div {...animations.fadeIn} className="space-y-8">
-          {/* Overall Progress Card */}
-          <OverallProgressCard />
+      <div dir={pageDirection}>
+        <PageLayout 
+          title={safeT('progress')}
+          subtitle={safeT('trackYourLearning')}
+          showBottomBar={true}
+        >
+          <motion.div {...animations.fadeIn} className="space-y-8">
+            {/* Overall Progress Card */}
+            <OverallProgressCard />
 
-          {/* Enhanced Tab Navigation */}
-          <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4">
-              <div className="tab-container">
-                <div className="flex flex-wrap lg:flex-nowrap gap-2 overflow-x-auto scrollbar-hide">
-                  {ENHANCED_TABS.map((tab, index) => {
-                    const isActive = activeTab === tab.id;
-                    const Icon = tab.icon;
-                    const tabStyle = ENHANCED_TAB_STYLES[tab.color as keyof typeof ENHANCED_TAB_STYLES];
-                    
-                    return (
-                      <motion.button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`tab-item flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[140px] transition-all duration-300 border-b-2 relative ${
-                          isActive 
-                            ? tabStyle.active + ' ' + tabStyle.border
-                            : 'border-transparent ' + tabStyle.hover + ' ' + tabStyle.text
-                        }`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        {/* Badge */}
-                        {tab.badge && (
-                          <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                            {tab.badge}
-                          </div>
-                        )}
-                        
-                        <Icon className={`w-6 h-6 mb-2 ${isActive ? 'text-white' : tabStyle.text}`} />
-                        <span className="font-semibold text-sm">
-                          {getCurrentLanguageText(tab.label)}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden lg:block">
-                          {getCurrentLanguageText(tab.description)}
-                        </span>
-                      </motion.button>
-                    );
-                  })}
+            {/* Enhanced Tab Navigation */}
+            <Card className="overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4">
+                <div className="tab-container">
+                  <div className="flex flex-wrap lg:flex-nowrap gap-2 overflow-x-auto scrollbar-hide">
+                    {ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development').map((tab, index) => {
+                      const isActive = activeTab === tab.id;
+                      const Icon = tab.icon;
+                      const tabStyle = ENHANCED_TAB_STYLES[tab.color as keyof typeof ENHANCED_TAB_STYLES];
+                      
+                      if (['skills', 'achievements'].includes(tab.id) && process.env.NODE_ENV !== 'development') {
+                        return (
+                          <button key={tab.id} className="tab-item flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[140px] opacity-50 cursor-not-allowed">
+                            <tab.icon className="w-6 h-6 mb-2" />
+                            <span className="font-semibold text-sm">{getCurrentLanguageText(tab.label)}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden lg:block">{getCurrentLanguageText(tab.description)}</span>
+                            <span className="mt-2 text-xs bg-yellow-200 text-yellow-800 rounded px-2 py-1">{getCurrentLanguageText({ar: 'قريبًا', en: 'Coming Soon'})}</span>
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <motion.button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`tab-item flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[140px] transition-all duration-300 border-b-2 relative ${
+                            isActive 
+                              ? tabStyle.active + ' ' + tabStyle.border
+                              : 'border-transparent ' + tabStyle.hover + ' ' + tabStyle.text
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          {/* Badge */}
+                          {tab.badge && (
+                            <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                              {tab.badge}
+                            </div>
+                          )}
+                          
+                          <Icon className={`w-6 h-6 mb-2 ${isActive ? 'text-white' : tabStyle.text}`} />
+                          <span className="font-semibold text-sm">
+                            {getCurrentLanguageText(tab.label)}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden lg:block">
+                            {getCurrentLanguageText(tab.description)}
+                          </span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Animated Indicator */}
+                  <motion.div
+                    className="tab-indicator"
+                    layoutId="tab-indicator"
+                    style={{
+                      width: '140px',
+                      left: `${ENHANCED_TABS.findIndex(tab => tab.id === activeTab) * 140}px`
+                    }}
+                  />
                 </div>
-                
-                {/* Animated Indicator */}
-                <motion.div
-                  className="tab-indicator"
-                  layoutId="tab-indicator"
-                  style={{
-                    width: '140px',
-                    left: `${ENHANCED_TABS.findIndex(tab => tab.id === activeTab) * 140}px`
-                  }}
-                />
+              </div>
+
+              {/* Enhanced Tab Content */}
+              <div className="mt-6 p-6">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="tab-content"
+                  >
+                    {isExporting && <LoadingSpinner />}
+                    {activeTab === 'overview' && (
+                      <EnhancedOverviewTab stats={stats} language={language} safeT={safeT} />
+                    )}
+                    {activeTab === 'analytics' && <EnhancedAnalyticsTab />}
+                    {activeTab === 'skills' && <EnhancedSkillsTab />}
+                    {activeTab === 'achievements' && <EnhancedAchievementsTab />}
+                    {activeTab === 'suggestions' && <EnhancedSuggestionsTab language={language} />}
+                    {activeTab === 'reports' && <EnhancedReportsTab onExport={() => setShowExportModal(true)} />}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </Card>
+          </motion.div>
+        </PageLayout>
+
+        {/* Export Modal */}
+        <Modal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          title={getCurrentLanguageText({ ar: 'تأكيد التصدير', en: 'Confirm Export' })}
+          size="md"
+        >
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
+                  <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {getCurrentLanguageText({ ar: 'تأكيد تصدير التقرير', en: 'Confirm Report Export' })}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {getCurrentLanguageText({ 
+                      ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
+                      en: 'The report will be exported with the selected options. This may take a few moments.'
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg">
+              <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-green-600" />
+                {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
+                    {getCurrentLanguageText({ ar: 'أسبوعي', en: 'Weekly' })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
+                    {getCurrentLanguageText({ ar: 'التقدم والملاحظات', en: 'Progress & Notes' })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
+                    PDF
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Enhanced Tab Content */}
-            <div className="mt-6 p-6">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="tab-content"
-                >
-                  {activeTab === 'overview' && (
-                    <EnhancedOverviewTab stats={stats} language={language} safeT={safeT} />
-                  )}
-                  {activeTab === 'analytics' && <EnhancedAnalyticsTab />}
-                  {activeTab === 'skills' && <EnhancedSkillsTab />}
-                  {activeTab === 'achievements' && <EnhancedAchievementsTab />}
-                  {activeTab === 'suggestions' && <EnhancedSuggestionsTab language={language} />}
-                  {activeTab === 'reports' && <EnhancedReportsTab onExport={() => setShowExportModal(true)} />}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </Card>
-        </motion.div>
-      </PageLayout>
-
-      {/* Export Modal */}
-      <Modal
-        isOpen={showExportModal}
-        onClose={() => setShowExportModal(false)}
-        title={getCurrentLanguageText({ ar: 'تأكيد التصدير', en: 'Confirm Export' })}
-        size="md"
-      >
-        <div className="space-y-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
-                <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  {getCurrentLanguageText({ ar: 'تأكيد تصدير التقرير', en: 'Confirm Report Export' })}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {getCurrentLanguageText({ 
-                    ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
-                    en: 'The report will be exported with the selected options. This may take a few moments.'
-                  })}
-                </p>
-              </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleExport}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
+              </Button>
+              <Button
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+              >
+                {getCurrentLanguageText({ ar: 'إلغاء', en: 'Cancel' })}
+              </Button>
             </div>
           </div>
-          
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg">
-            <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center">
-              <FileText className="w-5 h-5 mr-2 text-green-600" />
-              {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
-            </h4>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                <span className="font-medium text-gray-700 dark:text-gray-300">
-                  {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
-                </span>
-                <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
-                  {getCurrentLanguageText({ ar: 'أسبوعي', en: 'Weekly' })}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                <span className="font-medium text-gray-700 dark:text-gray-300">
-                  {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
-                </span>
-                <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
-                  {getCurrentLanguageText({ ar: 'التقدم والملاحظات', en: 'Progress & Notes' })}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">
-                  {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
-                </span>
-                <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
-                  PDF
-                </span>
-              </div>
-            </div>
-          </div>
+        </Modal>
 
-          <div className="flex gap-3">
-            <Button
-              onClick={handleExport}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
-            >
-              <Download className="w-5 h-5 mr-2" />
-              {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
-            </Button>
-            <Button
-              onClick={() => setShowExportModal(false)}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200"
-            >
-              {getCurrentLanguageText({ ar: 'إلغاء', en: 'Cancel' })}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Custom Styles */}
-      <style dangerouslySetInnerHTML={{ __html: enhancedTabStyles }} />
+        {/* Custom Styles */}
+        <style dangerouslySetInnerHTML={{ __html: enhancedTabStyles }} />
+      </div>
     </WeekPhaseProvider>
   );
 }
