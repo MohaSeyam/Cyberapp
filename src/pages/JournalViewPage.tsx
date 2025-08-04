@@ -359,6 +359,7 @@ export default function JournalViewPage() {
         message="هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء."
         confirmText="حذف"
         cancelText="إلغاء"
+        isConfirmModal={true}
       />
     </PageLayout>
   );

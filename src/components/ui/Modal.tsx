@@ -9,11 +9,17 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   className?: string;
+  // Confirm modal props
+  onConfirm?: () => void;
+  message?: string;
+  confirmText?: string;
+  cancelText?: string;
+  isConfirmModal?: boolean;
 }
 
 const modalSizes = {
@@ -31,7 +37,12 @@ export default function Modal({
   size = 'md',
   showCloseButton = true,
   closeOnOverlayClick = true,
-  className = ''
+  className = '',
+  onConfirm,
+  message,
+  confirmText,
+  cancelText,
+  isConfirmModal = false
 }: ModalProps) {
   const { lang } = useApp();
 
@@ -96,7 +107,39 @@ export default function Modal({
 
             {/* Content */}
             <div className="p-6 overflow-y-auto flex-1">
-              {children}
+              {isConfirmModal ? (
+                <div className="space-y-6">
+                  {/* Message */}
+                  <div className="text-center">
+                    <p className="text-gray-700 dark:text-gray-300 text-lg">
+                      {message}
+                    </p>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={onClose}
+                      className="px-6 py-2"
+                    >
+                      {cancelText || (lang === 'ar' ? 'إلغاء' : 'Cancel')}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        onConfirm?.();
+                        onClose();
+                      }}
+                      className="px-6 py-2"
+                    >
+                      {confirmText || (lang === 'ar' ? 'حذف' : 'Delete')}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                children
+              )}
             </div>
           </motion.div>
         </motion.div>

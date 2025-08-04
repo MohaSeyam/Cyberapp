@@ -359,6 +359,7 @@ export default function NoteViewPage() {
         message="هل أنت متأكد من حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا الإجراء."
         confirmText="حذف"
         cancelText="إلغاء"
+        isConfirmModal={true}
       />
     </PageLayout>
   );
