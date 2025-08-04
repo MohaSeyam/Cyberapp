@@ -669,6 +669,13 @@ export default function ProgressPage() {
     language: language as ExportLanguage
   });
   const [isExporting, setIsExporting] = useState(false);
+  const [advancedExportOptions, setAdvancedExportOptions] = useState({
+    reportType: 'weekly',
+    contentType: 'both',
+    format: 'pdf',
+    dateRange: { start: '', end: '' },
+  });
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   // All complex calculations are now handled by the custom hook
   const getStreaks = (progress) => {
@@ -846,7 +853,7 @@ export default function ProgressPage() {
       const supervisorNote = language === 'ar'
         ? 'ملاحظات المشرف: ...............................................................'
         : 'Supervisor Notes: ...............................................................';
-      switch (reportOptions.format) {
+      switch (advancedExportOptions.format) {
         case 'pdf': {
           const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
           // لوجو
@@ -1120,7 +1127,7 @@ export default function ProgressPage() {
     } finally {
       setIsExporting(false);
     }
-  }, [reportOptions, language, stats, plan, progress, appState]);
+  }, [advancedExportOptions, language, stats, plan, progress, appState]);
 
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
@@ -1178,6 +1185,81 @@ export default function ProgressPage() {
           size="md"
         >
           <div className="space-y-6">
+            {/* خيارات متقدمة */}
+            <div className="flex justify-end">
+              <button
+                className="text-blue-600 underline text-sm"
+                onClick={() => setShowAdvancedOptions(v => !v)}
+              >
+                {getCurrentLanguageText({ ar: showAdvancedOptions ? 'إخفاء الخيارات المتقدمة' : 'خيارات متقدمة', en: showAdvancedOptions ? 'Hide Advanced Options' : 'Advanced Options' })}
+              </button>
+            </div>
+            {showAdvancedOptions && (
+              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border mb-4 space-y-4">
+                {/* نوع التقرير */}
+                <div>
+                  <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}</label>
+                  <select
+                    className="w-full p-2 rounded border"
+                    value={advancedExportOptions.reportType}
+                    onChange={e => setAdvancedExportOptions(o => ({ ...o, reportType: e.target.value }))}
+                  >
+                    {REPORT_TYPES.map(opt => (
+                      <option key={opt.id} value={opt.id}>{getCurrentLanguageText(opt.label)}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* نوع البيانات */}
+                <div>
+                  <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'نوع البيانات', en: 'Content Type' })}</label>
+                  <select
+                    className="w-full p-2 rounded border"
+                    value={advancedExportOptions.contentType}
+                    onChange={e => setAdvancedExportOptions(o => ({ ...o, contentType: e.target.value }))}
+                  >
+                    {CONTENT_TYPES.map(opt => (
+                      <option key={opt.id} value={opt.id}>{getCurrentLanguageText(opt.label)}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* الصيغة */}
+                <div>
+                  <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}</label>
+                  <select
+                    className="w-full p-2 rounded border"
+                    value={advancedExportOptions.format}
+                    onChange={e => setAdvancedExportOptions(o => ({ ...o, format: e.target.value }))}
+                  >
+                    {EXPORT_FORMATS.map(opt => (
+                      <option key={opt.id} value={opt.id}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* نطاق زمني مخصص */}
+                {advancedExportOptions.reportType === 'custom' && (
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'من', en: 'From' })}</label>
+                      <input
+                        type="date"
+                        className="w-full p-2 rounded border"
+                        value={advancedExportOptions.dateRange.start}
+                        onChange={e => setAdvancedExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, start: e.target.value } }))}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'إلى', en: 'To' })}</label>
+                      <input
+                        type="date"
+                        className="w-full p-2 rounded border"
+                        value={advancedExportOptions.dateRange.end}
+                        onChange={e => setAdvancedExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, end: e.target.value } }))}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
               <div className="flex items-center mb-4">
                 <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
