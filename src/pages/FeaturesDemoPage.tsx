@@ -8,7 +8,7 @@ import {
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
-import Button from '../ui/Button';
+import Button from '../components/ui/Button';
 import SmartRecommendations from '../components/smart/SmartRecommendations';
 import CalendarIntegration from '../components/integrations/CalendarIntegration';
 import AdvancedNotifications from '../components/notifications/AdvancedNotifications';
