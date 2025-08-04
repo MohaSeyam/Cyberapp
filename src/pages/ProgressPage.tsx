@@ -24,6 +24,9 @@ import Logo from '../components/ui/Logo';
 import toast from 'react-hot-toast';
 import { openDB } from 'idb';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+import Papa from 'papaparse';
 
 // Custom CSS for enhanced tabs
 const enhancedTabStyles = `
@@ -686,44 +689,74 @@ export default function ProgressPage() {
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
-      console.log('Exporting with options:', reportOptions);
-      
-      let content = '';
-      const timestamp = new Date().toLocaleDateString('en-US');
-      
-      content += '# ' + (language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report') + '\n';
-      content += '**' + (language === 'ar' ? 'تاريخ التصدير' : 'Export Date') + ': ' + timestamp + '**\n\n';
-      
-      if (reportOptions.content === 'progress' || reportOptions.content === 'both') {
-        content += '## ' + (language === 'ar' ? 'تقرير التقدم' : 'Progress Report') + '\n\n';
-        content += '- ' + (language === 'ar' ? 'إجمالي المهام' : 'Total Tasks') + ': ' + stats.totalTasks + '\n';
-        content += '- ' + (language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks') + ': ' + stats.completedTasks + '\n';
-        content += '- ' + (language === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate') + ': ' + stats.completionRate.toFixed(1) + '%\n';
-        content += '- ' + (language === 'ar' ? 'المسار الحالي' : 'Current Streak') + ': ' + stats.currentStreak + ' ' + (language === 'ar' ? 'أيام' : 'days') + '\n';
-        content += '- ' + (language === 'ar' ? 'أطول مسار' : 'Longest Streak') + ': ' + stats.longestStreak + ' ' + (language === 'ar' ? 'أيام' : 'days') + '\n\n';
-      }
-      
       let fileName = 'cybersecurity-report-' + Date.now();
       let blob: Blob;
-      
+      const timestamp = new Date().toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
+      // بيانات التقرير
+      const rows = [
+        [language === 'ar' ? 'العنصر' : 'Item', language === 'ar' ? 'القيمة' : 'Value'],
+        [language === 'ar' ? 'إجمالي المهام' : 'Total Tasks', stats.totalTasks],
+        [language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks', stats.completedTasks],
+        [language === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate', stats.completionRate.toFixed(1) + '%'],
+        [language === 'ar' ? 'المسار الحالي' : 'Current Streak', stats.currentStreak + (language === 'ar' ? ' أيام' : ' days')],
+        [language === 'ar' ? 'أطول مسار' : 'Longest Streak', stats.longestStreak + (language === 'ar' ? ' أيام' : ' days')],
+      ];
       switch (reportOptions.format) {
-        case 'pdf':
-          blob = new Blob([content], { type: 'application/pdf' });
+        case 'pdf': {
+          const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr' });
+          doc.setFont('helvetica');
+          doc.setFontSize(18);
+          doc.text(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report', 14, 20, { align: language === 'ar' ? 'right' : 'left' });
+          doc.setFontSize(12);
+          doc.text((language === 'ar' ? 'تاريخ التصدير: ' : 'Export Date: ') + timestamp, 14, 30, { align: language === 'ar' ? 'right' : 'left' });
+          // جدول
+          let y = 40;
+          rows.forEach(([k, v]) => {
+            doc.text(`${k}: ${v}`, 14, y, { align: language === 'ar' ? 'right' : 'left' });
+            y += 10;
+          });
+          blob = doc.output('blob');
           fileName += '.pdf';
           break;
-        case 'csv':
-          blob = new Blob([content], { type: 'text/csv' });
+        }
+        case 'csv': {
+          const csv = Papa.unparse(rows);
+          blob = new Blob([csv], { type: 'text/csv' });
           fileName += '.csv';
           break;
-        case 'markdown':
-          blob = new Blob([content], { type: 'text/markdown' });
+        }
+        case 'markdown': {
+          let md = `# ${(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report')}`;
+          md += `\n**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}:** ${timestamp}\n`;
+          md += `\n| ${rows[0][0]} | ${rows[0][1]} |\n|---|---|\n`;
+          for (let i = 1; i < rows.length; i++) {
+            md += `| ${rows[i][0]} | ${rows[i][1]} |\n`;
+          }
+          blob = new Blob([md], { type: 'text/markdown' });
           fileName += '.md';
           break;
-        default:
-          blob = new Blob([content], { type: 'text/plain' });
+        }
+        case 'txt':
+        default: {
+          let txt = (language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report') + '\n';
+          txt += (language === 'ar' ? 'تاريخ التصدير: ' : 'Export Date: ') + timestamp + '\n';
+          for (let i = 1; i < rows.length; i++) {
+            txt += `${rows[i][0]}: ${rows[i][1]}\n`;
+          }
+          blob = new Blob([txt], { type: 'text/plain' });
           fileName += '.txt';
+          break;
+        }
+        case 'xlsx': {
+          const ws = XLSX.utils.aoa_to_sheet(rows);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Report');
+          const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+          blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          fileName += '.xlsx';
+          break;
+        }
       }
-      
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -732,13 +765,11 @@ export default function ProgressPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
       toast.success(
         language === 'ar' 
           ? '✓ تم تصدير التقرير بنجاح' 
           : '✓ Report exported successfully'
       );
-      
       setShowExportModal(false);
     } catch (error) {
       console.error('Export error:', error);
