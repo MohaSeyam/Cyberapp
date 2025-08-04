@@ -29,6 +29,28 @@ import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import QRCode from 'qrcode';
 
+// Export Constants
+const REPORT_TYPES = [
+  { id: 'weekly', label: { ar: 'أسبوعي', en: 'Weekly' } },
+  { id: 'phase', label: { ar: 'مرحلي', en: 'Phase' } },
+  { id: 'complete', label: { ar: 'كامل', en: 'Complete' } },
+  { id: 'custom', label: { ar: 'مخصص', en: 'Custom' } }
+];
+
+const CONTENT_TYPES = [
+  { id: 'progress', label: { ar: 'التقدم فقط', en: 'Progress Only' } },
+  { id: 'notes', label: { ar: 'الملاحظات فقط', en: 'Notes Only' } },
+  { id: 'both', label: { ar: 'التقدم والملاحظات', en: 'Progress & Notes' } }
+];
+
+const EXPORT_FORMATS = [
+  { id: 'pdf', label: 'PDF' },
+  { id: 'csv', label: 'CSV' },
+  { id: 'json', label: 'JSON' },
+  { id: 'markdown', label: 'Markdown' },
+  { id: 'txt', label: 'Text' }
+];
+
 // Custom CSS for enhanced tabs
 const enhancedTabStyles = `
   .tab-container {
@@ -760,6 +782,92 @@ export default function ProgressPage() {
     }
   };
 
+  // Data filtering function based on export options
+  const filterDataByOptions = useCallback((options) => {
+    const { reportType, contentType, dateRange } = options;
+    const now = new Date();
+    
+    // Filter tasks based on report type
+    let filteredTasks = [];
+    let filteredNotes = [];
+    let filteredResources = [];
+    
+    // Get current week/phase info
+    const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
+    const currentPhase = Math.ceil(currentWeek / 4);
+    
+    switch (reportType) {
+      case 'weekly':
+        // Export current week data
+        filteredTasks = plan
+          .filter(week => week.week === currentWeek)
+          .flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => note.weekId === currentWeek);
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => resource.weekId === currentWeek);
+        break;
+        
+      case 'phase':
+        // Export current phase data (4 weeks)
+        const phaseStartWeek = (currentPhase - 1) * 4 + 1;
+        const phaseEndWeek = currentPhase * 4;
+        filteredTasks = plan
+          .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
+          .flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
+        break;
+        
+      case 'complete':
+        // Export all data
+        filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes).flat();
+        filteredResources = Object.values(appState.resources || {}).flat();
+        break;
+        
+      case 'custom':
+        // Export data within custom date range
+        if (dateRange.start && dateRange.end) {
+          const startDate = new Date(dateRange.start);
+          const endDate = new Date(dateRange.end);
+          
+          filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
+          filteredNotes = Object.values(appState.notes)
+            .flat()
+            .filter(note => {
+              const noteDate = new Date(note.createdAt);
+              return noteDate >= startDate && noteDate <= endDate;
+            });
+          filteredResources = Object.values(appState.resources || {})
+            .flat()
+            .filter(resource => {
+              const resourceDate = new Date(resource.createdAt);
+              return resourceDate >= startDate && resourceDate <= endDate;
+            });
+        }
+        break;
+    }
+    
+    // Filter by content type
+    if (contentType === 'progress') {
+      filteredNotes = [];
+      filteredResources = [];
+    } else if (contentType === 'notes') {
+      filteredTasks = [];
+      filteredResources = [];
+    }
+    // 'both' includes all data
+    
+    return { filteredTasks, filteredNotes, filteredResources };
+  }, [plan, appState.notes, appState.resources]);
+
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
@@ -769,50 +877,67 @@ export default function ProgressPage() {
       const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
       const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
       const appUrl = window.location.origin;
+      
+      // Filter data based on advanced options
+      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(advancedExportOptions);
+      
       // --- إحصائيات ---
-      const totalNotes = Object.values(appState.notes).flat().length;
-      const totalResources = Object.values(appState.resources || {}).flat().length;
+      const totalNotes = filteredNotes.length;
+      const totalResources = filteredResources.length;
       const taskTypes = {};
-      plan.forEach(week => week.days.forEach(day => day.tasks.forEach(task => {
+      filteredTasks.forEach(task => {
         taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
-      })));
+      });
       const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
       const daysProductivity = {};
-      progress.filter(p=>p.done).forEach(p => {
+      progress.filter(p => p.done && filteredTasks.some(t => t.id === p.taskId)).forEach(p => {
         daysProductivity[p.dayKey] = (daysProductivity[p.dayKey] || 0) + 1;
       });
       const mostProductiveDay = Object.entries(daysProductivity).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+      
       // --- جداول المهام ---
       const taskHeaders = language === 'ar'
         ? ['#️⃣', 'الأسبوع', 'اليوم', 'عنوان المهمة', 'الوصف', 'نوع المهمة', '⏱️ المدة', '✅ منجزة؟', '📅 تاريخ الإنجاز', '📝 عدد الملاحظات']
         : ['#️⃣', 'Week', 'Day', 'Task Title', 'Description', 'Task Type', '⏱️ Duration', '✅ Done?', '📅 Done Date', '📝 Notes Count'];
       const taskRows = [taskHeaders];
-      plan.forEach(week => {
-        week.days.forEach(day => {
-          day.tasks.forEach(task => {
-            const doneObj = progress.find(p => p.taskId === task.id && p.done);
-            const notesCount = Object.values(appState.notes).flat().filter(n => n.taskId === task.id).length;
-            taskRows.push([
-              task.id,
-              week.week,
-              language === 'ar' ? day.day.ar : day.day.en,
-              language === 'ar' ? (task.description.ar.split(' ')[0] || '-') : (task.description.en.split(' ')[0] || '-'),
-              language === 'ar' ? task.description.ar : task.description.en,
-              getTaskTypeEmoji(task.type) + ' ' + (language === 'ar' ? task.type : task.type),
-              task.duration,
-              doneObj ? (language === 'ar' ? '✅ نعم' : '✅ Yes') : (language === 'ar' ? '❌ لا' : '❌ No'),
-              doneObj ? new Date(doneObj.updatedAt || now).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
-              notesCount
-            ]);
+      
+      // Find week and day info for filtered tasks
+      filteredTasks.forEach(task => {
+        let weekInfo = 'Unknown';
+        let dayInfo = 'Unknown';
+        
+        // Find the week and day for this task
+        plan.forEach(week => {
+          week.days.forEach(day => {
+            if (day.tasks.some(t => t.id === task.id)) {
+              weekInfo = week.week;
+              dayInfo = language === 'ar' ? day.day.ar : day.day.en;
+            }
           });
         });
+        
+        const doneObj = progress.find(p => p.taskId === task.id && p.done);
+        const notesCount = filteredNotes.filter(n => n.taskId === task.id).length;
+        taskRows.push([
+          task.id,
+          weekInfo,
+          dayInfo,
+          language === 'ar' ? (task.description.ar.split(' ')[0] || '-') : (task.description.en.split(' ')[0] || '-'),
+          language === 'ar' ? task.description.ar : task.description.en,
+          getTaskTypeEmoji(task.type) + ' ' + (language === 'ar' ? task.type : task.type),
+          task.duration,
+          doneObj ? (language === 'ar' ? '✅ نعم' : '✅ Yes') : (language === 'ar' ? '❌ لا' : '❌ No'),
+          doneObj ? new Date(doneObj.updatedAt || now).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
+          notesCount
+        ]);
       });
+      
       // --- جداول الملاحظات ---
       const noteHeaders = language === 'ar'
         ? ['#️⃣', 'الأسبوع', 'اليوم', 'عنوان الملاحظة', 'المحتوى', 'الوسوم', 'تاريخ الإنشاء', 'تاريخ التحديث', 'مرتبطة بمهمة', 'عدد الكلمات']
         : ['#️⃣', 'Week', 'Day', 'Note Title', 'Content', 'Tags', 'Created', 'Updated', 'Task', 'Word Count'];
       const noteRows = [noteHeaders];
-      Object.values(appState.notes).flat().forEach(note => {
+      filteredNotes.forEach(note => {
         noteRows.push([
           note.id || '-',
           note.weekId,
@@ -826,12 +951,13 @@ export default function ProgressPage() {
           note.content.split(' ').length
         ]);
       });
+      
       // --- جداول المراجع ---
       const resourceHeaders = language === 'ar'
         ? ['#️⃣', 'الأسبوع', 'اليوم', 'العنوان', 'النوع', 'الرابط', 'تاريخ الإضافة', 'الوصف', 'تم الاستخدام؟']
         : ['#️⃣', 'Week', 'Day', 'Title', 'Type', 'URL', 'Added', 'Description', 'Used?'];
       const resourceRows = [resourceHeaders];
-      Object.values(appState.resources || {}).flat().forEach(resource => {
+      filteredResources.forEach(resource => {
         resourceRows.push([
           resource.id || '-',
           resource.weekId || '-',
@@ -854,6 +980,59 @@ export default function ProgressPage() {
         ? 'ملاحظات المشرف: ...............................................................'
         : 'Supervisor Notes: ...............................................................';
       switch (advancedExportOptions.format) {
+        case 'json': {
+          const exportData = {
+            metadata: {
+              appName: APP_NAME,
+              exportDate: timestamp,
+              reportType: advancedExportOptions.reportType,
+              contentType: advancedExportOptions.contentType,
+              language: language,
+              totalTasks: filteredTasks.length,
+              totalNotes: totalNotes,
+              totalResources: totalResources,
+              mostTaskType: mostTaskType,
+              mostProductiveDay: mostProductiveDay
+            },
+            tasks: filteredTasks.map(task => ({
+              id: task.id,
+              title: language === 'ar' ? task.description.ar : task.description.en,
+              description: language === 'ar' ? task.description.ar : task.description.en,
+              type: task.type,
+              duration: task.duration,
+              isCompleted: progress.some(p => p.taskId === task.id && p.done),
+              completedDate: progress.find(p => p.taskId === task.id && p.done)?.updatedAt,
+              notesCount: filteredNotes.filter(n => n.taskId === task.id).length
+            })),
+            notes: filteredNotes.map(note => ({
+              id: note.id,
+              title: note.title,
+              content: note.content,
+              tags: note.tags,
+              createdAt: note.createdAt,
+              updatedAt: note.updatedAt,
+              taskId: note.taskId,
+              wordCount: note.content.split(' ').length
+            })),
+            resources: filteredResources.map(resource => ({
+              id: resource.id,
+              title: resource.title,
+              type: resource.type,
+              url: resource.url,
+              description: resource.description,
+              createdAt: resource.createdAt
+            })),
+            progress: progress.filter(p => filteredTasks.some(t => t.id === p.taskId)),
+            statistics: {
+              taskTypes: taskTypes,
+              daysProductivity: daysProductivity
+            }
+          };
+          
+          blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+          fileName += '.json';
+          break;
+        }
         case 'pdf': {
           const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
           // لوجو
@@ -1290,7 +1469,7 @@ export default function ProgressPage() {
                     {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
                   </span>
                   <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText({ ar: 'أسبوعي', en: 'Weekly' })}
+                    {getCurrentLanguageText(REPORT_TYPES.find(opt => opt.id === advancedExportOptions.reportType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
@@ -1298,7 +1477,7 @@ export default function ProgressPage() {
                     {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
                   </span>
                   <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText({ ar: 'التقدم والملاحظات', en: 'Progress & Notes' })}
+                    {getCurrentLanguageText(CONTENT_TYPES.find(opt => opt.id === advancedExportOptions.contentType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
@@ -1306,7 +1485,7 @@ export default function ProgressPage() {
                     {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
                   </span>
                   <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
-                    PDF
+                    {EXPORT_FORMATS.find(opt => opt.id === advancedExportOptions.format)?.label || 'Unknown'}
                   </span>
                 </div>
               </div>
