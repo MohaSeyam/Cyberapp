@@ -655,10 +655,7 @@ const translations: TranslationData = {
       ar: "توصيات مخصصة بناءً على تقدمك وأسلوب تعلمك",
       en: "Personalized recommendations based on your progress and learning style"
     },
-    completionRate: {
-      ar: "معدل الإنجاز",
-      en: "Completion Rate"
-    },
+
     streakDays: {
       ar: "أيام التتابع",
       en: "Streak Days"
@@ -821,21 +818,9 @@ const translations: TranslationData = {
       ar: "مهمة",
       en: "tasks"
     },
-    syncError: {
-      ar: "خطأ في المزامنة",
-      en: "Sync error"
-    },
     allEventsExported: {
       ar: "تم تصدير جميع الأحداث",
       en: "All events exported"
-    },
-    view: {
-      ar: "عرض",
-      en: "View"
-    },
-    close: {
-      ar: "إغلاق",
-      en: "Close"
     },
     details: {
       ar: "التفاصيل",
@@ -873,14 +858,6 @@ const translations: TranslationData = {
       ar: "أدخل وصف الحدث",
       en: "Enter event description"
     },
-    cancel: {
-      ar: "إلغاء",
-      en: "Cancel"
-    },
-    add: {
-      ar: "إضافة",
-      en: "Add"
-    },
 
     // Advanced Notifications
     advancedNotifications: {
@@ -914,10 +891,6 @@ const translations: TranslationData = {
     markAllAsRead: {
       ar: "تحديد الكل كمقروء",
       en: "Mark All as Read"
-    },
-    settings: {
-      ar: "الإعدادات",
-      en: "Settings"
     },
     clearAll: {
       ar: "مسح الكل",
@@ -991,10 +964,6 @@ const translations: TranslationData = {
       ar: "تحديد كمقروء",
       en: "Mark as Read"
     },
-    delete: {
-      ar: "حذف",
-      en: "Delete"
-    },
 
     // Auto Backup
     autoBackup: {
@@ -1044,10 +1013,6 @@ const translations: TranslationData = {
     import: {
       ar: "استيراد",
       en: "Import"
-    },
-    export: {
-      ar: "تصدير",
-      en: "Export"
     },
     backupCreatedSuccessfully: {
       ar: "تم إنشاء النسخة الاحتياطية بنجاح",
@@ -1104,10 +1069,6 @@ const translations: TranslationData = {
     enableBackup: {
       ar: "تفعيل النسخ الاحتياطي",
       en: "Enable backup"
-    },
-    autoBackup: {
-      ar: "النسخ الاحتياطي التلقائي",
-      en: "Auto backup"
     },
     cloudBackup: {
       ar: "النسخ الاحتياطي السحابي",
@@ -1176,11 +1137,7 @@ const translations: TranslationData = {
   beginYourJourney: {
     ar: "ابدأ رحلتك التعليمية",
     en: "Begin your learning journey"
-  },
-  trackYourProgress: {
-    ar: "تتبع تقدمك",
-    en: "Track your progress"
-  },
+      },
   organizeYourNotes: {
     ar: "نظم ملاحظاتك",
     en: "Organize your notes"
@@ -1220,10 +1177,6 @@ const translations: TranslationData = {
   viewProgress: {
     ar: "عرض التقدم",
     en: "View Progress"
-  },
-  manageNotes: {
-    ar: "إدارة الملاحظات",
-    en: "Manage Notes"
   },
   learningJournal: {
     ar: "مدونة التعلم",
