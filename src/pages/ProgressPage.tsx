@@ -620,7 +620,7 @@ const EnhancedReportsTab = React.memo(({ onExport }) => {
 
 // --- 3. Main Component (Enhanced) ---
 export default function ProgressPage() {
-  const { plan, progress } = useApp();
+  const { plan, progress, appState } = useApp();
   const { language } = useLocalization();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [showExportModal, setShowExportModal] = useState(false);
@@ -706,6 +706,54 @@ export default function ProgressPage() {
         [language === 'ar' ? 'المسار الحالي' : 'Current Streak', stats.currentStreak + (language === 'ar' ? ' أيام' : ' days')],
         [language === 'ar' ? 'أطول مسار' : 'Longest Streak', stats.longestStreak + (language === 'ar' ? ' أيام' : ' days')],
       ];
+      // --- جداول المهام ---
+      const taskHeaders = language === 'ar'
+        ? ['الأسبوع', 'اليوم', 'عنوان المهمة', 'نوع المهمة', 'المدة (دقيقة)', 'منجزة؟']
+        : ['Week', 'Day', 'Task Title', 'Task Type', 'Duration (min)', 'Done?'];
+      const taskRows = [taskHeaders];
+      plan.forEach(week => {
+        week.days.forEach(day => {
+          day.tasks.forEach(task => {
+            const done = progress.find(p => p.taskId === task.id && p.done);
+            taskRows.push([
+              week.week,
+              language === 'ar' ? day.day.ar : day.day.en,
+              language === 'ar' ? (task.description.ar.split(' ')[0] || '-') : (task.description.en.split(' ')[0] || '-'),
+              language === 'ar' ? task.type : task.type,
+              task.duration,
+              done ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')
+            ]);
+          });
+        });
+      });
+      // --- جداول الملاحظات ---
+      const noteHeaders = language === 'ar'
+        ? ['الأسبوع', 'اليوم', 'عنوان الملاحظة', 'المحتوى', 'الوسوم']
+        : ['Week', 'Day', 'Note Title', 'Content', 'Tags'];
+      const noteRows = [noteHeaders];
+      Object.values(appState.notes).flat().forEach(note => {
+        noteRows.push([
+          note.weekId,
+          note.dayKey,
+          note.title,
+          note.content,
+          note.tags.join(', ')
+        ]);
+      });
+      // --- جداول المراجع ---
+      const resourceHeaders = language === 'ar'
+        ? ['الأسبوع', 'اليوم', 'العنوان', 'النوع', 'الرابط']
+        : ['Week', 'Day', 'Title', 'Type', 'URL'];
+      const resourceRows = [resourceHeaders];
+      Object.values(appState.resources || {}).flat().forEach(resource => {
+        resourceRows.push([
+          resource.weekId || '-',
+          resource.dayIndex || '-',
+          resource.title,
+          resource.type,
+          resource.url
+        ]);
+      });
       switch (reportOptions.format) {
         case 'pdf': {
           const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
@@ -745,6 +793,48 @@ export default function ProgressPage() {
             doc.text(`${v}`, 200, y);
             y += 20;
           });
+          // جدول المهام
+          y += 30;
+          doc.setFontSize(14);
+          doc.setTextColor('#1D4ED8');
+          doc.text(language === 'ar' ? 'قائمة المهام' : 'Task List', 40, y);
+          y += 20;
+          doc.setFontSize(10);
+          doc.setTextColor('#222');
+          taskRows.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              doc.text(String(cell), 50 + j * 90, y);
+            });
+            y += 14;
+          });
+          // جدول الملاحظات
+          y += 20;
+          doc.setFontSize(14);
+          doc.setTextColor('#1D4ED8');
+          doc.text(language === 'ar' ? 'الملاحظات' : 'Notes', 40, y);
+          y += 20;
+          doc.setFontSize(10);
+          doc.setTextColor('#222');
+          noteRows.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              doc.text(String(cell), 50 + j * 120, y);
+            });
+            y += 14;
+          });
+          // جدول المراجع
+          y += 20;
+          doc.setFontSize(14);
+          doc.setTextColor('#1D4ED8');
+          doc.text(language === 'ar' ? 'المراجع' : 'References', 40, y);
+          y += 20;
+          doc.setFontSize(10);
+          doc.setTextColor('#222');
+          resourceRows.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              doc.text(String(cell), 50 + j * 120, y);
+            });
+            y += 14;
+          });
           // تذييل
           doc.setFontSize(10);
           doc.setTextColor('#888');
@@ -756,6 +846,15 @@ export default function ProgressPage() {
         case 'csv': {
           const csv = Papa.unparse([
             ...rows,
+            [],
+            [language === 'ar' ? 'قائمة المهام' : 'Task List'],
+            ...taskRows,
+            [],
+            [language === 'ar' ? 'الملاحظات' : 'Notes'],
+            ...noteRows,
+            [],
+            [language === 'ar' ? 'المراجع' : 'References'],
+            ...resourceRows,
             [],
             [language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by', APP_NAME],
             [language === 'ar' ? 'تاريخ التصدير' : 'Export Date', timestamp],
@@ -773,6 +872,24 @@ export default function ProgressPage() {
           for (let i = 1; i < rows.length; i++) {
             md += `| ${rows[i][0]} | ${rows[i][1]} |\n`;
           }
+          // المهام
+          md += `\n## ${language === 'ar' ? 'قائمة المهام' : 'Task List'}\n`;
+          md += `|${taskHeaders.join('|')}|\n|${taskHeaders.map(()=>'---').join('|')}|\n`;
+          for (let i = 1; i < taskRows.length; i++) {
+            md += `|${taskRows[i].join('|')}|\n`;
+          }
+          // الملاحظات
+          md += `\n## ${language === 'ar' ? 'الملاحظات' : 'Notes'}\n`;
+          md += `|${noteHeaders.join('|')}|\n|${noteHeaders.map(()=>'---').join('|')}|\n`;
+          for (let i = 1; i < noteRows.length; i++) {
+            md += `|${noteRows[i].join('|')}|\n`;
+          }
+          // المراجع
+          md += `\n## ${language === 'ar' ? 'المراجع' : 'References'}\n`;
+          md += `|${resourceHeaders.join('|')}|\n|${resourceHeaders.map(()=>'---').join('|')}|\n`;
+          for (let i = 1; i < resourceRows.length; i++) {
+            md += `|${resourceRows[i].join('|')}|\n`;
+          }
           md += `\n---\n${language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by'} **${APP_NAME}**`;
           blob = new Blob([md], { type: 'text/markdown' });
           fileName += '.md';
@@ -786,6 +903,24 @@ export default function ProgressPage() {
           for (let i = 1; i < rows.length; i++) {
             txt += `${rows[i][0]}: ${rows[i][1]}\n`;
           }
+          // المهام
+          txt += `\n${language === 'ar' ? 'قائمة المهام' : 'Task List'}\n`;
+          txt += taskHeaders.join(' | ') + '\n';
+          for (let i = 1; i < taskRows.length; i++) {
+            txt += taskRows[i].join(' | ') + '\n';
+          }
+          // الملاحظات
+          txt += `\n${language === 'ar' ? 'الملاحظات' : 'Notes'}\n`;
+          txt += noteHeaders.join(' | ') + '\n';
+          for (let i = 1; i < noteRows.length; i++) {
+            txt += noteRows[i].join(' | ') + '\n';
+          }
+          // المراجع
+          txt += `\n${language === 'ar' ? 'المراجع' : 'References'}\n`;
+          txt += resourceHeaders.join(' | ') + '\n';
+          for (let i = 1; i < resourceRows.length; i++) {
+            txt += resourceRows[i].join(' | ') + '\n';
+          }
           txt += `\n---\n${language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by'} ${APP_NAME}\n`;
           blob = new Blob([txt], { type: 'text/plain' });
           fileName += '.txt';
@@ -798,7 +933,16 @@ export default function ProgressPage() {
             [language === 'ar' ? 'اليوم' : 'Day', dayName],
             [language === 'ar' ? 'تاريخ التصدير' : 'Export Date', timestamp],
             [],
-            ...rows
+            ...rows,
+            [],
+            [language === 'ar' ? 'قائمة المهام' : 'Task List'],
+            ...taskRows,
+            [],
+            [language === 'ar' ? 'الملاحظات' : 'Notes'],
+            ...noteRows,
+            [],
+            [language === 'ar' ? 'المراجع' : 'References'],
+            ...resourceRows
           ]);
           // رأس ملون
           ws['A7'].s = { fill: { fgColor: { rgb: 'E0E7FF' } }, font: { bold: true } };
@@ -835,7 +979,7 @@ export default function ProgressPage() {
     } finally {
       setIsExporting(false);
     }
-  }, [reportOptions, language, stats]);
+  }, [reportOptions, language, stats, plan, progress, appState]);
 
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
