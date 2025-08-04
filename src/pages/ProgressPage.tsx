@@ -1,5 +1,5 @@
 // Progress Page - Enhanced with Tabs, Skills Matrix, and Charts
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Target, Clock, Flame, Trophy, BarChart3, PieChart, 
@@ -28,6 +28,10 @@ import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import QRCode from 'qrcode';
+
+// Lazy load components for better performance
+const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
+const ProgressAnalytics = lazy(() => import('../components/progress/ProgressAnalytics'));
 
 // Export Constants
 const REPORT_TYPES = [
@@ -1219,8 +1223,8 @@ export default function ProgressPage() {
   const { language } = useLocalization();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  // All complex calculations are now handled by the custom hook
-  const getStreaks = (progress) => {
+  // Memoized complex calculations
+  const streaks = useMemo(() => {
     let current = 0, longest = 0, streak = 0;
     let lastDate = null;
     const sorted = [...progress.filter(p => p.done)].sort((a, b) => a.dayKey.localeCompare(b.dayKey));
@@ -1236,11 +1240,11 @@ export default function ProgressPage() {
     }
     current = streak;
     return { current, longest };
-  };
-  const streaks = useMemo(() => getStreaks(progress), [progress]);
-  const stats = useProgressStats(plan, progress, streaks);
+  }, [progress]);
 
-  const safeT = (key: string) => {
+  const stats = useMemo(() => useProgressStats(plan, progress, streaks), [plan, progress, streaks]);
+
+  const safeT = useCallback((key: string) => {
     const translations = {
       progress: { ar: 'التقدم', en: 'Progress' },
       trackYourLearning: { ar: 'تتبع رحلتك التعليمية', en: 'Track Your Learning Journey' },
@@ -1267,7 +1271,7 @@ export default function ProgressPage() {
       policies: { ar: 'السياسات', en: 'Policies' }
     };
     return translations[key]?.[language] || key;
-  };
+  }, [language]);
 
   const getCurrentLanguageText = (text: { ar: string; en: string }) => {
     return language === 'ar' ? text.ar : text.en;
@@ -1276,7 +1280,7 @@ export default function ProgressPage() {
   const APP_NAME = 'Gemini CyberPlan';
   const LOGO_URL = window.location.origin + '/assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
-  const getTaskTypeEmoji = (type) => {
+  const getTaskTypeEmoji = useCallback((type) => {
     switch(type) {
       case 'Blue Team': return '🟦';
       case 'Red Team': return '🟥';
@@ -1284,8 +1288,9 @@ export default function ProgressPage() {
       case 'Practical': return '🟩';
       default: return '';
     }
-  };
-  const getResourceTypeEmoji = (type) => {
+  }, []);
+
+  const getResourceTypeEmoji = useCallback((type) => {
     switch(type) {
       case 'video': return '🎥';
       case 'article': return '📰';
@@ -1300,7 +1305,7 @@ export default function ProgressPage() {
       case 'link': return '🔗';
       default: return '';
     }
-  };
+  }, []);
 
 
 
@@ -1778,9 +1783,15 @@ export default function ProgressPage() {
                   >
                     {isExporting && <LoadingSpinner />}
                     {activeTab === 'overview' && (
-                      <EnhancedOverviewTab stats={stats} language={language} safeT={safeT} />
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <ProgressOverview />
+                      </Suspense>
                     )}
-                    {activeTab === 'analytics' && <EnhancedAnalyticsTab />}
+                    {activeTab === 'analytics' && (
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <ProgressAnalytics />
+                      </Suspense>
+                    )}
                     {activeTab === 'skills' && <EnhancedSkillsTab />}
                     {activeTab === 'achievements' && <EnhancedAchievementsTab />}
                     {activeTab === 'suggestions' && <EnhancedSuggestionsTab language={language} />}
