@@ -21,9 +21,8 @@ export default function MobileBottomBar() {
       return key;
     }
   };
-
-  // إعادة إنشاء العناصر عند تغيير اللغة
-  const navigationItems = React.useMemo(() => [
+  // بناء العناصر في كل رندر حسب اللغة
+  const navigationItems = [
     {
       name: safeT('home'),
       path: '/',
@@ -60,7 +59,15 @@ export default function MobileBottomBar() {
       icon: Settings,
       description: safeT('appSettings')
     }
-  ], [safeT, language]);
+  ];
+  // إعادة ترتيب العناصر في RTL ليكون Home في أقصى اليمين
+  const isRTL = language === 'ar';
+  let navItems = [...navigationItems];
+  if (isRTL) {
+    const home = navItems.find(i => i.path === '/');
+    navItems = navItems.filter(i => i.path !== '/');
+    navItems = [home, ...navItems];
+  }
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -68,16 +75,6 @@ export default function MobileBottomBar() {
     }
     return location.pathname.startsWith(path);
   };
-
-  // إعادة ترتيب العناصر في RTL ليكون Home في أقصى اليمين
-  const isRTL = language === 'ar';
-  let navItems = [...navigationItems];
-  if (isRTL) {
-    // Home في أقصى اليمين
-    const home = navItems.find(i => i.path === '/');
-    navItems = navItems.filter(i => i.path !== '/');
-    navItems = [home, ...navItems];
-  }
 
   return (
     <motion.nav
