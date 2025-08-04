@@ -12,6 +12,10 @@ const Navbar: React.FC = () => {
     const newLang = language === 'ar' ? 'en' : 'ar';
     console.log('Changing language from', language, 'to', newLang);
     setLang(newLang);
+    // Also update localStorage directly
+    localStorage.setItem('app_language', newLang);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: newLang }));
   };
 
   return (
@@ -39,6 +43,9 @@ const Navbar: React.FC = () => {
               title={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
             >
               <Globe className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <span className="sr-only">
+                {language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+              </span>
             </button>
 
             {/* Theme Toggle */}
@@ -52,6 +59,9 @@ const Navbar: React.FC = () => {
               ) : (
                 <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               )}
+              <span className="sr-only">
+                {theme === 'light' ? 'التبديل إلى الوضع المظلم' : 'Switch to Light Mode'}
+              </span>
             </button>
           </div>
         </div>

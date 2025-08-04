@@ -142,7 +142,13 @@ export default function SettingsPage() {
             { value: 'dark', label: t('dark') }
           ],
           value: theme,
-          onChange: (value: string) => setTheme(value as 'light' | 'dark')
+          onChange: (value: string) => {
+            if (value === 'light' && theme === 'dark') {
+              toggleTheme();
+            } else if (value === 'dark' && theme === 'light') {
+              toggleTheme();
+            }
+          }
         },
         {
           key: 'fontSize',
