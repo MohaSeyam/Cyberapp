@@ -1314,7 +1314,7 @@ export default function ProgressPage() {
       const appUrl = window.location.origin;
       
       // Filter data based on advanced options
-      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(advancedExportOptions);
+      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options);
       
       // --- إحصائيات ---
       const totalNotes = filteredNotes.length;
@@ -1414,14 +1414,14 @@ export default function ProgressPage() {
       const supervisorNote = language === 'ar'
         ? 'ملاحظات المشرف: ...............................................................'
         : 'Supervisor Notes: ...............................................................';
-      switch (advancedExportOptions.format) {
+      switch (options.format) {
         case 'json': {
           const exportData = {
             metadata: {
               appName: APP_NAME,
               exportDate: timestamp,
-              reportType: advancedExportOptions.reportType,
-              contentType: advancedExportOptions.contentType,
+                          reportType: options.reportType,
+            contentType: options.contentType,
               language: language,
               totalTasks: filteredTasks.length,
               totalNotes: totalNotes,
@@ -1741,7 +1741,7 @@ export default function ProgressPage() {
     } finally {
       setIsExporting(false);
     }
-  }, [advancedExportOptions, language, stats, plan, progress, appState]);
+  }, [language, plan, progress, appState]);
 
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
