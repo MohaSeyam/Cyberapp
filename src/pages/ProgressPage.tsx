@@ -636,6 +636,118 @@ const EnhancedSuggestionsTab = React.memo(({ language }) => {
   );
 });
 
+// Data filtering function - moved outside components for reuse
+const filterDataByOptions = (options, plan, appState) => {
+  const { reportType, contentType, dateRange, selectedWeek, selectedPhase } = options;
+  const now = new Date();
+  
+  // Filter tasks based on report type
+  let filteredTasks = [];
+  let filteredNotes = [];
+  let filteredResources = [];
+  
+  switch (reportType) {
+    case 'weekly':
+      if (selectedWeek) {
+        // Export specific week data
+        filteredTasks = plan
+          .filter(week => week.week === parseInt(selectedWeek))
+          .flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => note.weekId === parseInt(selectedWeek));
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => resource.weekId === parseInt(selectedWeek));
+      } else {
+        // Export current week data
+        const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
+        filteredTasks = plan
+          .filter(week => week.week === currentWeek)
+          .flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => note.weekId === currentWeek);
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => resource.weekId === currentWeek);
+      }
+      break;
+      
+    case 'phase':
+      if (selectedPhase) {
+        // Export specific phase data
+        const phaseStartWeek = (parseInt(selectedPhase) - 1) * 4 + 1;
+        const phaseEndWeek = parseInt(selectedPhase) * 4;
+        filteredTasks = plan
+          .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
+          .flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
+      } else {
+        // Export current phase data
+        const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const currentPhase = Math.ceil(currentWeek / 4);
+        const phaseStartWeek = (currentPhase - 1) * 4 + 1;
+        const phaseEndWeek = currentPhase * 4;
+        filteredTasks = plan
+          .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
+          .flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
+      }
+      break;
+      
+    case 'complete':
+      // Export all data
+      filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
+      filteredNotes = Object.values(appState.notes).flat();
+      filteredResources = Object.values(appState.resources || {}).flat();
+      break;
+      
+    case 'custom':
+      // Export data within custom date range
+      if (dateRange.start && dateRange.end) {
+        const startDate = new Date(dateRange.start);
+        const endDate = new Date(dateRange.end);
+        
+        filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
+        filteredNotes = Object.values(appState.notes)
+          .flat()
+          .filter(note => {
+            const noteDate = new Date(note.createdAt);
+            return noteDate >= startDate && noteDate <= endDate;
+          });
+        filteredResources = Object.values(appState.resources || {})
+          .flat()
+          .filter(resource => {
+            const resourceDate = new Date(resource.createdAt);
+            return resourceDate >= startDate && resourceDate <= endDate;
+          });
+      }
+      break;
+  }
+  
+  // Filter by content type
+  if (contentType === 'progress') {
+    filteredNotes = [];
+    filteredResources = [];
+  } else if (contentType === 'notes') {
+    filteredTasks = [];
+    filteredResources = [];
+  }
+  
+  return { filteredTasks, filteredNotes, filteredResources };
+};
+
 // Enhanced Reports Tab Component
 const EnhancedReportsTab = React.memo(() => {
   const { plan, progress, appState } = useApp();
@@ -680,7 +792,7 @@ const EnhancedReportsTab = React.memo(() => {
     setIsExporting(true);
     try {
       // Prepare export options based on selections
-      const exportOptions = {
+      const options = {
         reportType: exportOptions.reportType,
         contentType: exportOptions.contentType,
         format: exportOptions.format,
@@ -690,7 +802,7 @@ const EnhancedReportsTab = React.memo(() => {
       };
       
       // Call the main export function with the options
-      await performExport(exportOptions);
+      await performExport(options);
       
       toast.success(
         language === 'ar' 
@@ -719,7 +831,7 @@ const EnhancedReportsTab = React.memo(() => {
     const appUrl = window.location.origin;
     
     // Filter data based on options
-    const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options);
+    const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options, plan, appState);
     
     // Prepare data for export
     const totalNotes = filteredNotes.length;
@@ -1190,118 +1302,7 @@ export default function ProgressPage() {
     }
   };
 
-  // Data filtering function based on export options
-  const filterDataByOptions = useCallback((options) => {
-    const { reportType, contentType, dateRange, selectedWeek, selectedPhase } = options;
-    const now = new Date();
-    
-    // Filter tasks based on report type
-    let filteredTasks = [];
-    let filteredNotes = [];
-    let filteredResources = [];
-    
-    switch (reportType) {
-      case 'weekly':
-        if (selectedWeek) {
-          // Export specific week data
-          filteredTasks = plan
-            .filter(week => week.week === parseInt(selectedWeek))
-            .flatMap(week => week.days.flatMap(day => day.tasks));
-          filteredNotes = Object.values(appState.notes)
-            .flat()
-            .filter(note => note.weekId === parseInt(selectedWeek));
-          filteredResources = Object.values(appState.resources || {})
-            .flat()
-            .filter(resource => resource.weekId === parseInt(selectedWeek));
-        } else {
-          // Export current week data
-          const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
-          filteredTasks = plan
-            .filter(week => week.week === currentWeek)
-            .flatMap(week => week.days.flatMap(day => day.tasks));
-          filteredNotes = Object.values(appState.notes)
-            .flat()
-            .filter(note => note.weekId === currentWeek);
-          filteredResources = Object.values(appState.resources || {})
-            .flat()
-            .filter(resource => resource.weekId === currentWeek);
-        }
-        break;
-        
-      case 'phase':
-        if (selectedPhase) {
-          // Export specific phase data
-          const phaseStartWeek = (parseInt(selectedPhase) - 1) * 4 + 1;
-          const phaseEndWeek = parseInt(selectedPhase) * 4;
-          filteredTasks = plan
-            .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
-            .flatMap(week => week.days.flatMap(day => day.tasks));
-          filteredNotes = Object.values(appState.notes)
-            .flat()
-            .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
-          filteredResources = Object.values(appState.resources || {})
-            .flat()
-            .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
-        } else {
-          // Export current phase data
-          const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
-          const currentPhase = Math.ceil(currentWeek / 4);
-          const phaseStartWeek = (currentPhase - 1) * 4 + 1;
-          const phaseEndWeek = currentPhase * 4;
-          filteredTasks = plan
-            .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
-            .flatMap(week => week.days.flatMap(day => day.tasks));
-          filteredNotes = Object.values(appState.notes)
-            .flat()
-            .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
-          filteredResources = Object.values(appState.resources || {})
-            .flat()
-            .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
-        }
-        break;
-        
-      case 'complete':
-        // Export all data
-        filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes).flat();
-        filteredResources = Object.values(appState.resources || {}).flat();
-        break;
-        
-      case 'custom':
-        // Export data within custom date range
-        if (dateRange.start && dateRange.end) {
-          const startDate = new Date(dateRange.start);
-          const endDate = new Date(dateRange.end);
-          
-          filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
-          filteredNotes = Object.values(appState.notes)
-            .flat()
-            .filter(note => {
-              const noteDate = new Date(note.createdAt);
-              return noteDate >= startDate && noteDate <= endDate;
-            });
-          filteredResources = Object.values(appState.resources || {})
-            .flat()
-            .filter(resource => {
-              const resourceDate = new Date(resource.createdAt);
-              return resourceDate >= startDate && resourceDate <= endDate;
-            });
-        }
-        break;
-    }
-    
-    // Filter by content type
-    if (contentType === 'progress') {
-      filteredNotes = [];
-      filteredResources = [];
-    } else if (contentType === 'notes') {
-      filteredTasks = [];
-      filteredResources = [];
-    }
-    // 'both' includes all data
-    
-    return { filteredTasks, filteredNotes, filteredResources };
-  }, [plan, appState.notes, appState.resources]);
+
 
   const handleExport = useCallback(async () => {
     setIsExporting(true);
@@ -1314,7 +1315,7 @@ export default function ProgressPage() {
       const appUrl = window.location.origin;
       
       // Filter data based on advanced options
-      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options);
+      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options, plan, appState);
       
       // --- إحصائيات ---
       const totalNotes = filteredNotes.length;
