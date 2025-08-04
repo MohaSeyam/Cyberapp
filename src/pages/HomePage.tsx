@@ -209,32 +209,42 @@ export default function HomePage() {
           {safeT('cyberSecurityLearning')}
         </motion.p>
 
-        <motion.div
-          className="flex flex-wrap justify-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => navigate('/phases')}
-            className="text-lg px-8 py-4"
-          >
-            <Rocket className="w-5 h-5 ml-2" />
-            {t('startLearning')}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => navigate('/progress')}
-            className="text-lg px-8 py-4"
-          >
-            <BarChart3 className="w-5 h-5 ml-2" />
-            {t('viewProgress')}
-          </Button>
-        </motion.div>
+                            <motion.div
+                      className="flex flex-wrap justify-center gap-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={() => navigate('/phases')}
+                        className="text-lg px-8 py-4"
+                      >
+                        <Rocket className="w-5 h-5 ml-2" />
+                        {t('startLearning')}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => navigate('/progress')}
+                        className="text-lg px-8 py-4"
+                      >
+                        <BarChart3 className="w-5 h-5 ml-2" />
+                        {t('viewProgress')}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => navigate('/features')}
+                        className="text-lg px-8 py-4"
+                      >
+                        <Lightbulb className="w-5 h-5 ml-2" />
+                        {language === 'ar' ? 'المميزات الجديدة' : 'New Features'}
+                      </Button>
+                    </motion.div>
       </motion.div>
 
       {/* Enhanced Progress Section */}

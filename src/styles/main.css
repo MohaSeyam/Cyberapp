@@ -12,6 +12,7 @@
 @import './content-display.css';
 @import './editor.css';
 @import './fontSizes.css';
+@import './mobile.css';
 
 /* Google Fonts for Arabic support */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');

@@ -640,11 +640,527 @@ const translations: TranslationData = {
     en: "Policies"
   },
   
-  // Enhanced Home Page
-  currentProgress: {
-    ar: "التقدم الحالي",
-    en: "Current Progress"
-  },
+      // Enhanced Home Page
+    currentProgress: {
+      ar: "التقدم الحالي",
+      en: "Current Progress"
+    },
+
+    // Smart Recommendations
+    smartRecommendations: {
+      ar: "التوصيات الذكية",
+      en: "Smart Recommendations"
+    },
+    personalizedRecommendations: {
+      ar: "توصيات مخصصة بناءً على تقدمك وأسلوب تعلمك",
+      en: "Personalized recommendations based on your progress and learning style"
+    },
+    completionRate: {
+      ar: "معدل الإنجاز",
+      en: "Completion Rate"
+    },
+    streakDays: {
+      ar: "أيام التتابع",
+      en: "Streak Days"
+    },
+    avgTime: {
+      ar: "متوسط الوقت",
+      en: "Avg Time"
+    },
+    improveSkills: {
+      ar: "تحسين مهارات",
+      en: "Improve"
+    },
+    focusOnDeveloping: {
+      ar: "ركز على تطوير مهارات",
+      en: "Focus on developing"
+    },
+    buildYourStreak: {
+      ar: "بناء التتابع",
+      en: "Build Your Streak"
+    },
+    tryCompleteOneTask: {
+      ar: "حاول إكمال مهمة واحدة كل يوم لبناء تتابع قوي",
+      en: "Try to complete one task daily to build a strong streak"
+    },
+    handsOnPractice: {
+      ar: "تمارين عملية",
+      en: "Hands-on Practice"
+    },
+    tryVirtualLabs: {
+      ar: "جرب المختبرات الافتراضية والتمارين العملية",
+      en: "Try virtual labs and hands-on exercises"
+    },
+    morningLearning: {
+      ar: "تعلم في الصباح",
+      en: "Morning Learning"
+    },
+    takeAdvantageOfMorning: {
+      ar: "استفد من طاقتك الصباحية للتعلم العميق",
+      en: "Take advantage of your morning energy for deep learning"
+    },
+    afternoonSession: {
+      ar: "جلسة بعد الظهر",
+      en: "Afternoon Session"
+    },
+    perfectTimeForReview: {
+      ar: "وقت مثالي للمراجعة والتطبيق العملي",
+      en: "Perfect time for review and practical application"
+    },
+    eveningLearning: {
+      ar: "تعلم مسائي",
+      en: "Evening Learning"
+    },
+    focusOnTheoretical: {
+      ar: "ركز على المفاهيم النظرية والمراجعة",
+      en: "Focus on theoretical concepts and review"
+    },
+    startSmall: {
+      ar: "ابدأ صغيراً",
+      en: "Start Small"
+    },
+    focusOnOneTask: {
+      ar: "ركز على مهمة واحدة يومياً لبناء العادة",
+      en: "Focus on one task daily to build the habit"
+    },
+    advancedChallenge: {
+      ar: "تحدي متقدم",
+      en: "Advanced Challenge"
+    },
+    tryComplexProjects: {
+      ar: "جرب مشاريع أكثر تعقيداً لاختبار مهاراتك",
+      en: "Try more complex projects to test your skills"
+    },
+    noRecommendationsAvailable: {
+      ar: "لا توجد توصيات حالياً",
+      en: "No recommendations available"
+    },
+    completeMoreTasks: {
+      ar: "اكمل المزيد من المهام لتلقي توصيات مخصصة",
+      en: "Complete more tasks to receive personalized recommendations"
+    },
+    high: {
+      ar: "عالية",
+      en: "High"
+    },
+    medium: {
+      ar: "متوسطة",
+      en: "Medium"
+    },
+    low: {
+      ar: "منخفضة",
+      en: "Low"
+    },
+    beginner: {
+      ar: "مبتدئ",
+      en: "Beginner"
+    },
+    intermediate: {
+      ar: "متوسط",
+      en: "Intermediate"
+    },
+    advanced: {
+      ar: "متقدم",
+      en: "Advanced"
+    },
+    start: {
+      ar: "ابدأ",
+      en: "Start"
+    },
+
+    // Calendar Integration
+    calendarIntegration: {
+      ar: "تكامل التقويم",
+      en: "Calendar Integration"
+    },
+    syncTasksWithCalendars: {
+      ar: "مزامنة المهام والمواعيد مع تقويماتك الخارجية",
+      en: "Sync tasks and appointments with your external calendars"
+    },
+    addEvent: {
+      ar: "إضافة حدث",
+      en: "Add Event"
+    },
+    comingSoon: {
+      ar: "قريباً",
+      en: "Coming Soon"
+    },
+    syncAllTasks: {
+      ar: "مزامنة جميع المهام",
+      en: "Sync All Tasks"
+    },
+    exportAllEvents: {
+      ar: "تصدير جميع الأحداث",
+      en: "Export All Events"
+    },
+    addedEvents: {
+      ar: "الأحداث المضافة",
+      en: "Added Events"
+    },
+    availableTasks: {
+      ar: "المهام المتاحة",
+      en: "Available Tasks"
+    },
+    supportedCalendars: {
+      ar: "التقويمات المدعومة",
+      en: "Supported Calendars"
+    },
+    eventAddedSuccessfully: {
+      ar: "تم إضافة الحدث بنجاح",
+      en: "Event added successfully"
+    },
+    errorAddingEvent: {
+      ar: "خطأ في إضافة الحدث",
+      en: "Error adding event"
+    },
+    successfullySynced: {
+      ar: "تم مزامنة",
+      en: "Successfully synced"
+    },
+    tasks: {
+      ar: "مهمة",
+      en: "tasks"
+    },
+    syncError: {
+      ar: "خطأ في المزامنة",
+      en: "Sync error"
+    },
+    allEventsExported: {
+      ar: "تم تصدير جميع الأحداث",
+      en: "All events exported"
+    },
+    view: {
+      ar: "عرض",
+      en: "View"
+    },
+    close: {
+      ar: "إغلاق",
+      en: "Close"
+    },
+    details: {
+      ar: "التفاصيل",
+      en: "Details"
+    },
+    startDate: {
+      ar: "تاريخ البداية",
+      en: "Start Date"
+    },
+    endDate: {
+      ar: "تاريخ النهاية",
+      en: "End Date"
+    },
+    location: {
+      ar: "الموقع",
+      en: "Location"
+    },
+    addNewEvent: {
+      ar: "إضافة حدث جديد",
+      en: "Add New Event"
+    },
+    eventTitle: {
+      ar: "عنوان الحدث",
+      en: "Event Title"
+    },
+    enterEventTitle: {
+      ar: "أدخل عنوان الحدث",
+      en: "Enter event title"
+    },
+    description: {
+      ar: "الوصف",
+      en: "Description"
+    },
+    enterEventDescription: {
+      ar: "أدخل وصف الحدث",
+      en: "Enter event description"
+    },
+    cancel: {
+      ar: "إلغاء",
+      en: "Cancel"
+    },
+    add: {
+      ar: "إضافة",
+      en: "Add"
+    },
+
+    // Advanced Notifications
+    advancedNotifications: {
+      ar: "الإشعارات المتقدمة",
+      en: "Advanced Notifications"
+    },
+    manageNotificationsCustomize: {
+      ar: "إدارة الإشعارات والتخصيص حسب احتياجاتك",
+      en: "Manage notifications and customize according to your needs"
+    },
+    totalNotifications: {
+      ar: "إجمالي الإشعارات",
+      en: "Total Notifications"
+    },
+    unread: {
+      ar: "غير مقروءة",
+      en: "Unread"
+    },
+    achievements: {
+      ar: "الإنجازات",
+      en: "Achievements"
+    },
+    reminders: {
+      ar: "التذكيرات",
+      en: "Reminders"
+    },
+    createTestNotifications: {
+      ar: "إنشاء إشعارات تجريبية",
+      en: "Create Test Notifications"
+    },
+    markAllAsRead: {
+      ar: "تحديد الكل كمقروء",
+      en: "Mark All as Read"
+    },
+    settings: {
+      ar: "الإعدادات",
+      en: "Settings"
+    },
+    clearAll: {
+      ar: "مسح الكل",
+      en: "Clear All"
+    },
+    notifications: {
+      ar: "الإشعارات",
+      en: "Notifications"
+    },
+    new: {
+      ar: "جديد",
+      en: "new"
+    },
+    noNotifications: {
+      ar: "لا توجد إشعارات",
+      en: "No notifications"
+    },
+    notificationsWillAppear: {
+      ar: "ستظهر الإشعارات هنا عند وجود نشاط جديد",
+      en: "Notifications will appear here when there is new activity"
+    },
+    notificationSettings: {
+      ar: "إعدادات الإشعارات",
+      en: "Notification Settings"
+    },
+    generalSettings: {
+      ar: "الإعدادات العامة",
+      en: "General Settings"
+    },
+    enableNotifications: {
+      ar: "تفعيل الإشعارات",
+      en: "Enable notifications"
+    },
+    notificationSounds: {
+      ar: "أصوات الإشعارات",
+      en: "Notification sounds"
+    },
+    desktopNotifications: {
+      ar: "إشعارات سطح المكتب",
+      en: "Desktop notifications"
+    },
+    notificationTypes: {
+      ar: "أنواع الإشعارات",
+      en: "Notification Types"
+    },
+    learningProgress: {
+      ar: "تقدم التعلم",
+      en: "Learning progress"
+    },
+    systemNotifications: {
+      ar: "إشعارات النظام",
+      en: "System notifications"
+    },
+    quietHours: {
+      ar: "ساعات الهدوء",
+      en: "Quiet Hours"
+    },
+    enableQuietHours: {
+      ar: "تفعيل ساعات الهدوء",
+      en: "Enable quiet hours"
+    },
+    startTime: {
+      ar: "وقت البداية",
+      en: "Start Time"
+    },
+    endTime: {
+      ar: "وقت النهاية",
+      en: "End Time"
+    },
+    markAsRead: {
+      ar: "تحديد كمقروء",
+      en: "Mark as Read"
+    },
+    delete: {
+      ar: "حذف",
+      en: "Delete"
+    },
+
+    // Auto Backup
+    autoBackup: {
+      ar: "النسخ الاحتياطي التلقائي",
+      en: "Auto Backup"
+    },
+    protectYourData: {
+      ar: "حماية بياناتك مع النسخ الاحتياطي التلقائي والمتقدم",
+      en: "Protect your data with automatic and advanced backup"
+    },
+    online: {
+      ar: "متصل بالإنترنت",
+      en: "Online"
+    },
+    offline: {
+      ar: "غير متصل",
+      en: "Offline"
+    },
+    backups: {
+      ar: "النسخ الاحتياطية",
+      en: "Backups"
+    },
+    successful: {
+      ar: "ناجحة",
+      en: "Successful"
+    },
+    totalSize: {
+      ar: "إجمالي الحجم",
+      en: "Total Size"
+    },
+    lastBackup: {
+      ar: "آخر نسخة",
+      en: "Last Backup"
+    },
+    createBackup: {
+      ar: "إنشاء نسخة احتياطية",
+      en: "Create Backup"
+    },
+    backingUp: {
+      ar: "جاري النسخ...",
+      en: "Backing up..."
+    },
+    restore: {
+      ar: "استعادة",
+      en: "Restore"
+    },
+    import: {
+      ar: "استيراد",
+      en: "Import"
+    },
+    export: {
+      ar: "تصدير",
+      en: "Export"
+    },
+    backupCreatedSuccessfully: {
+      ar: "تم إنشاء النسخة الاحتياطية بنجاح",
+      en: "Backup created successfully"
+    },
+    errorCreatingBackup: {
+      ar: "خطأ في إنشاء النسخة الاحتياطية",
+      en: "Error creating backup"
+    },
+    backupUploadedToCloud: {
+      ar: "تم رفع النسخة الاحتياطية إلى السحابة",
+      en: "Backup uploaded to cloud"
+    },
+    errorUploadingBackup: {
+      ar: "خطأ في رفع النسخة الاحتياطية",
+      en: "Error uploading backup"
+    },
+    backupRestoredSuccessfully: {
+      ar: "تم استعادة النسخة الاحتياطية بنجاح",
+      en: "Backup restored successfully"
+    },
+    errorRestoringBackup: {
+      ar: "خطأ في استعادة النسخة الاحتياطية",
+      en: "Error restoring backup"
+    },
+    backupDeleted: {
+      ar: "تم حذف النسخة الاحتياطية",
+      en: "Backup deleted"
+    },
+    backupExported: {
+      ar: "تم تصدير النسخة الاحتياطية",
+      en: "Backup exported"
+    },
+    backupImported: {
+      ar: "تم استيراد النسخة الاحتياطية",
+      en: "Backup imported"
+    },
+    errorImportingBackup: {
+      ar: "خطأ في استيراد النسخة الاحتياطية",
+      en: "Error importing backup"
+    },
+    noBackups: {
+      ar: "لا توجد نسخ احتياطية",
+      en: "No backups"
+    },
+    createBackupToProtect: {
+      ar: "قم بإنشاء نسخة احتياطية لحماية بياناتك",
+      en: "Create a backup to protect your data"
+    },
+    backupSettings: {
+      ar: "إعدادات النسخ الاحتياطي",
+      en: "Backup Settings"
+    },
+    enableBackup: {
+      ar: "تفعيل النسخ الاحتياطي",
+      en: "Enable backup"
+    },
+    autoBackup: {
+      ar: "النسخ الاحتياطي التلقائي",
+      en: "Auto backup"
+    },
+    cloudBackup: {
+      ar: "النسخ الاحتياطي السحابي",
+      en: "Cloud backup"
+    },
+    scheduleSettings: {
+      ar: "إعدادات التكرار",
+      en: "Schedule Settings"
+    },
+    backupIntervalMinutes: {
+      ar: "فترة النسخ الاحتياطي (دقائق)",
+      en: "Backup interval (minutes)"
+    },
+    maxBackups: {
+      ar: "الحد الأقصى للنسخ",
+      en: "Max backups"
+    },
+    backupContent: {
+      ar: "محتوى النسخ الاحتياطي",
+      en: "Backup Content"
+    },
+    includeNotes: {
+      ar: "تضمين الملاحظات",
+      en: "Include notes"
+    },
+    includeProgress: {
+      ar: "تضمين التقدم",
+      en: "Include progress"
+    },
+    includeSettings: {
+      ar: "تضمين الإعدادات",
+      en: "Include settings"
+    },
+    securitySettings: {
+      ar: "إعدادات الأمان",
+      en: "Security Settings"
+    },
+    compressData: {
+      ar: "ضغط البيانات",
+      en: "Compress data"
+    },
+    encryptData: {
+      ar: "تشفير البيانات",
+      en: "Encrypt data"
+    },
+    restoreBackup: {
+      ar: "استعادة النسخة الاحتياطية",
+      en: "Restore Backup"
+    },
+    selectBackupToRestore: {
+      ar: "اختر النسخة الاحتياطية التي تريد استعادتها. تحذير: سيتم استبدال البيانات الحالية.",
+      en: "Select the backup you want to restore. Warning: Current data will be replaced."
+    },
   completed: {
     ar: "مكتمل",
     en: "Completed"

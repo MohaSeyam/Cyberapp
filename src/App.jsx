@@ -20,6 +20,7 @@ const NoteViewPage = lazy(() => import('./pages/NoteViewPage'));
 const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
 const NoteEditPage = lazy(() => import('./pages/NoteEditPage'));
 const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
+const FeaturesDemoPage = lazy(() => import('./pages/FeaturesDemoPage'));
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
               <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
               <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
               <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
+              <Route path="/features" element={<FeaturesDemoPage />} />
             </Routes>
           </Suspense>
         </Router>
