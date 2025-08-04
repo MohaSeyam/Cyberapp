@@ -1383,7 +1383,7 @@ export default function ProgressPage() {
                     value={advancedExportOptions.reportType}
                     onChange={e => setAdvancedExportOptions(o => ({ ...o, reportType: e.target.value }))}
                   >
-                    {REPORT_TYPES.map(opt => (
+                    {(REPORT_TYPES || []).map(opt => (
                       <option key={opt.id} value={opt.id}>{getCurrentLanguageText(opt.label)}</option>
                     ))}
                   </select>
@@ -1396,7 +1396,7 @@ export default function ProgressPage() {
                     value={advancedExportOptions.contentType}
                     onChange={e => setAdvancedExportOptions(o => ({ ...o, contentType: e.target.value }))}
                   >
-                    {CONTENT_TYPES.map(opt => (
+                    {(CONTENT_TYPES || []).map(opt => (
                       <option key={opt.id} value={opt.id}>{getCurrentLanguageText(opt.label)}</option>
                     ))}
                   </select>
@@ -1409,7 +1409,7 @@ export default function ProgressPage() {
                     value={advancedExportOptions.format}
                     onChange={e => setAdvancedExportOptions(o => ({ ...o, format: e.target.value }))}
                   >
-                    {EXPORT_FORMATS.map(opt => (
+                    {(EXPORT_FORMATS || []).map(opt => (
                       <option key={opt.id} value={opt.id}>{opt.label}</option>
                     ))}
                   </select>
@@ -1469,7 +1469,7 @@ export default function ProgressPage() {
                     {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
                   </span>
                   <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText(REPORT_TYPES.find(opt => opt.id === advancedExportOptions.reportType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
+                    {getCurrentLanguageText((REPORT_TYPES || []).find(opt => opt.id === advancedExportOptions.reportType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
@@ -1477,7 +1477,7 @@ export default function ProgressPage() {
                     {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
                   </span>
                   <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText(CONTENT_TYPES.find(opt => opt.id === advancedExportOptions.contentType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
+                    {getCurrentLanguageText((CONTENT_TYPES || []).find(opt => opt.id === advancedExportOptions.contentType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
