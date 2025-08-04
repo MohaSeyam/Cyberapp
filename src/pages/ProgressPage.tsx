@@ -824,6 +824,11 @@ const EnhancedReportsTab = React.memo(() => {
 
   // Main export function that can be called from anywhere
   const performExport = useCallback(async (options) => {
+    if (!plan || !appState) {
+      throw new Error('No data available for export');
+    }
+    
+    try {
     let fileName = 'cybersecurity-report-' + Date.now();
     let blob: Blob;
     const now = new Date();
@@ -960,6 +965,10 @@ const EnhancedReportsTab = React.memo(() => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export error:', error);
+      throw error;
+    }
   }, [language, plan, progress, appState]);
 
   return (
