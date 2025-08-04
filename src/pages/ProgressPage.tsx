@@ -619,6 +619,43 @@ const EnhancedReportsTab = React.memo(({ onExport }) => {
   );
 });
 
+// 1. مكون تبويبات جديد
+function SimpleTabs({ tabs, activeTab, setActiveTab, language }) {
+  const isRTL = language === 'ar';
+  return (
+    <div
+      className={`w-full overflow-x-auto border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-6`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
+      <div
+        className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-2 px-2 py-2`}
+        style={{ minWidth: '400px' }}
+      >
+        {tabs.map((tab, idx) => {
+          const isActive = activeTab === tab.id;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center flex-1 min-w-[80px] px-2 py-2 rounded-lg transition-all duration-200
+                ${isActive ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow font-bold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}
+              `}
+              style={{ outline: isActive ? '2px solid #3B82F6' : 'none' }}
+            >
+              <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600 dark:text-blue-300' : 'text-gray-400 dark:text-gray-500'}`} />
+              <span className="text-xs whitespace-nowrap">{language === 'ar' ? tab.label.ar : tab.label.en}</span>
+              {tab.badge && (
+                <span className="mt-1 text-[10px] bg-yellow-200 text-yellow-800 rounded px-1 py-0.5">{tab.badge}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // --- 3. Main Component (Enhanced) ---
 export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
@@ -1098,73 +1135,16 @@ export default function ProgressPage() {
           <motion.div {...animations.fadeIn} className="space-y-8">
             {/* Overall Progress Card */}
             <OverallProgressCard />
-
-            {/* Enhanced Tab Navigation */}
+            {/* تبويبات جديدة */}
+            <SimpleTabs
+              tabs={ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development')}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              language={language}
+            />
+            {/* محتوى التاب */}
             <Card className="overflow-hidden">
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4">
-                <div className="tab-container">
-                  <div className="flex flex-wrap lg:flex-nowrap gap-2 overflow-x-auto scrollbar-hide">
-                    {ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development').map((tab, index) => {
-                      const isActive = activeTab === tab.id;
-                      const Icon = tab.icon;
-                      const tabStyle = ENHANCED_TAB_STYLES[tab.color as keyof typeof ENHANCED_TAB_STYLES];
-                      
-                      if (['skills', 'achievements'].includes(tab.id) && process.env.NODE_ENV !== 'development') {
-                        return (
-                          <button key={tab.id} className="tab-item flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[140px] opacity-50 cursor-not-allowed">
-                            <tab.icon className="w-6 h-6 mb-2" />
-                            <span className="font-semibold text-sm">{getCurrentLanguageText(tab.label)}</span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden lg:block">{getCurrentLanguageText(tab.description)}</span>
-                            <span className="mt-2 text-xs bg-yellow-200 text-yellow-800 rounded px-2 py-1">{getCurrentLanguageText({ar: 'قريبًا', en: 'Coming Soon'})}</span>
-                          </button>
-                        );
-                      }
-
-                      return (
-                        <motion.button
-                          key={tab.id}
-                          onClick={() => setActiveTab(tab.id)}
-                          className={`tab-item flex-1 lg:flex-none flex flex-col items-center justify-center p-4 min-w-[140px] transition-all duration-300 border-b-2 relative ${
-                            isActive 
-                              ? tabStyle.active + ' ' + tabStyle.border
-                              : 'border-transparent ' + tabStyle.hover + ' ' + tabStyle.text
-                          }`}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          {/* Badge */}
-                          {tab.badge && (
-                            <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                              {tab.badge}
-                            </div>
-                          )}
-                          
-                          <Icon className={`w-6 h-6 mb-2 ${isActive ? 'text-white' : tabStyle.text}`} />
-                          <span className="font-semibold text-sm">
-                            {getCurrentLanguageText(tab.label)}
-                          </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden lg:block">
-                            {getCurrentLanguageText(tab.description)}
-                          </span>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Animated Indicator */}
-                  <motion.div
-                    className="tab-indicator"
-                    layoutId="tab-indicator"
-                    style={{
-                      width: '140px',
-                      left: `${ENHANCED_TABS.findIndex(tab => tab.id === activeTab) * 140}px`
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Enhanced Tab Content */}
-              <div className="mt-6 p-6">
+              <div className="mt-2 p-2">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
