@@ -27,6 +27,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
+import QRCode from 'qrcode';
 
 // Custom CSS for enhanced tabs
 const enhancedTabStyles = `
@@ -689,6 +690,32 @@ export default function ProgressPage() {
   const APP_NAME = 'Gemini CyberPlan';
   const LOGO_URL = window.location.origin + '/assets/Gemini_Generated_Image_26mado26mado26ma.png';
 
+  const getTaskTypeEmoji = (type) => {
+    switch(type) {
+      case 'Blue Team': return '🟦';
+      case 'Red Team': return '🟥';
+      case 'Soft Skills': return '🟨';
+      case 'Practical': return '🟩';
+      default: return '';
+    }
+  };
+  const getResourceTypeEmoji = (type) => {
+    switch(type) {
+      case 'video': return '🎥';
+      case 'article': return '📰';
+      case 'book': return '📖';
+      case 'tool': return '🛠️';
+      case 'podcast': return '🎧';
+      case 'course': return '🎓';
+      case 'quiz': return '❓';
+      case 'project': return '🗂️';
+      case 'community': return '👥';
+      case 'news': return '🗞️';
+      case 'link': return '🔗';
+      default: return '';
+    }
+  };
+
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
@@ -697,63 +724,91 @@ export default function ProgressPage() {
       const now = new Date();
       const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
       const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
-      // بيانات التقرير
-      const rows = [
-        [language === 'ar' ? 'العنصر' : 'Item', language === 'ar' ? 'القيمة' : 'Value'],
-        [language === 'ar' ? 'إجمالي المهام' : 'Total Tasks', stats.totalTasks],
-        [language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks', stats.completedTasks],
-        [language === 'ar' ? 'نسبة الإنجاز' : 'Completion Rate', stats.completionRate.toFixed(1) + '%'],
-        [language === 'ar' ? 'المسار الحالي' : 'Current Streak', stats.currentStreak + (language === 'ar' ? ' أيام' : ' days')],
-        [language === 'ar' ? 'أطول مسار' : 'Longest Streak', stats.longestStreak + (language === 'ar' ? ' أيام' : ' days')],
-      ];
+      const appUrl = window.location.origin;
+      // --- إحصائيات ---
+      const totalNotes = Object.values(appState.notes).flat().length;
+      const totalResources = Object.values(appState.resources || {}).flat().length;
+      const taskTypes = {};
+      plan.forEach(week => week.days.forEach(day => day.tasks.forEach(task => {
+        taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
+      })));
+      const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+      const daysProductivity = {};
+      progress.filter(p=>p.done).forEach(p => {
+        daysProductivity[p.dayKey] = (daysProductivity[p.dayKey] || 0) + 1;
+      });
+      const mostProductiveDay = Object.entries(daysProductivity).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
       // --- جداول المهام ---
       const taskHeaders = language === 'ar'
-        ? ['الأسبوع', 'اليوم', 'عنوان المهمة', 'نوع المهمة', 'المدة (دقيقة)', 'منجزة؟']
-        : ['Week', 'Day', 'Task Title', 'Task Type', 'Duration (min)', 'Done?'];
+        ? ['#️⃣', 'الأسبوع', 'اليوم', 'عنوان المهمة', 'الوصف', 'نوع المهمة', '⏱️ المدة', '✅ منجزة؟', '📅 تاريخ الإنجاز', '📝 عدد الملاحظات']
+        : ['#️⃣', 'Week', 'Day', 'Task Title', 'Description', 'Task Type', '⏱️ Duration', '✅ Done?', '📅 Done Date', '📝 Notes Count'];
       const taskRows = [taskHeaders];
       plan.forEach(week => {
         week.days.forEach(day => {
           day.tasks.forEach(task => {
-            const done = progress.find(p => p.taskId === task.id && p.done);
+            const doneObj = progress.find(p => p.taskId === task.id && p.done);
+            const notesCount = Object.values(appState.notes).flat().filter(n => n.taskId === task.id).length;
             taskRows.push([
+              task.id,
               week.week,
               language === 'ar' ? day.day.ar : day.day.en,
               language === 'ar' ? (task.description.ar.split(' ')[0] || '-') : (task.description.en.split(' ')[0] || '-'),
-              language === 'ar' ? task.type : task.type,
+              language === 'ar' ? task.description.ar : task.description.en,
+              getTaskTypeEmoji(task.type) + ' ' + (language === 'ar' ? task.type : task.type),
               task.duration,
-              done ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No')
+              doneObj ? (language === 'ar' ? '✅ نعم' : '✅ Yes') : (language === 'ar' ? '❌ لا' : '❌ No'),
+              doneObj ? new Date(doneObj.updatedAt || now).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
+              notesCount
             ]);
           });
         });
       });
       // --- جداول الملاحظات ---
       const noteHeaders = language === 'ar'
-        ? ['الأسبوع', 'اليوم', 'عنوان الملاحظة', 'المحتوى', 'الوسوم']
-        : ['Week', 'Day', 'Note Title', 'Content', 'Tags'];
+        ? ['#️⃣', 'الأسبوع', 'اليوم', 'عنوان الملاحظة', 'المحتوى', 'الوسوم', 'تاريخ الإنشاء', 'تاريخ التحديث', 'مرتبطة بمهمة', 'عدد الكلمات']
+        : ['#️⃣', 'Week', 'Day', 'Note Title', 'Content', 'Tags', 'Created', 'Updated', 'Task', 'Word Count'];
       const noteRows = [noteHeaders];
       Object.values(appState.notes).flat().forEach(note => {
         noteRows.push([
+          note.id || '-',
           note.weekId,
           note.dayKey,
           note.title,
           note.content,
-          note.tags.join(', ')
+          note.tags.join(', '),
+          note.createdAt ? new Date(note.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
+          note.updatedAt ? new Date(note.updatedAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
+          note.taskId,
+          note.content.split(' ').length
         ]);
       });
       // --- جداول المراجع ---
       const resourceHeaders = language === 'ar'
-        ? ['الأسبوع', 'اليوم', 'العنوان', 'النوع', 'الرابط']
-        : ['Week', 'Day', 'Title', 'Type', 'URL'];
+        ? ['#️⃣', 'الأسبوع', 'اليوم', 'العنوان', 'النوع', 'الرابط', 'تاريخ الإضافة', 'الوصف', 'تم الاستخدام؟']
+        : ['#️⃣', 'Week', 'Day', 'Title', 'Type', 'URL', 'Added', 'Description', 'Used?'];
       const resourceRows = [resourceHeaders];
       Object.values(appState.resources || {}).flat().forEach(resource => {
         resourceRows.push([
+          resource.id || '-',
           resource.weekId || '-',
           resource.dayIndex || '-',
           resource.title,
-          resource.type,
-          resource.url
+          getResourceTypeEmoji(resource.type) + ' ' + resource.type,
+          resource.url,
+          resource.createdAt ? new Date(resource.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
+          resource.description || '-',
+          '❌'
         ]);
       });
+      // --- QR Code ---
+      let qrDataUrl = '';
+      try {
+        qrDataUrl = await QRCode.toDataURL(appUrl);
+      } catch {}
+      // --- ملاحظات المشرف ---
+      const supervisorNote = language === 'ar'
+        ? 'ملاحظات المشرف: ...............................................................'
+        : 'Supervisor Notes: ...............................................................';
       switch (reportOptions.format) {
         case 'pdf': {
           const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
@@ -793,6 +848,23 @@ export default function ProgressPage() {
             doc.text(`${v}`, 200, y);
             y += 20;
           });
+          // --- إحصائيات ---
+          y += 20;
+          doc.setFontSize(12);
+          doc.setTextColor('#1D4ED8');
+          doc.text((language === 'ar' ? 'عدد الملاحظات:' : 'Total Notes:') + ' ' + totalNotes, 40, y);
+          y += 16;
+          doc.text((language === 'ar' ? 'عدد المراجع:' : 'Total References:') + ' ' + totalResources, 40, y);
+          y += 16;
+          doc.text((language === 'ar' ? 'أكثر نوع مهمة:' : 'Most Task Type:') + ' ' + (language === 'ar' ? mostTaskType : mostTaskType), 40, y);
+          y += 16;
+          doc.text((language === 'ar' ? 'أكثر يوم إنتاجية:' : 'Most Productive Day:') + ' ' + mostProductiveDay, 40, y);
+          y += 20;
+          // --- QR Code ---
+          if (qrDataUrl) {
+            doc.addImage(qrDataUrl, 'PNG', 400, 30, 80, 80);
+          }
+          // --- جداول ---
           // جدول المهام
           y += 30;
           doc.setFontSize(14);
@@ -803,6 +875,10 @@ export default function ProgressPage() {
           doc.setTextColor('#222');
           taskRows.forEach((row, i) => {
             row.forEach((cell, j) => {
+              if (i === 0) doc.setTextColor('#1D4ED8');
+              else if (row[7]?.includes('✅')) doc.setTextColor('#16A34A');
+              else if (row[7]?.includes('❌')) doc.setTextColor('#DC2626');
+              else doc.setTextColor('#222');
               doc.text(String(cell), 50 + j * 90, y);
             });
             y += 14;
@@ -817,7 +893,7 @@ export default function ProgressPage() {
           doc.setTextColor('#222');
           noteRows.forEach((row, i) => {
             row.forEach((cell, j) => {
-              doc.text(String(cell), 50 + j * 120, y);
+              doc.text(String(cell), 50 + j * 80, y);
             });
             y += 14;
           });
@@ -831,10 +907,15 @@ export default function ProgressPage() {
           doc.setTextColor('#222');
           resourceRows.forEach((row, i) => {
             row.forEach((cell, j) => {
-              doc.text(String(cell), 50 + j * 120, y);
+              doc.text(String(cell), 50 + j * 80, y);
             });
             y += 14;
           });
+          // --- ملاحظات المشرف ---
+          y += 30;
+          doc.setFontSize(12);
+          doc.setTextColor('#6366F1');
+          doc.text(supervisorNote, 40, y);
           // تذييل
           doc.setFontSize(10);
           doc.setTextColor('#888');
@@ -847,6 +928,11 @@ export default function ProgressPage() {
           const csv = Papa.unparse([
             ...rows,
             [],
+            [language === 'ar' ? 'عدد الملاحظات' : 'Total Notes', totalNotes],
+            [language === 'ar' ? 'عدد المراجع' : 'Total References', totalResources],
+            [language === 'ar' ? 'أكثر نوع مهمة' : 'Most Task Type', mostTaskType],
+            [language === 'ar' ? 'أكثر يوم إنتاجية' : 'Most Productive Day', mostProductiveDay],
+            [],
             [language === 'ar' ? 'قائمة المهام' : 'Task List'],
             ...taskRows,
             [],
@@ -856,6 +942,7 @@ export default function ProgressPage() {
             [language === 'ar' ? 'المراجع' : 'References'],
             ...resourceRows,
             [],
+            [supervisorNote],
             [language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by', APP_NAME],
             [language === 'ar' ? 'تاريخ التصدير' : 'Export Date', timestamp],
           ]);
@@ -872,6 +959,11 @@ export default function ProgressPage() {
           for (let i = 1; i < rows.length; i++) {
             md += `| ${rows[i][0]} | ${rows[i][1]} |\n`;
           }
+          // --- إحصائيات ---
+          md += `\n- ${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}`;
+          md += `\n- ${language === 'ar' ? 'عدد المراجع' : 'Total References'}: ${totalResources}`;
+          md += `\n- ${language === 'ar' ? 'أكثر نوع مهمة' : 'Most Task Type'}: ${mostTaskType}`;
+          md += `\n- ${language === 'ar' ? 'أكثر يوم إنتاجية' : 'Most Productive Day'}: ${mostProductiveDay}`;
           // المهام
           md += `\n## ${language === 'ar' ? 'قائمة المهام' : 'Task List'}\n`;
           md += `|${taskHeaders.join('|')}|\n|${taskHeaders.map(()=>'---').join('|')}|\n`;
@@ -890,7 +982,7 @@ export default function ProgressPage() {
           for (let i = 1; i < resourceRows.length; i++) {
             md += `|${resourceRows[i].join('|')}|\n`;
           }
-          md += `\n---\n${language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by'} **${APP_NAME}**`;
+          md += `\n---\n${supervisorNote}\n${language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by'} **${APP_NAME}**`;
           blob = new Blob([md], { type: 'text/markdown' });
           fileName += '.md';
           break;
@@ -903,6 +995,11 @@ export default function ProgressPage() {
           for (let i = 1; i < rows.length; i++) {
             txt += `${rows[i][0]}: ${rows[i][1]}\n`;
           }
+          // --- إحصائيات ---
+          txt += `\n${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}\n`;
+          txt += `${language === 'ar' ? 'عدد المراجع' : 'Total References'}: ${totalResources}\n`;
+          txt += `${language === 'ar' ? 'أكثر نوع مهمة' : 'Most Task Type'}: ${mostTaskType}\n`;
+          txt += `${language === 'ar' ? 'أكثر يوم إنتاجية' : 'Most Productive Day'}: ${mostProductiveDay}\n`;
           // المهام
           txt += `\n${language === 'ar' ? 'قائمة المهام' : 'Task List'}\n`;
           txt += taskHeaders.join(' | ') + '\n';
@@ -921,7 +1018,7 @@ export default function ProgressPage() {
           for (let i = 1; i < resourceRows.length; i++) {
             txt += resourceRows[i].join(' | ') + '\n';
           }
-          txt += `\n---\n${language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by'} ${APP_NAME}\n`;
+          txt += `\n---\n${supervisorNote}\n${language === 'ar' ? 'تم توليد التقرير بواسطة' : 'Report generated by'} ${APP_NAME}\n`;
           blob = new Blob([txt], { type: 'text/plain' });
           fileName += '.txt';
           break;
@@ -935,6 +1032,11 @@ export default function ProgressPage() {
             [],
             ...rows,
             [],
+            [language === 'ar' ? 'عدد الملاحظات' : 'Total Notes', totalNotes],
+            [language === 'ar' ? 'عدد المراجع' : 'Total References', totalResources],
+            [language === 'ar' ? 'أكثر نوع مهمة' : 'Most Task Type', mostTaskType],
+            [language === 'ar' ? 'أكثر يوم إنتاجية' : 'Most Productive Day', mostProductiveDay],
+            [],
             [language === 'ar' ? 'قائمة المهام' : 'Task List'],
             ...taskRows,
             [],
@@ -942,7 +1044,9 @@ export default function ProgressPage() {
             ...noteRows,
             [],
             [language === 'ar' ? 'المراجع' : 'References'],
-            ...resourceRows
+            ...resourceRows,
+            [],
+            [supervisorNote]
           ]);
           // رأس ملون
           ws['A7'].s = { fill: { fgColor: { rgb: 'E0E7FF' } }, font: { bold: true } };
