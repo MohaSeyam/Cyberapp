@@ -829,155 +829,166 @@ const EnhancedReportsTab = React.memo(() => {
 
   // Main export function that can be called from anywhere
   const performExport = useCallback(async (options) => {
-    if (!plan || !appState) {
-      throw new Error('No data available for export');
-    }
-    
-    if (!options || !options.format) {
-      throw new Error('Invalid export options');
-    }
-    
     try {
-    let fileName = 'cybersecurity-report-' + Date.now();
-    let blob: Blob;
-    const now = new Date();
-    const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
-    const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
-    const appUrl = window.location.origin;
-    
-    // Filter data based on options
-    const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options, plan, appState);
-    
-    // Prepare data for export
-    const totalNotes = filteredNotes.length;
-    const totalResources = filteredResources.length;
-    const taskTypes = {};
-    filteredTasks.forEach(task => {
-      taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
-    });
-    const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
-    
-    // Create export data based on format
-    switch (options.format) {
-      case 'json': {
-        const exportData = {
-          metadata: {
-            appName: 'Gemini CyberPlan',
-            exportDate: timestamp,
-            reportType: options.reportType,
-            contentType: options.contentType,
-            language: language,
-            totalTasks: filteredTasks.length,
-            totalNotes: totalNotes,
-            totalResources: totalResources,
-            mostTaskType: mostTaskType
-          },
-          tasks: filteredTasks.map(task => ({
-            id: task.id,
-            title: language === 'ar' ? task.description.ar : task.description.en,
-            description: language === 'ar' ? task.description.ar : task.description.en,
-            type: task.type,
-            duration: task.duration,
-            isCompleted: progress.some(p => p.taskId === task.id && p.done),
-            completedDate: progress.find(p => p.taskId === task.id && p.done)?.updatedAt,
-            notesCount: filteredNotes.filter(n => n.taskId === task.id).length
-          })),
-          notes: filteredNotes.map(note => ({
-            id: note.id,
-            title: note.title,
-            content: note.content,
-            tags: note.tags,
-            createdAt: note.createdAt,
-            updatedAt: note.updatedAt,
-            taskId: note.taskId,
-            wordCount: note.content.split(' ').length
-          })),
-          resources: filteredResources.map(resource => ({
-            id: resource.id,
-            title: resource.title,
-            type: resource.type,
-            url: resource.url,
-            description: resource.description,
-            createdAt: resource.createdAt
-          }))
-        };
-        
-        blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        fileName += '.json';
-        break;
+      // Validate inputs
+      if (!plan || !appState) {
+        throw new Error('No data available for export');
       }
-      case 'pdf': {
-        // Dynamic import for jsPDF
-        const jsPDF = await import('jspdf').then(module => module.default);
-        const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(22);
-        doc.setTextColor('#1D4ED8');
-        doc.text(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report', 110, 60, { align: 'left' });
-        doc.setFontSize(12);
-        doc.setTextColor('#333');
-        doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}`, 110, 80, { align: 'left' });
-        
-        // Add basic content
-        let y = 120;
-        doc.setFontSize(14);
-        doc.setTextColor('#1D4ED8');
-        doc.text(language === 'ar' ? 'ملخص التقرير' : 'Report Summary', 40, y);
-        y += 20;
-        doc.setFontSize(12);
-        doc.setTextColor('#222');
-        doc.text(`${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}`, 40, y);
-        y += 16;
-        doc.text(`${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}`, 40, y);
-        y += 16;
-        doc.text(`${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}`, 40, y);
-        
-        blob = doc.output('blob');
-        fileName += '.pdf';
-        break;
+      
+      if (!options || !options.format) {
+        throw new Error('Invalid export options');
       }
-      case 'csv': {
-        const csvData = [
-          ['Task ID', 'Title', 'Type', 'Duration', 'Completed'],
-          ...filteredTasks.map(task => [
-            task.id,
-            language === 'ar' ? task.description.ar : task.description.en,
-            task.type,
-            task.duration,
-            progress.some(p => p.taskId === task.id && p.done) ? 'Yes' : 'No'
-          ])
-        ];
-        
-        // Dynamic import for Papa
-        const Papa = await import('papaparse').then(module => module.default);
-        const csv = Papa.unparse(csvData);
-        blob = new Blob([csv], { type: 'text/csv' });
-        fileName += '.csv';
-        break;
+      
+      let fileName = 'cybersecurity-report-' + Date.now();
+      let blob: Blob;
+      const now = new Date();
+      const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
+      const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
+      const appUrl = window.location.origin;
+      
+      // Filter data based on options
+      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options, plan, appState);
+      
+      // Prepare data for export
+      const totalNotes = filteredNotes.length;
+      const totalResources = filteredResources.length;
+      const taskTypes = {};
+      filteredTasks.forEach(task => {
+        taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
+      });
+      const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+      
+      // Create export data based on format
+      switch (options.format) {
+        case 'json': {
+          const exportData = {
+            metadata: {
+              appName: 'Gemini CyberPlan',
+              exportDate: timestamp,
+              reportType: options.reportType,
+              contentType: options.contentType,
+              language: language,
+              totalTasks: filteredTasks.length,
+              totalNotes: totalNotes,
+              totalResources: totalResources,
+              mostTaskType: mostTaskType
+            },
+            tasks: filteredTasks.map(task => ({
+              id: task.id,
+              title: language === 'ar' ? task.description.ar : task.description.en,
+              description: language === 'ar' ? task.description.ar : task.description.en,
+              type: task.type,
+              duration: task.duration,
+              isCompleted: progress.some(p => p.taskId === task.id && p.done),
+              completedDate: progress.find(p => p.taskId === task.id && p.done)?.updatedAt,
+              notesCount: filteredNotes.filter(n => n.taskId === task.id).length
+            })),
+            notes: filteredNotes.map(note => ({
+              id: note.id,
+              title: note.title,
+              content: note.content,
+              tags: note.tags,
+              createdAt: note.createdAt,
+              updatedAt: note.updatedAt,
+              taskId: note.taskId,
+              wordCount: note.content.split(' ').length
+            })),
+            resources: filteredResources.map(resource => ({
+              id: resource.id,
+              title: resource.title,
+              type: resource.type,
+              url: resource.url,
+              description: resource.description,
+              createdAt: resource.createdAt
+            }))
+          };
+          
+          blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+          fileName += '.json';
+          break;
+        }
+        case 'pdf': {
+          try {
+            // Dynamic import for jsPDF
+            const jsPDF = await import('jspdf').then(module => module.default);
+            const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.setTextColor('#1D4ED8');
+            doc.text(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report', 110, 60, { align: 'left' });
+            doc.setFontSize(12);
+            doc.setTextColor('#333');
+            doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}`, 110, 80, { align: 'left' });
+            
+            // Add basic content
+            let y = 120;
+            doc.setFontSize(14);
+            doc.setTextColor('#1D4ED8');
+            doc.text(language === 'ar' ? 'ملخص التقرير' : 'Report Summary', 40, y);
+            y += 20;
+            doc.setFontSize(12);
+            doc.setTextColor('#222');
+            doc.text(`${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}`, 40, y);
+            y += 16;
+            doc.text(`${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}`, 40, y);
+            y += 16;
+            doc.text(`${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}`, 40, y);
+            
+            blob = doc.output('blob');
+            fileName += '.pdf';
+          } catch (pdfError) {
+            console.error('PDF generation error:', pdfError);
+            throw new Error('Failed to generate PDF. Please try another format.');
+          }
+          break;
+        }
+        case 'csv': {
+          try {
+            const csvData = [
+              ['Task ID', 'Title', 'Type', 'Duration', 'Completed'],
+              ...filteredTasks.map(task => [
+                task.id,
+                language === 'ar' ? task.description.ar : task.description.en,
+                task.type,
+                task.duration,
+                progress.some(p => p.taskId === task.id && p.done) ? 'Yes' : 'No'
+              ])
+            ];
+            
+            // Dynamic import for Papa
+            const Papa = await import('papaparse').then(module => module.default);
+            const csv = Papa.unparse(csvData);
+            blob = new Blob([csv], { type: 'text/csv' });
+            fileName += '.csv';
+          } catch (csvError) {
+            console.error('CSV generation error:', csvError);
+            throw new Error('Failed to generate CSV. Please try another format.');
+          }
+          break;
+        }
+        default: {
+          // Default to text format
+          let txt = `${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
+          txt += `${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}\n\n`;
+          txt += `${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}\n`;
+          txt += `${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}\n`;
+          txt += `${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}\n`;
+          
+          blob = new Blob([txt], { type: 'text/plain' });
+          fileName += '.txt';
+          break;
+        }
       }
-      default: {
-        // Default to text format
-        let txt = `${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
-        txt += `${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}\n\n`;
-        txt += `${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}\n`;
-        txt += `${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}\n`;
-        txt += `${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}\n`;
-        
-        blob = new Blob([txt], { type: 'text/plain' });
-        fileName += '.txt';
-        break;
-      }
-    }
-    
-    // Download the file
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      
+      // Download the file
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Export error:', error);
       throw error;
@@ -1329,103 +1340,7 @@ export default function ProgressPage() {
 
 
 
-  const handleExport = useCallback(async () => {
-    setIsExporting(true);
-    try {
-      let fileName = 'cybersecurity-report-' + Date.now();
-      let blob: Blob;
-      const now = new Date();
-      const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
-      const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
-      const appUrl = window.location.origin;
-      
-      // Filter data based on advanced options
-      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options, plan, appState);
-      
-      // --- إحصائيات ---
-      const totalNotes = filteredNotes.length;
-      const totalResources = filteredResources.length;
-      const taskTypes = {};
-      filteredTasks.forEach(task => {
-        taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
-      });
-      const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
-      const daysProductivity = {};
-      progress.filter(p => p.done && filteredTasks.some(t => t.id === p.taskId)).forEach(p => {
-        daysProductivity[p.dayKey] = (daysProductivity[p.dayKey] || 0) + 1;
-      });
-      const mostProductiveDay = Object.entries(daysProductivity).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
-      
-      // --- جداول المهام ---
-      const taskHeaders = language === 'ar'
-        ? ['#️⃣', 'الأسبوع', 'اليوم', 'عنوان المهمة', 'الوصف', 'نوع المهمة', '⏱️ المدة', '✅ منجزة؟', '📅 تاريخ الإنجاز', '📝 عدد الملاحظات']
-        : ['#️⃣', 'Week', 'Day', 'Task Title', 'Description', 'Task Type', '⏱️ Duration', '✅ Done?', '📅 Done Date', '📝 Notes Count'];
-      const taskRows = [taskHeaders];
-      
-      // Find week and day info for filtered tasks
-      filteredTasks.forEach(task => {
-        let weekInfo = 'Unknown';
-        let dayInfo = 'Unknown';
-        
-        // Find the week and day for this task
-        plan.forEach(week => {
-          week.days.forEach(day => {
-            if (day.tasks.some(t => t.id === task.id)) {
-              weekInfo = week.week;
-              dayInfo = language === 'ar' ? day.day.ar : day.day.en;
-            }
-          });
-        });
-        
-        const doneObj = progress.find(p => p.taskId === task.id && p.done);
-        const notesCount = filteredNotes.filter(n => n.taskId === task.id).length;
-        taskRows.push([
-          task.id,
-          weekInfo,
-          dayInfo,
-          language === 'ar' ? (task.description.ar.split(' ')[0] || '-') : (task.description.en.split(' ')[0] || '-'),
-          language === 'ar' ? task.description.ar : task.description.en,
-          getTaskTypeEmoji(task.type) + ' ' + (language === 'ar' ? task.type : task.type),
-          task.duration,
-          doneObj ? (language === 'ar' ? '✅ نعم' : '✅ Yes') : (language === 'ar' ? '❌ لا' : '❌ No'),
-          doneObj ? new Date(doneObj.updatedAt || now).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
-          notesCount
-        ]);
-      });
-      
-      // --- جداول الملاحظات ---
-      const noteHeaders = language === 'ar'
-        ? ['#️⃣', 'الأسبوع', 'اليوم', 'عنوان الملاحظة', 'المحتوى', 'الوسوم', 'تاريخ الإنشاء', 'تاريخ التحديث', 'مرتبطة بمهمة', 'عدد الكلمات']
-        : ['#️⃣', 'Week', 'Day', 'Note Title', 'Content', 'Tags', 'Created', 'Updated', 'Task', 'Word Count'];
-      const noteRows = [noteHeaders];
-      filteredNotes.forEach(note => {
-        noteRows.push([
-          note.id || '-',
-          note.weekId,
-          note.dayKey,
-          note.title,
-          note.content,
-          note.tags.join(', '),
-          note.createdAt ? new Date(note.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
-          note.updatedAt ? new Date(note.updatedAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
-          note.taskId,
-          note.content.split(' ').length
-        ]);
-      });
-      
-      // --- جداول المراجع ---
-      const resourceHeaders = language === 'ar'
-        ? ['#️⃣', 'الأسبوع', 'اليوم', 'العنوان', 'النوع', 'الرابط', 'تاريخ الإضافة', 'الوصف', 'تم الاستخدام؟']
-        : ['#️⃣', 'Week', 'Day', 'Title', 'Type', 'URL', 'Added', 'Description', 'Used?'];
-      const resourceRows = [resourceHeaders];
-      filteredResources.forEach(resource => {
-        resourceRows.push([
-          resource.id || '-',
-          resource.weekId || '-',
-          resource.dayIndex || '-',
-          resource.title,
-          getResourceTypeEmoji(resource.type) + ' ' + resource.type,
-          resource.url,
+  // Remove duplicate handleExport function - using the one above with performExport
           resource.createdAt ? new Date(resource.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
           resource.description || '-',
           '❌'

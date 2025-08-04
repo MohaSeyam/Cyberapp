@@ -1,1310 +1,805 @@
-/* Enhanced RTL Support - Same Layout as English but Reversed */
+/* RTL Support for Arabic Language */
+/* This file contains comprehensive RTL (Right-to-Left) styles for Arabic text direction */
 
-/* ===== RTL Direction and Text Alignment ===== */
+/* Base RTL Container */
+.rtl-container {
+  direction: rtl;
+  text-align: right;
+}
+
+/* RTL Direction for Arabic */
 [dir="rtl"] {
   direction: rtl;
   text-align: right;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
 }
 
-/* ===== Arabic Font Improvements ===== */
-.arabic-font {
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 400;
-  line-height: 1.8;
-  letter-spacing: 0.01em;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-[dir="rtl"] .arabic-font {
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 400;
-  line-height: 1.8;
-  letter-spacing: 0.01em;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ===== RTL Layout Container ===== */
-.rtl-container {
-  direction: rtl;
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* ===== Enhanced Text Rendering for Arabic ===== */
-[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 600;
-  line-height: 1.6;
-  letter-spacing: 0.02em;
-}
-
-[dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] div {
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.8;
-  letter-spacing: 0.01em;
-}
-
-/* ===== Flex Direction Adjustments - Same as English but Reversed ===== */
+/* Flex Direction Reversal */
+.rtl .flex,
 [dir="rtl"] .flex {
   flex-direction: row-reverse;
 }
 
-[dir="rtl"] .flex-row {
+.rtl .flex-col,
+[dir="rtl"] .flex-col {
+  flex-direction: column-reverse;
+}
+
+/* Grid Direction Reversal */
+.rtl .grid,
+[dir="rtl"] .grid {
+  direction: rtl;
+}
+
+/* Spacing and Margins */
+.rtl .space-x-1 > * + *,
+[dir="rtl"] .space-x-1 > * + * {
+  margin-right: 0.25rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-2 > * + *,
+[dir="rtl"] .space-x-2 > * + * {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-3 > * + *,
+[dir="rtl"] .space-x-3 > * + * {
+  margin-right: 0.75rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-4 > * + *,
+[dir="rtl"] .space-x-4 > * + * {
+  margin-right: 1rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-6 > * + *,
+[dir="rtl"] .space-x-6 > * + * {
+  margin-right: 1.5rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-8 > * + *,
+[dir="rtl"] .space-x-8 > * + * {
+  margin-right: 2rem;
+  margin-left: 0;
+}
+
+/* Padding Adjustments */
+.rtl .pl-1,
+[dir="rtl"] .pl-1 {
+  padding-left: 0;
+  padding-right: 0.25rem;
+}
+
+.rtl .pl-2,
+[dir="rtl"] .pl-2 {
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
+.rtl .pl-3,
+[dir="rtl"] .pl-3 {
+  padding-left: 0;
+  padding-right: 0.75rem;
+}
+
+.rtl .pl-4,
+[dir="rtl"] .pl-4 {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+.rtl .pl-6,
+[dir="rtl"] .pl-6 {
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+
+.rtl .pr-1,
+[dir="rtl"] .pr-1 {
+  padding-right: 0;
+  padding-left: 0.25rem;
+}
+
+.rtl .pr-2,
+[dir="rtl"] .pr-2 {
+  padding-right: 0;
+  padding-left: 0.5rem;
+}
+
+.rtl .pr-3,
+[dir="rtl"] .pr-3 {
+  padding-right: 0;
+  padding-left: 0.75rem;
+}
+
+.rtl .pr-4,
+[dir="rtl"] .pr-4 {
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+.rtl .pr-6,
+[dir="rtl"] .pr-6 {
+  padding-right: 0;
+  padding-left: 1.5rem;
+}
+
+/* Margin Adjustments */
+.rtl .ml-1,
+[dir="rtl"] .ml-1 {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+.rtl .ml-2,
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.rtl .ml-3,
+[dir="rtl"] .ml-3 {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.rtl .ml-4,
+[dir="rtl"] .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.rtl .ml-6,
+[dir="rtl"] .ml-6 {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+
+.rtl .mr-1,
+[dir="rtl"] .mr-1 {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}
+
+.rtl .mr-2,
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .mr-3,
+[dir="rtl"] .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+.rtl .mr-4,
+[dir="rtl"] .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+.rtl .mr-6,
+[dir="rtl"] .mr-6 {
+  margin-right: 0;
+  margin-left: 1.5rem;
+}
+
+/* Text Alignment */
+.rtl .text-left,
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+.rtl .text-right,
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* Icon Positioning */
+.rtl .icon-left,
+[dir="rtl"] .icon-left {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .icon-right,
+[dir="rtl"] .icon-right {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Form Elements */
+.rtl input,
+.rtl textarea,
+.rtl select,
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+.rtl .form-input,
+[dir="rtl"] .form-input {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* Button Icon Positioning */
+.rtl .btn-icon-left,
+[dir="rtl"] .btn-icon-left {
   flex-direction: row-reverse;
 }
 
-[dir="rtl"] .flex-row-reverse {
+.rtl .btn-icon-right,
+[dir="rtl"] .btn-icon-right {
   flex-direction: row;
 }
 
-/* ===== Space Utilities - Same as English but Reversed ===== */
-[dir="rtl"] .space-x-1 > * + * {
-  margin-right: 0.25rem !important;
-  margin-left: 0 !important;
+/* Card Layouts */
+.rtl .card-header,
+[dir="rtl"] .card-header {
+  text-align: right;
 }
 
-[dir="rtl"] .space-x-2 > * + * {
-  margin-right: 0.5rem !important;
-  margin-left: 0 !important;
+.rtl .card-body,
+[dir="rtl"] .card-body {
+  text-align: right;
 }
 
-[dir="rtl"] .space-x-3 > * + * {
-  margin-right: 0.75rem !important;
-  margin-left: 0 !important;
+.rtl .card-footer,
+[dir="rtl"] .card-footer {
+  text-align: right;
 }
 
-[dir="rtl"] .space-x-4 > * + * {
-  margin-right: 1rem !important;
-  margin-left: 0 !important;
+/* Navigation */
+.rtl .nav-item,
+[dir="rtl"] .nav-item {
+  text-align: right;
 }
 
-[dir="rtl"] .space-x-6 > * + * {
-  margin-right: 1.5rem !important;
-  margin-left: 0 !important;
+.rtl .nav-link,
+[dir="rtl"] .nav-link {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-[dir="rtl"] .space-x-8 > * + * {
-  margin-right: 2rem !important;
-  margin-left: 0 !important;
+/* Modal */
+.rtl .modal-header,
+[dir="rtl"] .modal-header {
+  text-align: right;
 }
 
-/* ===== Margin and Padding - Same as English but Reversed ===== */
-[dir="rtl"] .mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-[dir="rtl"] .mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-[dir="rtl"] .mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
-[dir="rtl"] .mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
-[dir="rtl"] .mr-6 { margin-right: 0 !important; margin-left: 1.5rem !important; }
-[dir="rtl"] .mr-8 { margin-right: 0 !important; margin-left: 2rem !important; }
-
-[dir="rtl"] .ml-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
-[dir="rtl"] .ml-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
-[dir="rtl"] .ml-3 { margin-left: 0 !important; margin-right: 0.75rem !important; }
-[dir="rtl"] .ml-4 { margin-left: 0 !important; margin-right: 1rem !important; }
-[dir="rtl"] .ml-6 { margin-left: 0 !important; margin-right: 1.5rem !important; }
-[dir="rtl"] .ml-8 { margin-left: 0 !important; margin-right: 2rem !important; }
-
-[dir="rtl"] .pr-1 { padding-right: 0 !important; padding-left: 0.25rem !important; }
-[dir="rtl"] .pr-2 { padding-right: 0 !important; padding-left: 0.5rem !important; }
-[dir="rtl"] .pr-3 { padding-right: 0 !important; padding-left: 0.75rem !important; }
-[dir="rtl"] .pr-4 { padding-right: 0 !important; padding-left: 1rem !important; }
-[dir="rtl"] .pr-6 { padding-right: 0 !important; padding-left: 1.5rem !important; }
-[dir="rtl"] .pr-8 { padding-right: 0 !important; padding-left: 2rem !important; }
-
-[dir="rtl"] .pl-1 { padding-left: 0 !important; padding-right: 0.25rem !important; }
-[dir="rtl"] .pl-2 { padding-left: 0 !important; padding-right: 0.5rem !important; }
-[dir="rtl"] .pl-3 { padding-left: 0 !important; padding-right: 0.75rem !important; }
-[dir="rtl"] .pl-4 { padding-left: 0 !important; padding-right: 1rem !important; }
-[dir="rtl"] .pl-6 { padding-left: 0 !important; padding-right: 1.5rem !important; }
-[dir="rtl"] .pl-8 { padding-left: 0 !important; padding-right: 2rem !important; }
-
-/* ===== Text Alignment - Same as English but Reversed ===== */
-[dir="rtl"] .text-left { text-align: right !important; }
-[dir="rtl"] .text-right { text-align: left !important; }
-
-/* ===== Justify Content - Same as English but Reversed ===== */
-[dir="rtl"] .justify-start { justify-content: flex-end !important; }
-[dir="rtl"] .justify-end { justify-content: flex-start !important; }
-
-/* ===== Icon Positioning - Same as English but Reversed ===== */
-[dir="rtl"] .icon-left {
-  margin-right: 0 !important;
-  margin-left: 0.5rem !important;
+.rtl .modal-body,
+[dir="rtl"] .modal-body {
+  text-align: right;
 }
 
-[dir="rtl"] .icon-right {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+.rtl .modal-footer,
+[dir="rtl"] .modal-footer {
+  text-align: right;
 }
 
-/* ===== Form Elements - Same as English but Reversed ===== */
+/* Table */
+.rtl table,
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+.rtl th,
+.rtl td,
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* Lists */
+.rtl ul,
+.rtl ol,
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+.rtl li,
+[dir="rtl"] li {
+  text-align: right;
+}
+
+/* Progress Indicators */
+.rtl .progress-bar,
+[dir="rtl"] .progress-bar {
+  direction: rtl;
+}
+
+/* Tooltips and Popovers */
+.rtl .tooltip,
+[dir="rtl"] .tooltip {
+  text-align: right;
+}
+
+.rtl .popover,
+[dir="rtl"] .popover {
+  text-align: right;
+}
+
+/* Charts (keep LTR for charts) */
+.rtl .chart-container,
+[dir="rtl"] .chart-container {
+  direction: ltr;
+}
+
+/* Rich Text Editor */
+.rtl .rich-text-editor,
+[dir="rtl"] .rich-text-editor {
+  direction: rtl;
+}
+
+.rtl .rich-text-editor .toolbar,
+[dir="rtl"] .rich-text-editor .toolbar {
+  direction: rtl;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+}
+
+.rtl .rich-text-editor .toolbar .toolbar-group,
+[dir="rtl"] .rich-text-editor .toolbar .toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-direction: row-reverse;
+}
+
+.rtl .rich-text-editor .editor-content,
+[dir="rtl"] .rich-text-editor .editor-content {
+  direction: rtl;
+  text-align: right;
+  padding: 1rem;
+}
+
+.rtl .rich-text-editor .editor-content p,
+[dir="rtl"] .rich-text-editor .editor-content p {
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+.rtl .rich-text-editor .editor-content h1,
+.rtl .rich-text-editor .editor-content h2,
+.rtl .rich-text-editor .editor-content h3,
+.rtl .rich-text-editor .editor-content h4,
+.rtl .rich-text-editor .editor-content h5,
+.rtl .rich-text-editor .editor-content h6,
+[dir="rtl"] .rich-text-editor .editor-content h1,
+[dir="rtl"] .rich-text-editor .editor-content h2,
+[dir="rtl"] .rich-text-editor .editor-content h3,
+[dir="rtl"] .rich-text-editor .editor-content h4,
+[dir="rtl"] .rich-text-editor .editor-content h5,
+[dir="rtl"] .rich-text-editor .editor-content h6 {
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+.rtl .rich-text-editor .editor-content ul,
+.rtl .rich-text-editor .editor-content ol,
+[dir="rtl"] .rich-text-editor .editor-content ul,
+[dir="rtl"] .rich-text-editor .editor-content ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+  text-align: right;
+}
+
+.rtl .rich-text-editor .editor-content li,
+[dir="rtl"] .rich-text-editor .editor-content li {
+  text-align: right;
+}
+
+.rtl .rich-text-editor .editor-content blockquote,
+[dir="rtl"] .rich-text-editor .editor-content blockquote {
+  border-right: 4px solid #3b82f6;
+  border-left: none;
+  padding-right: 1rem;
+  padding-left: 0;
+  margin-right: 0;
+  margin-left: 0;
+  text-align: right;
+}
+
+.rtl .rich-text-editor .editor-content code,
+[dir="rtl"] .rich-text-editor .editor-content code {
+  direction: ltr;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+.rtl .rich-text-editor .editor-content pre,
+[dir="rtl"] .rich-text-editor .editor-content pre {
+  direction: ltr;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+/* Dropdown Fixes */
+.rtl .dropdown,
+[dir="rtl"] .dropdown {
+  position: relative;
+}
+
+.rtl .dropdown-menu,
+[dir="rtl"] .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: auto;
+  z-index: 50;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  color: #374151;
+  text-align: right;
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.rtl .dropdown-item,
+[dir="rtl"] .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #374151;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+}
+
+.rtl .dropdown-item:hover,
+[dir="rtl"] .dropdown-item:hover {
+  color: #1f2937;
+  background-color: #f3f4f6;
+}
+
+/* Button Fixes */
+.rtl .btn,
+[dir="rtl"] .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-direction: row-reverse;
+}
+
+.rtl .btn-icon-left,
+[dir="rtl"] .btn-icon-left {
+  flex-direction: row-reverse;
+}
+
+.rtl .btn-icon-right,
+[dir="rtl"] .btn-icon-right {
+  flex-direction: row;
+}
+
+/* Input Fixes */
+.rtl input,
+.rtl textarea,
+.rtl select,
 [dir="rtl"] input,
 [dir="rtl"] textarea,
 [dir="rtl"] select {
   text-align: right;
   direction: rtl;
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding-right: 0.75rem !important;
-  padding-left: 0.75rem !important;
 }
 
+.rtl input::placeholder,
+.rtl textarea::placeholder,
 [dir="rtl"] input::placeholder,
 [dir="rtl"] textarea::placeholder {
   text-align: right;
-  direction: rtl;
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ===== Button Layout - Same as English but Reversed ===== */
-[dir="rtl"] .btn-icon {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .btn-icon svg {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-[dir="rtl"] .btn-icon span {
-  margin-right: 0.5rem !important;
-  margin-left: 0 !important;
-}
-
-/* ===== Card Layout - Same as English but Reversed ===== */
-[dir="rtl"] .card-header {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .card-actions {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .card-title {
-  text-align: right;
-}
-
-[dir="rtl"] .card-content {
-  text-align: right;
+/* Modal Fixes */
+.rtl .modal,
+[dir="rtl"] .modal {
   direction: rtl;
 }
 
-/* ===== Navigation - Same as English but Reversed ===== */
-[dir="rtl"] .nav-item {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .nav-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-[dir="rtl"] .nav-text {
-  margin-right: 0.5rem !important;
-  margin-left: 0 !important;
-}
-
-/* ===== Modal Layout - Same as English but Reversed ===== */
+.rtl .modal-header,
 [dir="rtl"] .modal-header {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .modal-actions {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .modal-title {
   text-align: right;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
 
-[dir="rtl"] .modal-content {
+.rtl .modal-body,
+[dir="rtl"] .modal-body {
   text-align: right;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.rtl .modal-footer,
+[dir="rtl"] .modal-footer {
+  text-align: right;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+/* Table Fixes */
+.rtl table,
+[dir="rtl"] table {
   direction: rtl;
 }
 
-/* ===== Table Layout - Same as English but Reversed ===== */
-[dir="rtl"] table th,
-[dir="rtl"] table td {
+.rtl th,
+.rtl td,
+[dir="rtl"] th,
+[dir="rtl"] td {
   text-align: right;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
 }
 
-[dir="rtl"] .table-header {
-  text-align: right;
-}
-
-[dir="rtl"] .table-cell {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== List Layout - Same as English but Reversed ===== */
+/* List Fixes */
+.rtl ul,
+.rtl ol,
 [dir="rtl"] ul,
 [dir="rtl"] ol {
-  padding-right: 1.5rem !important;
-  padding-left: 0 !important;
-}
-
-[dir="rtl"] .list-disc {
-  list-style-position: inside;
-}
-
-[dir="rtl"] .list-decimal {
-  list-style-position: inside;
-}
-
-[dir="rtl"] .list-item {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Progress Indicators - Same as English but Reversed ===== */
-[dir="rtl"] .progress-bar {
-  direction: rtl;
-}
-
-[dir="rtl"] .status-indicator {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .progress-text {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Tooltips and Popovers - Same as English but Reversed ===== */
-[dir="rtl"] .tooltip {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .popover {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Chart Containers - Keep LTR for Charts ===== */
-[dir="rtl"] .chart-container {
-  direction: ltr; /* Charts should remain LTR */
-}
-
-[dir="rtl"] .chart-title {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .chart-legend {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Editor Layout - Same as English but Reversed ===== */
-[dir="rtl"] .editor-toolbar {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .editor-content {
-  text-align: right;
-  direction: rtl;
-  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-[dir="rtl"] .editor-button {
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Error Messages - Same as English but Reversed ===== */
-[dir="rtl"] .error-message,
-[dir="rtl"] .success-message,
-[dir="rtl"] .warning-message,
-[dir="rtl"] .info-message {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .form-label {
+  padding-right: 1.5rem;
+  padding-left: 0;
   text-align: right;
 }
 
-[dir="rtl"] .form-help {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Loading States - Same as English but Reversed ===== */
-[dir="rtl"] .loading-spinner {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-[dir="rtl"] .loading-text {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Badges and Tags - Same as English but Reversed ===== */
-[dir="rtl"] .badge {
-  text-align: center;
-  direction: rtl;
-}
-
-[dir="rtl"] .tag {
-  text-align: center;
-  direction: rtl;
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Dropdown Menus - Same as English but Reversed ===== */
-[dir="rtl"] .dropdown-menu {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .menu-item {
+.rtl li,
+[dir="rtl"] li {
   text-align: right;
 }
 
-[dir="rtl"] .dropdown-item {
-  text-align: right;
-  direction: rtl;
-  padding-right: 1rem !important;
-  padding-left: 1rem !important;
-}
-
-/* ===== Pagination - Same as English but Reversed ===== */
-[dir="rtl"] .pagination {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .page-item {
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Breadcrumbs - Same as English but Reversed ===== */
-[dir="rtl"] .breadcrumb {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .breadcrumb-item {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-[dir="rtl"] .breadcrumb-separator {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Alerts and Notifications - Same as English but Reversed ===== */
+/* Alert Fixes */
+.rtl .alert,
 [dir="rtl"] .alert {
   text-align: right;
-  direction: rtl;
+  padding-right: 1rem;
+  padding-left: 1rem;
 }
 
-[dir="rtl"] .notification {
-  text-align: right;
-  direction: rtl;
-}
-
+.rtl .alert-icon,
 [dir="rtl"] .alert-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
+  margin-left: 0.5rem;
+  margin-right: 0;
 }
 
-/* ===== Mobile Responsive RTL ===== */
+/* Toast Fixes */
+.rtl .toast,
+[dir="rtl"] .toast {
+  text-align: right;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.rtl .toast-icon,
+[dir="rtl"] .toast-icon {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Loading Spinner Fixes */
+.rtl .loading-spinner,
+[dir="rtl"] .loading-spinner {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Badge and Tag Fixes */
+.rtl .badge,
+.rtl .tag,
+[dir="rtl"] .badge,
+[dir="rtl"] .tag {
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Avatar Fixes */
+.rtl .avatar,
+[dir="rtl"] .avatar {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Navigation Fixes */
+.rtl .nav,
+[dir="rtl"] .nav {
+  direction: rtl;
+}
+
+.rtl .nav-item,
+[dir="rtl"] .nav-item {
+  text-align: right;
+}
+
+.rtl .nav-link,
+[dir="rtl"] .nav-link {
+  text-align: right;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* Breadcrumb Fixes */
+.rtl .breadcrumb,
+[dir="rtl"] .breadcrumb {
+  direction: rtl;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.rtl .breadcrumb-item,
+[dir="rtl"] .breadcrumb-item {
+  text-align: right;
+}
+
+.rtl .breadcrumb-item + .breadcrumb-item,
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item {
+  padding-right: 0.5rem;
+  padding-left: 0;
+}
+
+.rtl .breadcrumb-item + .breadcrumb-item::before,
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before {
+  padding-right: 0.5rem;
+  padding-left: 0;
+  content: "/";
+}
+
+/* Pagination Fixes */
+.rtl .pagination,
+[dir="rtl"] .pagination {
+  direction: rtl;
+}
+
+.rtl .page-item,
+[dir="rtl"] .page-item {
+  text-align: center;
+}
+
+.rtl .page-link,
+[dir="rtl"] .page-link {
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Progress Bar Fixes */
+.rtl .progress,
+[dir="rtl"] .progress {
+  direction: rtl;
+}
+
+.rtl .progress-bar,
+[dir="rtl"] .progress-bar {
+  direction: rtl;
+  text-align: center;
+}
+
+/* Tooltip Fixes */
+.rtl .tooltip,
+[dir="rtl"] .tooltip {
+  text-align: right;
+}
+
+/* Popover Fixes */
+.rtl .popover,
+[dir="rtl"] .popover {
+  text-align: right;
+}
+
+/* Chart Container Fixes (keep LTR for charts) */
+.rtl .chart-container,
+[dir="rtl"] .chart-container {
+  direction: ltr;
+}
+
+/* Mobile Responsiveness Fixes */
 @media (max-width: 768px) {
+  .rtl .mobile-container,
+  [dir="rtl"] .mobile-container {
+    direction: rtl;
+  }
+  
+  .rtl .mobile-nav,
   [dir="rtl"] .mobile-nav {
-    flex-direction: row-reverse;
+    direction: rtl;
   }
-
-  [dir="rtl"] .mobile-actions {
-    flex-direction: row-reverse;
+  
+  .rtl .mobile-bottom-bar,
+  [dir="rtl"] .mobile-bottom-bar {
+    direction: rtl;
   }
-
+  
+  .rtl .mobile-menu,
   [dir="rtl"] .mobile-menu {
     text-align: right;
   }
-
-  [dir="rtl"] .mobile-item {
+  
+  .rtl .mobile-card,
+  [dir="rtl"] .mobile-card {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  .rtl .mobile-input,
+  [dir="rtl"] .mobile-input {
+    text-align: right;
+    direction: rtl;
+  }
+  
+  .rtl .mobile-button,
+  [dir="rtl"] .mobile-button {
     flex-direction: row-reverse;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .rtl .dark,
+  [dir="rtl"] .dark {
+    color-scheme: dark;
+  }
+  
+  .rtl .dark .bg-white,
+  [dir="rtl"] .dark .bg-white {
+    background-color: #1f2937;
+  }
+  
+  .rtl .dark .text-gray-900,
+  [dir="rtl"] .dark .text-gray-900 {
+    color: #f9fafb;
+  }
+  
+  .rtl .dark .border-gray-200,
+  [dir="rtl"] .dark .border-gray-200 {
+    border-color: #374151;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .rtl .print,
+  [dir="rtl"] .print {
+    direction: rtl;
+  }
+  
+  .rtl .print .page,
+  [dir="rtl"] .print .page {
+    direction: rtl;
     text-align: right;
   }
 }
 
-@media (max-width: 640px) {
-  [dir="rtl"] .sm\:space-x-1 > * + * {
-    margin-right: 0.25rem !important;
-    margin-left: 0 !important;
-  }
-
-  [dir="rtl"] .sm\:space-x-2 > * + * {
-    margin-right: 0.5rem !important;
-    margin-left: 0 !important;
-  }
-
-  [dir="rtl"] .sm\:space-x-3 > * + * {
-    margin-right: 0.75rem !important;
-    margin-left: 0 !important;
-  }
-
-  [dir="rtl"] .sm\:space-x-4 > * + * {
-    margin-right: 1rem !important;
-    margin-left: 0 !important;
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .rtl .high-contrast,
+  [dir="rtl"] .high-contrast {
+    border-width: 2px;
   }
 }
 
-/* ===== Dark Mode RTL Support ===== */
-.dark [dir="rtl"] {
-  color-scheme: dark;
-}
-
-.dark [dir="rtl"] input,
-.dark [dir="rtl"] textarea,
-.dark [dir="rtl"] select {
-  background-color: #1f2937;
-  border-color: #374151;
-  color: #f9fafb;
-}
-
-.dark [dir="rtl"] input::placeholder,
-.dark [dir="rtl"] textarea::placeholder {
-  color: #9ca3af;
-}
-
-/* ===== Enhanced Animations for RTL ===== */
-[dir="rtl"] .slide-in-right {
-  animation: slideInRightRTL 0.3s ease-out;
-}
-
-[dir="rtl"] .slide-in-left {
-  animation: slideInLeftRTL 0.3s ease-out;
-}
-
-@keyframes slideInRightRTL {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .rtl .reduced-motion,
+  [dir="rtl"] .reduced-motion {
+    animation: none;
+    transition: none;
   }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInLeftRTL {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* ===== Enhanced Focus States for RTL ===== */
-[dir="rtl"] .focus-ring {
-  outline-offset: 2px;
-}
-
-[dir="rtl"] .focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* ===== Enhanced Accessibility for RTL ===== */
-[dir="rtl"] [aria-label] {
-  text-align: right;
-}
-
-[dir="rtl"] .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* ===== Tab Layout - Same as English but Reversed ===== */
-[dir="rtl"] .tab-container {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .tab-item {
-  flex-direction: row-reverse;
-  text-align: right;
-}
-
-/* ===== Card Layout - Same as English but Reversed ===== */
-[dir="rtl"] .note-card,
-[dir="rtl"] .journal-card {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .card-meta {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .card-actions {
-  flex-direction: row-reverse;
-}
-
-/* ===== Bottom Navigation - Same as English but Reversed ===== */
-[dir="rtl"] .bottom-nav {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .nav-item {
-  flex-direction: column;
-  text-align: center;
-}
-
-/* ===== Header Layout - Same as English but Reversed ===== */
-[dir="rtl"] .header {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .header-actions {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .header-title {
-  text-align: right;
-  direction: rtl;
-  margin-right: 0 !important;
-  margin-left: 1rem !important;
-}
-
-/* ===== Search and Filter - Same as English but Reversed ===== */
-[dir="rtl"] .search-container {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .filter-container {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .search-input {
-  text-align: right;
-  direction: rtl;
-  padding-right: 2.5rem !important;
-  padding-left: 0.75rem !important;
-}
-
-/* ===== Form Layout - Same as English but Reversed ===== */
-[dir="rtl"] .form-group {
-  text-align: right;
-}
-
-[dir="rtl"] .form-label {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .form-input {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .form-select {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Button Groups - Same as English but Reversed ===== */
-[dir="rtl"] .button-group {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .action-buttons {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .primary-button {
-  flex-direction: row-reverse;
-}
-
-/* ===== Modal Layout - Same as English but Reversed ===== */
-[dir="rtl"] .modal-header {
-  flex-direction: row-reverse;
-  text-align: right;
-}
-
-[dir="rtl"] .modal-footer {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .modal-title {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .modal-content {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== List Items - Same as English but Reversed ===== */
-[dir="rtl"] .list-item {
-  flex-direction: row-reverse;
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .item-meta {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .item-actions {
-  flex-direction: row-reverse;
-}
-
-/* ===== Status Indicators - Same as English but Reversed ===== */
-[dir="rtl"] .status-indicator {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .progress-indicator {
-  direction: rtl;
-}
-
-[dir="rtl"] .status-text {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Chart Titles - Same as English but Reversed ===== */
-[dir="rtl"] .chart-title {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .chart-legend {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .chart-container {
-  direction: ltr; /* Keep charts LTR */
-}
-
-/* ===== Editor Toolbar - Same as English but Reversed ===== */
-[dir="rtl"] .editor-toolbar {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .toolbar-group {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .toolbar-button {
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Dropdown Menus - Same as English but Reversed ===== */
-[dir="rtl"] .dropdown-menu {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .dropdown-item {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .menu-item {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Alerts - Same as English but Reversed ===== */
-[dir="rtl"] .alert {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .alert-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Toasts - Same as English but Reversed ===== */
-[dir="rtl"] .toast {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .toast-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Progress Bars - Same as English but Reversed ===== */
-[dir="rtl"] .progress-bar {
-  direction: rtl;
-}
-
-[dir="rtl"] .progress-text {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Chart Containers - Keep LTR for Charts ===== */
-[dir="rtl"] .chart-container {
-  direction: ltr; /* Keep charts LTR for proper rendering */
-}
-
-[dir="rtl"] .chart-title {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .chart-legend {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Table Headers - Same as English but Reversed ===== */
-[dir="rtl"] .table-header {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .table-cell {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .table-actions {
-  flex-direction: row-reverse;
-}
-
-/* ===== List Items - Same as English but Reversed ===== */
-[dir="rtl"] .list-item {
-  flex-direction: row-reverse;
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .list-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Badges - Same as English but Reversed ===== */
-[dir="rtl"] .badge {
-  text-align: center;
-  direction: rtl;
-}
-
-[dir="rtl"] .tag {
-  text-align: center;
-  direction: rtl;
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Avatar - Same as English but Reversed ===== */
-[dir="rtl"] .avatar {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Tooltips - Same as English but Reversed ===== */
-[dir="rtl"] .tooltip {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Popovers - Same as English but Reversed ===== */
-[dir="rtl"] .popover {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Menus - Same as English but Reversed ===== */
-[dir="rtl"] .menu {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .menu-item {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .menu-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Breadcrumbs - Same as English but Reversed ===== */
-[dir="rtl"] .breadcrumb {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .breadcrumb-item {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-[dir="rtl"] .breadcrumb-separator {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Pagination - Same as English but Reversed ===== */
-[dir="rtl"] .pagination {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .page-item {
-  margin-left: 0.25rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Status Indicators - Same as English but Reversed ===== */
-[dir="rtl"] .status-indicator {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .status-text {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Loading Spinner - Same as English but Reversed ===== */
-[dir="rtl"] .loading-spinner {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-[dir="rtl"] .loading-text {
-  text-align: right;
-  direction: rtl;
-}
-
-/* ===== Error Messages - Same as English but Reversed ===== */
-[dir="rtl"] .error-message {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .error-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Success Messages - Same as English but Reversed ===== */
-[dir="rtl"] .success-message {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .success-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Warning Messages - Same as English but Reversed ===== */
-[dir="rtl"] .warning-message {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .warning-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Info Messages - Same as English but Reversed ===== */
-[dir="rtl"] .info-message {
-  text-align: right;
-  direction: rtl;
-}
-
-[dir="rtl"] .info-icon {
-  margin-left: 0.5rem !important;
-  margin-right: 0 !important;
-}
-
-/* ===== Enhanced Animations ===== */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ===== Additional RTL Enhancements ===== */
-
-/* Enhanced Grid Layout for RTL */
-[dir="rtl"] .grid {
-  direction: rtl;
-}
-
-/* Enhanced Flexbox for RTL */
-[dir="rtl"] .flex-col {
-  flex-direction: column;
-}
-
-[dir="rtl"] .flex-row-reverse {
-  flex-direction: row;
-}
-
-/* Enhanced Spacing for RTL */
-[dir="rtl"] .gap-1 { gap: 0.25rem !important; }
-[dir="rtl"] .gap-2 { gap: 0.5rem !important; }
-[dir="rtl"] .gap-3 { gap: 0.75rem !important; }
-[dir="rtl"] .gap-4 { gap: 1rem !important; }
-[dir="rtl"] .gap-6 { gap: 1.5rem !important; }
-[dir="rtl"] .gap-8 { gap: 2rem !important; }
-
-/* Enhanced Text Utilities for RTL */
-[dir="rtl"] .text-center {
-  text-align: center;
-}
-
-[dir="rtl"] .text-justify {
-  text-align: justify;
-}
-
-/* Enhanced Border Radius for RTL */
-[dir="rtl"] .rounded-l-lg {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  border-top-right-radius: 0.5rem !important;
-  border-bottom-right-radius: 0.5rem !important;
-}
-
-[dir="rtl"] .rounded-r-lg {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  border-top-left-radius: 0.5rem !important;
-  border-bottom-left-radius: 0.5rem !important;
-}
-
-/* Enhanced Border Colors for RTL */
-[dir="rtl"] .border-l {
-  border-left: none !important;
-  border-right: 1px solid !important;
-}
-
-[dir="rtl"] .border-r {
-  border-right: none !important;
-  border-left: 1px solid !important;
-}
-
-/* Enhanced Shadow for RTL */
-[dir="rtl"] .shadow-l {
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1) !important;
-}
-
-[dir="rtl"] .shadow-r {
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Enhanced Transform for RTL */
-[dir="rtl"] .scale-x-flip {
-  transform: scaleX(-1) !important;
-}
-
-/* Enhanced Position for RTL */
-[dir="rtl"] .left-0 {
-  left: auto !important;
-  right: 0 !important;
-}
-
-[dir="rtl"] .right-0 {
-  right: auto !important;
-  left: 0 !important;
-}
-
-/* Enhanced Z-Index for RTL */
-[dir="rtl"] .z-10 {
-  z-index: 10;
-}
-
-[dir="rtl"] .z-20 {
-  z-index: 20;
-}
-
-[dir="rtl"] .z-30 {
-  z-index: 30;
-}
-
-[dir="rtl"] .z-40 {
-  z-index: 40;
-}
-
-[dir="rtl"] .z-50 {
-  z-index: 50;
-}
-
-/* Enhanced Overflow for RTL */
-[dir="rtl"] .overflow-x-auto {
-  direction: rtl;
-}
-
-[dir="rtl"] .overflow-y-auto {
-  direction: rtl;
-}
-
-/* Enhanced Scroll for RTL */
-[dir="rtl"] .scroll-smooth {
-  scroll-behavior: smooth;
-}
-
-/* Enhanced Cursor for RTL */
-[dir="rtl"] .cursor-pointer {
-  cursor: pointer;
-}
-
-[dir="rtl"] .cursor-not-allowed {
-  cursor: not-allowed;
-}
-
-/* Enhanced User Select for RTL */
-[dir="rtl"] .select-none {
-  user-select: none;
-}
-
-[dir="rtl"] .select-text {
-  user-select: text;
-}
-
-/* Enhanced Pointer Events for RTL */
-[dir="rtl"] .pointer-events-none {
-  pointer-events: none;
-}
-
-[dir="rtl"] .pointer-events-auto {
-  pointer-events: auto;
-}
-
-/* Enhanced Visibility for RTL */
-[dir="rtl"] .visible {
-  visibility: visible;
-}
-
-[dir="rtl"] .invisible {
-  visibility: hidden;
-}
-
-/* Enhanced Opacity for RTL */
-[dir="rtl"] .opacity-0 {
-  opacity: 0;
-}
-
-[dir="rtl"] .opacity-25 {
-  opacity: 0.25;
-}
-
-[dir="rtl"] .opacity-50 {
-  opacity: 0.5;
-}
-
-[dir="rtl"] .opacity-75 {
-  opacity: 0.75;
-}
-
-[dir="rtl"] .opacity-100 {
-  opacity: 1;
-}
-
-/* Enhanced Display for RTL */
-[dir="rtl"] .block {
-  display: block;
-}
-
-[dir="rtl"] .inline-block {
-  display: inline-block;
-}
-
-[dir="rtl"] .inline {
-  display: inline;
-}
-
-[dir="rtl"] .flex {
-  display: flex;
-}
-
-[dir="rtl"] .inline-flex {
-  display: inline-flex;
-}
-
-[dir="rtl"] .grid {
-  display: grid;
-}
-
-[dir="rtl"] .hidden {
-  display: none;
-}
-
-/* Enhanced Position for RTL */
-[dir="rtl"] .static {
-  position: static;
-}
-
-[dir="rtl"] .fixed {
-  position: fixed;
-}
-
-[dir="rtl"] .absolute {
-  position: absolute;
-}
-
-[dir="rtl"] .relative {
-  position: relative;
-}
-
-[dir="rtl"] .sticky {
-  position: sticky;
-}
-
-/* Enhanced Top/Bottom for RTL */
-[dir="rtl"] .top-0 {
-  top: 0;
-}
-
-[dir="rtl"] .bottom-0 {
-  bottom: 0;
-}
-
-[dir="rtl"] .inset-0 {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-/* Enhanced Width/Height for RTL */
-[dir="rtl"] .w-full {
-  width: 100%;
-}
-
-[dir="rtl"] .h-full {
-  height: 100%;
-}
-
-[dir="rtl"] .w-screen {
-  width: 100vw;
-}
-
-[dir="rtl"] .h-screen {
-  height: 100vh;
-}
-
-/* Enhanced Min/Max Width/Height for RTL */
-[dir="rtl"] .min-w-0 {
-  min-width: 0;
-}
-
-[dir="rtl"] .min-h-0 {
-  min-height: 0;
-}
-
-[dir="rtl"] .max-w-full {
-  max-width: 100%;
-}
-
-[dir="rtl"] .max-h-full {
-  max-height: 100%;
-}
-
-/* Enhanced Object Fit for RTL */
-[dir="rtl"] .object-cover {
-  object-fit: cover;
-}
-
-[dir="rtl"] .object-contain {
-  object-fit: contain;
-}
-
-[dir="rtl"] .object-fill {
-  object-fit: fill;
-}
-
-[dir="rtl"] .object-none {
-  object-fit: none;
-}
-
-/* Enhanced Object Position for RTL */
-[dir="rtl"] .object-center {
-  object-position: center;
-}
-
-[dir="rtl"] .object-top {
-  object-position: top;
-}
-
-[dir="rtl"] .object-bottom {
-  object-position: bottom;
-}
-
-[dir="rtl"] .object-left {
-  object-position: left;
-}
-
-[dir="rtl"] .object-right {
-  object-position: right;
-}
-
-/* Enhanced Overflow for RTL */
-[dir="rtl"] .overflow-auto {
-  overflow: auto;
-}
-
-[dir="rtl"] .overflow-hidden {
-  overflow: hidden;
-}
-
-[dir="rtl"] .overflow-visible {
-  overflow: visible;
-}
-
-[dir="rtl"] .overflow-scroll {
-  overflow: scroll;
-}
-
-/* Enhanced Float for RTL */
-[dir="rtl"] .float-right {
-  float: left !important;
-}
-
-[dir="rtl"] .float-left {
-  float: right !important;
-}
-
-[dir="rtl"] .float-none {
-  float: none;
-}
-
-/* Enhanced Clear for RTL */
-[dir="rtl"] .clear-left {
-  clear: right !important;
-}
-
-[dir="rtl"] .clear-right {
-  clear: left !important;
-}
-
-[dir="rtl"] .clear-both {
-  clear: both;
-}
-
-[dir="rtl"] .clear-none {
-  clear: none;
 }
