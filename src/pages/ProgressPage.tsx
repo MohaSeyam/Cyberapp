@@ -637,47 +637,427 @@ const EnhancedSuggestionsTab = React.memo(({ language }) => {
 });
 
 // Enhanced Reports Tab Component
-const EnhancedReportsTab = React.memo(({ onExport }) => {
+const EnhancedReportsTab = React.memo(() => {
+  const { plan, progress, appState } = useApp();
+  const { language } = useLocalization();
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportOptions, setExportOptions] = useState({
+    reportType: 'weekly',
+    contentType: 'both',
+    format: 'pdf',
+    selectedWeek: '',
+    selectedPhase: '',
+    dateRange: { start: '', end: '' }
+  });
+
+  const getCurrentLanguageText = (text: { ar: string; en: string }) => {
+    return language === 'ar' ? text.ar : text.en;
+  };
+
+  // Generate weeks list
+  const weeksList = useMemo(() => {
+    if (!plan) return [];
+    return plan.map(week => ({
+      id: week.week,
+      label: getCurrentLanguageText({ ar: `الأسبوع ${week.week}`, en: `Week ${week.week}` })
+    }));
+  }, [plan, language]);
+
+  // Generate phases list
+  const phasesList = useMemo(() => {
+    if (!plan) return [];
+    const phases = [];
+    for (let i = 1; i <= Math.ceil(plan.length / 4); i++) {
+      phases.push({
+        id: i,
+        label: getCurrentLanguageText({ ar: `المرحلة ${i}`, en: `Phase ${i}` })
+      });
+    }
+    return phases;
+  }, [plan, language]);
+
+  const handleExport = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      // Prepare export options based on selections
+      const exportOptions = {
+        reportType: exportOptions.reportType,
+        contentType: exportOptions.contentType,
+        format: exportOptions.format,
+        dateRange: exportOptions.dateRange,
+        selectedWeek: exportOptions.selectedWeek,
+        selectedPhase: exportOptions.selectedPhase
+      };
+      
+      // Call the main export function with the options
+      await performExport(exportOptions);
+      
+      toast.success(
+        language === 'ar' 
+          ? '✓ تم تصدير التقرير بنجاح' 
+          : '✓ Report exported successfully'
+      );
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(
+        language === 'ar' 
+          ? '❌ فشل في تصدير التقرير' 
+          : '❌ Failed to export report'
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  }, [exportOptions, language]);
+
+  // Main export function that can be called from anywhere
+  const performExport = useCallback(async (options) => {
+    let fileName = 'cybersecurity-report-' + Date.now();
+    let blob: Blob;
+    const now = new Date();
+    const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
+    const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
+    const appUrl = window.location.origin;
+    
+    // Filter data based on options
+    const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options);
+    
+    // Prepare data for export
+    const totalNotes = filteredNotes.length;
+    const totalResources = filteredResources.length;
+    const taskTypes = {};
+    filteredTasks.forEach(task => {
+      taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
+    });
+    const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+    
+    // Create export data based on format
+    switch (options.format) {
+      case 'json': {
+        const exportData = {
+          metadata: {
+            appName: 'Gemini CyberPlan',
+            exportDate: timestamp,
+            reportType: options.reportType,
+            contentType: options.contentType,
+            language: language,
+            totalTasks: filteredTasks.length,
+            totalNotes: totalNotes,
+            totalResources: totalResources,
+            mostTaskType: mostTaskType
+          },
+          tasks: filteredTasks.map(task => ({
+            id: task.id,
+            title: language === 'ar' ? task.description.ar : task.description.en,
+            description: language === 'ar' ? task.description.ar : task.description.en,
+            type: task.type,
+            duration: task.duration,
+            isCompleted: progress.some(p => p.taskId === task.id && p.done),
+            completedDate: progress.find(p => p.taskId === task.id && p.done)?.updatedAt,
+            notesCount: filteredNotes.filter(n => n.taskId === task.id).length
+          })),
+          notes: filteredNotes.map(note => ({
+            id: note.id,
+            title: note.title,
+            content: note.content,
+            tags: note.tags,
+            createdAt: note.createdAt,
+            updatedAt: note.updatedAt,
+            taskId: note.taskId,
+            wordCount: note.content.split(' ').length
+          })),
+          resources: filteredResources.map(resource => ({
+            id: resource.id,
+            title: resource.title,
+            type: resource.type,
+            url: resource.url,
+            description: resource.description,
+            createdAt: resource.createdAt
+          }))
+        };
+        
+        blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        fileName += '.json';
+        break;
+      }
+      case 'pdf': {
+        const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor('#1D4ED8');
+        doc.text(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report', 110, 60, { align: 'left' });
+        doc.setFontSize(12);
+        doc.setTextColor('#333');
+        doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}`, 110, 80, { align: 'left' });
+        
+        // Add basic content
+        let y = 120;
+        doc.setFontSize(14);
+        doc.setTextColor('#1D4ED8');
+        doc.text(language === 'ar' ? 'ملخص التقرير' : 'Report Summary', 40, y);
+        y += 20;
+        doc.setFontSize(12);
+        doc.setTextColor('#222');
+        doc.text(`${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}`, 40, y);
+        y += 16;
+        doc.text(`${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}`, 40, y);
+        y += 16;
+        doc.text(`${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}`, 40, y);
+        
+        blob = doc.output('blob');
+        fileName += '.pdf';
+        break;
+      }
+      case 'csv': {
+        const csvData = [
+          ['Task ID', 'Title', 'Type', 'Duration', 'Completed'],
+          ...filteredTasks.map(task => [
+            task.id,
+            language === 'ar' ? task.description.ar : task.description.en,
+            task.type,
+            task.duration,
+            progress.some(p => p.taskId === task.id && p.done) ? 'Yes' : 'No'
+          ])
+        ];
+        
+        const csv = Papa.unparse(csvData);
+        blob = new Blob([csv], { type: 'text/csv' });
+        fileName += '.csv';
+        break;
+      }
+      default: {
+        // Default to text format
+        let txt = `${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
+        txt += `${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}\n\n`;
+        txt += `${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}\n`;
+        txt += `${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}\n`;
+        txt += `${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}\n`;
+        
+        blob = new Blob([txt], { type: 'text/plain' });
+        fileName += '.txt';
+        break;
+      }
+    }
+    
+    // Download the file
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [language, plan, progress, appState]);
+
   return (
     <div className="space-y-8">
+      {/* Header */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Export Reports</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Generate detailed progress reports</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              {getCurrentLanguageText({ ar: 'تصدير التقارير', en: 'Export Reports' })}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {getCurrentLanguageText({ ar: 'إنشاء تقارير مفصلة للتقدم', en: 'Generate detailed progress reports' })}
+            </p>
           </div>
-          <Download className="w-6 h-6 text-red-500" />
+          <Download className="w-6 h-6 text-blue-500" />
         </div>
+      </Card>
+
+      {/* Export Options */}
+      <Card className="p-6">
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {getCurrentLanguageText({ ar: 'خيارات التصدير', en: 'Export Options' })}
+        </h4>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {[
-            { format: 'PDF', icon: FileText, color: 'red', desc: 'Official printable report' },
-            { format: 'CSV', icon: FileSpreadsheet, color: 'green', desc: 'Structured data for analysis' },
-            { format: 'MD', icon: FileCode, color: 'blue', desc: 'Flexible editable text' }
-          ].map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.format}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`p-4 rounded-lg border-2 border-${item.color}-200 dark:border-${item.color}-700 bg-${item.color}-50 dark:bg-${item.color}-900/20 text-center cursor-pointer hover:shadow-md transition-all duration-300`}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Report Type */}
+          <div>
+            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+              {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}
+            </label>
+            <select
+              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={exportOptions.reportType}
+              onChange={e => setExportOptions(o => ({ ...o, reportType: e.target.value }))}
+            >
+              <option value="weekly">{getCurrentLanguageText({ ar: 'أسبوعي', en: 'Weekly' })}</option>
+              <option value="phase">{getCurrentLanguageText({ ar: 'مرحلي', en: 'Phase' })}</option>
+              <option value="complete">{getCurrentLanguageText({ ar: 'كامل', en: 'Complete' })}</option>
+              <option value="custom">{getCurrentLanguageText({ ar: 'مخصص', en: 'Custom' })}</option>
+            </select>
+          </div>
+
+          {/* Content Type */}
+          <div>
+            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+              {getCurrentLanguageText({ ar: 'نوع المحتوى', en: 'Content Type' })}
+            </label>
+            <select
+              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={exportOptions.contentType}
+              onChange={e => setExportOptions(o => ({ ...o, contentType: e.target.value }))}
+            >
+              <option value="progress">{getCurrentLanguageText({ ar: 'التقدم فقط', en: 'Progress Only' })}</option>
+              <option value="notes">{getCurrentLanguageText({ ar: 'الملاحظات فقط', en: 'Notes Only' })}</option>
+              <option value="both">{getCurrentLanguageText({ ar: 'التقدم والملاحظات', en: 'Progress & Notes' })}</option>
+            </select>
+          </div>
+
+          {/* Week Selection (for weekly reports) */}
+          {exportOptions.reportType === 'weekly' && (
+            <div>
+              <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+                {getCurrentLanguageText({ ar: 'اختر الأسبوع', en: 'Select Week' })}
+              </label>
+              <select
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                value={exportOptions.selectedWeek}
+                onChange={e => setExportOptions(o => ({ ...o, selectedWeek: e.target.value }))}
               >
-                <Icon className={`w-8 h-8 mx-auto mb-2 text-${item.color}-600 dark:text-${item.color}-400`} />
-                <div className="font-semibold text-gray-900 dark:text-white">{item.format}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{item.desc}</div>
-              </motion.div>
-            );
-          })}
+                <option value="">{getCurrentLanguageText({ ar: 'اختر الأسبوع', en: 'Select Week' })}</option>
+                {weeksList.map(week => (
+                  <option key={week.id} value={week.id}>{week.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Phase Selection (for phase reports) */}
+          {exportOptions.reportType === 'phase' && (
+            <div>
+              <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+                {getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}
+              </label>
+              <select
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                value={exportOptions.selectedPhase}
+                onChange={e => setExportOptions(o => ({ ...o, selectedPhase: e.target.value }))}
+              >
+                <option value="">{getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}</option>
+                {phasesList.map(phase => (
+                  <option key={phase.id} value={phase.id}>{phase.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Custom Date Range */}
+          {exportOptions.reportType === 'custom' && (
+            <>
+              <div>
+                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  {getCurrentLanguageText({ ar: 'من تاريخ', en: 'From Date' })}
+                </label>
+                <input
+                  type="date"
+                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  value={exportOptions.dateRange.start}
+                  onChange={e => setExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, start: e.target.value } }))}
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  {getCurrentLanguageText({ ar: 'إلى تاريخ', en: 'To Date' })}
+                </label>
+                <input
+                  type="date"
+                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  value={exportOptions.dateRange.end}
+                  onChange={e => setExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, end: e.target.value } }))}
+                />
+              </div>
+            </>
+          )}
+
+          {/* Format Selection */}
+          <div>
+            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+              {getCurrentLanguageText({ ar: 'صيغة الملف', en: 'File Format' })}
+            </label>
+            <select
+              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              value={exportOptions.format}
+              onChange={e => setExportOptions(o => ({ ...o, format: e.target.value }))}
+            >
+              <option value="pdf">PDF</option>
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+              <option value="markdown">Markdown</option>
+              <option value="txt">Text</option>
+            </select>
+          </div>
         </div>
+      </Card>
+
+      {/* Export Summary */}
+      <Card className="p-6">
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
+        </h4>
         
+        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">
+              {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
+            </span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {getCurrentLanguageText({
+                ar: exportOptions.reportType === 'weekly' ? 'أسبوعي' : 
+                    exportOptions.reportType === 'phase' ? 'مرحلي' : 
+                    exportOptions.reportType === 'complete' ? 'كامل' : 'مخصص',
+                en: exportOptions.reportType === 'weekly' ? 'Weekly' : 
+                    exportOptions.reportType === 'phase' ? 'Phase' : 
+                    exportOptions.reportType === 'complete' ? 'Complete' : 'Custom'
+              })}
+            </span>
+          </div>
+          
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">
+              {getCurrentLanguageText({ ar: 'نوع المحتوى', en: 'Content Type' })}:
+            </span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {getCurrentLanguageText({
+                ar: exportOptions.contentType === 'progress' ? 'التقدم فقط' : 
+                    exportOptions.contentType === 'notes' ? 'الملاحظات فقط' : 'التقدم والملاحظات',
+                en: exportOptions.contentType === 'progress' ? 'Progress Only' : 
+                    exportOptions.contentType === 'notes' ? 'Notes Only' : 'Progress & Notes'
+              })}
+            </span>
+          </div>
+          
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">
+              {getCurrentLanguageText({ ar: 'صيغة الملف', en: 'File Format' })}:
+            </span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {exportOptions.format.toUpperCase()}
+            </span>
+          </div>
+        </div>
+      </Card>
+
+      {/* Export Button */}
+      <Card className="p-6">
         <Button 
-          onClick={onExport} 
-          className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+          onClick={handleExport}
+          disabled={isExporting}
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
         >
-          <Download className="w-5 h-5 mr-2" />
-          Export Report
+          {isExporting ? (
+            <>
+              <LoadingSpinner />
+              <span className="ml-2">{getCurrentLanguageText({ ar: 'جاري التصدير...', en: 'Exporting...' })}</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-5 h-5 mr-2" />
+              {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
+            </>
+          )}
         </Button>
       </Card>
     </div>
@@ -726,21 +1106,6 @@ export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
   const { language } = useLocalization();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [reportOptions, setReportOptions] = useState<ReportOptions>({
-    type: 'weekly',
-    content: 'both',
-    format: 'pdf',
-    language: language as ExportLanguage
-  });
-  const [isExporting, setIsExporting] = useState(false);
-  const [advancedExportOptions, setAdvancedExportOptions] = useState({
-    reportType: 'weekly',
-    contentType: 'both',
-    format: 'pdf',
-    dateRange: { start: '', end: '' },
-  });
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   // All complex calculations are now handled by the custom hook
   const getStreaks = (progress) => {
@@ -827,7 +1192,7 @@ export default function ProgressPage() {
 
   // Data filtering function based on export options
   const filterDataByOptions = useCallback((options) => {
-    const { reportType, contentType, dateRange } = options;
+    const { reportType, contentType, dateRange, selectedWeek, selectedPhase } = options;
     const now = new Date();
     
     // Filter tasks based on report type
@@ -835,37 +1200,64 @@ export default function ProgressPage() {
     let filteredNotes = [];
     let filteredResources = [];
     
-    // Get current week/phase info
-    const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
-    const currentPhase = Math.ceil(currentWeek / 4);
-    
     switch (reportType) {
       case 'weekly':
-        // Export current week data
-        filteredTasks = plan
-          .filter(week => week.week === currentWeek)
-          .flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => note.weekId === currentWeek);
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => resource.weekId === currentWeek);
+        if (selectedWeek) {
+          // Export specific week data
+          filteredTasks = plan
+            .filter(week => week.week === parseInt(selectedWeek))
+            .flatMap(week => week.days.flatMap(day => day.tasks));
+          filteredNotes = Object.values(appState.notes)
+            .flat()
+            .filter(note => note.weekId === parseInt(selectedWeek));
+          filteredResources = Object.values(appState.resources || {})
+            .flat()
+            .filter(resource => resource.weekId === parseInt(selectedWeek));
+        } else {
+          // Export current week data
+          const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
+          filteredTasks = plan
+            .filter(week => week.week === currentWeek)
+            .flatMap(week => week.days.flatMap(day => day.tasks));
+          filteredNotes = Object.values(appState.notes)
+            .flat()
+            .filter(note => note.weekId === currentWeek);
+          filteredResources = Object.values(appState.resources || {})
+            .flat()
+            .filter(resource => resource.weekId === currentWeek);
+        }
         break;
         
       case 'phase':
-        // Export current phase data (4 weeks)
-        const phaseStartWeek = (currentPhase - 1) * 4 + 1;
-        const phaseEndWeek = currentPhase * 4;
-        filteredTasks = plan
-          .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
-          .flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
+        if (selectedPhase) {
+          // Export specific phase data
+          const phaseStartWeek = (parseInt(selectedPhase) - 1) * 4 + 1;
+          const phaseEndWeek = parseInt(selectedPhase) * 4;
+          filteredTasks = plan
+            .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
+            .flatMap(week => week.days.flatMap(day => day.tasks));
+          filteredNotes = Object.values(appState.notes)
+            .flat()
+            .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
+          filteredResources = Object.values(appState.resources || {})
+            .flat()
+            .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
+        } else {
+          // Export current phase data
+          const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
+          const currentPhase = Math.ceil(currentWeek / 4);
+          const phaseStartWeek = (currentPhase - 1) * 4 + 1;
+          const phaseEndWeek = currentPhase * 4;
+          filteredTasks = plan
+            .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
+            .flatMap(week => week.days.flatMap(day => day.tasks));
+          filteredNotes = Object.values(appState.notes)
+            .flat()
+            .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
+          filteredResources = Object.values(appState.resources || {})
+            .flat()
+            .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
+        }
         break;
         
       case 'complete':
@@ -1391,7 +1783,7 @@ export default function ProgressPage() {
                     {activeTab === 'skills' && <EnhancedSkillsTab />}
                     {activeTab === 'achievements' && <EnhancedAchievementsTab />}
                     {activeTab === 'suggestions' && <EnhancedSuggestionsTab language={language} />}
-                    {activeTab === 'reports' && <EnhancedReportsTab onExport={() => setShowExportModal(true)} />}
+                    {activeTab === 'reports' && <EnhancedReportsTab />}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -1399,158 +1791,7 @@ export default function ProgressPage() {
           </motion.div>
         </PageLayout>
 
-        {/* Export Modal */}
-        <Modal
-          isOpen={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          title={getCurrentLanguageText({ ar: 'تأكيد التصدير', en: 'Confirm Export' })}
-          size="md"
-        >
-          <div className="space-y-6">
-            {/* خيارات متقدمة */}
-            <div className="flex justify-end">
-              <button
-                className="text-blue-600 underline text-sm"
-                onClick={() => setShowAdvancedOptions(v => !v)}
-              >
-                {getCurrentLanguageText({ ar: showAdvancedOptions ? 'إخفاء الخيارات المتقدمة' : 'خيارات متقدمة', en: showAdvancedOptions ? 'Hide Advanced Options' : 'Advanced Options' })}
-              </button>
-            </div>
-            {showAdvancedOptions && (
-              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border mb-4 space-y-4">
-                {/* نوع التقرير */}
-                <div>
-                  <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}</label>
-                  <select
-                    className="w-full p-2 rounded border"
-                    value={advancedExportOptions.reportType}
-                    onChange={e => setAdvancedExportOptions(o => ({ ...o, reportType: e.target.value }))}
-                  >
-                    {(REPORT_TYPES || []).map(opt => (
-                      <option key={opt.id} value={opt.id}>{getCurrentLanguageText(opt.label)}</option>
-                    ))}
-                  </select>
-                </div>
-                {/* نوع البيانات */}
-                <div>
-                  <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'نوع البيانات', en: 'Content Type' })}</label>
-                  <select
-                    className="w-full p-2 rounded border"
-                    value={advancedExportOptions.contentType}
-                    onChange={e => setAdvancedExportOptions(o => ({ ...o, contentType: e.target.value }))}
-                  >
-                    {(CONTENT_TYPES || []).map(opt => (
-                      <option key={opt.id} value={opt.id}>{getCurrentLanguageText(opt.label)}</option>
-                    ))}
-                  </select>
-                </div>
-                {/* الصيغة */}
-                <div>
-                  <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}</label>
-                  <select
-                    className="w-full p-2 rounded border"
-                    value={advancedExportOptions.format}
-                    onChange={e => setAdvancedExportOptions(o => ({ ...o, format: e.target.value }))}
-                  >
-                    {(EXPORT_FORMATS || []).map(opt => (
-                      <option key={opt.id} value={opt.id}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-                {/* نطاق زمني مخصص */}
-                {advancedExportOptions.reportType === 'custom' && (
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'من', en: 'From' })}</label>
-                      <input
-                        type="date"
-                        className="w-full p-2 rounded border"
-                        value={advancedExportOptions.dateRange.start}
-                        onChange={e => setAdvancedExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, start: e.target.value } }))}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block font-medium mb-1">{getCurrentLanguageText({ ar: 'إلى', en: 'To' })}</label>
-                      <input
-                        type="date"
-                        className="w-full p-2 rounded border"
-                        value={advancedExportOptions.dateRange.end}
-                        onChange={e => setAdvancedExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, end: e.target.value } }))}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full mr-4">
-                  <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {getCurrentLanguageText({ ar: 'تأكيد تصدير التقرير', en: 'Confirm Report Export' })}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {getCurrentLanguageText({ 
-                      ar: 'سيتم تصدير التقرير بالخيارات المحددة. قد تستغرق العملية بضع لحظات.',
-                      en: 'The report will be exported with the selected options. This may take a few moments.'
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg">
-              <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-green-600" />
-                {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText((REPORT_TYPES || []).find(opt => opt.id === advancedExportOptions.reportType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'المحتوى', en: 'Content' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm">
-                    {getCurrentLanguageText((CONTENT_TYPES || []).find(opt => opt.id === advancedExportOptions.contentType)?.label || { ar: 'غير محدد', en: 'Unknown' })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {getCurrentLanguageText({ ar: 'الصيغة', en: 'Format' })}:
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900 px-3 py-1 rounded-full text-sm">
-                    {EXPORT_FORMATS.find(opt => opt.id === advancedExportOptions.format)?.label || 'Unknown'}
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={handleExport}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
-              >
-                <Download className="w-5 h-5 mr-2" />
-                {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
-              </Button>
-              <Button
-                onClick={() => setShowExportModal(false)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200"
-              >
-                {getCurrentLanguageText({ ar: 'إلغاء', en: 'Cancel' })}
-              </Button>
-            </div>
-          </div>
-        </Modal>
 
         {/* Custom Styles */}
         <style dangerouslySetInnerHTML={{ __html: enhancedTabStyles }} />
