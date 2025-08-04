@@ -4,18 +4,48 @@
 [dir="rtl"] {
   direction: rtl;
   text-align: right;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
 }
 
 /* ===== Arabic Font Improvements ===== */
 .arabic-font {
   font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[dir="rtl"] .arabic-font {
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== RTL Layout Container ===== */
 .rtl-container {
   direction: rtl;
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Enhanced Text Rendering for Arabic ===== */
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+[dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] div {
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
 }
 
 /* ===== Flex Direction Adjustments ===== */
@@ -31,7 +61,7 @@
   flex-direction: row;
 }
 
-/* ===== Space Utilities for RTL ===== */
+/* ===== Enhanced Space Utilities for RTL ===== */
 [dir="rtl"] .space-x-1 > * + * {
   margin-right: 0.25rem !important;
   margin-left: 0 !important;
@@ -62,7 +92,7 @@
   margin-left: 0 !important;
 }
 
-/* ===== Margin and Padding Adjustments ===== */
+/* ===== Enhanced Margin and Padding Adjustments ===== */
 [dir="rtl"] .mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
 [dir="rtl"] .mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
 [dir="rtl"] .mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
@@ -91,54 +121,60 @@
 [dir="rtl"] .pl-6 { padding-left: 0 !important; padding-right: 1.5rem !important; }
 [dir="rtl"] .pl-8 { padding-left: 0 !important; padding-right: 2rem !important; }
 
-/* ===== Text Alignment ===== */
+/* ===== Enhanced Text Alignment ===== */
 [dir="rtl"] .text-left { text-align: right !important; }
 [dir="rtl"] .text-right { text-align: left !important; }
 
-/* ===== Justify Content ===== */
+/* ===== Enhanced Justify Content ===== */
 [dir="rtl"] .justify-start { justify-content: flex-end !important; }
 [dir="rtl"] .justify-end { justify-content: flex-start !important; }
 
-/* ===== Icon Direction Adjustments ===== */
+/* ===== Enhanced Icon Positioning ===== */
 [dir="rtl"] .icon-left {
-  transform: scaleX(-1);
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .icon-right {
-  transform: scaleX(-1);
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
 }
 
-/* ===== Input and Form Improvements ===== */
+/* ===== Enhanced Input Styling for RTL ===== */
 [dir="rtl"] input,
 [dir="rtl"] textarea,
 [dir="rtl"] select {
   text-align: right;
   direction: rtl;
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
 }
 
 [dir="rtl"] input::placeholder,
 [dir="rtl"] textarea::placeholder {
   text-align: right;
+  direction: rtl;
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ===== Button Improvements ===== */
+/* ===== Enhanced Button Styling ===== */
 [dir="rtl"] .btn-icon {
   flex-direction: row-reverse;
 }
 
 [dir="rtl"] .btn-icon svg {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .btn-icon span {
-  margin-right: 0 !important;
-  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
 }
 
-/* ===== Card and Layout Improvements ===== */
+/* ===== Enhanced Card Styling ===== */
 [dir="rtl"] .card-header {
-  flex-direction: row-reverse;
+  text-align: right;
 }
 
 [dir="rtl"] .card-actions {
@@ -151,26 +187,27 @@
 
 [dir="rtl"] .card-content {
   text-align: right;
+  line-height: 1.8;
 }
 
-/* ===== Navigation Improvements ===== */
+/* ===== Enhanced Navigation ===== */
 [dir="rtl"] .nav-item {
   text-align: right;
 }
 
 [dir="rtl"] .nav-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .nav-text {
-  margin-right: 0 !important;
-  margin-left: 0.5rem !important;
+  margin-right: 0.75rem !important;
+  margin-left: 0 !important;
 }
 
-/* ===== Modal and Dialog Improvements ===== */
+/* ===== Enhanced Modal Styling ===== */
 [dir="rtl"] .modal-header {
-  flex-direction: row-reverse;
+  text-align: right;
 }
 
 [dir="rtl"] .modal-actions {
@@ -183,9 +220,10 @@
 
 [dir="rtl"] .modal-content {
   text-align: right;
+  line-height: 1.8;
 }
 
-/* ===== Table Improvements ===== */
+/* ===== Enhanced Table Styling ===== */
 [dir="rtl"] table th,
 [dir="rtl"] table td {
   text-align: right;
@@ -199,39 +237,43 @@
   text-align: right;
 }
 
-/* ===== List Improvements ===== */
+/* ===== Enhanced List Styling ===== */
 [dir="rtl"] ul,
 [dir="rtl"] ol {
-  padding-right: 1.5rem !important;
-  padding-left: 0 !important;
+  padding-right: 1.5rem;
+  padding-left: 0;
 }
 
 [dir="rtl"] .list-disc {
-  list-style-type: disc;
+  list-style-position: inside;
 }
 
 [dir="rtl"] .list-decimal {
-  list-style-type: decimal;
+  list-style-position: inside;
 }
 
 [dir="rtl"] .list-item {
   text-align: right;
+  line-height: 1.8;
 }
 
-/* ===== Progress and Status Indicators ===== */
+/* ===== Enhanced Progress Indicators ===== */
 [dir="rtl"] .progress-bar {
-  direction: ltr;
+  direction: rtl;
 }
 
 [dir="rtl"] .status-indicator {
-  flex-direction: row-reverse;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .progress-text {
   text-align: right;
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
 }
 
-/* ===== Tooltip and Popover Adjustments ===== */
+/* ===== Enhanced Tooltips and Popovers ===== */
 [dir="rtl"] .tooltip {
   text-align: right;
 }
@@ -240,9 +282,9 @@
   text-align: right;
 }
 
-/* ===== Chart and Graph Improvements ===== */
+/* ===== Enhanced Chart Styling ===== */
 [dir="rtl"] .chart-container {
-  direction: ltr;
+  direction: rtl;
 }
 
 [dir="rtl"] .chart-title {
@@ -253,22 +295,23 @@
   text-align: right;
 }
 
-/* ===== Editor Improvements ===== */
+/* ===== Enhanced Editor Styling ===== */
 [dir="rtl"] .editor-toolbar {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .editor-content {
-  text-align: right;
   direction: rtl;
 }
 
-[dir="rtl"] .editor-button {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+[dir="rtl"] .editor-content {
+  direction: rtl;
+  text-align: right;
+  line-height: 1.8;
 }
 
-/* ===== Form Validation Messages ===== */
+[dir="rtl"] .editor-button {
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
+}
+
+/* ===== Enhanced Form Styling ===== */
 [dir="rtl"] .error-message,
 [dir="rtl"] .success-message,
 [dir="rtl"] .warning-message {
@@ -281,30 +324,33 @@
 
 [dir="rtl"] .form-help {
   text-align: right;
+  line-height: 1.6;
 }
 
-/* ===== Loading States ===== */
+/* ===== Enhanced Loading States ===== */
 [dir="rtl"] .loading-spinner {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .loading-text {
   text-align: right;
 }
 
-/* ===== Badge and Tag Improvements ===== */
+/* ===== Enhanced Badge and Tag Styling ===== */
 [dir="rtl"] .badge {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .tag {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
+  padding-right: 0.5rem !important;
+  padding-left: 0.5rem !important;
 }
 
-/* ===== Dropdown and Menu Improvements ===== */
+/* ===== Enhanced Dropdown Styling ===== */
 [dir="rtl"] .dropdown-menu {
   text-align: right;
 }
@@ -315,34 +361,36 @@
 
 [dir="rtl"] .dropdown-item {
   text-align: right;
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
 }
 
-/* ===== Pagination Improvements ===== */
+/* ===== Enhanced Pagination ===== */
 [dir="rtl"] .pagination {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .page-item {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
 }
 
-/* ===== Breadcrumb Improvements ===== */
+/* ===== Enhanced Breadcrumb ===== */
 [dir="rtl"] .breadcrumb {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .breadcrumb-item {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .breadcrumb-separator {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
-/* ===== Alert and Notification Improvements ===== */
+/* ===== Enhanced Alert and Notification ===== */
 [dir="rtl"] .alert {
   text-align: right;
 }
@@ -352,26 +400,28 @@
 }
 
 [dir="rtl"] .alert-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
 }
 
-/* ===== Responsive RTL Adjustments ===== */
+/* ===== Mobile Responsive RTL ===== */
 @media (max-width: 768px) {
   [dir="rtl"] .mobile-nav {
-    flex-direction: column-reverse;
+    direction: rtl;
   }
-  
+
   [dir="rtl"] .mobile-actions {
     justify-content: flex-start;
   }
-  
+
   [dir="rtl"] .mobile-menu {
     text-align: right;
   }
-  
+
   [dir="rtl"] .mobile-item {
     text-align: right;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
   }
 }
 
@@ -380,30 +430,31 @@
     margin-right: 0.25rem !important;
     margin-left: 0 !important;
   }
-  
+
   [dir="rtl"] .sm\:space-x-2 > * + * {
     margin-right: 0.5rem !important;
     margin-left: 0 !important;
   }
-  
+
   [dir="rtl"] .sm\:space-x-3 > * + * {
     margin-right: 0.75rem !important;
     margin-left: 0 !important;
   }
-  
+
   [dir="rtl"] .sm\:space-x-4 > * + * {
     margin-right: 1rem !important;
     margin-left: 0 !important;
   }
 }
 
-/* ===== Dark Mode RTL Improvements ===== */
+/* ===== Dark Mode RTL Enhancements ===== */
 .dark [dir="rtl"] {
   color-scheme: dark;
 }
 
 .dark [dir="rtl"] input,
-.dark [dir="rtl"] textarea {
+.dark [dir="rtl"] textarea,
+.dark [dir="rtl"] select {
   background-color: rgb(31 41 55);
   border-color: rgb(75 85 99);
   color: rgb(243 244 246);
@@ -414,7 +465,7 @@
   color: rgb(156 163 175);
 }
 
-/* ===== Animation Improvements for RTL ===== */
+/* ===== Enhanced Animation Support ===== */
 [dir="rtl"] .slide-in-right {
   animation: slideInRightRTL 0.3s ease-out;
 }
@@ -425,7 +476,7 @@
 
 @keyframes slideInRightRTL {
   from {
-    transform: translateX(-100%);
+    transform: translateX(100%);
     opacity: 0;
   }
   to {
@@ -436,7 +487,7 @@
 
 @keyframes slideInLeftRTL {
   from {
-    transform: translateX(100%);
+    transform: translateX(-100%);
     opacity: 0;
   }
   to {
@@ -445,9 +496,8 @@
   }
 }
 
-/* ===== Focus States for RTL ===== */
+/* ===== Enhanced Focus States ===== */
 [dir="rtl"] .focus-ring {
-  outline: 2px solid rgb(59 130 246);
   outline-offset: 2px;
 }
 
@@ -456,7 +506,7 @@
   outline-offset: 2px;
 }
 
-/* ===== Accessibility Improvements ===== */
+/* ===== Enhanced Accessibility ===== */
 [dir="rtl"] [aria-label] {
   text-align: right;
 }
@@ -473,45 +523,45 @@
   border: 0;
 }
 
-/* ===== Specific Component Fixes ===== */
-
-/* Progress Page Tabs */
+/* ===== Enhanced Tab Styling ===== */
 [dir="rtl"] .tab-container {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .tab-item {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  text-align: right;
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
 }
 
-/* Notes and Journal Cards */
+/* ===== Enhanced Note Card Styling ===== */
 [dir="rtl"] .note-card,
 [dir="rtl"] .journal-card {
   text-align: right;
 }
 
 [dir="rtl"] .card-meta {
-  flex-direction: row-reverse;
+  text-align: right;
 }
 
 [dir="rtl"] .card-actions {
   justify-content: flex-start;
 }
 
-/* Bottom Navigation */
+/* ===== Enhanced Bottom Navigation ===== */
 [dir="rtl"] .bottom-nav {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .nav-item {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  text-align: center;
+  padding-right: 0.5rem !important;
+  padding-left: 0.5rem !important;
 }
 
-/* Header and Navigation */
+/* ===== Enhanced Header Styling ===== */
 [dir="rtl"] .header {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .header-actions {
@@ -520,41 +570,48 @@
 
 [dir="rtl"] .header-title {
   text-align: right;
+  margin-right: 1rem !important;
+  margin-left: 0 !important;
 }
 
-/* Search and Filter */
+/* ===== Enhanced Search and Filter ===== */
 [dir="rtl"] .search-container {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .filter-container {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .search-input {
   text-align: right;
+  padding-right: 2.5rem !important;
+  padding-left: 0.75rem !important;
 }
 
-/* Forms and Inputs */
+/* ===== Enhanced Form Groups ===== */
 [dir="rtl"] .form-group {
   text-align: right;
 }
 
 [dir="rtl"] .form-label {
   text-align: right;
+  margin-bottom: 0.5rem;
 }
 
 [dir="rtl"] .form-input {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .form-select {
   text-align: right;
+  direction: rtl;
 }
 
-/* Buttons and Actions */
+/* ===== Enhanced Button Groups ===== */
 [dir="rtl"] .button-group {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .action-buttons {
@@ -562,13 +619,15 @@
 }
 
 [dir="rtl"] .primary-button {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
-/* Modals and Dialogs */
+/* ===== Enhanced Modal Components ===== */
 [dir="rtl"] .modal-header {
-  flex-direction: row-reverse;
+  text-align: right;
+  padding-right: 1.5rem !important;
+  padding-left: 1.5rem !important;
 }
 
 [dir="rtl"] .modal-footer {
@@ -577,433 +636,393 @@
 
 [dir="rtl"] .modal-title {
   text-align: right;
+  font-weight: 600;
 }
 
 [dir="rtl"] .modal-content {
   text-align: right;
+  line-height: 1.8;
+  padding-right: 1.5rem !important;
+  padding-left: 1.5rem !important;
 }
 
-/* Lists and Items */
+/* ===== Enhanced List Items ===== */
 [dir="rtl"] .list-item {
   text-align: right;
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
 }
 
 [dir="rtl"] .item-meta {
-  flex-direction: row-reverse;
+  text-align: right;
 }
 
 [dir="rtl"] .item-actions {
   justify-content: flex-start;
 }
 
-/* Status and Indicators */
+/* ===== Enhanced Status Indicators ===== */
 [dir="rtl"] .status-indicator {
-  flex-direction: row-reverse;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .progress-indicator {
-  direction: ltr;
+  direction: rtl;
 }
 
 [dir="rtl"] .status-text {
   text-align: right;
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
 }
 
-/* Charts and Graphs */
+/* ===== Enhanced Chart Components ===== */
 [dir="rtl"] .chart-title {
   text-align: right;
+  margin-bottom: 1rem;
 }
 
 [dir="rtl"] .chart-legend {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .chart-container {
-  direction: ltr;
+  direction: rtl;
+  text-align: right;
 }
 
-/* Editor Toolbar */
+/* ===== Enhanced Editor Toolbar ===== */
 [dir="rtl"] .editor-toolbar {
-  flex-direction: row-reverse;
+  direction: rtl;
+  justify-content: flex-start;
 }
 
 [dir="rtl"] .toolbar-group {
-  flex-direction: row-reverse;
+  direction: rtl;
 }
 
 [dir="rtl"] .toolbar-button {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
+  padding-right: 0.5rem !important;
+  padding-left: 0.5rem !important;
 }
 
-/* Dropdown Menus */
+/* ===== Enhanced Dropdown Menus ===== */
 [dir="rtl"] .dropdown-menu {
   text-align: right;
+  right: auto !important;
+  left: 0 !important;
 }
 
 [dir="rtl"] .dropdown-item {
   text-align: right;
+  padding: 0.5rem 1rem;
 }
 
+/* ===== Enhanced Menu Items ===== */
 [dir="rtl"] .menu-item {
   text-align: right;
+  padding: 0.5rem 1rem;
 }
 
-/* Alerts and Notifications */
+/* ===== Enhanced Alert Components ===== */
 [dir="rtl"] .alert {
   text-align: right;
-}
-
-[dir="rtl"] .notification {
-  text-align: right;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
 }
 
 [dir="rtl"] .alert-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-/* Loading States */
-[dir="rtl"] .loading-container {
-  text-align: right;
-}
-
-[dir="rtl"] .loading-spinner {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-[dir="rtl"] .loading-text {
-  text-align: right;
-}
-
-/* Print Styles for RTL */
-@media print {
-  [dir="rtl"] {
-    direction: rtl;
-    text-align: right;
-  }
-  
-  [dir="rtl"] .print-header {
-    flex-direction: row-reverse;
-  }
-  
-  [dir="rtl"] .print-content {
-    text-align: right;
-  }
-  
-  [dir="rtl"] .print-footer {
-    text-align: right;
-  }
-}
-
-/* ===== Additional RTL Improvements ===== */
-
-/* Modal and Dialog RTL Fixes */
-[dir="rtl"] .modal-content {
-  text-align: right;
-}
-
-[dir="rtl"] .modal-header {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .modal-footer {
-  justify-content: flex-start;
-}
-
-[dir="rtl"] .modal-close {
-  margin-left: 0 !important;
-  margin-right: auto !important;
-}
-
-/* Button RTL Fixes */
-[dir="rtl"] .btn-group {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .btn-icon-left {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .btn-icon-right {
-  flex-direction: row;
-}
-
-/* Form RTL Fixes */
-[dir="rtl"] .form-group {
-  text-align: right;
-}
-
-[dir="rtl"] .form-label {
-  text-align: right;
-}
-
-[dir="rtl"] .form-input {
-  text-align: right;
-}
-
-[dir="rtl"] .form-select {
-  text-align: right;
-}
-
-[dir="rtl"] .form-checkbox {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-[dir="rtl"] .form-radio {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-/* Card RTL Fixes */
-[dir="rtl"] .card-header {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .card-title {
-  text-align: right;
-}
-
-[dir="rtl"] .card-content {
-  text-align: right;
-}
-
-[dir="rtl"] .card-actions {
-  justify-content: flex-start;
-}
-
-/* Navigation RTL Fixes */
-[dir="rtl"] .nav-menu {
-  text-align: right;
-}
-
-[dir="rtl"] .nav-item {
-  text-align: right;
-}
-
-[dir="rtl"] .nav-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-[dir="rtl"] .nav-text {
+  margin-left: 0.75rem !important;
   margin-right: 0 !important;
-  margin-left: 0.5rem !important;
+  flex-shrink: 0;
 }
 
-/* Tab RTL Fixes */
-[dir="rtl"] .tab-list {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .tab-item {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-/* Dropdown RTL Fixes */
-[dir="rtl"] .dropdown-menu {
-  text-align: right;
-}
-
-[dir="rtl"] .dropdown-item {
-  text-align: right;
-}
-
-[dir="rtl"] .dropdown-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-/* Alert RTL Fixes */
-[dir="rtl"] .alert {
-  text-align: right;
-}
-
-[dir="rtl"] .alert-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
-}
-
-/* Toast RTL Fixes */
+/* ===== Enhanced Toast Components ===== */
 [dir="rtl"] .toast {
   text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .toast-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
 }
 
-/* Progress RTL Fixes */
+/* ===== Enhanced Progress Components ===== */
 [dir="rtl"] .progress-bar {
-  direction: ltr;
+  direction: rtl;
+  width: 100%;
+  height: 0.5rem;
+  background-color: rgb(229 231 235);
+  border-radius: 0.25rem;
+  overflow: hidden;
 }
 
 [dir="rtl"] .progress-text {
   text-align: right;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: rgb(107 114 128);
 }
 
-/* Chart RTL Fixes */
+/* ===== Enhanced Chart Components ===== */
 [dir="rtl"] .chart-container {
-  direction: ltr;
+  direction: rtl;
+  text-align: right;
+  margin: 1rem 0;
 }
 
 [dir="rtl"] .chart-title {
   text-align: right;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 [dir="rtl"] .chart-legend {
   text-align: right;
+  direction: rtl;
+  margin-top: 1rem;
 }
 
-/* Table RTL Fixes */
+/* ===== Enhanced Table Components ===== */
 [dir="rtl"] .table-header {
   text-align: right;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-bottom: 1px solid rgb(229 231 235);
 }
 
 [dir="rtl"] .table-cell {
   text-align: right;
+  padding: 0.75rem;
+  border-bottom: 1px solid rgb(229 231 235);
 }
 
 [dir="rtl"] .table-actions {
-  justify-content: flex-start;
+  text-align: left;
+  padding: 0.75rem;
 }
 
-/* List RTL Fixes */
+/* ===== Enhanced List Components ===== */
 [dir="rtl"] .list-item {
   text-align: right;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgb(229 231 235);
 }
 
 [dir="rtl"] .list-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
 }
 
-/* Badge RTL Fixes */
+/* ===== Enhanced Badge Components ===== */
 [dir="rtl"] .badge {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-/* Tag RTL Fixes */
 [dir="rtl"] .tag {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  background-color: rgb(243 244 246);
+  color: rgb(107 114 128);
 }
 
-/* Avatar RTL Fixes */
+/* ===== Enhanced Avatar Components ===== */
 [dir="rtl"] .avatar {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
-/* Tooltip RTL Fixes */
+/* ===== Enhanced Tooltip Components ===== */
 [dir="rtl"] .tooltip {
   text-align: right;
+  max-width: 200px;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
 }
 
-/* Popover RTL Fixes */
+/* ===== Enhanced Popover Components ===== */
 [dir="rtl"] .popover {
   text-align: right;
+  max-width: 300px;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 }
 
-/* Menu RTL Fixes */
+/* ===== Enhanced Menu Components ===== */
 [dir="rtl"] .menu {
-  text-align: right;
+  direction: rtl;
 }
 
 [dir="rtl"] .menu-item {
   text-align: right;
+  padding: 0.5rem 1rem;
 }
 
 [dir="rtl"] .menu-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
 }
 
-/* Breadcrumb RTL Fixes */
+/* ===== Enhanced Breadcrumb Components ===== */
 [dir="rtl"] .breadcrumb {
-  flex-direction: row-reverse;
+  direction: rtl;
+  display: flex;
+  align-items: center;
 }
 
 [dir="rtl"] .breadcrumb-item {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
 }
 
 [dir="rtl"] .breadcrumb-separator {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+  color: rgb(156 163 175);
 }
 
-/* Pagination RTL Fixes */
+/* ===== Enhanced Pagination Components ===== */
 [dir="rtl"] .pagination {
-  flex-direction: row-reverse;
+  direction: rtl;
+  display: flex;
+  align-items: center;
 }
 
 [dir="rtl"] .page-item {
-  margin-left: 0 !important;
-  margin-right: 0.25rem !important;
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
 }
 
-/* Status RTL Fixes */
+/* ===== Enhanced Status Components ===== */
 [dir="rtl"] .status-indicator {
-  flex-direction: row-reverse;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
 }
 
 [dir="rtl"] .status-text {
   text-align: right;
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
 }
 
-/* Loading RTL Fixes */
+/* ===== Enhanced Loading Components ===== */
 [dir="rtl"] .loading-spinner {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgb(229 231 235);
+  border-top: 2px solid rgb(59 130 246);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 [dir="rtl"] .loading-text {
-  text-align: right;
+  text-align: center;
+  margin-top: 0.5rem;
+  color: rgb(107 114 128);
 }
 
-/* Error RTL Fixes */
+/* ===== Enhanced Error Components ===== */
 [dir="rtl"] .error-message {
   text-align: right;
+  color: rgb(239 68 68);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: rgb(254 242 242);
+  border: 1px solid rgb(252 165 165);
 }
 
 [dir="rtl"] .error-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+  color: rgb(239 68 68);
 }
 
-/* Success RTL Fixes */
+/* ===== Enhanced Success Components ===== */
 [dir="rtl"] .success-message {
   text-align: right;
+  color: rgb(16 185 129);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: rgb(236 253 245);
+  border: 1px solid rgb(167 243 208);
 }
 
 [dir="rtl"] .success-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+  color: rgb(16 185 129);
 }
 
-/* Warning RTL Fixes */
+/* ===== Enhanced Warning Components ===== */
 [dir="rtl"] .warning-message {
   text-align: right;
+  color: rgb(245 158 11);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: rgb(255 251 235);
+  border: 1px solid rgb(251 191 36);
 }
 
 [dir="rtl"] .warning-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+  color: rgb(245 158 11);
 }
 
-/* Info RTL Fixes */
+/* ===== Enhanced Info Components ===== */
 [dir="rtl"] .info-message {
   text-align: right;
+  color: rgb(59 130 246);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: rgb(239 246 255);
+  border: 1px solid rgb(191 219 254);
 }
 
 [dir="rtl"] .info-icon {
-  margin-left: 0 !important;
-  margin-right: 0.5rem !important;
+  margin-left: 0.75rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+  color: rgb(59 130 246);
+}
+
+/* ===== Animation Keyframes ===== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -638,6 +638,118 @@ const translations: TranslationData = {
   policies: {
     ar: "السياسات",
     en: "Policies"
+  },
+  
+  // Enhanced Home Page
+  currentProgress: {
+    ar: "التقدم الحالي",
+    en: "Current Progress"
+  },
+  completed: {
+    ar: "مكتمل",
+    en: "Completed"
+  },
+  total: {
+    ar: "إجمالي",
+    en: "Total"
+  },
+  quickActions: {
+    ar: "الإجراءات السريعة",
+    en: "Quick Actions"
+  },
+  beginYourJourney: {
+    ar: "ابدأ رحلتك التعليمية",
+    en: "Begin your learning journey"
+  },
+  trackYourProgress: {
+    ar: "تتبع تقدمك",
+    en: "Track your progress"
+  },
+  organizeYourNotes: {
+    ar: "نظم ملاحظاتك",
+    en: "Organize your notes"
+  },
+  reflectOnLearning: {
+    ar: "تأمل في تعلمك",
+    en: "Reflect on your learning"
+  },
+  recentActivity: {
+    ar: "النشاط الأخير",
+    en: "Recent Activity"
+  },
+  yourLatestProgress: {
+    ar: "أحدث تقدمك",
+    en: "Your latest progress"
+  },
+  completedTask: {
+    ar: "مهمة مكتملة",
+    en: "Completed Task"
+  },
+  cybersecurityBasics: {
+    ar: "أساسيات الأمن السيبراني",
+    en: "Cybersecurity Basics"
+  },
+  noActivityYet: {
+    ar: "لا يوجد نشاط بعد",
+    en: "No activity yet"
+  },
+  startYourJourney: {
+    ar: "ابدأ رحلتك التعليمية",
+    en: "Start your learning journey"
+  },
+  startLearning: {
+    ar: "ابدأ التعلم",
+    en: "Start Learning"
+  },
+  viewProgress: {
+    ar: "عرض التقدم",
+    en: "View Progress"
+  },
+  manageNotes: {
+    ar: "إدارة الملاحظات",
+    en: "Manage Notes"
+  },
+  learningJournal: {
+    ar: "مدونة التعلم",
+    en: "Learning Journal"
+  },
+  
+  // Platform Features
+  platformFeatures: {
+    ar: "مميزات المنصة",
+    en: "Platform Features"
+  },
+  cyberSecurity: {
+    ar: "الأمان السيبراني",
+    en: "Cyber Security"
+  },
+  learnCyberSecurityBasics: {
+    ar: "تعلم أساسيات الأمن السيبراني وحماية الأنظمة",
+    en: "Learn cybersecurity basics and system protection"
+  },
+  globalNetworks: {
+    ar: "الشبكات العالمية",
+    en: "Global Networks"
+  },
+  understandGlobalNetworks: {
+    ar: "فهم الشبكات والاتصالات العالمية",
+    en: "Understand global networks and communications"
+  },
+  advancedTechnologies: {
+    ar: "التقنيات المتقدمة",
+    en: "Advanced Technologies"
+  },
+  exploreLatestTechnologies: {
+    ar: "استكشاف أحدث التقنيات في مجال الأمن السيبراني",
+    en: "Explore latest technologies in cybersecurity"
+  },
+  continuousLearning: {
+    ar: "التعلم المستمر",
+    en: "Continuous Learning"
+  },
+  continuousLearningApproach: {
+    ar: "نهج التعلم المستمر والتطوير المهني",
+    en: "Continuous learning approach and professional development"
   }
 };
 
