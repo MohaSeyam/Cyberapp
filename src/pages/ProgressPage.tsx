@@ -463,6 +463,49 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
 
 // Enhanced Analytics Tab Component
 const EnhancedAnalyticsTab = React.memo(() => {
+  const { plan, progress } = useApp();
+  
+  // Prepare data for ProgressChart
+  const progressData = useMemo(() => {
+    if (!plan || !progress) return [];
+    
+    return plan.map((week, index) => {
+      const weekTasks = week.days.flatMap(day => day.tasks);
+      const completedTasks = progress.filter(p => 
+        p.done && weekTasks.some(task => task.id === p.taskId)
+      ).length;
+      
+      return {
+        week: `Week ${week.week}`,
+        completed: completedTasks,
+        total: weekTasks.length,
+        percentage: weekTasks.length > 0 ? (completedTasks / weekTasks.length) * 100 : 0
+      };
+    });
+  }, [plan, progress]);
+
+  // Prepare data for PieChart
+  const pieData = useMemo(() => {
+    if (!plan || !progress) return [];
+    
+    const taskTypes = {};
+    plan.forEach(week => {
+      week.days.forEach(day => {
+        day.tasks.forEach(task => {
+          taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
+        });
+      });
+    });
+
+    const colors = ['#3B82F6', '#EF4444', '#10B981', '#8B5CF6', '#F59E0B'];
+    
+    return Object.entries(taskTypes).map(([type, count], index) => ({
+      name: type,
+      value: count,
+      color: colors[index % colors.length]
+    }));
+  }, [plan, progress]);
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -476,7 +519,7 @@ const EnhancedAnalyticsTab = React.memo(() => {
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">Progress Chart</h3>
               <TrendingUp className="w-6 h-6 text-blue-500" />
             </div>
-            <ProgressChart />
+            <ProgressChart data={progressData} />
           </Card>
         </motion.div>
         
@@ -490,7 +533,7 @@ const EnhancedAnalyticsTab = React.memo(() => {
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">Task Distribution</h3>
               <PieChart className="w-6 h-6 text-purple-500" />
             </div>
-            <PieChartComponent />
+            <PieChartComponent data={pieData} />
           </Card>
         </motion.div>
       </div>
