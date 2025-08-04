@@ -69,14 +69,25 @@ export default function MobileBottomBar() {
     return location.pathname.startsWith(path);
   };
 
+  // إعادة ترتيب العناصر في RTL ليكون Home في أقصى اليمين
+  const isRTL = language === 'ar';
+  let navItems = [...navigationItems];
+  if (isRTL) {
+    // Home في أقصى اليمين
+    const home = navItems.find(i => i.path === '/');
+    navItems = navItems.filter(i => i.path !== '/');
+    navItems = [home, ...navItems];
+  }
+
   return (
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg"
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="flex justify-around items-center h-16 px-2">
-        {navigationItems.map((item) => {
+      <div className={`flex justify-around items-center h-16 px-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
           
