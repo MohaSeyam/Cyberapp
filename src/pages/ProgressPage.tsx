@@ -792,6 +792,11 @@ const EnhancedReportsTab = React.memo(() => {
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
+      // Validate export options
+      if (!exportOptions.reportType || !exportOptions.contentType || !exportOptions.format) {
+        throw new Error('Please fill in all required export options');
+      }
+      
       // Prepare export options based on selections
       const options = {
         reportType: exportOptions.reportType,
@@ -814,18 +819,22 @@ const EnhancedReportsTab = React.memo(() => {
       console.error('Export error:', error);
       toast.error(
         language === 'ar' 
-          ? '❌ فشل في تصدير التقرير' 
-          : '❌ Failed to export report'
+          ? `❌ فشل في تصدير التقرير: ${error.message}` 
+          : `❌ Failed to export report: ${error.message}`
       );
     } finally {
       setIsExporting(false);
     }
-  }, [exportOptions, language]);
+  }, [exportOptions, language, performExport]);
 
   // Main export function that can be called from anywhere
   const performExport = useCallback(async (options) => {
     if (!plan || !appState) {
       throw new Error('No data available for export');
+    }
+    
+    if (!options || !options.format) {
+      throw new Error('Invalid export options');
     }
     
     try {
@@ -898,6 +907,8 @@ const EnhancedReportsTab = React.memo(() => {
         break;
       }
       case 'pdf': {
+        // Dynamic import for jsPDF
+        const jsPDF = await import('jspdf').then(module => module.default);
         const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(22);
@@ -937,6 +948,8 @@ const EnhancedReportsTab = React.memo(() => {
           ])
         ];
         
+        // Dynamic import for Papa
+        const Papa = await import('papaparse').then(module => module.default);
         const csv = Papa.unparse(csvData);
         blob = new Blob([csv], { type: 'text/csv' });
         fileName += '.csv';
