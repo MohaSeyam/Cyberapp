@@ -21,6 +21,7 @@ export default function MobileBottomBar() {
       return key;
     }
   };
+
   // بناء العناصر في كل رندر حسب اللغة
   const navigationItems = [
     {
@@ -60,14 +61,6 @@ export default function MobileBottomBar() {
       description: safeT('appSettings')
     }
   ];
-  // إعادة ترتيب العناصر في RTL ليكون Home في أقصى اليمين
-  const isRTL = language === 'ar';
-  let navItems = [...navigationItems];
-  if (isRTL) {
-    const home = navItems.find(i => i.path === '/');
-    navItems = navItems.filter(i => i.path !== '/');
-    navItems = [home, ...navItems];
-  }
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -81,10 +74,12 @@ export default function MobileBottomBar() {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg"
-      dir={isRTL ? 'rtl' : 'ltr'}
+      dir={language === 'ar' ? 'rtl' : 'ltr'}
     >
-      <div className={`flex justify-around items-center h-16 px-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-        {navItems.map((item) => {
+      <div className={`flex justify-around items-center h-16 px-2 ${
+        language === 'ar' ? 'flex-row-reverse' : ''
+      }`}>
+        {navigationItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
           

@@ -41,16 +41,16 @@ export default function Card({
     <>
       {/* Card Header */}
       {(header || title || subtitle) && (
-        <div className={pageLayouts.card.header}>
+        <div className={`${pageLayouts.card.header} rtl:text-right`}>
           {header || (
             <>
               {title && (
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white rtl:text-right">
                   {title}
                 </h3>
               )}
               {subtitle && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 rtl:text-right">
                   {subtitle}
                 </p>
               )}
@@ -60,13 +60,13 @@ export default function Card({
       )}
 
       {/* Card Body */}
-      <div className={pageLayouts.card.body}>
+      <div className={`${pageLayouts.card.body} rtl:text-right`}>
         {children}
       </div>
 
       {/* Card Footer */}
       {footer && (
-        <div className={pageLayouts.card.footer}>
+        <div className={`${pageLayouts.card.footer} rtl:text-right`}>
           {footer}
         </div>
       )}
