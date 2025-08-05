@@ -725,6 +725,9 @@ const EnhancedReportsTab = React.memo(() => {
   }, [plan, language]);
 
   const handleExport = useCallback(async () => {
+    console.log('handleExport called');
+    console.log('exportOptions:', exportOptions);
+    console.log('language:', language);
     setIsExporting(true);
     try {
       // Validate export options
@@ -764,6 +767,11 @@ const EnhancedReportsTab = React.memo(() => {
 
   // Main export function that can be called from anywhere
   const performExport = useCallback(async (options) => {
+    console.log('performExport called');
+    console.log('options:', options);
+    console.log('plan:', plan);
+    console.log('progress:', progress);
+    console.log('appState:', appState);
     try {
       // Validate inputs
       if (!plan || !appState) {
