@@ -26,6 +26,10 @@ import { openDB } from 'idb';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { loadLibrary } from '../utils/lazyImports';
 import EnhancedOverviewTab from '../components/progress/EnhancedOverviewTab';
+import EnhancedAnalyticsTab from '../components/progress/EnhancedAnalyticsTab';
+import EnhancedSkillsTab from '../components/progress/EnhancedSkillsTab';
+import EnhancedAchievementsTab from '../components/progress/EnhancedAchievementsTab';
+import EnhancedSuggestionsTab from '../components/progress/EnhancedSuggestionsTab';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -598,27 +602,6 @@ const EnhancedAnalyticsTab = React.memo(() => {
           </Card>
         </motion.div>
       </div>
-    </div>
-  );
-});
-
-// Enhanced Skills Tab Component
-const EnhancedSkillsTab = React.memo(() => {
-  return (
-    <div className="space-y-8">
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Skills Matrix</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Assess your acquired skills</p>
-          </div>
-          <Brain className="w-6 h-6 text-green-500" />
-        </div>
-        <div className="text-center py-12">
-          <Brain className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-600 dark:text-gray-400">Skills assessment will be implemented here.</p>
-        </div>
-      </Card>
     </div>
   );
 });
@@ -1438,11 +1421,11 @@ export default function ProgressPage() {
                     )}
                     {activeTab === 'analytics' && (
                       <Suspense fallback={<LoadingSpinner />}>
-                        <ProgressAnalytics />
+                        <EnhancedAnalyticsTab plan={plan} progress={progress} stats={stats} language={language} />
                       </Suspense>
                     )}
-                    {activeTab === 'skills' && <EnhancedSkillsTab />}
-                    {activeTab === 'achievements' && <EnhancedAchievementsTab />}
+                    {activeTab === 'skills' && <EnhancedSkillsTab stats={stats} language={language} />}
+                    {activeTab === 'achievements' && <EnhancedAchievementsTab stats={stats} language={language} />}
                     {activeTab === 'suggestions' && <EnhancedSuggestionsTab language={language} />}
                     {activeTab === 'reports' && <EnhancedReportsTab />}
                   </motion.div>
