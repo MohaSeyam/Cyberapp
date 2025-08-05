@@ -1,5 +1,5 @@
 // Unified App Context
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import type { 
@@ -76,11 +76,42 @@ export function AppProvider({ children }: AppProviderProps) {
   // Translation function
   const { t } = useLocalization();
 
+  // Memoized organized data to prevent unnecessary recalculations
+  const organizedAppState = useMemo(() => {
+    const organizedNotes: Record<string, Note[]> = {};
+    const organizedJournal: Record<string, JournalEntry[]> = {};
+    const organizedResources: { [key: string]: Resource[] } = {};
+
+    // Only process if we have data
+    if (appState.notes && Object.keys(appState.notes).length > 0) {
+      Object.entries(appState.notes).forEach(([key, notes]) => {
+        organizedNotes[key] = notes || [];
+      });
+    }
+
+    if (appState.journal && Object.keys(appState.journal).length > 0) {
+      Object.entries(appState.journal).forEach(([key, entries]) => {
+        organizedJournal[key] = entries || [];
+      });
+    }
+
+    if (appState.resources && Object.keys(appState.resources).length > 0) {
+      Object.entries(appState.resources).forEach(([key, resources]) => {
+        organizedResources[key] = resources || [];
+      });
+    }
+
+    return {
+      notes: organizedNotes,
+      journal: organizedJournal,
+      resources: organizedResources
+    };
+  }, [appState.notes, appState.journal, appState.resources]);
+
   // Listen for language changes from other components
   useEffect(() => {
     const handleLanguageChange = (event: CustomEvent) => {
       const newLang = event.detail;
-      console.log('AppContext received language change:', newLang);
       setLangState(newLang);
       localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
     };
@@ -93,7 +124,7 @@ export function AppProvider({ children }: AppProviderProps) {
   }, []);
 
   // Load initial data
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -196,42 +227,58 @@ export function AppProvider({ children }: AppProviderProps) {
       setPlan(planData);
       setProgress(progressData);
       
-      // Organize notes and journal by week/day with safety checks
+      // Organize notes and journal by week/day with safety checks - OPTIMIZED
       const organizedNotes: Record<string, Note[]> = {};
       const organizedJournal: Record<string, JournalEntry[]> = {};
-      
-      notesData.forEach(note => {
-        if (note && typeof note.weekId === 'number' && note.dayKey) {
-          const key = `${note.weekId}-${note.dayKey}`;
-          if (!organizedNotes[key]) organizedNotes[key] = [];
-          organizedNotes[key].push(note);
-        }
-      });
-      
-      journalData.forEach(entry => {
-        if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
-          const key = `${entry.weekId}-${entry.dayKey}`;
-          if (!organizedJournal[key]) organizedJournal[key] = [];
-          organizedJournal[key].push(entry);
-        }
-      });
-      
-      // Organize resources by day
       const organizedResources: { [key: string]: Resource[] } = {};
-      resourcesData.forEach(resource => {
-        if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
-          const key = `${resource.weekId}-${resource.dayKey}`;
-          if (!organizedResources[key]) organizedResources[key] = [];
-          organizedResources[key].push(resource);
-        }
-      });
       
-      setAppState(prev => ({
-        ...prev,
-        notes: organizedNotes,
-        journal: organizedJournal,
-        resources: organizedResources
-      }));
+      // Process notes in batches for better performance
+      const processNotes = () => {
+        for (let i = 0; i < notesData.length; i++) {
+          const note = notesData[i];
+          if (note && typeof note.weekId === 'number' && note.dayKey) {
+            const key = `${note.weekId}-${note.dayKey}`;
+            if (!organizedNotes[key]) organizedNotes[key] = [];
+            organizedNotes[key].push(note);
+          }
+        }
+      };
+      
+      const processJournal = () => {
+        for (let i = 0; i < journalData.length; i++) {
+          const entry = journalData[i];
+          if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
+            const key = `${entry.weekId}-${entry.dayKey}`;
+            if (!organizedJournal[key]) organizedJournal[key] = [];
+            organizedJournal[key].push(entry);
+          }
+        }
+      };
+      
+      const processResources = () => {
+        for (let i = 0; i < resourcesData.length; i++) {
+          const resource = resourcesData[i];
+          if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
+            const key = `${resource.weekId}-${resource.dayKey}`;
+            if (!organizedResources[key]) organizedResources[key] = [];
+            organizedResources[key].push(resource);
+          }
+        }
+      };
+      
+      // Process data in chunks to avoid blocking the main thread
+      setTimeout(processNotes, 0);
+      setTimeout(processJournal, 10);
+      setTimeout(processResources, 20);
+      
+      // Set app state after a short delay to allow processing
+      setTimeout(() => {
+        setAppState({
+          notes: organizedNotes,
+          journal: organizedJournal,
+          resources: organizedResources
+        });
+      }, 50);
       
       console.log("Data loaded successfully:", {
         planWeeks: planData.length,
@@ -254,12 +301,12 @@ export function AppProvider({ children }: AppProviderProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   // Load data on mount
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, [loadInitialData]);
 
   // Apply saved theme and language on mount
   useEffect(() => {

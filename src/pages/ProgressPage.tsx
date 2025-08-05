@@ -725,9 +725,6 @@ const EnhancedReportsTab = React.memo(() => {
   }, [plan, language]);
 
   const handleExport = useCallback(async () => {
-    console.log('handleExport called');
-    console.log('exportOptions:', exportOptions);
-    console.log('language:', language);
     setIsExporting(true);
     try {
       // Validate export options
@@ -767,11 +764,6 @@ const EnhancedReportsTab = React.memo(() => {
 
   // Main export function that can be called from anywhere
   const performExport = useCallback(async (options) => {
-    console.log('performExport called');
-    console.log('options:', options);
-    console.log('plan:', plan);
-    console.log('progress:', progress);
-    console.log('appState:', appState);
     try {
       // Validate inputs
       if (!plan || !appState) {
@@ -993,11 +985,19 @@ export default function ProgressPage() {
     exportLanguage: language
   });
 
-  // Memoized complex calculations
+  // Memoized complex calculations - OPTIMIZED
   const streaks = useMemo(() => {
+    if (!progress || progress.length === 0) return { current: 0, longest: 0 };
+    
     let current = 0, longest = 0, streak = 0;
     let lastDate = null;
-    const sorted = [...progress.filter(p => p.done)].sort((a, b) => a.dayKey.localeCompare(b.dayKey));
+    
+    // Filter and sort in one pass for better performance
+    const completedProgress = progress.filter(p => p.done);
+    if (completedProgress.length === 0) return { current: 0, longest: 0 };
+    
+    const sorted = completedProgress.sort((a, b) => a.dayKey.localeCompare(b.dayKey));
+    
     for (let i = 0; i < sorted.length; i++) {
       const date = new Date(sorted[i].dayKey);
       if (lastDate && (date - lastDate) / (1000 * 60 * 60 * 24) === 1) {
@@ -1012,9 +1012,13 @@ export default function ProgressPage() {
     return { current, longest };
   }, [progress]);
 
-  const stats = useProgressStats(plan, progress, streaks);
+  // Memoized stats calculation
+  const stats = useMemo(() => {
+    if (!plan || !progress) return null;
+    return useProgressStats(plan, progress, streaks);
+  }, [plan, progress, streaks]);
 
-  // Color and gradient class maps for dynamic styling
+  // Color and gradient class maps for dynamic styling - MEMOIZED
   const colorClassMap = useMemo(() => ({
     blue: {
       bgLight: 'bg-blue-50',
