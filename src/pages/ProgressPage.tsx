@@ -1339,13 +1339,6 @@ export default function ProgressPage() {
   }, []);
 
 
-
-  // Remove duplicate handleExport function - using the one above with performExport
-          resource.createdAt ? new Date(resource.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : '-',
-          resource.description || '-',
-          '❌'
-        ]);
-      });
       // --- QR Code ---
       let qrDataUrl = '';
       try {
