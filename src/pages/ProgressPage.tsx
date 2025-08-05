@@ -978,6 +978,12 @@ export default function ProgressPage() {
   const { language } = useLocalization();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [isExporting, setIsExporting] = useState(false);
+  const [exportOptions, setExportOptions] = useState({
+    content: 'both',
+    format: 'pdf',
+    timeRange: 'all',
+    exportLanguage: language
+  });
 
   // Memoized complex calculations
   const streaks = useMemo(() => {
@@ -999,6 +1005,73 @@ export default function ProgressPage() {
   }, [progress]);
 
   const stats = useProgressStats(plan, progress, streaks);
+
+  // Color and gradient class maps for dynamic styling
+  const colorClassMap = useMemo(() => ({
+    blue: {
+      bgLight: 'bg-blue-50',
+      bgDark: 'dark:bg-blue-900/20',
+      bg100: 'bg-blue-100',
+      bg800: 'dark:bg-blue-800',
+      text600: 'text-blue-600',
+      text400: 'dark:text-blue-400',
+      border200: 'border-blue-200',
+      border700: 'dark:border-blue-700',
+      text500: 'text-blue-500',
+    },
+    red: {
+      bgLight: 'bg-red-50',
+      bgDark: 'dark:bg-red-900/20',
+      bg100: 'bg-red-100',
+      bg800: 'dark:bg-red-800',
+      text600: 'text-red-600',
+      text400: 'dark:text-red-400',
+      border200: 'border-red-200',
+      border700: 'dark:border-red-700',
+      text500: 'text-red-500',
+    },
+    green: {
+      bgLight: 'bg-green-50',
+      bgDark: 'dark:bg-green-900/20',
+      bg100: 'bg-green-100',
+      bg800: 'dark:bg-green-800',
+      text600: 'text-green-600',
+      text400: 'dark:text-green-400',
+      border200: 'border-green-200',
+      border700: 'dark:border-green-700',
+      text500: 'text-green-500',
+    },
+    purple: {
+      bgLight: 'bg-purple-50',
+      bgDark: 'dark:bg-purple-900/20',
+      bg100: 'bg-purple-100',
+      bg800: 'dark:bg-purple-800',
+      text600: 'text-purple-600',
+      text400: 'dark:text-purple-400',
+      border200: 'border-purple-200',
+      border700: 'dark:border-purple-700',
+      text500: 'text-purple-500',
+    },
+    orange: {
+      bgLight: 'bg-orange-50',
+      bgDark: 'dark:bg-orange-900/20',
+      bg100: 'bg-orange-100',
+      bg800: 'dark:bg-orange-800',
+      text600: 'text-orange-600',
+      text400: 'dark:text-orange-400',
+      border200: 'border-orange-200',
+      border700: 'dark:border-orange-700',
+      text500: 'text-orange-500',
+    }
+  }), []);
+
+  const gradientClassMap = useMemo(() => ({
+    blue: 'from-blue-500 to-blue-600',
+    red: 'from-red-500 to-red-600',
+    green: 'from-green-500 to-green-600',
+    purple: 'from-purple-500 to-purple-600',
+    orange: 'from-orange-500 to-orange-600'
+  }), []);
 
   const safeT = useCallback((key: string) => {
     const translations = {
@@ -1063,6 +1136,195 @@ export default function ProgressPage() {
     }
   }, []);
 
+  // Advanced Export Logic
+  const handleAdvancedExport = useCallback(async (options) => {
+    setIsExporting(true);
+    try {
+      // Load required libraries
+      const { jsPDF } = await loadLibrary('jspdf');
+      const { default: Papa } = await loadLibrary('papaparse');
+      const XLSX = await loadLibrary('xlsx');
+
+      // Filter data based on options
+      const filteredData = filterDataByOptions(options, plan, appState);
+      
+      // Generate content based on format
+      let content, filename;
+      
+      switch (options.format) {
+        case 'pdf':
+          content = await generatePDFContent(filteredData, options, language);
+          filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.pdf`;
+          break;
+        case 'csv':
+          content = generateCSVContent(filteredData, options, language);
+          filename = `cyberplan-data-${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        case 'json':
+          content = JSON.stringify(filteredData, null, 2);
+          filename = `cyberplan-data-${new Date().toISOString().split('T')[0]}.json`;
+          break;
+        case 'markdown':
+          content = generateMarkdownContent(filteredData, options, language);
+          filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.md`;
+          break;
+        case 'txt':
+          content = generateTextContent(filteredData, options, language);
+          filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.txt`;
+          break;
+        default:
+          throw new Error('Unsupported format');
+      }
+
+      // Download file
+      const blob = new Blob([content], { 
+        type: options.format === 'pdf' ? 'application/pdf' : 
+              options.format === 'csv' ? 'text/csv' :
+              options.format === 'json' ? 'application/json' :
+              'text/plain'
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(language === 'ar' ? 'تم تصدير التقرير بنجاح!' : 'Report exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(language === 'ar' ? 'حدث خطأ أثناء التصدير' : 'Export failed');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [plan, appState, language]);
+
+  // Content generation functions
+  const generatePDFContent = async (data, options, lang) => {
+    const { jsPDF } = await loadLibrary('jspdf');
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text(lang === 'ar' ? 'تقرير CyberPlan' : 'CyberPlan Report', 20, 20);
+    
+    // Add content based on options
+    if (options.content === 'progress' || options.content === 'both') {
+      doc.setFontSize(14);
+      doc.text(lang === 'ar' ? 'التقدم:' : 'Progress:', 20, 40);
+      // Add progress data...
+    }
+    
+    if (options.content === 'notes' || options.content === 'both') {
+      doc.setFontSize(14);
+      doc.text(lang === 'ar' ? 'الملاحظات:' : 'Notes:', 20, 80);
+      // Add notes data...
+    }
+    
+    return doc.output('blob');
+  };
+
+  const generateCSVContent = (data, options, lang) => {
+    const headers = lang === 'ar' ? 
+      ['المهمة', 'النوع', 'الحالة', 'التاريخ'] : 
+      ['Task', 'Type', 'Status', 'Date'];
+    
+    const rows = data.tasks?.map(task => [
+      lang === 'ar' ? task.description?.ar || '' : task.description?.en || '',
+      task.type || '',
+      task.isCompleted ? (lang === 'ar' ? 'مكتمل' : 'Completed') : (lang === 'ar' ? 'قيد التنفيذ' : 'In Progress'),
+      task.date || ''
+    ]) || [];
+    
+    return Papa.unparse({ fields: headers, data: rows });
+  };
+
+  const generateMarkdownContent = (data, options, lang) => {
+    let content = `# ${lang === 'ar' ? 'تقرير CyberPlan' : 'CyberPlan Report'}\n\n`;
+    
+    if (options.content === 'progress' || options.content === 'both') {
+      content += `## ${lang === 'ar' ? 'التقدم' : 'Progress'}\n\n`;
+      data.tasks?.forEach(task => {
+        content += `- ${lang === 'ar' ? task.description?.ar || '' : task.description?.en || ''} (${task.type})\n`;
+      });
+    }
+    
+    if (options.content === 'notes' || options.content === 'both') {
+      content += `\n## ${lang === 'ar' ? 'الملاحظات' : 'Notes'}\n\n`;
+      data.notes?.forEach(note => {
+        content += `### ${note.title}\n${note.content}\n\n`;
+      });
+    }
+    
+    return content;
+  };
+
+  const generateTextContent = (data, options, lang) => {
+    let content = `${lang === 'ar' ? 'تقرير CyberPlan' : 'CyberPlan Report'}\n`;
+    content += '='.repeat(50) + '\n\n';
+    
+    if (options.content === 'progress' || options.content === 'both') {
+      content += `${lang === 'ar' ? 'التقدم:' : 'Progress:'}\n`;
+      data.tasks?.forEach(task => {
+        content += `- ${lang === 'ar' ? task.description?.ar || '' : task.description?.en || ''}\n`;
+      });
+    }
+    
+    return content;
+  };
+
+  // Filter data based on export options
+  const filterDataByOptions = useCallback((options, planData, appStateData) => {
+    const result = {
+      tasks: [],
+      notes: [],
+      journalEntries: [],
+      resources: []
+    };
+
+    // Filter tasks based on time range
+    let filteredTasks = [];
+    if (options.timeRange === 'current-week') {
+      const currentWeek = new Date();
+      const weekStart = new Date(currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay()));
+      filteredTasks = planData.flatMap(w => w.days || [])
+        .flatMap(d => d.tasks || [])
+        .filter(task => {
+          const taskDate = new Date(task.date || Date.now());
+          return taskDate >= weekStart;
+        });
+    } else if (options.timeRange === 'current-phase') {
+      // Filter by current phase logic
+      filteredTasks = planData.flatMap(w => w.days || [])
+        .flatMap(d => d.tasks || []);
+    } else {
+      // All tasks
+      filteredTasks = planData.flatMap(w => w.days || [])
+        .flatMap(d => d.tasks || []);
+    }
+
+    // Add progress information to tasks
+    result.tasks = filteredTasks.map(task => ({
+      ...task,
+      isCompleted: progress.some(p => p.taskId === task.id && p.done),
+      completedDate: progress.find(p => p.taskId === task.id && p.done)?.dayKey
+    }));
+
+    // Filter notes and journal entries
+    if (options.content === 'notes' || options.content === 'both') {
+      result.notes = appStateData.notes || [];
+      result.journalEntries = appStateData.journalEntries || [];
+    }
+
+    // Filter resources
+    result.resources = planData.flatMap(w => w.days || [])
+      .flatMap(d => d.resources || []);
+
+    return result;
+  }, [progress]);
+
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
   return (
@@ -1098,18 +1360,32 @@ export default function ProgressPage() {
                     {isExporting && <LoadingSpinner />}
                     {activeTab === 'overview' && (
                       <Suspense fallback={<LoadingSpinner />}>
-                        <EnhancedOverviewTab stats={stats} language={language} safeT={safeT} />
+                        <EnhancedOverviewTab stats={stats} language={language} safeT={safeT} colorClassMap={colorClassMap} gradientClassMap={gradientClassMap} />
                       </Suspense>
                     )}
                     {activeTab === 'analytics' && (
                       <Suspense fallback={<LoadingSpinner />}>
-                        <EnhancedAnalyticsTab plan={plan} progress={progress} stats={stats} language={language} />
+                        <EnhancedAnalyticsTab plan={plan} progress={progress} stats={stats} language={language} colorClassMap={colorClassMap} />
                       </Suspense>
                     )}
                     {activeTab === 'skills' && <EnhancedSkillsTab stats={stats} language={language} />}
                     {activeTab === 'achievements' && <EnhancedAchievementsTab stats={stats} language={language} />}
                     {activeTab === 'suggestions' && <EnhancedSuggestionsTab language={language} />}
-                    {activeTab === 'reports' && <EnhancedReportsTab />}
+                    {activeTab === 'reports' && (
+                      <EnhancedReportsTab 
+                        plan={plan}
+                        progress={progress}
+                        appState={appState}
+                        stats={stats}
+                        language={language}
+                        colorClassMap={colorClassMap}
+                        gradientClassMap={gradientClassMap}
+                        handleExport={handleAdvancedExport}
+                        isExporting={isExporting}
+                        exportOptions={exportOptions}
+                        setExportOptions={setExportOptions}
+                      />
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
