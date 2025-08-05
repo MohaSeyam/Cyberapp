@@ -1,5 +1,5 @@
 // Unified Task Card Component
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Circle, Clock, Edit, MessageSquare } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -105,10 +105,13 @@ function TaskCard({
   };
 
   const isLocked = !canCompleteTask() && !isCompleted;
+  const [glow, setGlow] = useState(false);
 
   const handleToggleComplete = () => {
     if (isLocked) return;
     updateProgress(weekId, dayKey, task.id, !isCompleted);
+    setGlow(true);
+    setTimeout(() => setGlow(false), 1200); // مدة الأنيميشن
   };
 
   if (variant === 'compact') {
@@ -119,7 +122,7 @@ function TaskCard({
           isCompleted ? 'bg-gray-50 border-gray-200' : 
           isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
           'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-        } ${className}`}
+        } ${glow ? 'glow-animate' : ''} ${className}`}
       >
         <div className="flex items-center space-x-3">
           <button
@@ -180,7 +183,7 @@ function TaskCard({
           isCompleted ? 'bg-gray-50 border-gray-200' : 
           isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
           colors.bg + ' ' + colors.border
-        } ${className}`}
+        } ${glow ? 'glow-animate' : ''} ${className}`}
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-4">
@@ -259,7 +262,7 @@ function TaskCard({
         isCompleted ? 'bg-green-50 border-green-200 shadow-lg' : 
         isLocked ? 'bg-gray-100 border-gray-300 opacity-60' : 
         colors.bg + ' ' + colors.border
-      } ${className}`}
+      } ${glow ? 'glow-animate' : ''} ${className}`}
     >
       <div className="flex items-start space-x-3">
         <button
