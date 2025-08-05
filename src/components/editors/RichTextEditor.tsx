@@ -76,10 +76,7 @@ const fontSizes = [
 
 // Colors
 const colors = [
-  '#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#efefef', '#f3f3f3', '#ffffff',
-  '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff',
-  '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc',
-  '#dd7e6b', '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#a4c2f4', '#b4a7d6', '#d5a6bd'
+  '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080'
 ];
 
 // Enhanced Toolbar Component
@@ -91,17 +88,51 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
   const [showFontSize, setShowFontSize] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
   
+  // إغلاق القوائم المنسدلة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.color-picker-container') && !target.closest('.font-family-container') && !target.closest('.font-size-container')) {
+        setShowColorPicker(false);
+        setShowFontFamily(false);
+        setShowFontSize(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowColorPicker(false);
+        setShowFontFamily(false);
+        setShowFontSize(false);
+        setShowLinkInput(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, []);
+  
   if (!editor) return null;
   
   const addLink = () => {
     if (linkUrl.trim()) {
+      const url = linkUrl.trim();
+      // إضافة http:// إذا لم يكن موجوداً
+      const finalUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+      
       if (editor.isActive('link')) {
-        editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl.trim() }).run();
+        editor.chain().focus().extendMarkRange('link').setLink({ href: finalUrl }).run();
       } else {
-        editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
+        editor.chain().focus().setLink({ href: finalUrl }).run();
       }
       setLinkUrl('');
       setShowLinkInput(false);
+      // Force editor update
+      editor.commands.focus();
     }
   };
 
@@ -145,16 +176,22 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
     setSelectedColor(color);
     editor.chain().focus().setColor(color).run();
     setShowColorPicker(false);
+    // Force editor update
+    editor.commands.focus();
   };
 
   const setFontFamily = (fontFamily: string) => {
     editor.chain().focus().setFontFamily(fontFamily).run();
     setShowFontFamily(false);
+    // Force editor update
+    editor.commands.focus();
   };
 
   const setFontSize = (fontSize: string) => {
     editor.chain().focus().setFontSize(fontSize).run();
     setShowFontSize(false);
+    // Force editor update
+    editor.commands.focus();
   };
 
   // Save Status Component
@@ -381,7 +418,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
         </div>
 
         {/* Font Family */}
-        <div className="relative">
+        <div className="relative font-family-container">
           <button 
             onClick={() => setShowFontFamily(!showFontFamily)} 
             className={`flex items-center gap-1 p-1.5 rounded text-xs transition-all duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}
@@ -391,7 +428,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
             <ChevronDown size={12} />
           </button>
           {showFontFamily && (
-            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'} min-w-[200px]`}>
               {fontFamilies.map((font) => (
                 <button
                   key={font.value}
@@ -407,7 +444,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
         </div>
 
         {/* Font Size */}
-        <div className="relative">
+        <div className="relative font-size-container">
           <button 
             onClick={() => setShowFontSize(!showFontSize)} 
             className={`flex items-center gap-1 p-1.5 rounded text-xs transition-all duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}
@@ -417,7 +454,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
             <ChevronDown size={12} />
           </button>
           {showFontSize && (
-            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'} min-w-[150px]`}>
               {fontSizes.map((size) => (
                 <button
                   key={size.value}
@@ -433,7 +470,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
         </div>
 
         {/* Color Picker */}
-        <div className="relative">
+        <div className="relative color-picker-container">
           <button 
             onClick={() => setShowColorPicker(!showColorPicker)} 
             className={`flex items-center gap-1 p-1.5 rounded text-xs transition-all duration-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}
@@ -443,12 +480,12 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
             <div className="w-3 h-3 rounded border border-gray-300" style={{ backgroundColor: selectedColor }} />
           </button>
           {showColorPicker && (
-            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 p-2 grid grid-cols-10 gap-1`}>
+            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] p-3 grid grid-cols-5 gap-2 min-w-[200px]`}>
               {colors.map((color) => (
                 <button
                   key={color}
                   onClick={() => setColor(color)}
-                  className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
+                  className="w-8 h-8 rounded-full border-2 border-gray-300 hover:scale-110 transition-transform shadow-sm"
                   style={{ backgroundColor: color }}
                   title={color}
                 />
@@ -478,20 +515,21 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 placeholder="أدخل الرابط..."
-                className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
                 onKeyPress={(e) => e.key === 'Enter' && addLink()}
+                onKeyDown={(e) => e.key === 'Escape' && setShowLinkInput(false)}
                 autoFocus
               />
               <button 
                 onClick={addLink} 
-                className="p-1 rounded text-xs bg-blue-500 text-white hover:bg-blue-600"
+                className="p-1 rounded text-xs bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                 title="إضافة"
               >
                 <Plus size={12} />
               </button>
               <button 
                 onClick={() => setShowLinkInput(false)} 
-                className="p-1 rounded text-xs bg-gray-500 text-white hover:bg-gray-600"
+                className="p-1 rounded text-xs bg-gray-500 text-white hover:bg-gray-600 transition-colors"
                 title="إلغاء"
               >
                 <X size={12} />
@@ -501,7 +539,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
           {editor.isActive('link') && (
             <button 
               onClick={removeLink} 
-              className="p-1.5 rounded text-xs bg-red-500 text-white hover:bg-red-600"
+              className="p-1.5 rounded text-xs bg-red-500 text-white hover:bg-red-600 transition-colors"
               title="إزالة الرابط"
             >
               <X size={12} />

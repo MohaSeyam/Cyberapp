@@ -6,16 +6,19 @@ import { useLocalization } from '../../hooks/useLocalization';
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useApp();
-  const { language, setLang } = useLocalization();
+  const { language, setLanguage } = useLocalization();
 
   const handleLanguageToggle = () => {
     const newLang = language === 'ar' ? 'en' : 'ar';
     console.log('Changing language from', language, 'to', newLang);
-    setLang(newLang);
+    setLanguage(newLang);
     // Also update localStorage directly
     localStorage.setItem('app_language', newLang);
     // Dispatch custom event to notify other components
     window.dispatchEvent(new CustomEvent('languageChanged', { detail: newLang }));
+    // Force a re-render by updating document direction
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { Toaster } from 'react-hot-toast';
@@ -23,13 +23,27 @@ const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
 const FeaturesDemoPage = lazy(() => import('./pages/FeaturesDemoPage'));
 
 function App() {
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      // Force re-render of all components when language changes
+      setKey(prev => prev + 1);
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange);
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange);
+    };
+  }, []);
+
   return (
     <AppProvider>
       <LanguageProvider>
         <Router>
           <Suspense fallback={<LoadingSpinner />}>
             <Toaster />
-            <Routes>
+            <Routes key={key}>
               <Route path="/" element={<HomePage />} />
               <Route path="/progress" element={<ProgressPage />} />
               <Route path="/export" element={<ExportPage />} />
