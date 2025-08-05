@@ -39,7 +39,6 @@ const QuickActions = React.memo(({ actions, t }: QuickActionsProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
             whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ duration: 0.3 }}
           >
             <Card
               variant="elevated"

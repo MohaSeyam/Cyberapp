@@ -33,7 +33,6 @@ const HomeStats = React.memo(({ stats, t, navigate }: HomeStatsProps) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
           whileHover={{ scale: 1.05, y: -5 }}
-          transition={{ duration: 0.3 }}
         >
           <Card
             variant="elevated"

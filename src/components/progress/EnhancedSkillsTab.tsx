@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from '../ui/Card';
+import Card from '../ui/Card';
 
 const EnhancedSkillsTab = React.memo(({ stats, language }) => {
   // مثال: عرض المهارات
