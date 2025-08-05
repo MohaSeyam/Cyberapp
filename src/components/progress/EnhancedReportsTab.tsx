@@ -4,6 +4,29 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 
 const EnhancedReportsTab = React.memo(({ plan, progress, appState, stats, language, colorClassMap, gradientClassMap, handleExport, isExporting, exportOptions, setExportOptions }) => {
   // مثال: عرض خيارات التصدير
+  const exportFormats = [
+    { id: 'pdf', name: 'PDF', description: 'تقارير رسمية قابلة للطباعة' },
+    { id: 'csv', name: 'CSV/Excel', description: 'لتحليل البيانات في برامج الجداول الإلكترونية' },
+    { id: 'markdown', name: 'Markdown (.md)', description: 'نسخة نصية مرنة' },
+    { id: 'txt', name: 'نص عادي (.txt)', description: 'نسخة بسيطة من الملاحظات' },
+  ];
+  const contentOptions = [
+    { id: 'notes', name: 'الملاحظات والمدونات' },
+    { id: 'progress', name: 'تقارير التقدم' },
+    { id: 'all', name: 'كلاهما معًا' },
+  ];
+  const timeRangeOptions = [
+    { id: 'daily', name: 'يومي' },
+    { id: 'weekly', name: 'أسبوعي' },
+    { id: 'monthly', name: 'شهري' },
+    { id: 'phase', name: 'حسب المرحلة' },
+    { id: 'all', name: 'كامل' },
+  ];
+  const languageOptions = [
+    { id: 'ar', name: 'العربية' },
+    { id: 'en', name: 'English' },
+  ];
+
   return (
     <div className="space-y-8">
       <Card className="p-6">
