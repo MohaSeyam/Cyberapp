@@ -261,7 +261,7 @@ const colorClassMap = {
 
 // Enhanced Overview Tab Component
 const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
-  const metrics = [
+  const progressMetrics = [
     { 
       label: safeT('completionRate'), 
       value: stats.completionRate + '%', 
@@ -300,7 +300,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
     <div className="space-y-8">
       {/* Enhanced Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric, index) => {
+        {progressMetrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
             <motion.div

@@ -3,7 +3,7 @@ import { Card } from '../ui/Card';
 import { motion } from 'framer-motion';
 
 const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap, gradientClassMap }) => {
-  const metrics = [
+  const overviewMetrics = [
     {
       label: language === 'ar' ? 'معدل الإكمال' : 'Completion Rate',
       value: stats.completionRate + '%',
@@ -40,7 +40,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap,
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {metrics.map((metric, index) => {
+      {overviewMetrics.map((metric, index) => {
         const Icon = metric.icon;
         return (
           <motion.div

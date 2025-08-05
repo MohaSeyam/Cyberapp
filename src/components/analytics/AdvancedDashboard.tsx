@@ -33,7 +33,7 @@ const AdvancedDashboard = memo(({
   selectedPeriod = 'all' 
 }: AdvancedDashboardProps) => {
   
-  const metrics = useMemo(() => [
+  const dashboardMetrics = useMemo(() => [
     {
       id: 'completion',
       title: language === 'ar' ? 'معدل الإكمال' : 'Completion Rate',
@@ -109,7 +109,7 @@ const AdvancedDashboard = memo(({
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric, index) => {
+        {dashboardMetrics.map((metric, index) => {
           const Icon = metric.icon;
           const colorClasses = {
             blue: 'text-blue-600 bg-blue-100 dark:bg-blue-900',
