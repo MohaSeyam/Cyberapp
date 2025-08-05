@@ -13,11 +13,40 @@ db.version(3).stores({
   progress: "++id, weekId, dayKey, taskId, done"
 });
 
-// Plan operations
+// Cache for frequently accessed data
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Cache management
+const getCachedData = (key: string) => {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+};
+
+const setCachedData = (key: string, data: any) => {
+  cache.set(key, {
+    data,
+    timestamp: Date.now()
+  });
+};
+
+const clearCache = () => {
+  cache.clear();
+};
+
+// Plan operations - OPTIMIZED with caching
 export const planService = {
   async getAll(): Promise<Week[]> {
     try {
-      return await db.plan.toArray();
+      const cached = getCachedData('plan');
+      if (cached) return cached;
+
+      const data = await db.plan.toArray();
+      setCachedData('plan', data);
+      return data;
     } catch (error) {
       console.error("Error getting plan:", error);
       return [];
@@ -28,6 +57,7 @@ export const planService = {
     try {
       await db.plan.clear();
       await db.plan.bulkAdd(plan);
+      setCachedData('plan', plan); // Update cache
     } catch (error) {
       console.error("Error saving plan:", error);
       throw error;
@@ -70,11 +100,16 @@ export const planService = {
   }
 };
 
-// Notes operations
+// Notes operations - OPTIMIZED with caching
 export const notesService = {
   async getAll(): Promise<Note[]> {
     try {
-      return await db.notes.orderBy('updatedAt').reverse().toArray();
+      const cached = getCachedData('notes');
+      if (cached) return cached;
+
+      const data = await db.notes.orderBy('updatedAt').reverse().toArray();
+      setCachedData('notes', data);
+      return data;
     } catch (error) {
       console.error("Error getting notes:", error);
       return [];
@@ -83,7 +118,13 @@ export const notesService = {
 
   async getByTask(weekId: number, dayKey: string, taskId: string): Promise<Note[]> {
     try {
-      return await db.notes.where({ weekId, dayKey, taskId }).toArray();
+      const cacheKey = `notes_${weekId}_${dayKey}_${taskId}`;
+      const cached = getCachedData(cacheKey);
+      if (cached) return cached;
+
+      const data = await db.notes.where({ weekId, dayKey, taskId }).toArray();
+      setCachedData(cacheKey, data);
+      return data;
     } catch (error) {
       console.error("Error getting notes by task:", error);
       return [];
@@ -92,11 +133,13 @@ export const notesService = {
 
   async add(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     try {
-      return await db.notes.add({
+      const id = await db.notes.add({
         ...note,
         createdAt: Date.now(),
         updatedAt: Date.now()
       });
+      clearCache(); // Clear cache when data changes
+      return id;
     } catch (error) {
       console.error("Error adding note:", error);
       throw error;
@@ -109,6 +152,7 @@ export const notesService = {
         ...updates,
         updatedAt: Date.now()
       });
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error updating note:", error);
       throw error;
@@ -118,6 +162,7 @@ export const notesService = {
   async delete(id: number): Promise<void> {
     try {
       await db.notes.delete(id);
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error deleting note:", error);
       throw error;
@@ -125,11 +170,16 @@ export const notesService = {
   }
 };
 
-// Journal operations
+// Journal operations - OPTIMIZED with caching
 export const journalService = {
   async getAll(): Promise<JournalEntry[]> {
     try {
-      return await db.journal.orderBy('updatedAt').reverse().toArray();
+      const cached = getCachedData('journal');
+      if (cached) return cached;
+
+      const data = await db.journal.orderBy('updatedAt').reverse().toArray();
+      setCachedData('journal', data);
+      return data;
     } catch (error) {
       console.error("Error getting journal entries:", error);
       return [];
@@ -138,7 +188,13 @@ export const journalService = {
 
   async getByDay(weekId: number, dayKey: string): Promise<JournalEntry | null> {
     try {
-      return await db.journal.where({ weekId, dayKey }).first();
+      const cacheKey = `journal_${weekId}_${dayKey}`;
+      const cached = getCachedData(cacheKey);
+      if (cached) return cached;
+
+      const data = await db.journal.where({ weekId, dayKey }).first();
+      setCachedData(cacheKey, data);
+      return data;
     } catch (error) {
       console.error("Error getting journal by day:", error);
       return null;
@@ -147,11 +203,13 @@ export const journalService = {
 
   async add(entry: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     try {
-      return await db.journal.add({
+      const id = await db.journal.add({
         ...entry,
         createdAt: Date.now(),
         updatedAt: Date.now()
       });
+      clearCache(); // Clear cache when data changes
+      return id;
     } catch (error) {
       console.error("Error adding journal entry:", error);
       throw error;
@@ -164,6 +222,7 @@ export const journalService = {
         ...updates,
         updatedAt: Date.now()
       });
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error updating journal entry:", error);
       throw error;
@@ -173,6 +232,7 @@ export const journalService = {
   async delete(id: number): Promise<void> {
     try {
       await db.journal.delete(id);
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error deleting journal entry:", error);
       throw error;
@@ -180,11 +240,16 @@ export const journalService = {
   }
 };
 
-// Resources operations
+// Resources operations - OPTIMIZED with caching
 export const resourcesService = {
   async getAll(): Promise<Resource[]> {
     try {
-      return await db.resources.orderBy('updatedAt').reverse().toArray();
+      const cached = getCachedData('resources');
+      if (cached) return cached;
+
+      const data = await db.resources.orderBy('createdAt').reverse().toArray();
+      setCachedData('resources', data);
+      return data;
     } catch (error) {
       console.error("Error getting resources:", error);
       return [];
@@ -193,7 +258,13 @@ export const resourcesService = {
 
   async getByDay(weekId: number, dayIndex: number): Promise<Resource[]> {
     try {
-      return await db.resources.where({ weekId, dayIndex }).toArray();
+      const cacheKey = `resources_${weekId}_${dayIndex}`;
+      const cached = getCachedData(cacheKey);
+      if (cached) return cached;
+
+      const data = await db.resources.where({ weekId, dayIndex }).toArray();
+      setCachedData(cacheKey, data);
+      return data;
     } catch (error) {
       console.error("Error getting resources by day:", error);
       return [];
@@ -202,11 +273,13 @@ export const resourcesService = {
 
   async add(resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     try {
-      return await db.resources.add({
+      const id = await db.resources.add({
         ...resource,
         createdAt: Date.now(),
         updatedAt: Date.now()
       });
+      clearCache(); // Clear cache when data changes
+      return id;
     } catch (error) {
       console.error("Error adding resource:", error);
       throw error;
@@ -215,23 +288,11 @@ export const resourcesService = {
 
   async update(id: number, updates: Partial<Resource>): Promise<void> {
     try {
-      console.log("Attempting to update resource with ID:", id);
-      console.log("Updates:", updates);
-      
-      // Check if resource exists
-      const existingResource = await db.resources.get(id);
-      if (!existingResource) {
-        throw new Error(`Resource with ID ${id} not found`);
-      }
-      
-      console.log("Existing resource:", existingResource);
-      
       await db.resources.update(id, {
         ...updates,
         updatedAt: Date.now()
       });
-      
-      console.log("Resource updated successfully");
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error updating resource:", error);
       throw error;
@@ -241,6 +302,7 @@ export const resourcesService = {
   async delete(id: number): Promise<void> {
     try {
       await db.resources.delete(id);
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error deleting resource:", error);
       throw error;
@@ -248,11 +310,16 @@ export const resourcesService = {
   }
 };
 
-// Progress operations
+// Progress operations - OPTIMIZED with caching
 export const progressService = {
   async getAll(): Promise<Progress[]> {
     try {
-      return await db.progress.toArray();
+      const cached = getCachedData('progress');
+      if (cached) return cached;
+
+      const data = await db.progress.toArray();
+      setCachedData('progress', data);
+      return data;
     } catch (error) {
       console.error("Error getting progress:", error);
       return [];
@@ -262,11 +329,20 @@ export const progressService = {
   async setTaskProgress(weekId: number, dayKey: string, taskId: string, done: boolean): Promise<void> {
     try {
       const existing = await db.progress.where({ weekId, dayKey, taskId }).first();
+      
       if (existing) {
         await db.progress.update(existing.id, { done });
       } else {
-        await db.progress.add({ weekId, dayKey, taskId, done });
+        await db.progress.add({
+          weekId,
+          dayKey,
+          taskId,
+          done,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        });
       }
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error setting task progress:", error);
       throw error;
@@ -276,6 +352,7 @@ export const progressService = {
   async clear(): Promise<void> {
     try {
       await db.progress.clear();
+      clearCache(); // Clear cache when data changes
     } catch (error) {
       console.error("Error clearing progress:", error);
       throw error;
@@ -283,12 +360,17 @@ export const progressService = {
   }
 };
 
-// Settings operations
+// Settings operations - OPTIMIZED with caching
 export const settingsService = {
   async get(key: string): Promise<any> {
     try {
-      const setting = await db.settings.get(key);
-      return setting?.value;
+      const cached = getCachedData(`settings_${key}`);
+      if (cached) return cached;
+
+      const setting = await db.settings.where('key').equals(key).first();
+      const value = setting ? setting.value : null;
+      setCachedData(`settings_${key}`, value);
+      return value;
     } catch (error) {
       console.error("Error getting setting:", error);
       return null;
@@ -298,25 +380,37 @@ export const settingsService = {
   async set(key: string, value: any): Promise<void> {
     try {
       await db.settings.put({ key, value });
+      setCachedData(`settings_${key}`, value); // Update cache
     } catch (error) {
       console.error("Error setting setting:", error);
       throw error;
     }
-  }
-};
+  },
 
-// Data export/import
-export const dataService = {
   async exportAll() {
     try {
-      const [plan, notes, journal, resources, settings] = await Promise.all([
-        planService.getAll(),
+      const [plan, notes, journal, resources, progress, settings] = await Promise.all([
+        this.getAll(),
         notesService.getAll(),
         journalService.getAll(),
         resourcesService.getAll(),
+        progressService.getAll(),
         db.settings.toArray()
       ]);
-      return { plan, notes, journal, resources, settings };
+
+      return {
+        plan,
+        notes,
+        journal,
+        resources,
+        progress,
+        settings: settings.reduce((acc, setting) => {
+          acc[setting.key] = setting.value;
+          return acc;
+        }, {}),
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      };
     } catch (error) {
       console.error("Error exporting data:", error);
       throw error;
@@ -325,19 +419,31 @@ export const dataService = {
 
   async importAll(data: any) {
     try {
-      await db.transaction('rw', db.plan, db.notes, db.journal, db.resources, db.settings, async () => {
-        await db.plan.clear();
-        await db.notes.clear();
-        await db.journal.clear();
-        await db.resources.clear();
-        await db.settings.clear();
-        
+      await db.transaction('rw', [db.plan, db.notes, db.journal, db.resources, db.progress, db.settings], async () => {
+        // Clear existing data
+        await Promise.all([
+          db.plan.clear(),
+          db.notes.clear(),
+          db.journal.clear(),
+          db.resources.clear(),
+          db.progress.clear(),
+          db.settings.clear()
+        ]);
+
+        // Import new data
         if (data.plan) await db.plan.bulkAdd(data.plan);
         if (data.notes) await db.notes.bulkAdd(data.notes);
         if (data.journal) await db.journal.bulkAdd(data.journal);
         if (data.resources) await db.resources.bulkAdd(data.resources);
-        if (data.settings) await db.settings.bulkAdd(data.settings);
+        if (data.progress) await db.progress.bulkAdd(data.progress);
+        if (data.settings) {
+          const settingsArray = Object.entries(data.settings).map(([key, value]) => ({ key, value }));
+          await db.settings.bulkAdd(settingsArray);
+        }
       });
+
+      clearCache(); // Clear all cache after import
+      console.log("Data imported successfully");
     } catch (error) {
       console.error("Error importing data:", error);
       throw error;
@@ -346,16 +452,18 @@ export const dataService = {
 
   async clearAll() {
     try {
-      await db.transaction('rw', db.plan, db.notes, db.journal, db.resources, db.settings, db.progress, async () => {
-        await db.plan.clear();
-        await db.notes.clear();
-        await db.journal.clear();
-        await db.resources.clear();
-        await db.settings.clear();
-        await db.progress.clear();
-      });
+      await Promise.all([
+        db.plan.clear(),
+        db.notes.clear(),
+        db.journal.clear(),
+        db.resources.clear(),
+        db.progress.clear(),
+        db.settings.clear()
+      ]);
+      clearCache(); // Clear all cache
+      console.log("All data cleared successfully");
     } catch (error) {
-      console.error("Error clearing all data:", error);
+      console.error("Error clearing data:", error);
       throw error;
     }
   }

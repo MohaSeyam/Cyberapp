@@ -123,12 +123,12 @@ export function AppProvider({ children }: AppProviderProps) {
     };
   }, []);
 
-  // Load initial data
+  // Load initial data - OPTIMIZED for performance
   const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Load language and theme from localStorage
+      // Load language and theme from localStorage - FAST
       const savedLang = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as Language || 'ar';
       const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as Theme || 'light';
       const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
@@ -144,147 +144,113 @@ export function AppProvider({ children }: AppProviderProps) {
         }
       }
       
-      // Load data from database with comprehensive safety checks
+      // Load critical data first (plan and progress) - PRIORITY LOADING
       let planData: Week[] = [];
       let progressData: Progress[] = [];
-      let notesData: Note[] = [];
-      let journalData: JournalEntry[] = [];
-      let resourcesData: Resource[] = [];
       
       try {
-        [planData, progressData, notesData, journalData, resourcesData] = await Promise.all([
+        [planData, progressData] = await Promise.all([
           planService.getAll().catch(() => []),
-          progressService.getAll().catch(() => []),
-          notesService.getAll().catch(() => []),
-          journalService.getAll().catch(() => []),
-          resourcesService.getAll().catch(() => [])
+          progressService.getAll().catch(() => [])
         ]);
       } catch (error) {
-        console.error("Error loading data from database:", error);
-        // Continue with empty arrays
+        console.error("Error loading critical data:", error);
       }
       
-      // Ensure all data are arrays
+      // Ensure critical data are arrays
       planData = Array.isArray(planData) ? planData : [];
       progressData = Array.isArray(progressData) ? progressData : [];
-      notesData = Array.isArray(notesData) ? notesData : [];
-      journalData = Array.isArray(journalData) ? journalData : [];
-      resourcesData = Array.isArray(resourcesData) ? resourcesData : [];
       
-      // Import plan if empty or incomplete
+      // Set critical data immediately for fast UI rendering
+      setPlan(planData);
+      setProgress(progressData);
+      
+      // Import plan if empty - OPTIMIZED
       if (planData.length === 0) {
         try {
           const importedPlan = await planService.importFromFile();
           planData = Array.isArray(importedPlan) ? importedPlan : [];
+          setPlan(planData);
           console.log("Imported plan:", planData.length, "weeks");
         } catch (error) {
           console.error("Failed to import plan:", error);
           toast.error("فشل في تحميل الخطة");
-          planData = [];
         }
       }
       
-      // Always verify that all weeks from phases.json are present
-      try {
-        const phasesData = await import('../data/phases.json');
-        const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-        const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-        
-        if (missingWeeks.length > 0) {
-          console.warn("Missing weeks in plan:", missingWeeks);
-          console.log("Current plan weeks:", planData.map(w => w.week));
+      // Load non-critical data in background - LAZY LOADING
+      setTimeout(async () => {
+        try {
+          let notesData: Note[] = [];
+          let journalData: JournalEntry[] = [];
+          let resourcesData: Resource[] = [];
           
-          // Force import from file if weeks are missing
-          try {
-            console.log("Forcing import from PlanData.json...");
-            const forcedPlan = await import('../data/PlanData.json');
-            planData = Array.isArray(forcedPlan.default) ? forcedPlan.default : [];
-            console.log("Forced import successful:", planData.length, "weeks");
-            
-            // Save to IndexedDB
-            await planService.save(planData);
-            console.log("Saved to IndexedDB");
-            
-            // Verify again after forced import
-            const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-            if (stillMissingWeeks.length > 0) {
-              console.error("Still missing weeks after forced import:", stillMissingWeeks);
-              toast.error(`${t('missingWeeks')}: ${stillMissingWeeks.join(', ')}`);
-            } else {
-              console.log("All weeks are now present!");
-              toast.success(t('dataLoadSuccess'));
+          [notesData, journalData, resourcesData] = await Promise.all([
+            notesService.getAll().catch(() => []),
+            journalService.getAll().catch(() => []),
+            resourcesService.getAll().catch(() => [])
+          ]);
+          
+          // Ensure all data are arrays
+          notesData = Array.isArray(notesData) ? notesData : [];
+          journalData = Array.isArray(journalData) ? journalData : [];
+          resourcesData = Array.isArray(resourcesData) ? resourcesData : [];
+          
+          // Organize data efficiently - BATCH PROCESSING
+          const organizedNotes: Record<string, Note[]> = {};
+          const organizedJournal: Record<string, JournalEntry[]> = {};
+          const organizedResources: { [key: string]: Resource[] } = {};
+          
+          // Process notes efficiently
+          for (let i = 0; i < notesData.length; i++) {
+            const note = notesData[i];
+            if (note && typeof note.weekId === 'number' && note.dayKey) {
+              const key = `${note.weekId}-${note.dayKey}`;
+              if (!organizedNotes[key]) organizedNotes[key] = [];
+              organizedNotes[key].push(note);
             }
-          } catch (forcedImportError) {
-            console.error("Failed to force import plan:", forcedImportError);
-            toast.error(t('planLoadFailed'));
           }
-        }
-      } catch (error) {
-        console.error("Error verifying weeks:", error);
-      }
-      
-      // Set state with validated data
-      setPlan(planData);
-      setProgress(progressData);
-      
-      // Organize notes and journal by week/day with safety checks - OPTIMIZED
-      const organizedNotes: Record<string, Note[]> = {};
-      const organizedJournal: Record<string, JournalEntry[]> = {};
-      const organizedResources: { [key: string]: Resource[] } = {};
-      
-      // Process notes in batches for better performance
-      const processNotes = () => {
-        for (let i = 0; i < notesData.length; i++) {
-          const note = notesData[i];
-          if (note && typeof note.weekId === 'number' && note.dayKey) {
-            const key = `${note.weekId}-${note.dayKey}`;
-            if (!organizedNotes[key]) organizedNotes[key] = [];
-            organizedNotes[key].push(note);
+          
+          // Process journal efficiently
+          for (let i = 0; i < journalData.length; i++) {
+            const entry = journalData[i];
+            if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
+              const key = `${entry.weekId}-${entry.dayKey}`;
+              if (!organizedJournal[key]) organizedJournal[key] = [];
+              organizedJournal[key].push(entry);
+            }
           }
-        }
-      };
-      
-      const processJournal = () => {
-        for (let i = 0; i < journalData.length; i++) {
-          const entry = journalData[i];
-          if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
-            const key = `${entry.weekId}-${entry.dayKey}`;
-            if (!organizedJournal[key]) organizedJournal[key] = [];
-            organizedJournal[key].push(entry);
+          
+          // Process resources efficiently
+          for (let i = 0; i < resourcesData.length; i++) {
+            const resource = resourcesData[i];
+            if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
+              const key = `${resource.weekId}-${resource.dayKey}`;
+              if (!organizedResources[key]) organizedResources[key] = [];
+              organizedResources[key].push(resource);
+            }
           }
+          
+          // Set app state with organized data
+          setAppState({
+            notes: organizedNotes,
+            journal: organizedJournal,
+            resources: organizedResources
+          });
+          
+          console.log("Background data loaded successfully:", {
+            notesCount: notesData.length,
+            journalCount: journalData.length,
+            resourcesCount: resourcesData.length
+          });
+        } catch (error) {
+          console.error("Error loading background data:", error);
         }
-      };
+      }, 100); // Small delay to prioritize UI rendering
       
-      const processResources = () => {
-        for (let i = 0; i < resourcesData.length; i++) {
-          const resource = resourcesData[i];
-          if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
-            const key = `${resource.weekId}-${resource.dayKey}`;
-            if (!organizedResources[key]) organizedResources[key] = [];
-            organizedResources[key].push(resource);
-          }
-        }
-      };
-      
-      // Process data in chunks to avoid blocking the main thread
-      setTimeout(processNotes, 0);
-      setTimeout(processJournal, 10);
-      setTimeout(processResources, 20);
-      
-      // Set app state after a short delay to allow processing
-      setTimeout(() => {
-        setAppState({
-          notes: organizedNotes,
-          journal: organizedJournal,
-          resources: organizedResources
-        });
-      }, 50);
-      
-      console.log("Data loaded successfully:", {
+      console.log("Critical data loaded successfully:", {
         planWeeks: planData.length,
-        progressItems: progressData.length,
-        notesCount: notesData.length,
-        journalCount: journalData.length
+        progressItems: progressData.length
       });
       
     } catch (error) {

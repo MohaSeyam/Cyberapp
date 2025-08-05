@@ -985,7 +985,7 @@ export default function ProgressPage() {
     exportLanguage: language
   });
 
-  // Memoized complex calculations - OPTIMIZED
+  // Memoized complex calculations - OPTIMIZED with early returns
   const streaks = useMemo(() => {
     if (!progress || progress.length === 0) return { current: 0, longest: 0 };
     
@@ -1012,7 +1012,7 @@ export default function ProgressPage() {
     return { current, longest };
   }, [progress]);
 
-  // Memoized stats calculation
+  // Memoized stats calculation with early return
   const stats = useMemo(() => {
     if (!plan || !progress) return null;
     return useProgressStats(plan, progress, streaks);
@@ -1085,33 +1085,13 @@ export default function ProgressPage() {
     orange: 'from-orange-500 to-orange-600'
   }), []);
 
+  // Memoized safeT function to prevent re-creation
   const safeT = useCallback((key: string) => {
-    const translations = {
-      progress: { ar: 'التقدم', en: 'Progress' },
-      trackYourLearning: { ar: 'تتبع رحلتك التعليمية', en: 'Track Your Learning Journey' },
-      completionRate: { ar: 'معدل الإكمال', en: 'Completion Rate' },
-      completionRateDesc: { ar: 'نسبة المهام المكتملة', en: 'Percentage of completed tasks' },
-      completedTasks: { ar: 'المهام المكتملة', en: 'Completed Tasks' },
-      completedTasksDesc: { ar: 'عدد المهام المنتهية', en: 'Number of finished tasks' },
-      timeSpent: { ar: 'الوقت المستغرق', en: 'Time Spent' },
-      timeSpentDesc: { ar: 'الوقت المستغرق في التعلم', en: 'Time spent learning' },
-      currentStreak: { ar: 'المسار الحالي', en: 'Current Streak' },
-      currentStreakDesc: { ar: 'أيام التعلم المتتالية', en: 'Consecutive learning days' },
-      overview: { ar: 'نظرة عامة', en: 'Overview' },
-      analytics: { ar: 'التحليلات', en: 'Analytics' },
-      skills: { ar: 'المهارات', en: 'Skills' },
-      achievements: { ar: 'الإنجازات', en: 'Achievements' },
-      suggestions: { ar: 'الاقتراحات', en: 'Suggestions' },
-      reports: { ar: 'التقارير', en: 'Reports' },
-      taskTypesDistribution: { ar: 'توزيع أنواع المهام', en: 'Task Types Distribution' },
-      distributionOfCompletedTasks: { ar: 'توزيع المهام المكتملة', en: 'Distribution of completed tasks' },
-      blueteam: { ar: 'الفريق الأزرق', en: 'Blue Team' },
-      redteam: { ar: 'الفريق الأحمر', en: 'Red Team' },
-      practical: { ar: 'عملي', en: 'Practical' },
-      theoretical: { ar: 'نظري', en: 'Theoretical' },
-      policies: { ar: 'السياسات', en: 'Policies' }
-    };
-    return translations[key]?.[language] || key;
+    try {
+      return language === 'ar' ? t(key) : t(key);
+    } catch {
+      return key;
+    }
   }, [language]);
 
   const getCurrentLanguageText = (text: { ar: string; en: string }) => {
@@ -1148,194 +1128,185 @@ export default function ProgressPage() {
     }
   }, []);
 
-  // Advanced Export Logic
+  // Memoized export functions to prevent re-creation
   const handleAdvancedExport = useCallback(async (options) => {
+    if (!plan || !appState) {
+      toast.error(language === 'ar' ? 'لا توجد بيانات للتصدير' : 'No data to export');
+      return;
+    }
+
     setIsExporting(true);
     try {
-      // Load required libraries
-      const { jsPDF } = await loadLibrary('jspdf');
-      const { default: Papa } = await loadLibrary('papaparse');
-      const XLSX = await loadLibrary('xlsx');
+      // Optimized export logic with early returns
+      const timestamp = new Date().toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US');
+      let fileName = `cyberplan-report-${Date.now()}`;
+      let blob;
 
-      // Filter data based on options
+      // Filter data efficiently
       const filteredData = filterDataByOptions(options, plan, appState);
-      
-      // Generate content based on format
-      let content, filename;
-      
-      switch (options.format) {
-        case 'pdf':
-          content = await generatePDFContent(filteredData, options, language);
-          filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.pdf`;
-          break;
-        case 'csv':
-          content = generateCSVContent(filteredData, options, language);
-          filename = `cyberplan-data-${new Date().toISOString().split('T')[0]}.csv`;
-          break;
-        case 'json':
-          content = JSON.stringify(filteredData, null, 2);
-          filename = `cyberplan-data-${new Date().toISOString().split('T')[0]}.json`;
-          break;
-        case 'markdown':
-          content = generateMarkdownContent(filteredData, options, language);
-          filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.md`;
-          break;
-        case 'txt':
-          content = generateTextContent(filteredData, options, language);
-          filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.txt`;
-          break;
-        default:
-          throw new Error('Unsupported format');
+      const { filteredTasks, filteredNotes, filteredResources } = filteredData;
+
+      if (filteredTasks.length === 0 && filteredNotes.length === 0) {
+        toast.error(language === 'ar' ? 'لا توجد بيانات للتصدير' : 'No data to export');
+        return;
       }
 
-      // Download file
-      const blob = new Blob([content], { 
-        type: options.format === 'pdf' ? 'application/pdf' : 
-              options.format === 'csv' ? 'text/csv' :
-              options.format === 'json' ? 'application/json' :
-              'text/plain'
-      });
+      // Calculate totals efficiently
+      const totalNotes = filteredNotes.length;
+      const totalResources = filteredResources.length;
+
+      // Create export data based on format
+      switch (options.format) {
+        case 'json': {
+          const exportData = {
+            metadata: {
+              appName: 'Gemini CyberPlan',
+              exportDate: timestamp,
+              reportType: options.reportType,
+              contentType: options.contentType,
+              language: language,
+              totalTasks: filteredTasks.length,
+              totalNotes: totalNotes,
+              totalResources: totalResources
+            },
+            tasks: filteredTasks.map(task => ({
+              id: task.id,
+              title: language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
+              type: task.type,
+              duration: task.duration,
+              isCompleted: progress.some(p => p.taskId === task.id && p.done)
+            })),
+            notes: filteredNotes.map(note => ({
+              id: note.id,
+              title: note.title,
+              content: note.content,
+              tags: note.tags,
+              createdAt: note.createdAt
+            })),
+            resources: filteredResources.map(resource => ({
+              id: resource.id,
+              title: resource.title,
+              type: resource.type,
+              url: resource.url
+            }))
+          };
+          
+          blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+          fileName += '.json';
+          break;
+        }
+        case 'pdf': {
+          try {
+            // Dynamic import for jsPDF - only when needed
+            const jsPDF = await import('jspdf').then(module => module.default);
+            const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
+            
+            // Basic PDF content
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.setTextColor('#1D4ED8');
+            doc.text(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report', 110, 60, { align: 'left' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor('#333');
+            doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}`, 110, 80, { align: 'left' });
+            
+            let y = 120;
+            doc.setFontSize(14);
+            doc.setTextColor('#1D4ED8');
+            doc.text(language === 'ar' ? 'ملخص التقرير' : 'Report Summary', 40, y);
+            y += 20;
+            doc.setFontSize(12);
+            doc.setTextColor('#222');
+            doc.text(`${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}`, 40, y);
+            y += 16;
+            doc.text(`${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}`, 40, y);
+            y += 16;
+            doc.text(`${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}`, 40, y);
+            
+            blob = doc.output('blob');
+            fileName += '.pdf';
+          } catch (pdfError) {
+            console.error('PDF generation error:', pdfError);
+            throw new Error('Failed to generate PDF. Please try another format.');
+          }
+          break;
+        }
+        case 'csv': {
+          try {
+            const csvData = [
+              ['Task ID', 'Title', 'Type', 'Duration', 'Completed'],
+              ...filteredTasks.map(task => [
+                task.id,
+                language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
+                task.type,
+                task.duration,
+                progress.some(p => p.taskId === task.id && p.done) ? 'Yes' : 'No'
+              ])
+            ];
+            
+            // Dynamic import for Papa - only when needed
+            const Papa = await import('papaparse').then(module => module.default);
+            const csv = Papa.unparse(csvData);
+            blob = new Blob([csv], { type: 'text/csv' });
+            fileName += '.csv';
+          } catch (csvError) {
+            console.error('CSV generation error:', csvError);
+            throw new Error('Failed to generate CSV. Please try another format.');
+          }
+          break;
+        }
+        default: {
+          // Default to text format
+          let txt = `${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
+          txt += `${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}\n\n`;
+          txt += `${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}\n`;
+          txt += `${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}\n`;
+          txt += `${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}\n`;
+          
+          blob = new Blob([txt], { type: 'text/plain' });
+          fileName += '.txt';
+          break;
+        }
+      }
+      
+      // Download the file
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
-      toast.success(language === 'ar' ? 'تم تصدير التقرير بنجاح!' : 'Report exported successfully!');
+      
+      toast.success(
+        language === 'ar' 
+          ? '✓ تم تصدير التقرير بنجاح' 
+          : '✓ Report exported successfully'
+      );
     } catch (error) {
       console.error('Export error:', error);
-      toast.error(language === 'ar' ? 'حدث خطأ أثناء التصدير' : 'Export failed');
+      toast.error(
+        language === 'ar' 
+          ? `❌ فشل في تصدير التقرير: ${error.message}` 
+          : `❌ Failed to export report: ${error.message}`
+      );
     } finally {
       setIsExporting(false);
     }
-  }, [plan, appState, language]);
+  }, [language, plan, progress, appState]);
 
-  // Content generation functions
-  const generatePDFContent = async (data, options, lang) => {
-    const { jsPDF } = await loadLibrary('jspdf');
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(20);
-    doc.text(lang === 'ar' ? 'تقرير CyberPlan' : 'CyberPlan Report', 20, 20);
-    
-    // Add content based on options
-    if (options.content === 'progress' || options.content === 'both') {
-      doc.setFontSize(14);
-      doc.text(lang === 'ar' ? 'التقدم:' : 'Progress:', 20, 40);
-      // Add progress data...
-    }
-    
-    if (options.content === 'notes' || options.content === 'both') {
-      doc.setFontSize(14);
-      doc.text(lang === 'ar' ? 'الملاحظات:' : 'Notes:', 20, 80);
-      // Add notes data...
-    }
-    
-    return doc.output('blob');
-  };
-
-  const generateCSVContent = (data, options, lang) => {
-    const headers = lang === 'ar' ? 
-      ['المهمة', 'النوع', 'الحالة', 'التاريخ'] : 
-      ['Task', 'Type', 'Status', 'Date'];
-    
-    const rows = data.tasks?.map(task => [
-      lang === 'ar' ? task.description?.ar || '' : task.description?.en || '',
-      task.type || '',
-      task.isCompleted ? (lang === 'ar' ? 'مكتمل' : 'Completed') : (lang === 'ar' ? 'قيد التنفيذ' : 'In Progress'),
-      task.date || ''
-    ]) || [];
-    
-    return Papa.unparse({ fields: headers, data: rows });
-  };
-
-  const generateMarkdownContent = (data, options, lang) => {
-    let content = `# ${lang === 'ar' ? 'تقرير CyberPlan' : 'CyberPlan Report'}\n\n`;
-    
-    if (options.content === 'progress' || options.content === 'both') {
-      content += `## ${lang === 'ar' ? 'التقدم' : 'Progress'}\n\n`;
-      data.tasks?.forEach(task => {
-        content += `- ${lang === 'ar' ? task.description?.ar || '' : task.description?.en || ''} (${task.type})\n`;
-      });
-    }
-    
-    if (options.content === 'notes' || options.content === 'both') {
-      content += `\n## ${lang === 'ar' ? 'الملاحظات' : 'Notes'}\n\n`;
-      data.notes?.forEach(note => {
-        content += `### ${note.title}\n${note.content}\n\n`;
-      });
-    }
-    
-    return content;
-  };
-
-  const generateTextContent = (data, options, lang) => {
-    let content = `${lang === 'ar' ? 'تقرير CyberPlan' : 'CyberPlan Report'}\n`;
-    content += '='.repeat(50) + '\n\n';
-    
-    if (options.content === 'progress' || options.content === 'both') {
-      content += `${lang === 'ar' ? 'التقدم:' : 'Progress:'}\n`;
-      data.tasks?.forEach(task => {
-        content += `- ${lang === 'ar' ? task.description?.ar || '' : task.description?.en || ''}\n`;
-      });
-    }
-    
-    return content;
-  };
-
-  // Filter data based on export options
-  const filterDataByOptions = useCallback((options, planData, appStateData) => {
-    const result = {
-      tasks: [],
-      notes: [],
-      journalEntries: [],
-      resources: []
-    };
-
-    // Filter tasks based on time range
-    let filteredTasks = [];
-    if (options.timeRange === 'current-week') {
-      const currentWeek = new Date();
-      const weekStart = new Date(currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay()));
-      filteredTasks = planData.flatMap(w => w.days || [])
-        .flatMap(d => d.tasks || [])
-        .filter(task => {
-          const taskDate = new Date(task.date || Date.now());
-          return taskDate >= weekStart;
-        });
-    } else if (options.timeRange === 'current-phase') {
-      // Filter by current phase logic
-      filteredTasks = planData.flatMap(w => w.days || [])
-        .flatMap(d => d.tasks || []);
-    } else {
-      // All tasks
-      filteredTasks = planData.flatMap(w => w.days || [])
-        .flatMap(d => d.tasks || []);
-    }
-
-    // Add progress information to tasks
-    result.tasks = filteredTasks.map(task => ({
-      ...task,
-      isCompleted: progress.some(p => p.taskId === task.id && p.done),
-      completedDate: progress.find(p => p.taskId === task.id && p.done)?.dayKey
-    }));
-
-    // Filter notes and journal entries
-    if (options.content === 'notes' || options.content === 'both') {
-      result.notes = appStateData.notes || [];
-      result.journalEntries = appStateData.journalEntries || [];
-    }
-
-    // Filter resources
-    result.resources = planData.flatMap(w => w.days || [])
-      .flatMap(d => d.resources || []);
-
-    return result;
-  }, [progress]);
+  // Early return if no data
+  if (!plan || !progress || !stats) {
+    return (
+      <WeekPhaseProvider>
+        <div className="flex items-center justify-center min-h-screen">
+          <LoadingSpinner />
+        </div>
+      </WeekPhaseProvider>
+    );
+  }
 
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
