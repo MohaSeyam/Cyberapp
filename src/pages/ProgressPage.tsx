@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import { openDB } from 'idb';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { loadLibrary } from '../utils/lazyImports';
+import EnhancedOverviewTab from '../components/progress/EnhancedOverviewTab';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -414,7 +415,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
             >
               <Card className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br from-${metric.color}-50 to-${metric.color}-100 dark:from-${metric.color}-900/20 dark:to-${metric.color}-900/30 opacity-50 group-hover:opacity-75 transition-opacity duration-300`} />
+                <div className={`absolute inset-0 bg-gradient-to-br ${colorClassMap[metric.color]?.bgLight} ${colorClassMap[metric.color]?.bgDark} opacity-50 group-hover:opacity-75 transition-opacity duration-300`} />
                 
                 {/* Content */}
                 <div className="relative z-10 p-6">
@@ -443,7 +444,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       />
                       <path
-                        className={`text-${metric.color}-500`}
+                        className={colorClassMap[metric.color]?.text500}
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
@@ -498,13 +499,13 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`text-center p-4 bg-${item.color}-50 dark:bg-${item.color}-900/20 rounded-lg border border-${item.color}-200 dark:border-${item.color}-700 hover:shadow-md transition-all duration-300`}
+                className={`text-center p-4 ${colorClassMap[item.color]?.bgLight} ${colorClassMap[item.color]?.bgDark} rounded-lg border ${colorClassMap[item.color]?.border200} ${colorClassMap[item.color]?.border700} hover:shadow-md transition-all duration-300`}
               >
-                <div className={`text-3xl font-bold text-${item.color}-600 dark:text-${item.color}-400 mb-2`}>
+                <div className={`text-3xl font-bold ${colorClassMap[item.color]?.text600} dark:${colorClassMap[item.color]?.text400} mb-2`}>
                   {item.count}
                 </div>
                 <div className="flex items-center justify-center mb-2">
-                  <Icon className={`w-5 h-5 text-${item.color}-500 mr-2`} />
+                  <Icon className={`w-5 h-5 ${colorClassMap[item.color]?.text500} mr-2`} />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {safeT(item.type.toLowerCase().replace(' ', ''))}
                   </span>
@@ -934,8 +935,8 @@ const EnhancedReportsTab = React.memo(() => {
             },
             tasks: filteredTasks.map(task => ({
               id: task.id,
-              title: language === 'ar' ? task.description.ar : task.description.en,
-              description: language === 'ar' ? task.description.ar : task.description.en,
+              title: language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
+              description: language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
               type: task.type,
               duration: task.duration,
               isCompleted: progress.some(p => p.taskId === task.id && p.done),
@@ -1007,7 +1008,7 @@ const EnhancedReportsTab = React.memo(() => {
               ['Task ID', 'Title', 'Type', 'Duration', 'Completed'],
               ...filteredTasks.map(task => [
                 task.id,
-                language === 'ar' ? task.description.ar : task.description.en,
+                language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
                 task.type,
                 task.duration,
                 progress.some(p => p.taskId === task.id && p.done) ? 'Yes' : 'No'
@@ -1432,7 +1433,7 @@ export default function ProgressPage() {
                     {isExporting && <LoadingSpinner />}
                     {activeTab === 'overview' && (
                       <Suspense fallback={<LoadingSpinner />}>
-                        <ProgressOverview />
+                        <EnhancedOverviewTab stats={stats} language={language} safeT={safeT} />
                       </Suspense>
                     )}
                     {activeTab === 'analytics' && (
