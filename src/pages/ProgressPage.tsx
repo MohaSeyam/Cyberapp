@@ -30,6 +30,8 @@ import EnhancedAnalyticsTab from '../components/progress/EnhancedAnalyticsTab';
 import EnhancedSkillsTab from '../components/progress/EnhancedSkillsTab';
 import EnhancedAchievementsTab from '../components/progress/EnhancedAchievementsTab';
 import EnhancedSuggestionsTab from '../components/progress/EnhancedSuggestionsTab';
+import EnhancedReportsTab from '../components/progress/EnhancedReportsTab';
+import useProgressStats from '../hooks/useProgressStats';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -56,68 +58,6 @@ const EXPORT_FORMATS = [
   { id: 'markdown', label: 'Markdown' },
   { id: 'txt', label: 'Text' }
 ];
-
-// Custom CSS for enhanced tabs
-const enhancedTabStyles = `
-  .tab-container {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .tab-indicator {
-    position: absolute;
-    bottom: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
-    border-radius: 2px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .tab-item {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .tab-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transition: left 0.5s;
-  }
-  
-  .tab-item:hover::before {
-    left: 100%;
-  }
-  
-  .tab-content {
-    animation: fadeInUp 0.3s ease-out;
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .progress-ring {
-    transform: rotate(-90deg);
-  }
-  
-  .progress-ring-circle {
-    transition: stroke-dasharray 0.35s;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-  }
-`;
 
 // Tab Types
 type TabType = 'overview' | 'analytics' | 'skills' | 'achievements' | 'suggestions' | 'reports';
@@ -149,12 +89,6 @@ interface ReportOptions {
   };
   phaseId?: number;
 }
-
-// Helper function to avoid template literal issues
-const getProgressText = (rate: number, completed: number, total: number, lang: string) => {
-  const baseText = rate + '% Complete - ' + completed + '/' + total + ' tasks';
-  return lang === 'ar' ? baseText : baseText;
-};
 
 // Enhanced Tab Configuration
 const ENHANCED_TABS = [
@@ -323,48 +257,6 @@ const colorClassMap = {
     border700: 'dark:border-orange-700',
     text500: 'text-orange-500',
   },
-};
-
-// --- 1. Custom Hook for Logic Separation ---
-const useProgressStats = (plan, progress, streaks) => {
-  return useMemo(() => {
-    const allTasks = plan.flatMap(w => w.days || []).flatMap(d => d.tasks || []);
-    const taskMap = new Map(allTasks.map(t => [t.id, t]));
-    
-    const totalTasks = taskMap.size;
-    const completedProgress = progress.filter(p => p.done);
-    const completedTasksCount = completedProgress.length;
-    const completionRate = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
-
-    const completedDuration = completedProgress.reduce((total, p) => {
-      const task = taskMap.get(p.taskId);
-      return total + (task?.duration || 0);
-    }, 0);
-
-    const totalDuration = allTasks.reduce((total, task) => total + (task?.duration || 0), 0);
-
-    const completedTaskTypes = completedProgress.map(p => taskMap.get(p.taskId)?.type).filter(Boolean);
-    const blueTeamTasks = completedTaskTypes.filter(type => type === 'Blue Team').length;
-    const redTeamTasks = completedTaskTypes.filter(type => type === 'Red Team').length;
-    const practicalTasks = completedTaskTypes.filter(type => type === 'Practical').length;
-    const theoreticalTasks = completedTaskTypes.filter(type => type === 'Theoretical').length;
-    const policiesTasks = completedTaskTypes.filter(type => type === 'Policies').length;
-
-    return {
-      completionRate,
-      completedTasks: completedTasksCount,
-      totalTasks,
-      completedDuration,
-      totalDuration,
-      currentStreak: streaks.current,
-      longestStreak: streaks.longest,
-      blueTeamTasks,
-      redTeamTasks,
-      practicalTasks,
-      theoreticalTasks,
-      policiesTasks,
-    };
-  }, [plan, progress, streaks]);
 };
 
 // Enhanced Overview Tab Component
@@ -1039,217 +931,7 @@ const EnhancedReportsTab = React.memo(() => {
   }, [language, plan, progress, appState]);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              {getCurrentLanguageText({ ar: 'تصدير التقارير', en: 'Export Reports' })}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {getCurrentLanguageText({ ar: 'إنشاء تقارير مفصلة للتقدم', en: 'Generate detailed progress reports' })}
-            </p>
-          </div>
-          <Download className="w-6 h-6 text-blue-500" />
-        </div>
-      </Card>
-
-      {/* Export Options */}
-      <Card className="p-6">
-        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {getCurrentLanguageText({ ar: 'خيارات التصدير', en: 'Export Options' })}
-        </h4>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Report Type */}
-          <div>
-            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-              {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}
-            </label>
-            <select
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={exportOptions.reportType}
-              onChange={e => setExportOptions(o => ({ ...o, reportType: e.target.value }))}
-            >
-              <option value="weekly">{getCurrentLanguageText({ ar: 'أسبوعي', en: 'Weekly' })}</option>
-              <option value="phase">{getCurrentLanguageText({ ar: 'مرحلي', en: 'Phase' })}</option>
-              <option value="complete">{getCurrentLanguageText({ ar: 'كامل', en: 'Complete' })}</option>
-              <option value="custom">{getCurrentLanguageText({ ar: 'مخصص', en: 'Custom' })}</option>
-            </select>
-          </div>
-
-          {/* Content Type */}
-          <div>
-            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-              {getCurrentLanguageText({ ar: 'نوع المحتوى', en: 'Content Type' })}
-            </label>
-            <select
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={exportOptions.contentType}
-              onChange={e => setExportOptions(o => ({ ...o, contentType: e.target.value }))}
-            >
-              <option value="progress">{getCurrentLanguageText({ ar: 'التقدم فقط', en: 'Progress Only' })}</option>
-              <option value="notes">{getCurrentLanguageText({ ar: 'الملاحظات فقط', en: 'Notes Only' })}</option>
-              <option value="both">{getCurrentLanguageText({ ar: 'التقدم والملاحظات', en: 'Progress & Notes' })}</option>
-            </select>
-          </div>
-
-          {/* Week Selection (for weekly reports) */}
-          {exportOptions.reportType === 'weekly' && (
-            <div>
-              <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-                {getCurrentLanguageText({ ar: 'اختر الأسبوع', en: 'Select Week' })}
-              </label>
-              <select
-                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                value={exportOptions.selectedWeek}
-                onChange={e => setExportOptions(o => ({ ...o, selectedWeek: e.target.value }))}
-              >
-                <option value="">{getCurrentLanguageText({ ar: 'اختر الأسبوع', en: 'Select Week' })}</option>
-                {weeksList.map(week => (
-                  <option key={week.id} value={week.id}>{week.label}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Phase Selection (for phase reports) */}
-          {exportOptions.reportType === 'phase' && (
-            <div>
-              <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-                {getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}
-              </label>
-              <select
-                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                value={exportOptions.selectedPhase}
-                onChange={e => setExportOptions(o => ({ ...o, selectedPhase: e.target.value }))}
-              >
-                <option value="">{getCurrentLanguageText({ ar: 'اختر المرحلة', en: 'Select Phase' })}</option>
-                {phasesList.map(phase => (
-                  <option key={phase.id} value={phase.id}>{phase.label}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Custom Date Range */}
-          {exportOptions.reportType === 'custom' && (
-            <>
-              <div>
-                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  {getCurrentLanguageText({ ar: 'من تاريخ', en: 'From Date' })}
-                </label>
-                <input
-                  type="date"
-                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  value={exportOptions.dateRange.start}
-                  onChange={e => setExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, start: e.target.value } }))}
-                />
-              </div>
-              <div>
-                <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  {getCurrentLanguageText({ ar: 'إلى تاريخ', en: 'To Date' })}
-                </label>
-                <input
-                  type="date"
-                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  value={exportOptions.dateRange.end}
-                  onChange={e => setExportOptions(o => ({ ...o, dateRange: { ...o.dateRange, end: e.target.value } }))}
-                />
-              </div>
-            </>
-          )}
-
-          {/* Format Selection */}
-          <div>
-            <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-              {getCurrentLanguageText({ ar: 'صيغة الملف', en: 'File Format' })}
-            </label>
-            <select
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              value={exportOptions.format}
-              onChange={e => setExportOptions(o => ({ ...o, format: e.target.value }))}
-            >
-              <option value="pdf">PDF</option>
-              <option value="csv">CSV</option>
-              <option value="json">JSON</option>
-              <option value="markdown">Markdown</option>
-              <option value="txt">Text</option>
-            </select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Export Summary */}
-      <Card className="p-6">
-        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {getCurrentLanguageText({ ar: 'ملخص التصدير', en: 'Export Summary' })}
-        </h4>
-        
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">
-              {getCurrentLanguageText({ ar: 'نوع التقرير', en: 'Report Type' })}:
-            </span>
-            <span className="font-medium text-gray-900 dark:text-white">
-              {getCurrentLanguageText({
-                ar: exportOptions.reportType === 'weekly' ? 'أسبوعي' : 
-                    exportOptions.reportType === 'phase' ? 'مرحلي' : 
-                    exportOptions.reportType === 'complete' ? 'كامل' : 'مخصص',
-                en: exportOptions.reportType === 'weekly' ? 'Weekly' : 
-                    exportOptions.reportType === 'phase' ? 'Phase' : 
-                    exportOptions.reportType === 'complete' ? 'Complete' : 'Custom'
-              })}
-            </span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">
-              {getCurrentLanguageText({ ar: 'نوع المحتوى', en: 'Content Type' })}:
-            </span>
-            <span className="font-medium text-gray-900 dark:text-white">
-              {getCurrentLanguageText({
-                ar: exportOptions.contentType === 'progress' ? 'التقدم فقط' : 
-                    exportOptions.contentType === 'notes' ? 'الملاحظات فقط' : 'التقدم والملاحظات',
-                en: exportOptions.contentType === 'progress' ? 'Progress Only' : 
-                    exportOptions.contentType === 'notes' ? 'Notes Only' : 'Progress & Notes'
-              })}
-            </span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">
-              {getCurrentLanguageText({ ar: 'صيغة الملف', en: 'File Format' })}:
-            </span>
-            <span className="font-medium text-gray-900 dark:text-white">
-              {exportOptions.format.toUpperCase()}
-            </span>
-          </div>
-        </div>
-      </Card>
-
-      {/* Export Button */}
-      <Card className="p-6">
-        <Button 
-          onClick={handleExport}
-          disabled={isExporting}
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
-        >
-          {isExporting ? (
-            <>
-              <LoadingSpinner />
-              <span className="ml-2">{getCurrentLanguageText({ ar: 'جاري التصدير...', en: 'Exporting...' })}</span>
-            </>
-          ) : (
-            <>
-              <Download className="w-5 h-5 mr-2" />
-              {getCurrentLanguageText({ ar: 'تصدير التقرير', en: 'Export Report' })}
-            </>
-          )}
-        </Button>
-      </Card>
-    </div>
+    <EnhancedReportsTab plan={plan} progress={progress} appState={appState} stats={stats} language={language} />
   );
 });
 
@@ -1316,7 +998,7 @@ export default function ProgressPage() {
     return { current, longest };
   }, [progress]);
 
-  const stats = useMemo(() => useProgressStats(plan, progress, streaks), [plan, progress, streaks]);
+  const stats = useProgressStats(plan, progress, streaks);
 
   const safeT = useCallback((key: string) => {
     const translations = {
@@ -1434,9 +1116,6 @@ export default function ProgressPage() {
             </Card>
           </motion.div>
         </PageLayout>
-
-        {/* Custom Styles */}
-        <style dangerouslySetInnerHTML={{ __html: enhancedTabStyles }} />
       </div>
     </WeekPhaseProvider>
   );

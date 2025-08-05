@@ -4,6 +4,16 @@ import { AppProvider } from './context/AppContext';
 import { Toaster } from 'react-hot-toast';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import LanguageProvider from './components/layout/LanguageProvider';
+import { ErrorBoundary } from 'react-error-boundary';
+
+function ErrorFallback({ error }) {
+  return (
+    <div className="p-8 text-center text-red-600 dark:text-red-400">
+      <h2 className="text-2xl font-bold mb-4">حدث خطأ غير متوقع</h2>
+      <p>{error?.message || 'يرجى إعادة تحميل الصفحة أو المحاولة لاحقًا.'}</p>
+    </div>
+  );
+}
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -41,26 +51,28 @@ function App() {
     <AppProvider>
       <LanguageProvider>
         <Router>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Toaster />
-            <Routes key={key}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/progress" element={<ProgressPage />} />
-              <Route path="/export" element={<ExportPage />} />
-              <Route path="/phases" element={<PhasesPage />} />
-              <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
-              <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-              <Route path="/days/:weekId" element={<DaysPage />} />
-              <Route path="/notes" element={<NotesPage />} />
-              <Route path="/journal" element={<JournalPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/note/:noteId" element={<NoteViewPage />} />
-              <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
-              <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
-              <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
-              <Route path="/features" element={<FeaturesDemoPage />} />
-            </Routes>
-          </Suspense>
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Toaster />
+              <Routes key={key}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/progress" element={<ProgressPage />} />
+                <Route path="/export" element={<ExportPage />} />
+                <Route path="/phases" element={<PhasesPage />} />
+                <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+                <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+                <Route path="/days/:weekId" element={<DaysPage />} />
+                <Route path="/notes" element={<NotesPage />} />
+                <Route path="/journal" element={<JournalPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/note/:noteId" element={<NoteViewPage />} />
+                <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
+                <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
+                <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
+                <Route path="/features" element={<FeaturesDemoPage />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </Router>
       </LanguageProvider>
     </AppProvider>
