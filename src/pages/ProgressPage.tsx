@@ -261,6 +261,65 @@ const ENHANCED_TAB_STYLES = {
   }
 } as const;
 
+// أضف في أعلى الملف:
+const colorClassMap = {
+  blue: {
+    bgLight: 'bg-blue-50',
+    bgDark: 'dark:bg-blue-900/20',
+    bg100: 'bg-blue-100',
+    bg800: 'dark:bg-blue-800',
+    text600: 'text-blue-600',
+    text400: 'dark:text-blue-400',
+    border200: 'border-blue-200',
+    border700: 'dark:border-blue-700',
+    text500: 'text-blue-500',
+  },
+  red: {
+    bgLight: 'bg-red-50',
+    bgDark: 'dark:bg-red-900/20',
+    bg100: 'bg-red-100',
+    bg800: 'dark:bg-red-800',
+    text600: 'text-red-600',
+    text400: 'dark:text-red-400',
+    border200: 'border-red-200',
+    border700: 'dark:border-red-700',
+    text500: 'text-red-500',
+  },
+  green: {
+    bgLight: 'bg-green-50',
+    bgDark: 'dark:bg-green-900/20',
+    bg100: 'bg-green-100',
+    bg800: 'dark:bg-green-800',
+    text600: 'text-green-600',
+    text400: 'dark:text-green-400',
+    border200: 'border-green-200',
+    border700: 'dark:border-green-700',
+    text500: 'text-green-500',
+  },
+  purple: {
+    bgLight: 'bg-purple-50',
+    bgDark: 'dark:bg-purple-900/20',
+    bg100: 'bg-purple-100',
+    bg800: 'dark:bg-purple-800',
+    text600: 'text-purple-600',
+    text400: 'dark:text-purple-400',
+    border200: 'border-purple-200',
+    border700: 'dark:border-purple-700',
+    text500: 'text-purple-500',
+  },
+  orange: {
+    bgLight: 'bg-orange-50',
+    bgDark: 'dark:bg-orange-900/20',
+    bg100: 'bg-orange-100',
+    bg800: 'dark:bg-orange-800',
+    text600: 'text-orange-600',
+    text400: 'dark:text-orange-400',
+    border200: 'border-orange-200',
+    border700: 'dark:border-orange-700',
+    text500: 'text-orange-500',
+  },
+};
+
 // --- 1. Custom Hook for Logic Separation ---
 const useProgressStats = (plan, progress, streaks) => {
   return useMemo(() => {
@@ -360,8 +419,8 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
                 {/* Content */}
                 <div className="relative z-10 p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 bg-${metric.color}-100 dark:bg-${metric.color}-800 rounded-full`}>
-                      <Icon className={`w-6 h-6 text-${metric.color}-600 dark:text-${metric.color}-400`} />
+                    <div className={`p-3 ${colorClassMap[metric.color]?.bg100} ${colorClassMap[metric.color]?.bg800} rounded-full`}>
+                      <Icon className={`w-6 h-6 ${colorClassMap[metric.color]?.text600} dark:${colorClassMap[metric.color]?.text400}`} />
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
