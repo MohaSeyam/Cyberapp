@@ -86,6 +86,35 @@ export default function PhasesPage() {
       showHeader={false}
     >
       <motion.div {...animations.fadeIn} className="space-y-8">
+        {/* Overall Progress Summary - Moved to top */}
+        <motion.div {...animations.fadeIn}>
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {language === 'ar' ? 'ملخص التقدم العام' : 'Overall Progress Summary'}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' 
+                    ? 'تتبع تقدمك عبر جميع مراحل التعلم' 
+                    : 'Track your progress across all learning phases'
+                  }
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {phasesData.length > 0 
+                    ? Math.round(phasesData.reduce((sum, phase) => sum + phase.progressPercentage, 0) / phasesData.length)
+                    : 0}%
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {language === 'ar' ? 'متوسط التقدم' : 'Average Progress'}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
         {/* Phase Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {phasesData.map((phase, index) => {
@@ -250,35 +279,6 @@ export default function PhasesPage() {
             );
           })}
         </div>
-
-        {/* Overall Progress Summary */}
-        <motion.div {...animations.fadeIn} className="mt-8">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  {language === 'ar' ? 'ملخص التقدم العام' : 'Overall Progress Summary'}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {language === 'ar' 
-                    ? 'تتبع تقدمك عبر جميع مراحل التعلم' 
-                    : 'Track your progress across all learning phases'
-                  }
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {phasesData.length > 0 
-                    ? Math.round(phasesData.reduce((sum, phase) => sum + phase.progressPercentage, 0) / phasesData.length)
-                    : 0}%
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {language === 'ar' ? 'متوسط التقدم' : 'Average Progress'}
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
       </motion.div>
     </PageLayout>
   );
