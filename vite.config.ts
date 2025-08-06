@@ -28,14 +28,22 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['framer-motion', 'lucide-react'],
           'utils-vendor': ['react-hot-toast', 'idb'],
-          'charts-vendor': ['recharts', 'd3'],
+          'charts-vendor': ['recharts'],
           'pdf-vendor': ['jspdf', 'html2canvas'],
           'csv-vendor': ['papaparse'],
           
           // Feature chunks
           'progress': [
             './src/pages/ProgressPage.tsx',
-            './src/components/progress/',
+            './src/components/progress/EnhancedOverviewTab.tsx',
+            './src/components/progress/EnhancedAnalyticsTab.tsx',
+            './src/components/progress/EnhancedSuggestionsTab.tsx',
+            './src/components/progress/EnhancedAchievementsTab.tsx',
+            './src/components/progress/EnhancedSkillsTab.tsx',
+            './src/components/progress/EnhancedReportsTab.tsx',
+            './src/components/progress/ProgressAnalytics.tsx',
+            './src/components/progress/ProgressOverview.tsx',
+            './src/components/progress/OverallProgressCard.tsx',
             './src/hooks/useProgressStats.ts'
           ],
           'phases': [
@@ -118,8 +126,7 @@ export default defineConfig({
       'jspdf',
       'html2canvas',
       'papaparse',
-      'recharts',
-      'd3'
+      'recharts'
     ]
   },
   
