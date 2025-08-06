@@ -153,18 +153,52 @@ export default function PhasesPage() {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {phase.weeks.slice(0, 8).map((week, weekIndex) => (
-                          <div
-                            key={weekIndex}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                              progress.some(p => p.weekId === week.week && p.done)
-                                ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                            }`}
-                          >
-                            {week.week}
-                          </div>
-                        ))}
+                        {phase.weeks.slice(0, 8).map((week, weekIndex) => {
+                          const isCompleted = progress.some(p => p.weekId === week.week && p.done);
+                          const isInProgress = progress.some(p => p.weekId === week.week && !p.done);
+                          
+                          let weekColorClass = '';
+                          if (isCompleted) {
+                            // Completed weeks - use phase color with success variant
+                            weekColorClass = color === 'blue' ? 'bg-blue-500 text-white shadow-lg' :
+                                           color === 'green' ? 'bg-green-500 text-white shadow-lg' :
+                                           color === 'purple' ? 'bg-purple-500 text-white shadow-lg' :
+                                           color === 'orange' ? 'bg-orange-500 text-white shadow-lg' :
+                                           color === 'red' ? 'bg-red-500 text-white shadow-lg' :
+                                           'bg-indigo-500 text-white shadow-lg';
+                          } else if (isInProgress) {
+                            // In progress weeks - use phase color with lighter variant
+                            weekColorClass = color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 border-2 border-blue-300 dark:border-blue-600' :
+                                           color === 'green' ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 border-2 border-green-300 dark:border-green-600' :
+                                           color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 border-2 border-purple-300 dark:border-purple-600' :
+                                           color === 'orange' ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600' :
+                                           color === 'red' ? 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 border-2 border-red-300 dark:border-red-600' :
+                                           'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-300 dark:border-indigo-600';
+                          } else {
+                            // Not started weeks - neutral gray
+                            weekColorClass = 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400';
+                          }
+
+                          return (
+                            <div
+                              key={weekIndex}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300 hover:scale-110 ${weekColorClass}`}
+                              title={isCompleted ? 
+                                (language === 'ar' ? `الأسبوع ${week.week} مكتمل` : `Week ${week.week} completed`) :
+                                isInProgress ? 
+                                (language === 'ar' ? `الأسبوع ${week.week} قيد التقدم` : `Week ${week.week} in progress`) :
+                                (language === 'ar' ? `الأسبوع ${week.week} لم يبدأ` : `Week ${week.week} not started`)
+                              }
+                            >
+                              {isCompleted && (
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                                </div>
+                              )}
+                              {week.week}
+                            </div>
+                          );
+                        })}
                         {phase.weeks.length > 8 && (
                           <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
                             +{phase.weeks.length - 8}
