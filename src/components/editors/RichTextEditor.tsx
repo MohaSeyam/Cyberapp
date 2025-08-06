@@ -117,37 +117,37 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   const insertLink = () => {
-    const url = prompt('أدخل الرابط:', 'https://');
+    const url = prompt('أدخل الرابط:');
     if (url) {
       execCommand('createLink', url);
     }
   };
 
   const insertImage = () => {
-    const url = prompt('أدخل رابط الصورة:', 'https://');
+    const url = prompt('أدخل رابط الصورة:');
     if (url) {
       execCommand('insertImage', url);
     }
   };
 
   const changeFontSize = (size: string) => {
-    setFontSize(size);
     execCommand('fontSize', size);
+    setFontSize(size);
   };
 
   const changeFontFamily = (font: string) => {
-    setFontFamily(font);
     execCommand('fontName', font);
+    setFontFamily(font);
   };
 
   const changeTextColor = (color: string) => {
-    setTextColor(color);
     execCommand('foreColor', color);
+    setTextColor(color);
   };
 
   const changeBackgroundColor = (color: string) => {
-    setBackgroundColor(color);
     execCommand('hiliteColor', color);
+    setBackgroundColor(color);
   };
 
   const clearFormatting = () => {
@@ -158,16 +158,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const rows = prompt('عدد الصفوف:', '3');
     const cols = prompt('عدد الأعمدة:', '3');
     if (rows && cols) {
-      let tableHTML = '<table border="1" style="border-collapse: collapse;">';
+      let table = '<table border="1" style="border-collapse: collapse; width: 100%;">';
       for (let i = 0; i < parseInt(rows); i++) {
-        tableHTML += '<tr>';
+        table += '<tr>';
         for (let j = 0; j < parseInt(cols); j++) {
-          tableHTML += '<td style="padding: 8px; border: 1px solid #ccc;">&nbsp;</td>';
+          table += '<td style="padding: 8px; border: 1px solid #ccc;">&nbsp;</td>';
         }
-        tableHTML += '</tr>';
+        table += '</tr>';
       }
-      tableHTML += '</table>';
-      execCommand('insertHTML', tableHTML);
+      table += '</table>';
+      execCommand('insertHTML', table);
     }
   };
 
@@ -175,11 +175,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     execCommand('insertHorizontalRule');
   };
 
-  const insertSpecialCharacter = (char: string) => {
-    execCommand('insertText', char);
-  };
-
+  // Reorganized toolbar with grouped similar tools
   const toolbarButtons = [
+    // Undo/Redo Group
     {
       name: 'undo',
       icon: Undo,
@@ -193,6 +191,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'إعادة'
     },
     { name: 'separator' },
+    
+    // Text Formatting Group
     {
       name: 'bold',
       icon: Bold,
@@ -222,6 +222,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'خط في المنتصف'
     },
     { name: 'separator' },
+    
+    // Font Settings Group
     {
       name: 'fontFamily',
       icon: Type,
@@ -251,6 +253,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'لون الخلفية'
     },
     { name: 'separator' },
+    
+    // Alignment Group
     {
       name: 'alignLeft',
       icon: AlignLeft,
@@ -270,6 +274,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'محاذاة لليمين'
     },
     { name: 'separator' },
+    
+    // Indentation Group
     {
       name: 'indent',
       icon: Indent,
@@ -283,6 +289,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'تقليل المسافة البادئة'
     },
     { name: 'separator' },
+    
+    // Headings Group
     {
       name: 'heading1',
       icon: Heading1,
@@ -302,6 +310,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'عنوان رئيسي 3'
     },
     { name: 'separator' },
+    
+    // Lists and Blocks Group
     {
       name: 'bulletList',
       icon: List,
@@ -327,6 +337,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'كود'
     },
     { name: 'separator' },
+    
+    // Insert Elements Group
     {
       name: 'link',
       icon: Link,
@@ -352,6 +364,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       tooltip: 'خط أفقي'
     },
     { name: 'separator' },
+    
+    // Utility Group
     {
       name: 'clearFormat',
       icon: Eraser,
@@ -386,13 +400,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff',
     '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc',
     '#dd7e6b', '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#a4c2f4', '#b4a7d6', '#d5a6bd'
-  ];
-
-  const specialCharacters = [
-    '©', '®', '™', '€', '£', '$', '¥', '¢', '§', '¶',
-    '†', '‡', '•', '–', '—', '…', '‹', '›', '«', '»',
-    '¡', '¿', '×', '÷', '±', '²', '³', '¼', '½', '¾',
-    'α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ'
   ];
 
   return (
@@ -505,21 +512,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </div>
           );
         })}
-      </div>
-
-      {/* Special Characters Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 mr-2">رموز خاصة:</span>
-        {specialCharacters.map((char) => (
-          <button
-            key={char}
-            onClick={() => insertSpecialCharacter(char)}
-            className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
-            disabled={readOnly}
-          >
-            {char}
-          </button>
-        ))}
       </div>
 
       {/* Editor */}
