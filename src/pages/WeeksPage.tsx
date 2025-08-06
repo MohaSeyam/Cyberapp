@@ -230,7 +230,7 @@ export default function WeeksPage() {
                           {language === 'ar' ? `الأسبوع ${week.week}` : `Week ${week.week}`}
                         </h3>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {language === 'ar' ? 'أسبوع التعلم' : 'Learning Week'}
+                          {week.title ? week.title[language] : (language === 'ar' ? 'أسبوع التعلم' : 'Learning Week')}
                         </p>
                       </div>
                     </div>
@@ -261,10 +261,10 @@ export default function WeeksPage() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                {getDayName(day.key)}
+                                {day.day ? day.day[language] : getDayName(day.key)}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {dayTasks.length} {language === 'ar' ? 'مهمة' : 'tasks'}
+                                {day.topic ? day.topic[language] : `${dayTasks.length} ${language === 'ar' ? 'مهمة' : 'tasks'}`}
                               </p>
                             </div>
                           </div>
