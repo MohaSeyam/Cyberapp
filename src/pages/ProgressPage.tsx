@@ -253,7 +253,18 @@ export default function ProgressPage() {
   // Memoized safeT function to prevent re-creation
   const safeT = useCallback((key: string) => {
     try {
-      return language === 'ar' ? t(key) : t(key);
+      const translations = {
+        progress: { ar: 'التقدم', en: 'Progress' },
+        trackYourLearning: { ar: 'تتبع تعلمك', en: 'Track Your Learning' },
+        overview: { ar: 'نظرة عامة', en: 'Overview' },
+        analytics: { ar: 'التحليلات', en: 'Analytics' },
+        reports: { ar: 'التقارير', en: 'Reports' },
+        skills: { ar: 'المهارات', en: 'Skills' },
+        achievements: { ar: 'الإنجازات', en: 'Achievements' },
+        suggestions: { ar: 'الاقتراحات', en: 'Suggestions' }
+      };
+      const translation = translations[key];
+      return translation ? translation[language] || translation.ar || key : key;
     } catch {
       return key;
     }
