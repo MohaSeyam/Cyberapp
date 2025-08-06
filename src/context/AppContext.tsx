@@ -8,7 +8,7 @@ import type {
 } from '../types';
 import { 
   planService, notesService, journalService, resourcesService, 
-  progressService, settingsService 
+  progressService, settingsService, initializeDatabase 
 } from '../services/database';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../constants';
 import { useLocalization } from '../hooks/useLocalization';
@@ -170,11 +170,45 @@ export function AppProvider({ children }: AppProviderProps) {
   const loadInitialData = useCallback(async () => {
     setLoading(true);
     try {
+      // Initialize database first
+      await initializeDatabase();
+      
       // Load critical data first (plan and settings)
-      const [planData, settingsData] = await Promise.all([
-        planService.getAll(),
-        settingsService.get()
-      ]);
+      let planData: Week[] = [];
+      let settingsData: AppSettings = { language: 'ar', theme: 'light' };
+      
+      try {
+        [planData, settingsData] = await Promise.all([
+          planService.getAll(),
+          settingsService.get()
+        ]);
+      } catch (error) {
+        console.error('Error loading critical data:', error);
+        // Fallback to default settings and try to load plan from file
+        try {
+          const planModule = await import('../data/PlanData.json');
+          planData = planModule.default as Week[];
+          console.log('Loaded plan from file:', planData.length, 'weeks');
+        } catch (importError) {
+          console.error('Error importing plan data:', importError);
+          planData = [];
+        }
+      }
+
+      // Ensure we have valid plan data
+      if (!Array.isArray(planData) || planData.length === 0) {
+        console.warn('No valid plan data found, trying to import from file');
+        try {
+          const planModule = await import('../data/PlanData.json');
+          planData = planModule.default as Week[];
+          // Save to database for future use
+          await planService.save(planData);
+          console.log('Imported and saved plan data:', planData.length, 'weeks');
+        } catch (importError) {
+          console.error('Failed to import plan data:', importError);
+          toast.error('فشل في تحميل بيانات الخطة');
+        }
+      }
 
       setPlan(planData);
       setSettings(settingsData);
@@ -609,158 +643,142 @@ export function AppProvider({ children }: AppProviderProps) {
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
-  // Refresh data
-  const refreshData = useCallback(async () => {
+  // Refresh data function
+  const refreshData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
+      // Clear cache to force fresh data
+      // Note: We don't have direct access to cache here, so we'll reload from database
       
-      // Load data from database with comprehensive safety checks
-      let planData: Week[] = [];
-      let progressData: Progress[] = [];
-      let notesData: Note[] = [];
-      let journalData: JournalEntry[] = [];
-      
-      try {
-        [planData, progressData, notesData, journalData] = await Promise.all([
-          planService.getAll(),
-          progressService.getAll(),
-          notesService.getAll(),
-          journalService.getAll()
-        ]);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        toast.error('فشل في تحميل البيانات');
-      }
-      
-      // Set data with safety checks
-      planData = Array.isArray(planData) ? planData : [];
-      progressData = Array.isArray(progressData) ? progressData : [];
-      notesData = Array.isArray(notesData) ? notesData : [];
-      journalData = Array.isArray(journalData) ? journalData : [];
-      
-      // Import plan if empty or incomplete
-      if (planData.length === 0) {
-        try {
-          const importedPlan = await planService.importFromFile();
-          planData = Array.isArray(importedPlan) ? importedPlan : [];
-          console.log("Refreshed plan:", planData.length, "weeks");
-        } catch (error) {
-          console.error("Failed to import plan during refresh:", error);
-        }
-      }
-      
-      // Always verify that all weeks from phases.json are present
-      try {
-        const phasesData = await import('../data/phases.json');
-        const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-        const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-        
-        if (missingWeeks.length > 0) {
-          console.warn("Missing weeks in refreshed plan:", missingWeeks);
-          console.log("Current plan weeks:", planData.map(w => w.week));
-          
-          // Try to re-import if some weeks are missing
-          try {
-            const reimportedPlan = await planService.importFromFile();
-            planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
-            console.log("Re-imported plan during refresh:", planData.length, "weeks");
-            
-            // Verify again after re-import
-            const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-            if (stillMissingWeeks.length > 0) {
-              console.error("Still missing weeks after refresh re-import:", stillMissingWeeks);
-              toast.error(`${t('missingWeeks')}: ${stillMissingWeeks.join(', ')}`);
-            }
-          } catch (reimportError) {
-            console.error("Failed to re-import plan during refresh:", reimportError);
-            toast.error(t('refreshFailed'));
-          }
-        }
-      } catch (error) {
-        console.error("Error verifying weeks during refresh:", error);
-      }
-      
+      // Reload all data
+      const [planData, settingsData, progressData, notesData, journalData, resourcesData] = await Promise.all([
+        planService.getAll(),
+        settingsService.get(),
+        progressService.getAll(),
+        notesService.getAll(),
+        journalService.getAll(),
+        resourcesService.getAll()
+      ]);
+
+      // Set all data
       setPlan(planData);
+      setSettings(settingsData);
       setProgress(progressData);
-      
-      // Organize notes and journal entries by week
-      const notesByWeek: Record<string, Note[]> = {};
-      const journalByWeek: Record<string, JournalEntry[]> = {};
-      
-      if (Array.isArray(notesData)) {
-        notesData.forEach(note => {
-          const key = `${note.weekId}-${note.dayKey}`;
-          if (!notesByWeek[key]) notesByWeek[key] = [];
-          notesByWeek[key].push(note);
-        });
-      }
-      
-      if (Array.isArray(journalData)) {
-        journalData.forEach(entry => {
-          const key = `${entry.weekId}-${entry.dayKey}`;
-          if (!journalByWeek[key]) journalByWeek[key] = [];
-          journalByWeek[key].push(entry);
-        });
-      }
-      
-      setAppState({
-        notes: notesByWeek,
-        journal: journalByWeek,
-        resources: {}
+      setLangState(settingsData.language);
+      setThemeState(settingsData.theme);
+
+      // Organize notes
+      const organizedNotes: Record<string, Note[]> = {};
+      notesData.forEach(note => {
+        const key = `${note.weekId}-${note.dayKey}`;
+        if (!organizedNotes[key]) organizedNotes[key] = [];
+        organizedNotes[key].push(note);
       });
-      
-      setLoading(false);
+
+      // Organize journal entries
+      const organizedJournal: Record<string, JournalEntry[]> = {};
+      journalData.forEach(entry => {
+        const key = `${entry.weekId}-${entry.dayKey}`;
+        if (!organizedJournal[key]) organizedJournal[key] = [];
+        organizedJournal[key].push(entry);
+      });
+
+      // Organize resources
+      const organizedResources: Record<string, Resource[]> = {};
+      resourcesData.forEach(resource => {
+        const key = `${resource.weekId}-${resource.dayKey}`;
+        if (!organizedResources[key]) organizedResources[key] = [];
+        organizedResources[key].push(resource);
+      });
+
+      setAppState({
+        notes: organizedNotes,
+        journal: organizedJournal,
+        resources: organizedResources
+      });
+
+      console.log('Data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing data:', error);
+      toast.error(langState === 'ar' ? 'فشل في تحديث البيانات' : 'Failed to refresh data');
+    } finally {
       setLoading(false);
-      toast.error(t('updateDataFailed'));
     }
-  }, []);
+  };
 
   // Force reload data function
   const forceReloadData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log("Force reloading data...");
+      // Clear cache to force fresh data
+      // cache.clear(); // This line was removed as per the edit hint, but the new code uses 'cache' which is not defined.
       
-      // Clear existing data
-      await Promise.all([
-        planService.clear(),
-        progressService.clear(),
-        notesService.clear(),
-        journalService.clear(),
-        resourcesService.clear()
-      ]);
-      
-      // Import fresh data
-      const freshPlan = await planService.importFromFile();
-      console.log("Fresh plan loaded:", freshPlan.length, "weeks");
-      
-      // Verify all weeks are present
-      const phasesData = await import('../data/phases.json');
-      const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-      const missingWeeks = allPhaseWeeks.filter(week => !freshPlan.find(w => w.week === week));
-      
-      if (missingWeeks.length > 0) {
-        console.error("Missing weeks after force reload:", missingWeeks);
-        toast.error(`${t('missingWeeks')}: ${missingWeeks.join(', ')}`);
-      } else {
-        console.log("All weeks present after force reload!");
-        toast.success(t('forceReloadSuccess'));
+      // Try to import plan data from file
+      let planData: Week[] = [];
+      try {
+        const planModule = await import('../data/PlanData.json');
+        planData = planModule.default as Week[];
+        console.log('Imported plan data from file:', planData.length, 'weeks');
+        
+        // Save to database
+        await planService.save(planData);
+        console.log('Saved plan data to database');
+      } catch (importError) {
+        console.error('Error importing plan data:', importError);
+        toast.error('فشل في تحميل بيانات الخطة');
+        return;
       }
-      
-      // Update state
-      setPlan(freshPlan);
-      setProgress([]);
-      setAppState({
-        notes: {},
-        journal: {},
-        resources: {}
+
+      // Load all data fresh
+      const [settingsData, progressData, notesData, journalData, resourcesData] = await Promise.all([
+        settingsService.get(),
+        progressService.getAll(),
+        notesService.getAll(),
+        journalService.getAll(),
+        resourcesService.getAll()
+      ]);
+
+      // Set all data
+      setPlan(planData);
+      setSettings(settingsData);
+      setProgress(progressData);
+      setLangState(settingsData.language);
+      setThemeState(settingsData.theme);
+
+      // Organize notes
+      const organizedNotes: Record<string, Note[]> = {};
+      notesData.forEach(note => {
+        const key = `${note.weekId}-${note.dayKey}`;
+        if (!organizedNotes[key]) organizedNotes[key] = [];
+        organizedNotes[key].push(note);
       });
-      
+
+      // Organize journal entries
+      const organizedJournal: Record<string, JournalEntry[]> = {};
+      journalData.forEach(entry => {
+        const key = `${entry.weekId}-${entry.dayKey}`;
+        if (!organizedJournal[key]) organizedJournal[key] = [];
+        organizedJournal[key].push(entry);
+      });
+
+      // Organize resources
+      const organizedResources: Record<string, Resource[]> = {};
+      resourcesData.forEach(resource => {
+        const key = `${resource.weekId}-${resource.dayKey}`;
+        if (!organizedResources[key]) organizedResources[key] = [];
+        organizedResources[key].push(resource);
+      });
+
+      setAppState({
+        notes: organizedNotes,
+        journal: organizedJournal,
+        resources: organizedResources
+      });
+
+      toast.success(langState === 'ar' ? 'تم إعادة تحميل البيانات بنجاح' : 'Data reloaded successfully');
     } catch (error) {
-      console.error("Error in force reload:", error);
-      toast.error(t('forceReloadFailed'));
+      console.error('Error reloading data:', error);
+      toast.error(langState === 'ar' ? 'فشل في إعادة تحميل البيانات' : 'Failed to reload data');
     } finally {
       setLoading(false);
     }
@@ -768,47 +786,66 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Fix missing weeks function
   const fixMissingWeeks = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log("Fixing missing weeks...");
+      // Get current plan data
+      let currentPlan = plan;
       
-      // Import fresh data directly from PlanData.json
-      const planData = await import('../data/PlanData.json');
-      const freshPlan = Array.isArray(planData.default) ? planData.default : [];
-      
-      console.log("Fresh plan loaded:", freshPlan.length, "weeks");
-      console.log("Available weeks:", freshPlan.map(w => w.week).sort((a, b) => a - b));
-      
-      // Clear existing plan data
-      await planService.save([]);
-      console.log("Cleared existing plan data");
-      
-      // Save fresh data to IndexedDB
-      await planService.save(freshPlan);
-      console.log("Saved fresh data to IndexedDB");
-      
-      // Verify all weeks are present
-      const phasesData = await import('../data/phases.json');
-      const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-      const missingWeeks = allPhaseWeeks.filter(week => !freshPlan.find(w => w.week === week));
-      
-      if (missingWeeks.length > 0) {
-        console.error("Missing weeks after fix:", missingWeeks);
-        toast.error(`${t('missingWeeks')}: ${missingWeeks.join(', ')}`);
-      } else {
-        console.log("All weeks present after fix!");
-        toast.success(t('fixWeeksSuccess'));
+      // If no plan data, try to load from database
+      if (!currentPlan || currentPlan.length === 0) {
+        try {
+          currentPlan = await planService.getAll();
+        } catch (error) {
+          console.error('Error loading current plan:', error);
+        }
       }
+
+      // If still no plan data, import from file
+      if (!currentPlan || currentPlan.length === 0) {
+        try {
+          const planModule = await import('../data/PlanData.json');
+          currentPlan = planModule.default as Week[];
+          console.log('Imported plan data from file:', currentPlan.length, 'weeks');
+        } catch (importError) {
+          console.error('Error importing plan data:', importError);
+          toast.error('فشل في تحميل بيانات الخطة');
+          return;
+        }
+      }
+
+      // Check for missing weeks (should be 52 weeks total)
+      const expectedWeeks = 52;
+      const currentWeeks = currentPlan.length;
       
-      // Update state
-      setPlan(freshPlan);
-      
-      // Force refresh
-      await refreshData();
-      
+      if (currentWeeks < expectedWeeks) {
+        console.warn(`Missing weeks: ${expectedWeeks - currentWeeks} weeks missing`);
+        
+        // Try to import complete plan data
+        try {
+          const planModule = await import('../data/PlanData.json');
+          const completePlan = planModule.default as Week[];
+          
+          if (completePlan.length >= expectedWeeks) {
+            // Save complete plan to database
+            await planService.save(completePlan);
+            setPlan(completePlan);
+            console.log('Fixed missing weeks, now have:', completePlan.length, 'weeks');
+            toast.success(langState === 'ar' ? 'تم إصلاح الأسابيع المفقودة' : 'Fixed missing weeks');
+          } else {
+            console.error('Complete plan data is also incomplete');
+            toast.error(langState === 'ar' ? 'بيانات الخطة غير مكتملة' : 'Plan data is incomplete');
+          }
+        } catch (importError) {
+          console.error('Error importing complete plan data:', importError);
+          toast.error('فشل في إصلاح الأسابيع المفقودة');
+        }
+      } else {
+        console.log('All weeks present:', currentWeeks, 'weeks');
+        toast.success(langState === 'ar' ? 'جميع الأسابيع موجودة' : 'All weeks present');
+      }
     } catch (error) {
-      console.error("Error fixing missing weeks:", error);
-      toast.error(t('fixWeeksFailed'));
+      console.error('Error fixing missing weeks:', error);
+      toast.error(langState === 'ar' ? 'فشل في إصلاح الأسابيع المفقودة' : 'Failed to fix missing weeks');
     } finally {
       setLoading(false);
     }

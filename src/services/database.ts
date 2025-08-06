@@ -268,11 +268,49 @@ export const planService = {
       const data = await store.getAll();
       connectionPool.releaseConnection(connection);
 
-      cache.set(cacheKey, data);
-      return data;
+      // If we have data in the database, return it
+      if (data && data.length > 0) {
+        cache.set(cacheKey, data);
+        return data;
+      }
+
+      // If no data in database, try to import from file
+      console.log('No plan data in database, importing from file...');
+      try {
+        const planModule = await import('../data/PlanData.json');
+        const planData = planModule.default as Week[];
+        
+        if (Array.isArray(planData) && planData.length > 0) {
+          // Save to database for future use
+          await this.save(planData);
+          cache.set(cacheKey, planData);
+          return planData;
+        }
+      } catch (importError) {
+        console.error('Error importing plan data:', importError);
+      }
+
+      // Final fallback - return empty array
+      console.warn('No plan data available');
+      return [];
     } catch (error) {
-      console.error('Error getting plan:', error);
-      return planData as Week[];
+      console.error('Error getting plan from database:', error);
+      
+      // Try to import from file as fallback
+      try {
+        const planModule = await import('../data/PlanData.json');
+        const planData = planModule.default as Week[];
+        
+        if (Array.isArray(planData) && planData.length > 0) {
+          console.log('Loaded plan from file as fallback:', planData.length, 'weeks');
+          cache.set(cacheKey, planData);
+          return planData;
+        }
+      } catch (importError) {
+        console.error('Error importing plan data as fallback:', importError);
+      }
+      
+      return [];
     }
   },
 
@@ -290,6 +328,7 @@ export const planService = {
       await tx.done;
       connectionPool.releaseConnection(connection);
       cache.set('plan_all', plan);
+      console.log('Plan data saved to database:', plan.length, 'weeks');
     } catch (error) {
       console.error('Error saving plan:', error);
       throw error;
@@ -735,4 +774,41 @@ export const settingsService = {
 // Cleanup function for performance
 export const cleanupDatabase = () => {
   cache.destroy();
+};
+
+// Clear cache function
+export const clearCache = () => {
+  cache.clear();
+};
+
+// Initialize database with plan data
+export const initializeDatabase = async () => {
+  try {
+    // Check if plan data exists in database
+    const planData = await planService.getAll();
+    
+    if (!planData || planData.length === 0) {
+      console.log('No plan data in database, importing from file...');
+      
+      // Import plan data from file
+      const planModule = await import('../data/PlanData.json');
+      const importedPlan = planModule.default as Week[];
+      
+      if (Array.isArray(importedPlan) && importedPlan.length > 0) {
+        // Save to database
+        await planService.save(importedPlan);
+        console.log('Initialized database with plan data:', importedPlan.length, 'weeks');
+        return true;
+      } else {
+        console.error('Invalid plan data format');
+        return false;
+      }
+    } else {
+      console.log('Database already contains plan data:', planData.length, 'weeks');
+      return true;
+    }
+  } catch (error) {
+    console.error('Error initializing database:', error);
+    return false;
+  }
 };
