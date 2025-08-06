@@ -253,64 +253,90 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Apply saved theme and language on mount
   useEffect(() => {
-    // Apply saved theme
-    if (themeState === 'dark') {
-      document.body.classList.add('dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-      document.documentElement.classList.remove('dark');
+    // Apply saved theme with safety checks
+    if (typeof document !== 'undefined') {
+      try {
+        if (themeState === 'dark') {
+          document.body?.classList.add('dark');
+          document.documentElement?.classList.add('dark');
+        } else {
+          document.body?.classList.remove('dark');
+          document.documentElement?.classList.remove('dark');
+        }
+        
+        // Apply saved language
+        document.documentElement?.setAttribute('dir', langState === 'ar' ? 'rtl' : 'ltr');
+      } catch (error) {
+        console.warn('Error applying theme/language:', error);
+      }
     }
-    
-    // Apply saved language
-    document.documentElement.setAttribute('dir', langState === 'ar' ? 'rtl' : 'ltr');
   }, [themeState, langState]);
 
-  // Apply font size settings
+  // Apply font size settings with safety checks
   useEffect(() => {
     const applyFontSize = () => {
-      const fontSize = settings.fontSize || 'medium';
-      const root = document.documentElement;
+      if (typeof document === 'undefined') return;
       
-      // Remove existing font size classes
-      root.classList.remove('text-sm', 'text-base', 'text-lg');
-      
-      // Apply new font size
-      switch (fontSize) {
-        case 'small':
-          root.classList.add('text-sm');
-          break;
-        case 'large':
-          root.classList.add('text-lg');
-          break;
-        default:
-          root.classList.add('text-base');
-          break;
+      try {
+        const fontSize = settings.fontSize || 'medium';
+        const root = document.documentElement;
+        
+        if (!root) return;
+        
+        // Remove existing font size classes
+        root.classList.remove('text-sm', 'text-base', 'text-lg');
+        
+        // Apply new font size
+        switch (fontSize) {
+          case 'small':
+            root.classList.add('text-sm');
+            break;
+          case 'large':
+            root.classList.add('text-lg');
+            break;
+          default:
+            root.classList.add('text-base');
+            break;
+        }
+      } catch (error) {
+        console.warn('Error applying font size:', error);
       }
     };
 
     applyFontSize();
   }, [settings.fontSize]);
 
-  // Language management
+  // Language management with safety checks
   const setLang = useCallback((newLang: Language) => {
     setLangState(newLang);
-    localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
-    document.documentElement.setAttribute('dir', newLang === 'ar' ? 'rtl' : 'ltr');
+    try {
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
+      if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('dir', newLang === 'ar' ? 'rtl' : 'ltr');
+      }
+    } catch (error) {
+      console.warn('Error setting language:', error);
+    }
   }, []);
 
-  // Theme management
+  // Theme management with safety checks
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    // عند تغيير الثيم، أضف أو أزل كلاس dark على العنصر html أو body
-    if (newTheme === 'dark') {
-      document.body.classList.add('dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-      document.documentElement.classList.remove('dark');
+    try {
+      localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
+      if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('data-theme', newTheme);
+        // عند تغيير الثيم، أضف أو أزل كلاس dark على العنصر html أو body
+        if (newTheme === 'dark') {
+          document.body?.classList.add('dark');
+          document.documentElement?.classList.add('dark');
+        } else {
+          document.body?.classList.remove('dark');
+          document.documentElement?.classList.remove('dark');
+        }
+      }
+    } catch (error) {
+      console.warn('Error setting theme:', error);
     }
   }, []);
 

@@ -103,51 +103,53 @@ export default function NoteViewPage() {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      const printContent = `
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="UTF-8">
-          <title>${note.title}</title>
-          <style>
-            @media print {
-              body { font-family: 'Arial', sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-              .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-              .meta { color: #666; font-size: 14px; margin-bottom: 20px; }
-              .content { line-height: 1.6; font-size: 16px; }
-              .tags { margin-top: 20px; }
-              .tag { background: #f0f0f0; padding: 4px 8px; border-radius: 4px; margin-right: 8px; font-size: 12px; }
-              @page { margin: 1in; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="title">${note.title}</div>
-            <div class="meta">
-              التاريخ: ${new Date(note.createdAt).toLocaleDateString('en-US')}<br>
-              الوقت: ${new Date(note.createdAt).toLocaleTimeString('ar-SA')}
-              ${dayInfo && dayInfo.day ? `<br>اليوم: ${dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}` : ''}
-              ${dayInfo && dayInfo.day && dayInfo.day.topic?.ar ? `<br>الموضوع: ${dayInfo.day.topic.ar}` : ''}
-            </div>
-            ${note.tags && note.tags.length > 0 ? `
-              <div class="tags">
-                ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
-              </div>
-            ` : ''}
-          </div>
-          <div class="content">
-            ${note.content}
-          </div>
-        </body>
-        </html>
-      `;
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.print();
+    try {
+      if (typeof window !== 'undefined' && window.open) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          const printContent = `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>${note?.title || 'Note'}</title>
+                <style>
+                  body { font-family: Arial, sans-serif; margin: 20px; }
+                  .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+                  .content { line-height: 1.6; }
+                  .tags { margin-top: 20px; }
+                  .tag { background: #f0f0f0; padding: 2px 8px; margin: 2px; border-radius: 12px; display: inline-block; }
+                </style>
+              </head>
+              <body>
+                <div class="header">
+                  <h1>${note?.title || 'Note'}</h1>
+                  <p><strong>Created:</strong> ${new Date(note?.createdAt || Date.now()).toLocaleString()}</p>
+                  <p><strong>Updated:</strong> ${new Date(note?.updatedAt || Date.now()).toLocaleString()}</p>
+                </div>
+                <div class="content">${note?.content || ''}</div>
+                ${note?.tags && note.tags.length > 0 ? `
+                  <div class="tags">
+                    <strong>Tags:</strong>
+                    ${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                  </div>
+                ` : ''}
+              </body>
+            </html>
+          `;
+          
+          try {
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+          } catch (error) {
+            console.warn('Error writing to print window:', error);
+            printWindow.close();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error(language === 'ar' ? 'فشل في الطباعة' : 'Failed to print');
     }
   };
 

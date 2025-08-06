@@ -1,10 +1,6 @@
 // Settings Page - Unified Design
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Settings, Sun, Moon, Globe, Save, RotateCcw, 
-  Download, Upload, Trash2, Database, RefreshCw
-} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
@@ -39,18 +35,42 @@ export default function SettingsPage() {
     setHasChanges(false);
   };
 
-  const handleExportData = () => {
-    const data = {
-      settings: localSettings,
-      timestamp: new Date().toISOString()
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cyber-security-journey-settings-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExportData = async () => {
+    try {
+      const data = {
+        settings: localSettings,
+        timestamp: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      try {
+        if (typeof document !== 'undefined' && document.createElement) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `cyberplan-backup-${Date.now()}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          // Fallback for environments without DOM
+          if (typeof window !== 'undefined' && window.open) {
+            window.open(url, '_blank');
+          }
+        }
+      } catch (domError) {
+        console.warn('DOM manipulation failed, using fallback:', domError);
+        if (typeof window !== 'undefined' && window.open) {
+          window.open(url, '_blank');
+        }
+      }
+      
+      URL.revokeObjectURL(url);
+      toast.success(lang === 'ar' ? 'تم تصدير البيانات بنجاح' : 'Data exported successfully');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(lang === 'ar' ? 'فشل في تصدير البيانات' : 'Failed to export data');
+    }
   };
 
   const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {

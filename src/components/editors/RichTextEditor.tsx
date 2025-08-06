@@ -41,13 +41,27 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
         setActiveDropdown(null);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+
+    try {
+      if (typeof document !== 'undefined') {
+        document.addEventListener('mousedown', handleClickOutside);
+      }
+    } catch (error) {
+      console.warn('Error setting up click outside listener:', error);
+    }
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      try {
+        if (typeof document !== 'undefined') {
+          document.removeEventListener('mousedown', handleClickOutside);
+        }
+      } catch (error) {
+        console.warn('Error cleaning up click outside listener:', error);
+      }
     };
   }, []);
 
@@ -73,10 +87,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
   };
 
-  const execCommand = (command: string, value: string = '') => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
-    updateContent();
+  const executeCommand = (command: string, value?: string) => {
+    try {
+      if (typeof document !== 'undefined') {
+        document.execCommand(command, false, value);
+      }
+    } catch (error) {
+      console.warn('Error executing command:', error);
+    }
   };
 
   const updateContent = () => {
@@ -94,22 +112,22 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       switch (e.key.toLowerCase()) {
         case 'b':
           e.preventDefault();
-          execCommand('bold');
+          executeCommand('bold');
           break;
         case 'i':
           e.preventDefault();
-          execCommand('italic');
+          executeCommand('italic');
           break;
         case 'u':
           e.preventDefault();
-          execCommand('underline');
+          executeCommand('underline');
           break;
         case 'z':
           e.preventDefault();
           if (e.shiftKey) {
-            execCommand('redo');
+            executeCommand('redo');
           } else {
-            execCommand('undo');
+            executeCommand('undo');
           }
           break;
       }
@@ -119,39 +137,39 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const insertLink = () => {
     const url = prompt('أدخل الرابط:');
     if (url) {
-      execCommand('createLink', url);
+      executeCommand('createLink', url);
     }
   };
 
   const insertImage = () => {
     const url = prompt('أدخل رابط الصورة:');
     if (url) {
-      execCommand('insertImage', url);
+      executeCommand('insertImage', url);
     }
   };
 
   const changeFontSize = (size: string) => {
-    execCommand('fontSize', size);
+    executeCommand('fontSize', size);
     setFontSize(size);
   };
 
   const changeFontFamily = (font: string) => {
-    execCommand('fontName', font);
+    executeCommand('fontName', font);
     setFontFamily(font);
   };
 
   const changeTextColor = (color: string) => {
-    execCommand('foreColor', color);
+    executeCommand('foreColor', color);
     setTextColor(color);
   };
 
   const changeBackgroundColor = (color: string) => {
-    execCommand('hiliteColor', color);
+    executeCommand('hiliteColor', color);
     setBackgroundColor(color);
   };
 
   const clearFormatting = () => {
-    execCommand('removeFormat');
+    executeCommand('removeFormat');
   };
 
   const insertTable = () => {
@@ -167,12 +185,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         table += '</tr>';
       }
       table += '</table>';
-      execCommand('insertHTML', table);
+      executeCommand('insertHTML', table);
     }
   };
 
   const insertHorizontalRule = () => {
-    execCommand('insertHorizontalRule');
+    executeCommand('insertHorizontalRule');
   };
 
   // Reorganized toolbar with grouped similar tools
@@ -181,13 +199,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     {
       name: 'undo',
       icon: Undo,
-      action: () => execCommand('undo'),
+      action: () => executeCommand('undo'),
       tooltip: 'تراجع'
     },
     {
       name: 'redo',
       icon: Redo,
-      action: () => execCommand('redo'),
+      action: () => executeCommand('redo'),
       tooltip: 'إعادة'
     },
     { name: 'separator' },
@@ -196,28 +214,28 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     {
       name: 'bold',
       icon: Bold,
-      action: () => execCommand('bold'),
+      action: () => executeCommand('bold'),
       active: isBold,
       tooltip: 'عريض (Ctrl+B)'
     },
     {
       name: 'italic',
       icon: Italic,
-      action: () => execCommand('italic'),
+      action: () => executeCommand('italic'),
       active: isItalic,
       tooltip: 'مائل (Ctrl+I)'
     },
     {
       name: 'underline',
       icon: Underline,
-      action: () => execCommand('underline'),
+      action: () => executeCommand('underline'),
       active: isUnderline,
       tooltip: 'تحت خط (Ctrl+U)'
     },
     {
       name: 'strikethrough',
       icon: Strikethrough,
-      action: () => execCommand('strikethrough'),
+      action: () => executeCommand('strikethrough'),
       active: isStrikethrough,
       tooltip: 'خط في المنتصف'
     },
@@ -258,19 +276,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     {
       name: 'alignLeft',
       icon: AlignLeft,
-      action: () => execCommand('justifyLeft'),
+      action: () => executeCommand('justifyLeft'),
       tooltip: 'محاذاة لليسار'
     },
     {
       name: 'alignCenter',
       icon: AlignCenter,
-      action: () => execCommand('justifyCenter'),
+      action: () => executeCommand('justifyCenter'),
       tooltip: 'محاذاة للمنتصف'
     },
     {
       name: 'alignRight',
       icon: AlignRight,
-      action: () => execCommand('justifyRight'),
+      action: () => executeCommand('justifyRight'),
       tooltip: 'محاذاة لليمين'
     },
     { name: 'separator' },
@@ -279,13 +297,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     {
       name: 'indent',
       icon: Indent,
-      action: () => execCommand('indent'),
+      action: () => executeCommand('indent'),
       tooltip: 'زيادة المسافة البادئة'
     },
     {
       name: 'outdent',
       icon: Outdent,
-      action: () => execCommand('outdent'),
+      action: () => executeCommand('outdent'),
       tooltip: 'تقليل المسافة البادئة'
     },
     { name: 'separator' },
@@ -294,19 +312,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     {
       name: 'heading1',
       icon: Heading1,
-      action: () => execCommand('formatBlock', '<h1>'),
+      action: () => executeCommand('formatBlock', '<h1>'),
       tooltip: 'عنوان رئيسي 1'
     },
     {
       name: 'heading2',
       icon: Heading2,
-      action: () => execCommand('formatBlock', '<h2>'),
+      action: () => executeCommand('formatBlock', '<h2>'),
       tooltip: 'عنوان رئيسي 2'
     },
     {
       name: 'heading3',
       icon: Heading3,
-      action: () => execCommand('formatBlock', '<h3>'),
+      action: () => executeCommand('formatBlock', '<h3>'),
       tooltip: 'عنوان رئيسي 3'
     },
     { name: 'separator' },
@@ -315,25 +333,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     {
       name: 'bulletList',
       icon: List,
-      action: () => execCommand('insertUnorderedList'),
+      action: () => executeCommand('insertUnorderedList'),
       tooltip: 'قائمة نقطية'
     },
     {
       name: 'numberList',
       icon: ListOrdered,
-      action: () => execCommand('insertOrderedList'),
+      action: () => executeCommand('insertOrderedList'),
       tooltip: 'قائمة مرقمة'
     },
     {
       name: 'quote',
       icon: Quote,
-      action: () => execCommand('formatBlock', '<blockquote>'),
+      action: () => executeCommand('formatBlock', '<blockquote>'),
       tooltip: 'اقتباس'
     },
     {
       name: 'code',
       icon: Code,
-      action: () => execCommand('formatBlock', '<pre>'),
+      action: () => executeCommand('formatBlock', '<pre>'),
       tooltip: 'كود'
     },
     { name: 'separator' },

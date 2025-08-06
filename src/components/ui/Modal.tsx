@@ -55,15 +55,27 @@ export default function Modal({
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      try {
+        if (typeof document !== 'undefined') {
+          document.addEventListener('keydown', handleEscape);
+          document.body.style.overflow = 'hidden';
+        }
+      } catch (error) {
+        console.warn('Error setting up modal:', error);
+      }
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      try {
+        if (typeof document !== 'undefined') {
+          document.removeEventListener('keydown', handleEscape);
+          document.body.style.overflow = 'unset';
+        }
+      } catch (error) {
+        console.warn('Error cleaning up modal:', error);
+      }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, handleEscape]);
 
   return (
     <AnimatePresence>
