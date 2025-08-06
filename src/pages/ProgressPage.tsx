@@ -420,16 +420,29 @@ export default function ProgressPage() {
       
       // Download the file
       const url = URL.createObjectURL(blob);
-      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        // Fallback for environments without DOM
-        window.open(url, '_blank');
+      try {
+        if (typeof window !== 'undefined' && typeof document !== 'undefined' && document.createElement) {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          // Fallback for environments without DOM
+          if (typeof window !== 'undefined' && window.open) {
+            window.open(url, '_blank');
+          } else {
+            // Last resort - just show success message
+            console.log('Download URL:', url);
+          }
+        }
+      } catch (domError) {
+        console.error('DOM manipulation error:', domError);
+        // Fallback to window.open
+        if (typeof window !== 'undefined' && window.open) {
+          window.open(url, '_blank');
+        }
       }
       URL.revokeObjectURL(url);
       
