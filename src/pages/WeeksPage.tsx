@@ -120,11 +120,10 @@ export default function WeeksPage() {
 
   return (
     <PageLayout 
-      title={language === 'ar' ? `المرحلة ${currentPhase.id}` : `Phase ${currentPhase.id}`}
-      subtitle={currentPhase.title[language]}
+      title=""
+      subtitle=""
       showBottomBar={true}
-      titleClassName="text-center text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
-      subtitleClassName="text-center text-lg text-white/90"
+      showHeader={false}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Phase Header */}

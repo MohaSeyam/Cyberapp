@@ -218,11 +218,10 @@ export default function DayPage() {
 
   return (
     <PageLayout 
-      title={language === 'ar' ? `اليوم ${dayInfo.number}` : `Day ${dayInfo.number}`}
-      subtitle={currentDay.topic[language]}
+      title=""
+      subtitle=""
       showBottomBar={true}
-      titleClassName="text-center text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
-      subtitleClassName="text-center text-lg text-white/90"
+      showHeader={false}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Day Header - Centered and Enlarged */}
@@ -300,7 +299,7 @@ export default function DayPage() {
               <motion.div
                 key={task.id}
                 {...animations.stagger(index * 0.1)}
-                className="group"
+                className="group relative"
               >
                 <Card className={`relative overflow-hidden transition-all duration-300 ${
                   isCompleted ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 
@@ -329,43 +328,43 @@ export default function DayPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Action Buttons - Better Aligned */}
-                    <div className="flex items-center space-x-2 rtl:space-x-reverse ml-4">
-                      <Button
-                        variant={isCompleted ? "success" : "outline"}
-                        size="sm"
-                        onClick={() => handleTaskToggle(task.id, !isCompleted)}
-                        className="flex items-center space-x-1 rtl:space-x-reverse"
-                      >
-                        {isCompleted ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>{language === 'ar' ? 'مكتمل' : 'Done'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Circle className="w-4 h-4" />
-                            <span>{language === 'ar' ? 'إكمال' : 'Complete'}</span>
-                          </>
-                        )}
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedTask(task.id);
-                          setShowNoteEditor(true);
-                        }}
-                        className="flex items-center space-x-1 rtl:space-x-reverse"
-                      >
-                        <FileText className="w-4 h-4" />
-                        <span>{language === 'ar' ? 'ملاحظة' : 'Note'}</span>
-                      </Button>
-                    </div>
                   </div>
                 </Card>
+
+                {/* Action Buttons - Outside Card, Elegantly Connected */}
+                <div className="absolute -top-3 -right-3 flex items-center space-x-2 rtl:space-x-reverse">
+                  <Button
+                    variant={isCompleted ? "success" : "outline"}
+                    size="sm"
+                    onClick={() => handleTaskToggle(task.id, !isCompleted)}
+                    className="flex items-center space-x-1 rtl:space-x-reverse shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    {isCompleted ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>{language === 'ar' ? 'مكتمل' : 'Done'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Circle className="w-4 h-4" />
+                        <span>{language === 'ar' ? 'إكمال' : 'Complete'}</span>
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedTask(task.id);
+                      setShowNoteEditor(true);
+                    }}
+                    className="flex items-center space-x-1 rtl:space-x-reverse shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>{language === 'ar' ? 'ملاحظة' : 'Note'}</span>
+                  </Button>
+                </div>
               </motion.div>
             );
           })}

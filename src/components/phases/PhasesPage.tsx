@@ -80,11 +80,10 @@ export default function PhasesPage() {
 
   return (
     <PageLayout 
-      title={language === 'ar' ? 'المراحل' : 'Phases'}
-      subtitle={language === 'ar' ? 'رحلة تعلم الأمن السيبراني' : 'Cybersecurity Learning Journey'}
+      title=""
+      subtitle=""
       showBottomBar={true}
-      titleClassName="text-center text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
-      subtitleClassName="text-center text-lg text-white/90"
+      showHeader={false}
     >
       <motion.div {...animations.fadeIn} className="space-y-8">
         {/* Phase Cards */}
@@ -108,7 +107,7 @@ export default function PhasesPage() {
                   {/* Content */}
                   <div className="relative z-10">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between mb-8">
                       <div className={`p-3 ${color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' : 
                                      color === 'green' ? 'bg-green-100 dark:bg-green-900' :
                                      color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
@@ -133,7 +132,7 @@ export default function PhasesPage() {
                     </div>
 
                     {/* Title with increased spacing */}
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                       {phase.title[language]}
                     </h3>
 
