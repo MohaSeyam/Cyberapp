@@ -106,7 +106,7 @@ export default function PhasesPage() {
                   {/* Content */}
                   <div className="relative z-10">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-6">
                       <div className={`p-3 ${color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' : 
                                      color === 'green' ? 'bg-green-100 dark:bg-green-900' :
                                      color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
@@ -121,7 +121,7 @@ export default function PhasesPage() {
                                        'text-indigo-600 dark:text-indigo-400'}`} />
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                           {phase.progressPercentage}%
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -130,25 +130,56 @@ export default function PhasesPage() {
                       </div>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {/* Title with increased spacing */}
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                       {phase.title[language]}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-2">
                       {phase.focus[language]}
                     </p>
 
+                    {/* Phase Weeks Preview - Above progress bar */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {language === 'ar' ? 'أسابيع المرحلة' : 'Phase Weeks'}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {phase.weeks.length} {language === 'ar' ? 'أسبوع' : 'weeks'}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {phase.weeks.slice(0, 8).map((week, weekIndex) => (
+                          <div
+                            key={weekIndex}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                              progress.some(p => p.weekId === week.week && p.done)
+                                ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            }`}
+                          >
+                            {week.week}
+                          </div>
+                        ))}
+                        {phase.weeks.length > 8 && (
+                          <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
+                            +{phase.weeks.length - 8}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Progress Bar */}
                     <div className="mb-4">
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
                         <span>{language === 'ar' ? 'التقدم' : 'Progress'}</span>
                         <span>{phase.completedTasks}/{phase.totalTasks} {language === 'ar' ? 'مهمة' : 'tasks'}</span>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                         <div 
-                          className={`h-2 rounded-full transition-all duration-300 ${
+                          className={`h-3 rounded-full transition-all duration-300 ${
                             color === 'blue' ? 'bg-blue-500' :
                             color === 'green' ? 'bg-green-500' :
                             color === 'purple' ? 'bg-purple-500' :
@@ -170,37 +201,6 @@ export default function PhasesPage() {
                       <div className="flex items-center space-x-2">
                         <Star className="w-4 h-4" />
                         <span>{phase.difficulty}</span>
-                      </div>
-                    </div>
-
-                    {/* Weeks Preview */}
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          {language === 'ar' ? 'أسابيع المرحلة' : 'Phase Weeks'}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {phase.weeks.length} {language === 'ar' ? 'أسبوع' : 'weeks'}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {phase.weeks.slice(0, 6).map((week, weekIndex) => (
-                          <div
-                            key={weekIndex}
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                              progress.some(p => p.weekId === week && p.done)
-                                ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                            }`}
-                          >
-                            {week}
-                          </div>
-                        ))}
-                        {phase.weeks.length > 6 && (
-                          <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
-                            +{phase.weeks.length - 6}
-                          </div>
-                        )}
                       </div>
                     </div>
 

@@ -114,10 +114,6 @@ export default function WeeksPage() {
     navigate(`/week/${week.week}`);
   };
 
-  const handleBackToPhases = () => {
-    navigate('/phases');
-  };
-
   // Calculate phase progress
   const phaseProgress = phaseWeeks.length > 0 ? 
     Math.round(phaseWeeks.reduce((sum, week) => sum + getWeekProgress(week), 0) / phaseWeeks.length) : 0;
@@ -215,7 +211,7 @@ export default function WeeksPage() {
                   'border-gray-200 dark:border-gray-700'
                 }`}>
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
                       <div className={`p-3 rounded-full ${
                         isCompleted ? 'bg-green-100 dark:bg-green-900/30' :
@@ -229,10 +225,10 @@ export default function WeeksPage() {
                         }`} />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
                           {language === 'ar' ? `الأسبوع ${week.week}` : `Week ${week.week}`}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {language === 'ar' ? 'أسبوع التعلم' : 'Learning Week'}
                         </p>
                       </div>
@@ -253,9 +249,9 @@ export default function WeeksPage() {
                         Math.round((completedTasks / dayTasks.length) * 100) : 0;
 
                       return (
-                        <div key={`day-${week.week}-${day.key}-${dayIndex}`} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div key={`day-${week.week}-${day.key}-${dayIndex}`} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                           <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
                               dayProgress === 100 ? 'bg-green-500 text-white' :
                               dayProgress > 0 ? 'bg-yellow-500 text-white' :
                               'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
@@ -272,10 +268,10 @@ export default function WeeksPage() {
                             </div>
                           </div>
                           
-                          {/* Progress Line */}
-                          <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          {/* Progress Line Only */}
+                          <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                             <div 
-                              className={`h-1 rounded-full transition-all duration-300 ${
+                              className={`h-2 rounded-full transition-all duration-300 ${
                                 dayProgress === 100 ? 'bg-green-500' :
                                 dayProgress > 0 ? 'bg-yellow-500' :
                                 'bg-transparent'

@@ -106,7 +106,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
   const navigate = useNavigate();
-  const { plan, progress, addNote, addResource, updateResource, deleteResource, deleteNote, deleteJournalEntry, addJournalEntry, refreshData, appState } = useApp();
+  const { plan, progress, addNote, addResource, updateResource, deleteResource, deleteNote, deleteJournalEntry, refreshData, appState } = useApp();
   const { t, language } = useLocalization();
 
   // Safe translation function
@@ -299,24 +299,7 @@ export default function DayViewPage() {
     }
   };
 
-  const handleAddJournalEntry = async () => {
-    if (journalForm.title.trim() && journalForm.content.trim() && selectedWeek && selectedDay) {
-      try {
-        await addJournalEntry({
-          title: journalForm.title,
-          content: journalForm.content,
-          tags: journalForm.tags,
-          weekId: selectedWeek.week,
-          dayKey: selectedDay.key,
-          taskId: 'journal'
-        });
-        setJournalForm({ title: '', content: '', tags: [] });
-        setJournalModal({ isOpen: false, entry: null });
-      } catch (error) {
-        console.error('Error adding journal entry:', error);
-      }
-    }
-  };
+
 
   // دالة التحقق من صحة الرابط
   const isValidUrl = (url: string): boolean => {
@@ -1170,7 +1153,6 @@ export default function DayViewPage() {
             </Button>
             <Button
               variant="primary"
-              onClick={handleAddJournalEntry}
               disabled={!journalForm.title.trim() || !journalForm.content.trim()}
             >
               {journalModal.entry ? 'تحديث المدونة' : 'حفظ المدونة'}
