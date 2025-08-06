@@ -420,12 +420,17 @@ export default function ProgressPage() {
       
       // Download the file
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // Fallback for environments without DOM
+        window.open(url, '_blank');
+      }
       URL.revokeObjectURL(url);
       
       toast.success(
