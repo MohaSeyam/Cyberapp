@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from '../ui/Card';
+import Card from '../ui/Card';
 import { motion } from 'framer-motion';
 
 const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap, gradientClassMap }) => {
