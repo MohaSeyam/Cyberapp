@@ -208,10 +208,6 @@ export default function PhasesPage() {
 
                     {/* Progress Bar */}
                     <div className="mb-4">
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        <span>{language === 'ar' ? 'التقدم' : 'Progress'}</span>
-                        <span>{phase.completedTasks}/{phase.totalTasks} {language === 'ar' ? 'مهمة' : 'tasks'}</span>
-                      </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                         <div 
                           className={`h-3 rounded-full transition-all duration-300 ${
