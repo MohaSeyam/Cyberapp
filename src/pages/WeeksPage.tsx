@@ -1,13 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Calendar, Clock, Target, BookOpen, Users, 
-  CheckCircle, Circle, ArrowLeft, ChevronRight,
-  TrendingUp, Award, Star, Shield
+  Calendar, ChevronRight, ArrowLeft, CheckCircle, Circle,
+  Target, Clock, BookOpen, Users, Shield, TrendingUp, Award
 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
-import { useParams, useNavigate } from 'react-router-dom';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -15,65 +14,103 @@ import { animations } from '../constants/theme';
 import { weekPhaseService } from '../services/weekPhaseService';
 
 export default function WeeksPage() {
+  const { phaseId } = useParams();
   const { plan, progress } = useApp();
   const { language } = useLocalization();
-  const { phaseId } = useParams();
   const navigate = useNavigate();
-  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<'all' | 'current'>('current');
+
+  // Safety checks for data
+  if (!plan || !progress || !phaseId) {
+    return (
+      <PageLayout 
+        title={language === 'ar' ? 'الأسابيع' : 'Weeks'}
+        subtitle={language === 'ar' ? 'أسابيع التعلم' : 'Learning Weeks'}
+        showBottomBar={true}
+      >
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-gray-500 dark:text-gray-400 mb-4">
+              {language === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}
+            </div>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   // Get current phase data
-  const currentPhase = useMemo(() => {
-    if (!phaseId) return null;
-    const phases = weekPhaseService.getPhases();
-    return phases.find(p => p.id === parseInt(phaseId));
-  }, [phaseId]);
+  const phases = weekPhaseService.getPhases();
+  const currentPhase = phases.find(p => p.id === parseInt(phaseId));
+  
+  if (!currentPhase) {
+    return (
+      <PageLayout 
+        title={language === 'ar' ? 'خطأ' : 'Error'}
+        subtitle={language === 'ar' ? 'المرحلة غير موجودة' : 'Phase not found'}
+        showBottomBar={true}
+      >
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              {language === 'ar' ? 'المرحلة غير موجودة' : 'Phase not found'}
+            </div>
+            <Button onClick={() => navigate('/phases')}>
+              {language === 'ar' ? 'العودة للمراحل' : 'Back to Phases'}
+            </Button>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   // Get weeks for current phase
-  const phaseWeeks = useMemo(() => {
-    if (!plan || !currentPhase) return [];
-    return plan.filter(week => 
-      week.week >= currentPhase.startWeek && week.week <= currentPhase.endWeek
-    );
-  }, [plan, currentPhase]);
+  const phaseWeeks = plan.filter(week => currentPhase.weeks.includes(week.week));
 
   // Calculate week progress
   const getWeekProgress = (week: any) => {
-    const totalTasks = week.days?.reduce((sum: number, day: any) => 
-      sum + (day.tasks?.length || 0), 0) || 0;
+    if (!week || !week.days) return 0;
+    
+    const totalTasks = week.days.reduce((sum: number, day: any) => 
+      sum + (day.tasks?.length || 0), 0
+    );
+    
+    if (totalTasks === 0) return 0;
+    
     const completedTasks = progress.filter(p => 
       p.weekId === week.week && p.done
     ).length;
-    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    
+    return Math.round((completedTasks / totalTasks) * 100);
   };
 
-  // Get day name in Arabic
+  // Get day name
   const getDayName = (dayKey: string) => {
-    const dayNames: { [key: string]: string } = {
-      'sun': 'الأحد',
-      'mon': 'الاثنين', 
-      'tue': 'الثلاثاء',
-      'wed': 'الأربعاء',
-      'thu': 'الخميس',
-      'fri': 'الجمعة',
-      'sat': 'السبت'
+    const dayNames = {
+      sat: { ar: 'السبت', en: 'Saturday' },
+      sun: { ar: 'الأحد', en: 'Sunday' },
+      mon: { ar: 'الإثنين', en: 'Monday' },
+      tue: { ar: 'الثلاثاء', en: 'Tuesday' },
+      wed: { ar: 'الأربعاء', en: 'Wednesday' },
+      thu: { ar: 'الخميس', en: 'Thursday' },
+      fri: { ar: 'الجمعة', en: 'Friday' }
     };
-    return dayNames[dayKey] || dayKey;
+    return dayNames[dayKey as keyof typeof dayNames]?.[language] || dayKey;
   };
 
-  // Get task type icon and color
+  // Get task type configuration
   const getTaskTypeConfig = (type: string) => {
-    const configs: { [key: string]: { icon: any; color: string; bgColor: string } } = {
-      'Blue Team': { icon: Shield, color: 'blue', bgColor: 'bg-blue-100 dark:bg-blue-900/30' },
-      'Red Team': { icon: Target, color: 'red', bgColor: 'bg-red-100 dark:bg-red-900/30' },
-      'Practical': { icon: TrendingUp, color: 'green', bgColor: 'bg-green-100 dark:bg-green-900/30' },
-      'Theoretical': { icon: BookOpen, color: 'purple', bgColor: 'bg-purple-100 dark:bg-purple-900/30' },
-      'Policies': { icon: Award, color: 'orange', bgColor: 'bg-orange-100 dark:bg-orange-900/30' }
+    const configs = {
+      'Blue Team': { color: 'blue', icon: Shield },
+      'Red Team': { color: 'red', icon: Target },
+      'Practical': { color: 'green', icon: BookOpen },
+      'Theoretical': { color: 'purple', icon: Users },
+      'Policies': { color: 'orange', icon: TrendingUp }
     };
-    return configs[type] || { icon: Circle, color: 'gray', bgColor: 'bg-gray-100 dark:bg-gray-900/30' };
+    return configs[type as keyof typeof configs] || { color: 'gray', icon: Circle };
   };
 
   const handleWeekClick = (week: any) => {
-    setSelectedWeek(week.week);
     navigate(`/week/${week.week}`);
   };
 
@@ -81,52 +118,93 @@ export default function WeeksPage() {
     navigate('/phases');
   };
 
-  if (!currentPhase) {
-    return (
-      <PageLayout title="خطأ" subtitle="المرحلة غير موجودة">
-        <div className="text-center">
-          <p>المرحلة غير موجودة</p>
-          <Button onClick={handleBackToPhases}>العودة للمراحل</Button>
-        </div>
-      </PageLayout>
-    );
-  }
+  // Calculate phase progress
+  const phaseProgress = phaseWeeks.length > 0 ? 
+    Math.round(phaseWeeks.reduce((sum, week) => sum + getWeekProgress(week), 0) / phaseWeeks.length) : 0;
 
   return (
     <PageLayout 
-      title={language === 'ar' ? currentPhase.name.ar : currentPhase.name.en}
-      subtitle={language === 'ar' ? currentPhase.description.ar : currentPhase.description.en}
+      title={language === 'ar' ? `المرحلة ${currentPhase.id}` : `Phase ${currentPhase.id}`}
+      subtitle={currentPhase.title[language]}
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        {/* Phase Navigation Indicator */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-lg border border-gray-200 dark:border-gray-700">
+        {/* Phase Header */}
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {language === 'ar' ? 'المرحلة الحالية' : 'Current Phase'}
-                </span>
+              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <div className="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                {language === 'ar' ? currentPhase.name.ar : currentPhase.name.en}
-              </span>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {currentPhase.title[language]}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {currentPhase.focus[language]}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {phaseProgress}%
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? 'متوسط التقدم' : 'Average Progress'}
+              </div>
             </div>
           </div>
+        </Card>
+
+        {/* Progress Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {phaseWeeks.length}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? 'أسبوع' : 'Weeks'}
+              </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {phaseWeeks.filter(week => getWeekProgress(week) === 100).length}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? 'مكتملة' : 'Completed'}
+              </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {Math.round(phaseWeeks.reduce((sum, week) => sum + getWeekProgress(week), 0) / phaseWeeks.length || 0)}%
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Weeks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {phaseWeeks.map((week, index) => {
+            // Ensure week has required properties
+            if (!week || typeof week.week !== 'number') {
+              return null;
+            }
+
             const weekProgress = getWeekProgress(week);
             const isCompleted = weekProgress === 100;
             const hasProgress = weekProgress > 0;
 
             return (
               <motion.div
-                key={week.week}
+                key={`week-${week.week}-${index}`}
                 {...animations.stagger(index * 0.1)}
                 className="group cursor-pointer"
                 onClick={() => handleWeekClick(week)}
@@ -165,6 +243,8 @@ export default function WeeksPage() {
                   {/* Days Preview */}
                   <div className="space-y-3">
                     {week.days?.slice(0, 5).map((day, dayIndex) => {
+                      if (!day || !day.key) return null;
+
                       const dayTasks = day.tasks || [];
                       const completedTasks = progress.filter(p => 
                         p.weekId === week.week && p.dayKey === day.key && p.done
@@ -173,7 +253,7 @@ export default function WeeksPage() {
                         Math.round((completedTasks / dayTasks.length) * 100) : 0;
 
                       return (
-                        <div key={day.key} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div key={`day-${week.week}-${day.key}-${dayIndex}`} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                           <div className="flex items-center space-x-3 rtl:space-x-reverse">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
                               dayProgress === 100 ? 'bg-green-500 text-white' :
@@ -212,7 +292,7 @@ export default function WeeksPage() {
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {language === 'ar' ? 'تقدم الأسبوع' : 'Week Progress'}
+                        {language === 'ar' ? 'التقدم' : 'Progress'}
                       </span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">
                         {weekProgress}%
@@ -223,7 +303,7 @@ export default function WeeksPage() {
                         className={`h-2 rounded-full transition-all duration-300 ${
                           isCompleted ? 'bg-green-500' :
                           hasProgress ? 'bg-yellow-500' :
-                          'bg-gray-300 dark:bg-gray-600'
+                          'bg-transparent'
                         }`}
                         style={{ width: `${weekProgress}%` }}
                       />
@@ -234,47 +314,6 @@ export default function WeeksPage() {
             );
           })}
         </div>
-
-        {/* Phase Summary */}
-        <motion.div {...animations.fadeIn} transition={{ delay: 0.5 }}>
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                {language === 'ar' ? 'ملخص المرحلة' : 'Phase Summary'}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {language === 'ar' ? currentPhase.description.ar : currentPhase.description.en}
-              </p>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {phaseWeeks.length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {language === 'ar' ? 'أسبوع' : 'Weeks'}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {phaseWeeks.filter(week => getWeekProgress(week) === 100).length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {language === 'ar' ? 'مكتمل' : 'Completed'}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {Math.round(phaseWeeks.reduce((sum, week) => sum + getWeekProgress(week), 0) / phaseWeeks.length || 0)}%
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
       </motion.div>
     </PageLayout>
   );
