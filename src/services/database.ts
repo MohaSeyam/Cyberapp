@@ -1,339 +1,662 @@
-// Centralized database service
-import Dexie from "dexie";
-import type { Week, Note, JournalEntry, Resource, Progress, AppSettings } from "../types";
+// Enhanced Database Service with Performance Optimizations
+import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { Week, Note, JournalEntry, Resource, Progress, AppSettings } from '../types';
+import planData from '../data/PlanData.json';
 
-// Database definition
-export const db = new Dexie("cyberPlanDB");
-db.version(3).stores({
-  plan: "++id, week, phase",
-  notes: "++id, weekId, dayKey, taskId, title, tags, createdAt, updatedAt",
-  journal: "++id, weekId, dayKey, title, content, tags, createdAt, updatedAt",
-  resources: "++id, weekId, dayIndex, title, url, type, createdAt, updatedAt",
-  settings: "key, value",
-  progress: "++id, weekId, dayKey, taskId, done"
-});
+// Performance optimization: Cache interface
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
 
-// Cache for frequently accessed data
-const cache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+interface Cache {
+  [key: string]: CacheEntry<any>;
+}
 
-// Cache management
-const getCachedData = (key: string) => {
-  const cached = cache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    return cached.data;
+// Performance optimization: Connection pool
+class ConnectionPool {
+  private connections: IDBPDatabase<AppDatabase>[] = [];
+  private maxConnections = 3;
+  private currentConnections = 0;
+
+  async getConnection(): Promise<IDBPDatabase<AppDatabase>> {
+    if (this.connections.length > 0) {
+      return this.connections.pop()!;
+    }
+    
+    if (this.currentConnections < this.maxConnections) {
+      this.currentConnections++;
+      return openDB<AppDatabase>('cyberplan-db', 1, {
+        upgrade(db) {
+          // Create object stores with optimized indexes
+          if (!db.objectStoreNames.contains('plan')) {
+            const planStore = db.createObjectStore('plan', { keyPath: 'id' });
+            planStore.createIndex('week', 'week', { unique: false });
+            planStore.createIndex('phase', 'phase', { unique: false });
+          }
+          
+          if (!db.objectStoreNames.contains('notes')) {
+            const notesStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+            notesStore.createIndex('weekId', 'weekId', { unique: false });
+            notesStore.createIndex('dayKey', 'dayKey', { unique: false });
+            notesStore.createIndex('weekId-dayKey', ['weekId', 'dayKey'], { unique: false });
+          }
+          
+          if (!db.objectStoreNames.contains('journal')) {
+            const journalStore = db.createObjectStore('journal', { keyPath: 'id', autoIncrement: true });
+            journalStore.createIndex('weekId', 'weekId', { unique: false });
+            journalStore.createIndex('dayKey', 'dayKey', { unique: false });
+            journalStore.createIndex('weekId-dayKey', ['weekId', 'dayKey'], { unique: false });
+          }
+          
+          if (!db.objectStoreNames.contains('resources')) {
+            const resourcesStore = db.createObjectStore('resources', { keyPath: 'id', autoIncrement: true });
+            resourcesStore.createIndex('weekId', 'weekId', { unique: false });
+            resourcesStore.createIndex('dayKey', 'dayKey', { unique: false });
+            resourcesStore.createIndex('weekId-dayKey', ['weekId', 'dayKey'], { unique: false });
+          }
+          
+          if (!db.objectStoreNames.contains('progress')) {
+            const progressStore = db.createObjectStore('progress', { keyPath: 'id', autoIncrement: true });
+            progressStore.createIndex('weekId', 'weekId', { unique: false });
+            progressStore.createIndex('taskId', 'taskId', { unique: false });
+            progressStore.createIndex('weekId-taskId', ['weekId', 'taskId'], { unique: false });
+          }
+          
+          if (!db.objectStoreNames.contains('settings')) {
+            db.createObjectStore('settings', { keyPath: 'id' });
+          }
+        }
+      });
+    }
+    
+    throw new Error('Connection pool exhausted');
   }
-  return null;
-};
 
-const setCachedData = (key: string, data: any) => {
-  cache.set(key, {
-    data,
-    timestamp: Date.now()
-  });
-};
+  releaseConnection(connection: IDBPDatabase<AppDatabase>) {
+    if (this.connections.length < this.maxConnections) {
+      this.connections.push(connection);
+    } else {
+      this.currentConnections--;
+    }
+  }
+}
 
-const clearCache = () => {
-  cache.clear();
-};
+// Performance optimization: Advanced cache with TTL
+class AdvancedCache {
+  private cache: Cache = {};
+  private maxSize = 100;
+  private cleanupInterval: NodeJS.Timeout;
 
-// Plan operations - OPTIMIZED with caching
+  constructor() {
+    // Cleanup expired entries every 5 minutes
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 5 * 60 * 1000);
+  }
+
+  set<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): void {
+    // Remove oldest entries if cache is full
+    if (Object.keys(this.cache).length >= this.maxSize) {
+      this.evictOldest();
+    }
+
+    this.cache[key] = {
+      data,
+      timestamp: Date.now(),
+      ttl
+    };
+  }
+
+  get<T>(key: string): T | null {
+    const entry = this.cache[key];
+    if (!entry) return null;
+
+    if (Date.now() - entry.timestamp > entry.ttl) {
+      delete this.cache[key];
+      return null;
+    }
+
+    return entry.data as T;
+  }
+
+  has(key: string): boolean {
+    return this.get(key) !== null;
+  }
+
+  clear(): void {
+    this.cache = {};
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    Object.keys(this.cache).forEach(key => {
+      const entry = this.cache[key];
+      if (now - entry.timestamp > entry.ttl) {
+        delete this.cache[key];
+      }
+    });
+  }
+
+  private evictOldest(): void {
+    let oldestKey: string | null = null;
+    let oldestTime = Date.now();
+
+    Object.keys(this.cache).forEach(key => {
+      if (this.cache[key].timestamp < oldestTime) {
+        oldestTime = this.cache[key].timestamp;
+        oldestKey = key;
+      }
+    });
+
+    if (oldestKey) {
+      delete this.cache[oldestKey];
+    }
+  }
+
+  destroy(): void {
+    clearInterval(this.cleanupInterval);
+    this.clear();
+  }
+}
+
+// Performance optimization: Database interface with caching
+interface AppDatabase extends DBSchema {
+  plan: {
+    key: number;
+    value: Week;
+    indexes: { 'week': number; 'phase': number };
+  };
+  notes: {
+    key: number;
+    value: Note;
+    indexes: { 'weekId': number; 'dayKey': string; 'weekId-dayKey': [number, string] };
+  };
+  journal: {
+    key: number;
+    value: JournalEntry;
+    indexes: { 'weekId': number; 'dayKey': string; 'weekId-dayKey': [number, string] };
+  };
+  resources: {
+    key: number;
+    value: Resource;
+    indexes: { 'weekId': number; 'dayKey': string; 'weekId-dayKey': [number, string] };
+  };
+  progress: {
+    key: number;
+    value: Progress;
+    indexes: { 'weekId': number; 'taskId': string; 'weekId-taskId': [number, string] };
+  };
+  settings: {
+    key: string;
+    value: AppSettings;
+  };
+}
+
+// Performance optimization: Singleton instances
+const connectionPool = new ConnectionPool();
+const cache = new AdvancedCache();
+
+// Performance optimization: Batch operations
+class BatchProcessor {
+  private batchSize = 50;
+  private batches: Map<string, any[]> = new Map();
+  private timers: Map<string, NodeJS.Timeout> = new Map();
+
+  addToBatch(storeName: string, operation: 'add' | 'put' | 'delete', data: any): void {
+    if (!this.batches.has(storeName)) {
+      this.batches.set(storeName, []);
+    }
+
+    this.batches.get(storeName)!.push({ operation, data });
+
+    // Schedule batch processing
+    if (!this.timers.has(storeName)) {
+      this.timers.set(storeName, setTimeout(() => {
+        this.processBatch(storeName);
+      }, 100));
+    }
+  }
+
+  private async processBatch(storeName: string): Promise<void> {
+    const batch = this.batches.get(storeName) || [];
+    if (batch.length === 0) return;
+
+    const connection = await connectionPool.getConnection();
+    const tx = connection.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+
+    try {
+      for (const { operation, data } of batch) {
+        switch (operation) {
+          case 'add':
+            await store.add(data);
+            break;
+          case 'put':
+            await store.put(data);
+            break;
+          case 'delete':
+            await store.delete(data);
+            break;
+        }
+      }
+      await tx.done;
+    } catch (error) {
+      console.error('Batch operation failed:', error);
+    } finally {
+      connectionPool.releaseConnection(connection);
+      this.batches.delete(storeName);
+      this.timers.delete(storeName);
+    }
+  }
+}
+
+const batchProcessor = new BatchProcessor();
+
+// Optimized service implementations
 export const planService = {
   async getAll(): Promise<Week[]> {
-    try {
-      const cached = getCachedData('plan');
-      if (cached) return cached;
+    const cacheKey = 'plan_all';
+    const cached = cache.get<Week[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.plan.toArray();
-      setCachedData('plan', data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('plan', 'readonly');
+      const store = tx.objectStore('plan');
+      const data = await store.getAll();
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting plan:", error);
-      return [];
+      console.error('Error getting plan:', error);
+      return planData as Week[];
     }
   },
 
   async save(plan: Week[]): Promise<void> {
     try {
-      await db.plan.clear();
-      await db.plan.bulkAdd(plan);
-      setCachedData('plan', plan); // Update cache
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('plan', 'readwrite');
+      const store = tx.objectStore('plan');
+      
+      await store.clear();
+      for (const item of plan) {
+        await store.add(item);
+      }
+      
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.set('plan_all', plan);
     } catch (error) {
-      console.error("Error saving plan:", error);
+      console.error('Error saving plan:', error);
       throw error;
-    }
-  },
-
-  async importFromFile(): Promise<Week[]> {
-    try {
-      // Try to import from the data directory first
-      const planData = await import('../data/PlanData.json');
-      if (!Array.isArray(planData.default)) {
-        throw new Error("Invalid plan data format");
-      }
-      
-      // Save to IndexedDB
-      await this.save(planData.default);
-      console.log("Successfully imported plan data:", planData.default.length, "weeks");
-      return planData.default;
-    } catch (error) {
-      console.error("Error importing plan from data directory:", error);
-      
-      // Fallback to fetch from public directory
-      try {
-        const response = await fetch("/PlanData.json");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch plan data: ${response.status}`);
-        }
-        const planData = await response.json();
-        if (!Array.isArray(planData)) {
-          throw new Error("Invalid plan data format");
-        }
-        await this.save(planData);
-        console.log("Successfully imported plan data via fetch:", planData.length, "weeks");
-        return planData;
-      } catch (fetchError) {
-        console.error("Error importing plan via fetch:", fetchError);
-        throw fetchError;
-      }
     }
   }
 };
 
-// Notes operations - OPTIMIZED with caching
 export const notesService = {
   async getAll(): Promise<Note[]> {
-    try {
-      const cached = getCachedData('notes');
-      if (cached) return cached;
+    const cacheKey = 'notes_all';
+    const cached = cache.get<Note[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.notes.orderBy('updatedAt').reverse().toArray();
-      setCachedData('notes', data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('notes', 'readonly');
+      const store = tx.objectStore('notes');
+      const data = await store.getAll();
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting notes:", error);
+      console.error('Error getting notes:', error);
       return [];
     }
   },
 
   async getByTask(weekId: number, dayKey: string, taskId: string): Promise<Note[]> {
-    try {
-      const cacheKey = `notes_${weekId}_${dayKey}_${taskId}`;
-      const cached = getCachedData(cacheKey);
-      if (cached) return cached;
+    const cacheKey = `notes_${weekId}_${dayKey}_${taskId}`;
+    const cached = cache.get<Note[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.notes.where({ weekId, dayKey, taskId }).toArray();
-      setCachedData(cacheKey, data);
-      return data;
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('notes', 'readonly');
+      const store = tx.objectStore('notes');
+      const index = store.index('weekId-dayKey');
+      const data = await index.getAll([weekId, dayKey]);
+      connectionPool.releaseConnection(connection);
+
+      const filtered = data.filter(note => note.taskId === taskId);
+      cache.set(cacheKey, filtered);
+      return filtered;
     } catch (error) {
-      console.error("Error getting notes by task:", error);
+      console.error('Error getting notes by task:', error);
       return [];
     }
   },
 
   async add(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     try {
-      const id = await db.notes.add({
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('notes', 'readwrite');
+      const store = tx.objectStore('notes');
+      
+      const newNote = {
         ...note,
         createdAt: Date.now(),
         updatedAt: Date.now()
-      });
-      clearCache(); // Clear cache when data changes
-      return id;
+      };
+      
+      const id = await store.add(newNote);
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      
+      cache.clear(); // Clear cache when data changes
+      return id as number;
     } catch (error) {
-      console.error("Error adding note:", error);
+      console.error('Error adding note:', error);
       throw error;
     }
   },
 
   async update(id: number, updates: Partial<Note>): Promise<void> {
     try {
-      await db.notes.update(id, {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('notes', 'readwrite');
+      const store = tx.objectStore('notes');
+      
+      const existing = await store.get(id);
+      if (!existing) throw new Error('Note not found');
+      
+      await store.put({
+        ...existing,
         ...updates,
         updatedAt: Date.now()
       });
-      clearCache(); // Clear cache when data changes
+      
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error updating note:", error);
+      console.error('Error updating note:', error);
       throw error;
     }
   },
 
   async delete(id: number): Promise<void> {
     try {
-      await db.notes.delete(id);
-      clearCache(); // Clear cache when data changes
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('notes', 'readwrite');
+      const store = tx.objectStore('notes');
+      
+      await store.delete(id);
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error deleting note:", error);
+      console.error('Error deleting note:', error);
       throw error;
     }
   }
 };
 
-// Journal operations - OPTIMIZED with caching
 export const journalService = {
   async getAll(): Promise<JournalEntry[]> {
-    try {
-      const cached = getCachedData('journal');
-      if (cached) return cached;
+    const cacheKey = 'journal_all';
+    const cached = cache.get<JournalEntry[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.journal.orderBy('updatedAt').reverse().toArray();
-      setCachedData('journal', data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('journal', 'readonly');
+      const store = tx.objectStore('journal');
+      const data = await store.getAll();
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting journal entries:", error);
+      console.error('Error getting journal entries:', error);
       return [];
     }
   },
 
   async getByDay(weekId: number, dayKey: string): Promise<JournalEntry | null> {
-    try {
-      const cacheKey = `journal_${weekId}_${dayKey}`;
-      const cached = getCachedData(cacheKey);
-      if (cached) return cached;
+    const cacheKey = `journal_${weekId}_${dayKey}`;
+    const cached = cache.get<JournalEntry>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.journal.where({ weekId, dayKey }).first();
-      setCachedData(cacheKey, data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('journal', 'readonly');
+      const store = tx.objectStore('journal');
+      const index = store.index('weekId-dayKey');
+      const data = await index.get([weekId, dayKey]);
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting journal by day:", error);
+      console.error('Error getting journal by day:', error);
       return null;
     }
   },
 
   async add(entry: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     try {
-      const id = await db.journal.add({
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('journal', 'readwrite');
+      const store = tx.objectStore('journal');
+      
+      const newEntry = {
         ...entry,
         createdAt: Date.now(),
         updatedAt: Date.now()
-      });
-      clearCache(); // Clear cache when data changes
-      return id;
+      };
+      
+      const id = await store.add(newEntry);
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      
+      cache.clear();
+      return id as number;
     } catch (error) {
-      console.error("Error adding journal entry:", error);
+      console.error('Error adding journal entry:', error);
       throw error;
     }
   },
 
   async update(id: number, updates: Partial<JournalEntry>): Promise<void> {
     try {
-      await db.journal.update(id, {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('journal', 'readwrite');
+      const store = tx.objectStore('journal');
+      
+      const existing = await store.get(id);
+      if (!existing) throw new Error('Journal entry not found');
+      
+      await store.put({
+        ...existing,
         ...updates,
         updatedAt: Date.now()
       });
-      clearCache(); // Clear cache when data changes
+      
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error updating journal entry:", error);
+      console.error('Error updating journal entry:', error);
       throw error;
     }
   },
 
   async delete(id: number): Promise<void> {
     try {
-      await db.journal.delete(id);
-      clearCache(); // Clear cache when data changes
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('journal', 'readwrite');
+      const store = tx.objectStore('journal');
+      
+      await store.delete(id);
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error deleting journal entry:", error);
+      console.error('Error deleting journal entry:', error);
       throw error;
     }
   }
 };
 
-// Resources operations - OPTIMIZED with caching
 export const resourcesService = {
   async getAll(): Promise<Resource[]> {
-    try {
-      const cached = getCachedData('resources');
-      if (cached) return cached;
+    const cacheKey = 'resources_all';
+    const cached = cache.get<Resource[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.resources.orderBy('createdAt').reverse().toArray();
-      setCachedData('resources', data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('resources', 'readonly');
+      const store = tx.objectStore('resources');
+      const data = await store.getAll();
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting resources:", error);
+      console.error('Error getting resources:', error);
       return [];
     }
   },
 
-  async getByDay(weekId: number, dayIndex: number): Promise<Resource[]> {
-    try {
-      const cacheKey = `resources_${weekId}_${dayIndex}`;
-      const cached = getCachedData(cacheKey);
-      if (cached) return cached;
+  async getByDay(weekId: number, dayKey: string): Promise<Resource[]> {
+    const cacheKey = `resources_${weekId}_${dayKey}`;
+    const cached = cache.get<Resource[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.resources.where({ weekId, dayIndex }).toArray();
-      setCachedData(cacheKey, data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('resources', 'readonly');
+      const store = tx.objectStore('resources');
+      const index = store.index('weekId-dayKey');
+      const data = await index.getAll([weekId, dayKey]);
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting resources by day:", error);
+      console.error('Error getting resources by day:', error);
       return [];
     }
   },
 
   async add(resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     try {
-      const id = await db.resources.add({
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('resources', 'readwrite');
+      const store = tx.objectStore('resources');
+      
+      const newResource = {
         ...resource,
         createdAt: Date.now(),
         updatedAt: Date.now()
-      });
-      clearCache(); // Clear cache when data changes
-      return id;
+      };
+      
+      const id = await store.add(newResource);
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      
+      cache.clear();
+      return id as number;
     } catch (error) {
-      console.error("Error adding resource:", error);
+      console.error('Error adding resource:', error);
       throw error;
     }
   },
 
   async update(id: number, updates: Partial<Resource>): Promise<void> {
     try {
-      await db.resources.update(id, {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('resources', 'readwrite');
+      const store = tx.objectStore('resources');
+      
+      const existing = await store.get(id);
+      if (!existing) throw new Error('Resource not found');
+      
+      await store.put({
+        ...existing,
         ...updates,
         updatedAt: Date.now()
       });
-      clearCache(); // Clear cache when data changes
+      
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error updating resource:", error);
+      console.error('Error updating resource:', error);
       throw error;
     }
   },
 
   async delete(id: number): Promise<void> {
     try {
-      await db.resources.delete(id);
-      clearCache(); // Clear cache when data changes
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('resources', 'readwrite');
+      const store = tx.objectStore('resources');
+      
+      await store.delete(id);
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error deleting resource:", error);
+      console.error('Error deleting resource:', error);
       throw error;
     }
   }
 };
 
-// Progress operations - OPTIMIZED with caching
 export const progressService = {
   async getAll(): Promise<Progress[]> {
-    try {
-      const cached = getCachedData('progress');
-      if (cached) return cached;
+    const cacheKey = 'progress_all';
+    const cached = cache.get<Progress[]>(cacheKey);
+    if (cached) return cached;
 
-      const data = await db.progress.toArray();
-      setCachedData('progress', data);
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('progress', 'readonly');
+      const store = tx.objectStore('progress');
+      const data = await store.getAll();
+      connectionPool.releaseConnection(connection);
+
+      cache.set(cacheKey, data);
       return data;
     } catch (error) {
-      console.error("Error getting progress:", error);
+      console.error('Error getting progress:', error);
       return [];
     }
   },
 
   async setTaskProgress(weekId: number, dayKey: string, taskId: string, done: boolean): Promise<void> {
     try {
-      const existing = await db.progress.where({ weekId, dayKey, taskId }).first();
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('progress', 'readwrite');
+      const store = tx.objectStore('progress');
+      const index = store.index('weekId-taskId');
+      
+      const existing = await index.get([weekId, taskId]);
       
       if (existing) {
-        await db.progress.update(existing.id, { done });
+        await store.put({
+          ...existing,
+          done,
+          updatedAt: Date.now()
+        });
       } else {
-        await db.progress.add({
+        await store.add({
           weekId,
           dayKey,
           taskId,
@@ -342,129 +665,74 @@ export const progressService = {
           updatedAt: Date.now()
         });
       }
-      clearCache(); // Clear cache when data changes
+      
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error setting task progress:", error);
+      console.error('Error setting task progress:', error);
       throw error;
     }
   },
 
   async clear(): Promise<void> {
     try {
-      await db.progress.clear();
-      clearCache(); // Clear cache when data changes
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('progress', 'readwrite');
+      const store = tx.objectStore('progress');
+      
+      await store.clear();
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      cache.clear();
     } catch (error) {
-      console.error("Error clearing progress:", error);
+      console.error('Error clearing progress:', error);
       throw error;
     }
   }
 };
 
-// Settings operations - OPTIMIZED with caching
 export const settingsService = {
-  async get(key: string): Promise<any> {
-    try {
-      const cached = getCachedData(`settings_${key}`);
-      if (cached) return cached;
+  async get(): Promise<AppSettings> {
+    const cacheKey = 'settings';
+    const cached = cache.get<AppSettings>(cacheKey);
+    if (cached) return cached;
 
-      const setting = await db.settings.where('key').equals(key).first();
-      const value = setting ? setting.value : null;
-      setCachedData(`settings_${key}`, value);
-      return value;
+    try {
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('settings', 'readonly');
+      const store = tx.objectStore('settings');
+      const data = await store.get('settings');
+      connectionPool.releaseConnection(connection);
+
+      const settings = data || { language: 'ar', theme: 'light' };
+      cache.set(cacheKey, settings);
+      return settings;
     } catch (error) {
-      console.error("Error getting setting:", error);
-      return null;
+      console.error('Error getting settings:', error);
+      return { language: 'ar', theme: 'light' };
     }
   },
 
-  async set(key: string, value: any): Promise<void> {
+  async set(settings: AppSettings): Promise<void> {
     try {
-      await db.settings.put({ key, value });
-      setCachedData(`settings_${key}`, value); // Update cache
+      const connection = await connectionPool.getConnection();
+      const tx = connection.transaction('settings', 'readwrite');
+      const store = tx.objectStore('settings');
+      
+      await store.put({ id: 'settings', ...settings });
+      await tx.done;
+      connectionPool.releaseConnection(connection);
+      
+      cache.set('settings', settings);
     } catch (error) {
-      console.error("Error setting setting:", error);
-      throw error;
-    }
-  },
-
-  async exportAll() {
-    try {
-      const [plan, notes, journal, resources, progress, settings] = await Promise.all([
-        this.getAll(),
-        notesService.getAll(),
-        journalService.getAll(),
-        resourcesService.getAll(),
-        progressService.getAll(),
-        db.settings.toArray()
-      ]);
-
-      return {
-        plan,
-        notes,
-        journal,
-        resources,
-        progress,
-        settings: settings.reduce((acc, setting) => {
-          acc[setting.key] = setting.value;
-          return acc;
-        }, {}),
-        exportDate: new Date().toISOString(),
-        version: '1.0'
-      };
-    } catch (error) {
-      console.error("Error exporting data:", error);
-      throw error;
-    }
-  },
-
-  async importAll(data: any) {
-    try {
-      await db.transaction('rw', [db.plan, db.notes, db.journal, db.resources, db.progress, db.settings], async () => {
-        // Clear existing data
-        await Promise.all([
-          db.plan.clear(),
-          db.notes.clear(),
-          db.journal.clear(),
-          db.resources.clear(),
-          db.progress.clear(),
-          db.settings.clear()
-        ]);
-
-        // Import new data
-        if (data.plan) await db.plan.bulkAdd(data.plan);
-        if (data.notes) await db.notes.bulkAdd(data.notes);
-        if (data.journal) await db.journal.bulkAdd(data.journal);
-        if (data.resources) await db.resources.bulkAdd(data.resources);
-        if (data.progress) await db.progress.bulkAdd(data.progress);
-        if (data.settings) {
-          const settingsArray = Object.entries(data.settings).map(([key, value]) => ({ key, value }));
-          await db.settings.bulkAdd(settingsArray);
-        }
-      });
-
-      clearCache(); // Clear all cache after import
-      console.log("Data imported successfully");
-    } catch (error) {
-      console.error("Error importing data:", error);
-      throw error;
-    }
-  },
-
-  async clearAll() {
-    try {
-      await Promise.all([
-        db.plan.clear(),
-        db.notes.clear(),
-        db.journal.clear(),
-        db.resources.clear(),
-        db.progress.clear(),
-        db.settings.clear()
-      ]);
-      clearCache(); // Clear all cache
-      console.log("All data cleared successfully");
-    } catch (error) {
-      console.error("Error clearing data:", error);
+      console.error('Error setting settings:', error);
       throw error;
     }
   }
+};
+
+// Cleanup function for performance
+export const cleanupDatabase = () => {
+  cache.destroy();
 };

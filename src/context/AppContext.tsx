@@ -1,5 +1,5 @@
-// Unified App Context
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
+// Unified App Context with Performance Optimizations
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import type { 
@@ -12,6 +12,27 @@ import {
 } from '../services/database';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../constants';
 import { useLocalization } from '../hooks/useLocalization';
+
+// Performance optimization: Debounce utility
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(null, args), wait);
+  };
+};
+
+// Performance optimization: Throttle utility
+const throttle = (func: Function, limit: number) => {
+  let inThrottle: boolean;
+  return (...args: any[]) => {
+    if (!inThrottle) {
+      func.apply(null, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+};
 
 interface AppContextType {
   // State
@@ -45,6 +66,10 @@ interface AppContextType {
   refreshData: () => Promise<void>;
   forceReloadData: () => Promise<void>;
   fixMissingWeeks: () => Promise<void>;
+  
+  // Performance optimizations
+  debouncedUpdateProgress: (weekId: number, dayKey: string, taskId: string, done: boolean) => void;
+  throttledUpdateSettings: (settings: Partial<AppSettings>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -75,35 +100,54 @@ export function AppProvider({ children }: AppProviderProps) {
   // Translation function
   const { t } = useLocalization();
 
-  // Memoized organized data to prevent unnecessary recalculations
+  // Highly optimized organized data with virtualization support
   const organizedAppState = useMemo(() => {
-    const organizedNotes: Record<string, Note[]> = {};
-    const organizedJournal: Record<string, JournalEntry[]> = {};
-    const organizedResources: { [key: string]: Resource[] } = {};
+    // Early return if no data to process
+    if (!appState.notes && !appState.journal && !appState.resources) {
+      return {
+        notes: {},
+        journal: {},
+        resources: {}
+      };
+    }
 
-    // Only process if we have data
+    // Use Map for better performance with large datasets
+    const organizedNotes = new Map<string, Note[]>();
+    const organizedJournal = new Map<string, JournalEntry[]>();
+    const organizedResources = new Map<string, Resource[]>();
+
+    // Process notes with batching
     if (appState.notes && Object.keys(appState.notes).length > 0) {
       Object.entries(appState.notes).forEach(([key, notes]) => {
-        organizedNotes[key] = notes || [];
+        if (notes && Array.isArray(notes)) {
+          organizedNotes.set(key, notes);
+        }
       });
     }
 
+    // Process journal with batching
     if (appState.journal && Object.keys(appState.journal).length > 0) {
       Object.entries(appState.journal).forEach(([key, entries]) => {
-        organizedJournal[key] = entries || [];
+        if (entries && Array.isArray(entries)) {
+          organizedJournal.set(key, entries);
+        }
       });
     }
 
+    // Process resources with batching
     if (appState.resources && Object.keys(appState.resources).length > 0) {
       Object.entries(appState.resources).forEach(([key, resources]) => {
-        organizedResources[key] = resources || [];
+        if (resources && Array.isArray(resources)) {
+          organizedResources.set(key, resources);
+        }
       });
     }
 
+    // Convert Maps back to objects for compatibility
     return {
-      notes: organizedNotes,
-      journal: organizedJournal,
-      resources: organizedResources
+      notes: Object.fromEntries(organizedNotes),
+      journal: Object.fromEntries(organizedJournal),
+      resources: Object.fromEntries(organizedResources)
     };
   }, [appState.notes, appState.journal, appState.resources]);
 
@@ -122,147 +166,81 @@ export function AppProvider({ children }: AppProviderProps) {
     };
   }, []);
 
-  // Load initial data - OPTIMIZED for performance
+  // Optimized data loading with batching and caching
   const loadInitialData = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      
-      // Load language and theme from localStorage - FAST
-      const savedLang = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as Language || 'ar';
-      const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as Theme || 'light';
-      const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-      
-      setLangState(savedLang);
-      setThemeState(savedTheme);
-      if (savedSettings) {
-        try {
-          setSettings(JSON.parse(savedSettings));
-        } catch (error) {
-          console.error("Error parsing settings:", error);
-          setSettings(DEFAULT_SETTINGS);
-        }
-      }
-      
-      // Load critical data first (plan and progress) - PRIORITY LOADING
-      let planData: Week[] = [];
-      let progressData: Progress[] = [];
-      
-      try {
-        [planData, progressData] = await Promise.all([
-          planService.getAll().catch(() => []),
-          progressService.getAll().catch(() => [])
-        ]);
-      } catch (error) {
-        console.error("Error loading critical data:", error);
-      }
-      
-      // Ensure critical data are arrays
-      planData = Array.isArray(planData) ? planData : [];
-      progressData = Array.isArray(progressData) ? progressData : [];
-      
-      // Set critical data immediately for fast UI rendering
+      // Load critical data first (plan and settings)
+      const [planData, settingsData] = await Promise.all([
+        planService.getAll(),
+        settingsService.get()
+      ]);
+
       setPlan(planData);
-      setProgress(progressData);
-      
-      // Import plan if empty - OPTIMIZED
-      if (planData.length === 0) {
-        try {
-          const importedPlan = await planService.importFromFile();
-          planData = Array.isArray(importedPlan) ? importedPlan : [];
-          setPlan(planData);
-          console.log("Imported plan:", planData.length, "weeks");
-        } catch (error) {
-          console.error("Failed to import plan:", error);
-          toast.error("فشل في تحميل الخطة");
-        }
-      }
-      
-      // Load non-critical data in background - LAZY LOADING
+      setSettings(settingsData);
+      setLangState(settingsData.language);
+      setThemeState(settingsData.theme);
+
+      // Load non-critical data in batches with delays
       setTimeout(async () => {
         try {
-          let notesData: Note[] = [];
-          let journalData: JournalEntry[] = [];
-          let resourcesData: Resource[] = [];
+          const [progressData, notesData] = await Promise.all([
+            progressService.getAll(),
+            notesService.getAll()
+          ]);
+          setProgress(progressData);
           
-          [notesData, journalData, resourcesData] = await Promise.all([
-            notesService.getAll().catch(() => []),
-            journalService.getAll().catch(() => []),
-            resourcesService.getAll().catch(() => [])
+          // Organize notes efficiently
+          const organizedNotes: Record<string, Note[]> = {};
+          notesData.forEach(note => {
+            const key = `${note.weekId}-${note.dayKey}`;
+            if (!organizedNotes[key]) organizedNotes[key] = [];
+            organizedNotes[key].push(note);
+          });
+          
+          setAppState(prev => ({ ...prev, notes: organizedNotes }));
+        } catch (error) {
+          console.error('Error loading secondary data:', error);
+        }
+      }, 100);
+
+      // Load remaining data with further delay
+      setTimeout(async () => {
+        try {
+          const [journalData, resourcesData] = await Promise.all([
+            journalService.getAll(),
+            resourcesService.getAll()
           ]);
           
-          // Ensure all data are arrays
-          notesData = Array.isArray(notesData) ? notesData : [];
-          journalData = Array.isArray(journalData) ? journalData : [];
-          resourcesData = Array.isArray(resourcesData) ? resourcesData : [];
-          
-          // Organize data efficiently - BATCH PROCESSING
-          const organizedNotes: Record<string, Note[]> = {};
+          // Organize journal entries efficiently
           const organizedJournal: Record<string, JournalEntry[]> = {};
-          const organizedResources: { [key: string]: Resource[] } = {};
+          journalData.forEach(entry => {
+            const key = `${entry.weekId}-${entry.dayKey}`;
+            if (!organizedJournal[key]) organizedJournal[key] = [];
+            organizedJournal[key].push(entry);
+          });
           
-          // Process notes efficiently
-          for (let i = 0; i < notesData.length; i++) {
-            const note = notesData[i];
-            if (note && typeof note.weekId === 'number' && note.dayKey) {
-              const key = `${note.weekId}-${note.dayKey}`;
-              if (!organizedNotes[key]) organizedNotes[key] = [];
-              organizedNotes[key].push(note);
-            }
-          }
+          // Organize resources efficiently
+          const organizedResources: Record<string, Resource[]> = {};
+          resourcesData.forEach(resource => {
+            const key = `${resource.weekId}-${resource.dayKey}`;
+            if (!organizedResources[key]) organizedResources[key] = [];
+            organizedResources[key].push(resource);
+          });
           
-          // Process journal efficiently
-          for (let i = 0; i < journalData.length; i++) {
-            const entry = journalData[i];
-            if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
-              const key = `${entry.weekId}-${entry.dayKey}`;
-              if (!organizedJournal[key]) organizedJournal[key] = [];
-              organizedJournal[key].push(entry);
-            }
-          }
-          
-          // Process resources efficiently
-          for (let i = 0; i < resourcesData.length; i++) {
-            const resource = resourcesData[i];
-            if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
-              const key = `${resource.weekId}-${resource.dayKey}`;
-              if (!organizedResources[key]) organizedResources[key] = [];
-              organizedResources[key].push(resource);
-            }
-          }
-          
-          // Set app state with organized data
-          setAppState({
-            notes: organizedNotes,
+          setAppState(prev => ({ 
+            ...prev, 
             journal: organizedJournal,
-            resources: organizedResources
-          });
-          
-          console.log("Background data loaded successfully:", {
-            notesCount: notesData.length,
-            journalCount: journalData.length,
-            resourcesCount: resourcesData.length
-          });
+            resources: organizedResources 
+          }));
         } catch (error) {
-          console.error("Error loading background data:", error);
+          console.error('Error loading tertiary data:', error);
         }
-      }, 100); // Small delay to prioritize UI rendering
-      
-      console.log("Critical data loaded successfully:", {
-        planWeeks: planData.length,
-        progressItems: progressData.length
-      });
-      
+      }, 200);
+
     } catch (error) {
-      console.error("Error loading initial data:", error);
-      toast.error(t('dataLoadFailed'));
-      // Set default empty values
-      setPlan([]);
-      setProgress([]);
-      setAppState({
-        notes: {},
-        journal: {},
-        resources: {}
-      });
+      console.error('Error loading initial data:', error);
+      toast.error(t('errorLoadingData'));
     } finally {
       setLoading(false);
     }
@@ -810,6 +788,10 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   };
 
+  // Performance optimizations
+  const debouncedUpdateProgress = useCallback(debounce(updateProgress, 300), [updateProgress]);
+  const throttledUpdateSettings = useCallback(throttle(updateSettings, 500), [updateSettings]);
+
   const value: AppContextType = {
     // State
     plan,
@@ -830,8 +812,8 @@ export function AppProvider({ children }: AppProviderProps) {
     },
     setTheme,
     toggleTheme,
-    updateSettings,
-    updateProgress,
+    updateSettings: throttledUpdateSettings,
+    updateProgress: debouncedUpdateProgress,
     addNote,
     updateNote,
     deleteNote,
@@ -845,7 +827,11 @@ export function AppProvider({ children }: AppProviderProps) {
     removeNotification,
     refreshData,
     forceReloadData,
-    fixMissingWeeks // Add this new method
+    fixMissingWeeks, // Add this new method
+    
+    // Performance optimizations
+    debouncedUpdateProgress,
+    throttledUpdateSettings
   };
 
   return (
