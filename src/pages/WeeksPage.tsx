@@ -288,14 +288,6 @@ export default function WeeksPage() {
 
                   {/* Week Progress */}
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {language === 'ar' ? 'التقدم' : 'Progress'}
-                      </span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {weekProgress}%
-                      </span>
-                    </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full transition-all duration-300 ${

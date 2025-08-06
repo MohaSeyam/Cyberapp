@@ -292,14 +292,6 @@ export default function DaysPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {completionPercentage}%
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-500">
-                        {completedTasks}/{totalTasks} مهام
-                      </div>
-                    </div>
                   </div>
                   <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div 
