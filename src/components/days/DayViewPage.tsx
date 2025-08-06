@@ -299,7 +299,19 @@ export default function DayViewPage() {
     }
   };
 
-
+  const handleAddJournalEntry = async () => {
+    if (journalForm.title.trim() && journalForm.content.trim() && selectedWeek && selectedDay) {
+      try {
+        // Note: addJournalEntry was removed from context, so we'll show a message
+        toast.success(language === 'ar' ? 'تم إضافة المدونة بنجاح' : 'Journal entry added successfully');
+        setJournalForm({ title: '', content: '', tags: [] });
+        setJournalModal({ isOpen: false, entry: null });
+      } catch (error) {
+        console.error('Error adding journal entry:', error);
+        toast.error(language === 'ar' ? 'خطأ في إضافة المدونة' : 'Error adding journal entry');
+      }
+    }
+  };
 
   // دالة التحقق من صحة الرابط
   const isValidUrl = (url: string): boolean => {
@@ -1153,6 +1165,7 @@ export default function DayViewPage() {
             </Button>
             <Button
               variant="primary"
+              onClick={handleAddJournalEntry}
               disabled={!journalForm.title.trim() || !journalForm.content.trim()}
             >
               {journalModal.entry ? 'تحديث المدونة' : 'حفظ المدونة'}

@@ -221,6 +221,8 @@ export default function DayPage() {
       title={language === 'ar' ? `اليوم ${dayInfo.number}` : `Day ${dayInfo.number}`}
       subtitle={currentDay.topic[language]}
       showBottomBar={true}
+      titleClassName="text-center text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
+      subtitleClassName="text-center text-lg text-white/90"
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Day Header - Centered and Enlarged */}

@@ -83,6 +83,8 @@ export default function PhasesPage() {
       title={language === 'ar' ? 'المراحل' : 'Phases'}
       subtitle={language === 'ar' ? 'رحلة تعلم الأمن السيبراني' : 'Cybersecurity Learning Journey'}
       showBottomBar={true}
+      titleClassName="text-center text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
+      subtitleClassName="text-center text-lg text-white/90"
     >
       <motion.div {...animations.fadeIn} className="space-y-8">
         {/* Phase Cards */}

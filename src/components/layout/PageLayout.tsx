@@ -12,6 +12,8 @@ interface PageLayoutProps {
   showHeader?: boolean;
   showBottomBar?: boolean;
   headerAction?: React.ReactNode;
+  titleClassName?: string;
+  subtitleClassName?: string;
 }
 
 export default function PageLayout({ 
@@ -20,7 +22,9 @@ export default function PageLayout({
   subtitle, 
   showHeader = true,
   showBottomBar = true,
-  headerAction
+  headerAction,
+  titleClassName = "text-3xl font-bold text-gray-900 dark:text-white mb-2",
+  subtitleClassName = "text-lg text-gray-600 dark:text-gray-400"
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -34,11 +38,11 @@ export default function PageLayout({
             <motion.div {...animations.fadeIn} className="mb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h1 className={titleClassName}>
                     {title}
                   </h1>
                   {subtitle && (
-                    <p className="text-lg text-gray-600 dark:text-gray-400">
+                    <p className={subtitleClassName}>
                       {subtitle}
                     </p>
                   )}
