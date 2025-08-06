@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import { Sun, Moon, Globe, Shield } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
+import type { Language } from '../../types';
 
 const Navbar: React.FC = () => {
-  const { theme, toggleTheme } = useApp();
+  const { theme, toggleTheme, setLang } = useApp();
   const { language, setLanguage } = useLocalization();
 
   const handleLanguageChange = (newLang: Language) => {
@@ -18,6 +19,11 @@ const Navbar: React.FC = () => {
     } catch (error) {
       console.warn('Error changing language in Navbar:', error);
     }
+  };
+
+  const handleLanguageToggle = () => {
+    const newLang = language === 'ar' ? 'en' : 'ar';
+    handleLanguageChange(newLang);
   };
 
   return (
