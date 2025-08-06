@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { 
-  Shield, Server, Search, Cloud, 
-  Calendar, Clock, Target, BookOpen, Users, Award,
-  TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ChevronRight, CheckCircle, Bug, FileText
+  Target, Clock, BookOpen, Users, Shield, 
+  TrendingUp, Award, Star, ArrowRight, Calendar,
+  CheckCircle, Circle, ChevronRight
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -13,259 +11,201 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
-import phasesData from '../../data/phases.json';
-
-// Phase icons mapping
-const phaseIcons = {
-  shield: Shield,
-  server: Server,
-  eye: Target,
-  search: Search,
-  cloud: Cloud,
-  target: Target,
-  zap: TrendingUp,
-  trophy: Trophy
-};
-
-// Breadcrumbs component
-function Breadcrumbs() {
-  const navigate = useNavigate();
-  
-  return (
-    <nav className="flex items-center space-x-2 mb-6 text-sm">
-      <button 
-        onClick={() => navigate('/')}
-        className="flex items-center text-blue-600 dark:text-blue-400 hover:underline"
-      >
-        <Home className="w-4 h-4 mr-1" />
-        الرئيسية
-      </button>
-      
-      <span className="flex items-center">
-        <ChevronRight className="w-4 h-4 mx-1 text-gray-400" />
-        <span className="text-gray-700 dark:text-gray-200 font-semibold">
-          المراحل
-        </span>
-      </span>
-    </nav>
-  );
-}
+import { weekPhaseService } from '../../services/weekPhaseService';
 
 export default function PhasesPage() {
-  const { plan, progress, lang, refreshData } = useApp();
-  const { t } = useLocalization();
-  const navigate = useNavigate();
+  const { plan, progress } = useApp();
+  const { language } = useLocalization();
+  const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
 
-  // Safe translation function
-  const safeT = (key: string) => {
-    try {
-      return t ? t(key) : key;
-    } catch (error) {
-      console.warn('Translation function not available:', error);
-      return key;
-    }
-  };
+  // Calculate phase data
+  const phasesData = useMemo(() => {
+    if (!plan) return [];
 
-  // Safety checks
-  const safePlan = plan || [];
-  const safeProgress = progress || [];
+    const phases = weekPhaseService.getPhases();
+    return phases.map(phase => {
+      const phaseWeeks = plan.filter(week => 
+        week.week >= phase.startWeek && week.week <= phase.endWeek
+      );
 
-  // Calculate phase completion
-  const getPhaseCompletion = (phaseId: number) => {
-    const phase = phasesData.find(p => p.id === phaseId);
-    if (!phase) return { totalWeeks: 0, completedWeeks: 0, progress: 0 };
+      const totalTasks = phaseWeeks.reduce((sum, week) => 
+        sum + (week.days?.reduce((daySum, day) => 
+          daySum + (day.tasks?.length || 0), 0) || 0), 0
+      );
 
-    const phaseWeeks = phase.weeks;
-    const totalWeeks = phaseWeeks.length;
-    
-    // Debug logging
-    console.log(`Phase ${phaseId}:`, {
-      weeks: phaseWeeks,
-      totalWeeks: totalWeeks,
-      phaseTitle: phase.title.ar,
-      availableWeeks: safePlan.map(w => w.week)
+      const completedTasks = progress.filter(p => 
+        p.done && phaseWeeks.some(w => w.week === p.weekId)
+      ).length;
+
+      const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+      return {
+        ...phase,
+        weeks: phaseWeeks,
+        totalTasks,
+        completedTasks,
+        progressPercentage
+      };
     });
-    
-    const completedWeeks = phaseWeeks.filter(week => {
-      const weekData = safePlan.find(w => w.week === week);
-      if (!weekData) {
-        console.log(`Week ${week} not found in plan`);
-        return false;
-      }
+  }, [plan, progress]);
 
-      const totalTasks = weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-      const weekProgress = safeProgress.filter(p => p.weekId === (week?.toString() || ''));
-      const completedTasks = weekProgress.filter(p => p.done).length;
-
-      return totalTasks > 0 && completedTasks === totalTasks;
-    }).length;
-
-    return {
-      totalWeeks,
-      completedWeeks,
-      progress: totalWeeks > 0 ? Math.round((completedWeeks / totalWeeks) * 100) : 0
-    };
+  const handlePhaseClick = (phaseId: number) => {
+    setSelectedPhase(phaseId);
+    // Navigate to phase weeks page
+    window.location.href = `/phase/${phaseId}`;
   };
 
-  // Get phase data from phases.json
-  const phases = phasesData;
-
-  // Task type icons and colors mapping
-  const taskTypeConfig = {
-    'Blue Team': {
-      icon: Shield,
-      color: 'blue',
-      bgColor: 'bg-blue-100 dark:bg-blue-900',
-      textColor: 'text-blue-600 dark:text-blue-400'
-    },
-    'Red Team': {
-      icon: Bug,
-      color: 'red',
-      bgColor: 'bg-red-100 dark:bg-red-900',
-      textColor: 'text-red-600 dark:text-red-400'
-    },
-    'Particular': {
-      icon: Target,
-      color: 'purple',
-      bgColor: 'bg-purple-100 dark:bg-purple-900',
-      textColor: 'text-purple-600 dark:text-purple-400'
-    },
-    'Soft Skills': {
-      icon: Users,
-      color: 'green',
-      bgColor: 'bg-green-100 dark:bg-green-900',
-      textColor: 'text-green-600 dark:text-green-400'
-    },
-    'Policies': {
-      icon: FileText,
-      color: 'orange',
-      bgColor: 'bg-orange-100 dark:bg-orange-900',
-      textColor: 'text-orange-600 dark:text-orange-400'
-    }
+  const getPhaseIcon = (phaseId: number) => {
+    const icons = [Target, Shield, Users, BookOpen, TrendingUp, Award];
+    return icons[phaseId - 1] || Target;
   };
 
-  const goToPhaseWeeks = (phaseId: number) => {
-    navigate(`/phase/${phaseId}`);
+  const getPhaseColor = (phaseId: number) => {
+    const colors = ['blue', 'green', 'purple', 'orange', 'red', 'indigo'];
+    return colors[phaseId - 1] || 'blue';
+  };
+
+  const getPhaseGradient = (phaseId: number) => {
+    const gradients = [
+      'from-blue-500 to-blue-600',
+      'from-green-500 to-green-600', 
+      'from-purple-500 to-purple-600',
+      'from-orange-500 to-orange-600',
+      'from-red-500 to-red-600',
+      'from-indigo-500 to-indigo-600'
+    ];
+    return gradients[phaseId - 1] || 'from-blue-500 to-blue-600';
   };
 
   return (
     <PageLayout 
-      title={safeT('learningPhases')}
-      subtitle={safeT('choosePhaseToStart')}
+      title={language === 'ar' ? 'المراحل' : 'Phases'}
+      subtitle={language === 'ar' ? 'رحلة تعلم الأمن السيبراني' : 'Cybersecurity Learning Journey'}
       showBottomBar={true}
     >
-      <motion.div {...animations.fadeIn} className="space-y-6">
-        
-        {/* Breadcrumbs */}
-        <Breadcrumbs 
-          items={[
-            { label: safeT('phases'), icon: BookOpen }
-          ]} 
-        />
-        
-        {/* Header Card */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="flex items-center justify-between">
-            <div className="text-center flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                خطة تعلم الأمن السيبراني
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                رحلة شاملة من المبتدئ إلى المتقدم في عالم الأمن السيبراني
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Phases Grid */}
+      <motion.div {...animations.fadeIn} className="space-y-8">
+        {/* Phase Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {phases.map((phase, index) => {
-            const completion = getPhaseCompletion(phase.id);
-            const PhaseIcon = phaseIcons[(phase.icon || 'shield') as keyof typeof phaseIcons] || Shield;
-            
-            // Debug: Log phase data
-            console.log(`Phase ${phase.id} (${phase.title.ar}):`, {
-              weeks: phase.weeks,
-              totalWeeks: phase.weeks.length,
-              completion: completion
-            });
-            
+          {phasesData.map((phase, index) => {
+            const Icon = getPhaseIcon(phase.id);
+            const color = getPhaseColor(phase.id);
+            const gradient = getPhaseGradient(phase.id);
+
             return (
-              <motion.div key={phase.id} {...animations.stagger(index * 0.1)}>
-                <Card 
-                  className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105 ${
-                    completion.progress === 100 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-700'
-                  }`} 
-                  onClick={() => goToPhaseWeeks(phase.id)}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-full ${
-                      phase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' : 
-                      phase.color === 'green' ? 'bg-green-100 dark:bg-green-900' : 
-                      phase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' : 
-                      phase.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' : 
-                      'bg-teal-100 dark:bg-teal-900'
-                    }`}>
-                      <PhaseIcon className={`w-6 h-6 ${
-                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 
-                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' : 
-                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' : 
-                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' : 
-                        'text-teal-600 dark:text-teal-400'
-                      }`} />
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-2xl font-bold ${
-                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 
-                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' : 
-                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' : 
-                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' : 
-                        'text-teal-600 dark:text-teal-400'
-                      }`}>
-                        {completion.progress}%
+              <motion.div
+                key={phase.id}
+                {...animations.stagger(index * 0.1)}
+                className="group cursor-pointer"
+                onClick={() => handlePhaseClick(phase.id)}
+              >
+                <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  {/* Background Gradient */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
+                  
+                  {/* Content */}
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`p-3 bg-${color}-100 dark:bg-${color}-900/30 rounded-full`}>
+                        <Icon className={`w-6 h-6 text-${color}-600 dark:text-${color}-400`} />
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-500">
-                        مكتمل
-                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
                     </div>
-                  </div>
 
-                  <div className="space-y-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {phase.title[lang]}
+                    {/* Phase Info */}
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        {language === 'ar' ? phase.name.ar : phase.name.en}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {phase.focus[lang]}
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        {language === 'ar' ? phase.description.ar : phase.description.en}
                       </p>
+                      
+                      {/* Progress Bar */}
+                      <div className="mb-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {language === 'ar' ? 'التقدم' : 'Progress'}
+                          </span>
+                          <span className="text-sm font-bold text-gray-900 dark:text-white">
+                            {phase.progressPercentage}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className={`bg-gradient-to-r ${gradient} h-2 rounded-full transition-all duration-300`}
+                            style={{ width: `${phase.progressPercentage}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {phase.weeks.length}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {language === 'ar' ? 'أسبوع' : 'Weeks'}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {phase.completedTasks}/{phase.totalTasks}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {language === 'ar' ? 'مهمة' : 'Tasks'}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-500">المدة:</span>
-                        <span className="font-medium">{phase.duration}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-500">المستوى:</span>
-                        <span className="font-medium">{phase.difficulty}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-500">الأسابيع:</span>
-                        <span className="font-medium">{completion.completedWeeks}/{completion.totalWeeks}</span>
-                      </div>
-                    </div>
+                    {/* Phase Weeks Preview */}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                        {language === 'ar' ? 'أسابيع المرحلة' : 'Phase Weeks'}
+                      </h4>
+                      <div className="grid grid-cols-4 gap-2">
+                        {phase.weeks.slice(0, 8).map((week, weekIndex) => {
+                          const weekProgress = progress.filter(p => 
+                            p.weekId === week.week && p.done
+                          ).length;
+                          const weekTotalTasks = week.days?.reduce((sum, day) => 
+                            sum + (day.tasks?.length || 0), 0) || 0;
+                          const weekPercentage = weekTotalTasks > 0 ? 
+                            Math.round((weekProgress / weekTotalTasks) * 100) : 0;
 
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          phase.color === 'blue' ? 'bg-blue-500' :
-                          phase.color === 'green' ? 'bg-green-500' :
-                          phase.color === 'indigo' ? 'bg-indigo-500' :
-                          phase.color === 'purple' ? 'bg-purple-500' :
-                          'bg-teal-500'
-                        }`}
-                        style={{ width: `${completion.progress}%` }}
-                      />
+                          return (
+                            <div key={week.week} className="text-center">
+                              <div className={`w-8 h-8 rounded-full mx-auto mb-1 flex items-center justify-center text-xs font-medium ${
+                                weekPercentage === 100 
+                                  ? 'bg-green-500 text-white' 
+                                  : weekPercentage > 0 
+                                    ? 'bg-yellow-500 text-white' 
+                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                              }`}>
+                                {week.week}
+                              </div>
+                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                                <div 
+                                  className={`h-1 rounded-full ${
+                                    weekPercentage === 100 ? 'bg-green-500' : 
+                                    weekPercentage > 0 ? 'bg-yellow-500' : 'bg-transparent'
+                                  }`}
+                                  style={{ width: `${weekPercentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {phase.weeks.length > 8 && (
+                          <div className="text-center">
+                            <div className="w-8 h-8 rounded-full mx-auto mb-1 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
+                              +{phase.weeks.length - 8}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -274,57 +214,57 @@ export default function PhasesPage() {
           })}
         </div>
 
-        {/* Progress Summary */}
-        <Card>
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              ملخص التقدم العام
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+        {/* Overall Progress Summary */}
+        <motion.div {...animations.fadeIn} transition={{ delay: 0.5 }}>
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                {language === 'ar' ? 'التقدم الإجمالي' : 'Overall Progress'}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {language === 'ar' 
+                  ? 'رحلة شاملة في عالم الأمن السيبراني' 
+                  : 'A comprehensive journey in cybersecurity'
+                }
+              </p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {phasesData.length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'مرحلة' : 'Phases'}
+                  </div>
                 </div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                  إجمالي الأسابيع
-                </h4>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {safePlan.length}
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {plan?.length || 0}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'أسبوع' : 'Weeks'}
+                  </div>
                 </div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                  الأسابيع المكتملة
-                </h4>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {safePlan.filter(week => {
-                    const totalTasks = week.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-                    const weekProgress = safeProgress.filter(p => p.weekId === (week.week?.toString() || ''));
-                    const completedTasks = weekProgress.filter(p => p.done).length;
-                    return totalTasks > 0 && completedTasks === totalTasks;
-                  }).length}
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                  <Trophy className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {progress.filter(p => p.done).length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'مهمة مكتملة' : 'Completed Tasks'}
+                  </div>
                 </div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                  المراحل المكتملة
-                </h4>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {phases.filter(phase => getPhaseCompletion(phase.id).progress === 100).length}
-                </p>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    {Math.round(phasesData.reduce((sum, phase) => sum + phase.progressPercentage, 0) / phasesData.length || 0)}%
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </motion.div>
       </motion.div>
     </PageLayout>
   );

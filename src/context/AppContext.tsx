@@ -34,7 +34,6 @@ interface AppContextType {
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Promise<number>;
   updateNote: (id: number, updates: Partial<Note>) => Promise<void>;
   deleteNote: (id: number) => Promise<void>;
-  addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => Promise<number>;
   updateJournalEntry: (id: number, updates: Partial<JournalEntry>) => Promise<void>;
   deleteJournalEntry: (id: number) => Promise<void>;
   addResource: (resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>) => Promise<number>;
@@ -289,6 +288,32 @@ export function AppProvider({ children }: AppProviderProps) {
     document.documentElement.setAttribute('dir', langState === 'ar' ? 'rtl' : 'ltr');
   }, [themeState, langState]);
 
+  // Apply font size settings
+  useEffect(() => {
+    const applyFontSize = () => {
+      const fontSize = settings.fontSize || 'medium';
+      const root = document.documentElement;
+      
+      // Remove existing font size classes
+      root.classList.remove('text-sm', 'text-base', 'text-lg');
+      
+      // Apply new font size
+      switch (fontSize) {
+        case 'small':
+          root.classList.add('text-sm');
+          break;
+        case 'large':
+          root.classList.add('text-lg');
+          break;
+        default:
+          root.classList.add('text-base');
+          break;
+      }
+    };
+
+    applyFontSize();
+  }, [settings.fontSize]);
+
   // Language management
   const setLang = useCallback((newLang: Language) => {
     setLangState(newLang);
@@ -410,30 +435,6 @@ export function AppProvider({ children }: AppProviderProps) {
   }, []);
 
   // Journal management
-  const addJournalEntry = useCallback(async (entry: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-      const id = await journalService.add(entry);
-      const newEntry = { ...entry, id, createdAt: Date.now(), updatedAt: Date.now() };
-      
-      setAppState(prev => {
-        const key = `${entry.weekId}-${entry.dayKey}`;
-        return {
-          ...prev,
-          journal: {
-            ...prev.journal,
-            [key]: [newEntry]
-          }
-        };
-      });
-      
-      return id;
-    } catch (error) {
-      console.error('Error adding journal entry:', error);
-      toast.error('فشل في إضافة المدونة');
-      throw error;
-    }
-  }, []);
-
   const updateJournalEntry = useCallback(async (id: number, updates: Partial<JournalEntry>) => {
     try {
       await journalService.update(id, updates);
@@ -834,7 +835,6 @@ export function AppProvider({ children }: AppProviderProps) {
     addNote,
     updateNote,
     deleteNote,
-    addJournalEntry,
     updateJournalEntry,
     deleteJournalEntry,
     addResource,
