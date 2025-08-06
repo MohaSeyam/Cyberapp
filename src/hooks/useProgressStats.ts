@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Target, CheckCircle, Clock, Flame } from 'lucide-react';
 
 const useProgressStats = (plan, progress, streaks) => {
   return useMemo(() => {
@@ -16,7 +17,13 @@ const useProgressStats = (plan, progress, streaks) => {
         practicalTasks: 0,
         theoreticalTasks: 0,
         policiesTasks: 0,
-        streaks: streaks || { current: 0, longest: 0 }
+        streaks: streaks || { current: 0, longest: 0 },
+        icons: {
+          completion: Target,
+          completed: CheckCircle,
+          time: Clock,
+          streak: Flame
+        }
       };
     }
 
@@ -35,7 +42,13 @@ const useProgressStats = (plan, progress, streaks) => {
         practicalTasks: 0,
         theoreticalTasks: 0,
         policiesTasks: 0,
-        streaks: streaks || { current: 0, longest: 0 }
+        streaks: streaks || { current: 0, longest: 0 },
+        icons: {
+          completion: Target,
+          completed: CheckCircle,
+          time: Clock,
+          streak: Flame
+        }
       };
     }
 
@@ -78,7 +91,13 @@ const useProgressStats = (plan, progress, streaks) => {
       practicalTasks: taskTypeCounts['Practical'],
       theoreticalTasks: taskTypeCounts['Theoretical'],
       policiesTasks: taskTypeCounts['Policies'],
-      streaks: streaks || { current: 0, longest: 0 }
+      streaks: streaks || { current: 0, longest: 0 },
+      icons: {
+        completion: Target,
+        completed: CheckCircle,
+        time: Clock,
+        streak: Flame
+      }
     };
   }, [plan, progress, streaks]);
 };
