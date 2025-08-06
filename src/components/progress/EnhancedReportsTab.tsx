@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Card } from '../ui/Card';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { Download, FileText, FileSpreadsheet, FileCode, Calendar, Globe, BarChart3, CheckCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const EnhancedReportsTab = React.memo(({ plan, progress, appState, stats, language, colorClassMap, gradientClassMap, handleExport, isExporting, exportOptions, setExportOptions }) => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -29,13 +30,6 @@ const EnhancedReportsTab = React.memo(({ plan, progress, appState, stats, langua
       description: language === 'ar' ? 'بيانات منظمة للبرمجة' : 'Structured data for programming',
       icon: FileCode,
       color: 'text-blue-500'
-    },
-    { 
-      id: 'markdown', 
-      name: language === 'ar' ? 'Markdown (.md)' : 'Markdown (.md)', 
-      description: language === 'ar' ? 'نسخة نصية مرنة' : 'Flexible text format',
-      icon: FileText,
-      color: 'text-purple-500'
     },
     { 
       id: 'txt', 
@@ -111,18 +105,16 @@ const EnhancedReportsTab = React.memo(({ plan, progress, appState, stats, langua
 
     const totalTasks = plan.flatMap(w => w.days || []).flatMap(d => d.tasks || []).length;
     const completedTasks = progress.filter(p => p.done).length;
-    const totalNotes = appState.notes?.length || 0;
-    const totalJournalEntries = appState.journalEntries?.length || 0;
-    const totalResources = plan.flatMap(w => w.days || []).flatMap(d => d.resources || []).length;
+    const totalNotes = Object.values(appState.notes || {}).flat().length;
+    const totalResources = Object.values(appState.resources || {}).flat().length;
 
     return {
       totalTasks,
       completedTasks,
       completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
       totalNotes,
-      totalJournalEntries,
       totalResources,
-      totalContent: totalNotes + totalJournalEntries + completedTasks
+      totalContent: totalNotes + completedTasks
     };
   }, [plan, progress, appState]);
 
@@ -132,11 +124,43 @@ const EnhancedReportsTab = React.memo(({ plan, progress, appState, stats, langua
     setExportStats(stats);
   }, [calculateExportStats, exportOptions]);
 
-  const handleExportClick = useCallback(() => {
-    if (handleExport) {
-      handleExport(exportOptions);
+  // FIXED: Enhanced export function with proper error handling
+  const handleExportClick = useCallback(async () => {
+    try {
+      // Validate export options
+      if (!exportOptions?.format || !exportOptions?.content) {
+        toast.error(language === 'ar' ? 'يرجى اختيار صيغة الملف ونوع المحتوى' : 'Please select file format and content type');
+        return;
+      }
+
+      // Validate data availability
+      if (!plan || !appState) {
+        toast.error(language === 'ar' ? 'لا توجد بيانات للتصدير' : 'No data available for export');
+        return;
+      }
+
+      // Call the export function with proper options
+      const exportOptionsWithDefaults = {
+        ...exportOptions,
+        timeRange: exportOptions.timeRange || 'all',
+        exportLanguage: exportOptions.exportLanguage || language
+      };
+
+      if (handleExport) {
+        await handleExport(exportOptionsWithDefaults);
+      } else {
+        console.error('Export function not provided');
+        toast.error(language === 'ar' ? 'خطأ في دالة التصدير' : 'Export function error');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(
+        language === 'ar' 
+          ? `فشل في التصدير: ${error.message}` 
+          : `Export failed: ${error.message}`
+      );
     }
-  }, [handleExport, exportOptions]);
+  }, [handleExport, exportOptions, plan, appState, language]);
 
   return (
     <div className="space-y-8">
@@ -163,8 +187,8 @@ const EnhancedReportsTab = React.memo(({ plan, progress, appState, stats, langua
               <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'الملاحظات' : 'Notes'}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{exportStats.totalJournalEntries}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'المدونات' : 'Journals'}</div>
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{exportStats.totalResources}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'المراجع' : 'Resources'}</div>
             </div>
           </div>
         </Card>

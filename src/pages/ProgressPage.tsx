@@ -37,60 +37,10 @@ import useProgressStats from '../hooks/useProgressStats';
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
 const ProgressAnalytics = lazy(() => import('../components/progress/ProgressAnalytics'));
 
-// Export Constants
-const REPORT_TYPES = [
-  { id: 'weekly', label: { ar: 'أسبوعي', en: 'Weekly' } },
-  { id: 'phase', label: { ar: 'مرحلي', en: 'Phase' } },
-  { id: 'complete', label: { ar: 'كامل', en: 'Complete' } },
-  { id: 'custom', label: { ar: 'مخصص', en: 'Custom' } }
-];
-
-const CONTENT_TYPES = [
-  { id: 'progress', label: { ar: 'التقدم فقط', en: 'Progress Only' } },
-  { id: 'notes', label: { ar: 'الملاحظات فقط', en: 'Notes Only' } },
-  { id: 'both', label: { ar: 'التقدم والملاحظات', en: 'Progress & Notes' } }
-];
-
-const EXPORT_FORMATS = [
-  { id: 'pdf', label: 'PDF' },
-  { id: 'csv', label: 'CSV' },
-  { id: 'json', label: 'JSON' },
-  { id: 'markdown', label: 'Markdown' },
-  { id: 'txt', label: 'Text' }
-];
-
 // Tab Types
 type TabType = 'overview' | 'analytics' | 'skills' | 'achievements' | 'suggestions' | 'reports';
 
-// Skills Matrix Interface
-interface Skill {
-  id: string;
-  name: string;
-  category: string;
-  level: number; // 0-5
-  description: string;
-  color: string;
-}
-
-// Report Types
-type ReportType = 'weekly' | 'phase' | 'complete';
-type ContentType = 'progress' | 'notes' | 'both';
-type FileFormat = 'pdf' | 'csv' | 'markdown' | 'txt';
-type ExportLanguage = 'ar' | 'en';
-
-interface ReportOptions {
-  type: ReportType;
-  content: ContentType;
-  format: FileFormat;
-  language: ExportLanguage;
-  dateRange?: {
-    start: Date;
-    end: Date;
-  };
-  phaseId?: number;
-}
-
-// Enhanced Tab Configuration
+// Enhanced Tab Configuration - IMPROVED ORGANIZATION
 const ENHANCED_TABS = [
   {
     id: 'overview',
@@ -98,26 +48,32 @@ const ENHANCED_TABS = [
     icon: BarChart3,
     color: 'blue',
     gradient: 'from-blue-500 to-blue-600',
-    description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' },
-    badge: null
+    description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' }
   },
   {
     id: 'analytics',
     label: { ar: 'التحليلات', en: 'Analytics' },
-    icon: LineChart,
+    icon: TrendingUp,
+    color: 'green',
+    gradient: 'from-green-500 to-green-600',
+    description: { ar: 'تحليل مفصل للأداء', en: 'Detailed performance analysis' }
+  },
+  {
+    id: 'reports',
+    label: { ar: 'التقارير', en: 'Reports' },
+    icon: FileText,
     color: 'purple',
     gradient: 'from-purple-500 to-purple-600',
-    description: { ar: 'رسوم بيانية مفصلة', en: 'Detailed charts and graphs' },
-    badge: 'New'
+    description: { ar: 'تصدير وتقارير', en: 'Export and reports' }
   },
   {
     id: 'skills',
     label: { ar: 'المهارات', en: 'Skills' },
     icon: Brain,
-    color: 'green',
-    gradient: 'from-green-500 to-green-600',
-    description: { ar: 'تقييم المهارات المكتسبة', en: 'Assess acquired skills' },
-    badge: null
+    color: 'orange',
+    gradient: 'from-orange-500 to-orange-600',
+    description: { ar: 'مصفوفة المهارات', en: 'Skills matrix' },
+    badge: 'DEV'
   },
   {
     id: 'achievements',
@@ -125,854 +81,63 @@ const ENHANCED_TABS = [
     icon: Trophy,
     color: 'yellow',
     gradient: 'from-yellow-500 to-yellow-600',
-    description: { ar: 'المراحل والإنجازات', en: 'Milestones and achievements' },
-    badge: 'Hot'
+    description: { ar: 'الإنجازات والجوائز', en: 'Achievements and awards' },
+    badge: 'DEV'
   },
   {
     id: 'suggestions',
     label: { ar: 'الاقتراحات', en: 'Suggestions' },
     icon: Lightbulb,
-    color: 'orange',
-    gradient: 'from-orange-500 to-orange-600',
-    description: { ar: 'نصائح للتحسين', en: 'Improvement tips' },
-    badge: null
-  },
-  {
-    id: 'reports',
-    label: { ar: 'التقارير', en: 'Reports' },
-    icon: Download,
-    color: 'red',
-    gradient: 'from-red-500 to-red-600',
-    description: { ar: 'تصدير التقارير', en: 'Export reports' },
-    badge: null
+    color: 'indigo',
+    gradient: 'from-indigo-500 to-indigo-600',
+    description: { ar: 'اقتراحات للتحسين', en: 'Improvement suggestions' }
   }
-] as const;
+];
 
-// Enhanced Tab Styles
-const ENHANCED_TAB_STYLES = {
-  blue: {
-    border: 'border-blue-500',
-    text: 'text-blue-600',
-    bg: 'bg-blue-50',
-    hover: 'hover:bg-blue-50 dark:hover:bg-blue-900/20',
-    active: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg',
-    indicator: 'bg-blue-500'
-  },
-  purple: {
-    border: 'border-purple-500',
-    text: 'text-purple-600',
-    bg: 'bg-purple-50',
-    hover: 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
-    active: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg',
-    indicator: 'bg-purple-500'
-  },
-  green: {
-    border: 'border-green-500',
-    text: 'text-green-600',
-    bg: 'bg-green-50',
-    hover: 'hover:bg-green-50 dark:hover:bg-green-900/20',
-    active: 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg',
-    indicator: 'bg-green-500'
-  },
-  yellow: {
-    border: 'border-yellow-500',
-    text: 'text-yellow-600',
-    bg: 'bg-yellow-50',
-    hover: 'hover:bg-yellow-50 dark:hover:bg-yellow-900/20',
-    active: 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg',
-    indicator: 'bg-yellow-500'
-  },
-  orange: {
-    border: 'border-orange-500',
-    text: 'text-orange-600',
-    bg: 'bg-orange-50',
-    hover: 'hover:bg-orange-50 dark:hover:bg-orange-900/20',
-    active: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg',
-    indicator: 'bg-orange-500'
-  },
-  red: {
-    border: 'border-red-500',
-    text: 'text-red-600',
-    bg: 'bg-red-50',
-    hover: 'hover:bg-red-50 dark:hover:bg-red-900/20',
-    active: 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg',
-    indicator: 'bg-red-500'
-  }
-} as const;
-
-// أضف في أعلى الملف:
-const colorClassMap = {
-  blue: {
-    bgLight: 'bg-blue-50',
-    bgDark: 'dark:bg-blue-900/20',
-    bg100: 'bg-blue-100',
-    bg800: 'dark:bg-blue-800',
-    text600: 'text-blue-600',
-    text400: 'dark:text-blue-400',
-    border200: 'border-blue-200',
-    border700: 'dark:border-blue-700',
-    text500: 'text-blue-500',
-  },
-  red: {
-    bgLight: 'bg-red-50',
-    bgDark: 'dark:bg-red-900/20',
-    bg100: 'bg-red-100',
-    bg800: 'dark:bg-red-800',
-    text600: 'text-red-600',
-    text400: 'dark:text-red-400',
-    border200: 'border-red-200',
-    border700: 'dark:border-red-700',
-    text500: 'text-red-500',
-  },
-  green: {
-    bgLight: 'bg-green-50',
-    bgDark: 'dark:bg-green-900/20',
-    bg100: 'bg-green-100',
-    bg800: 'dark:bg-green-800',
-    text600: 'text-green-600',
-    text400: 'dark:text-green-400',
-    border200: 'border-green-200',
-    border700: 'dark:border-green-700',
-    text500: 'text-green-500',
-  },
-  purple: {
-    bgLight: 'bg-purple-50',
-    bgDark: 'dark:bg-purple-900/20',
-    bg100: 'bg-purple-100',
-    bg800: 'dark:bg-purple-800',
-    text600: 'text-purple-600',
-    text400: 'dark:text-purple-400',
-    border200: 'border-purple-200',
-    border700: 'dark:border-purple-700',
-    text500: 'text-purple-500',
-  },
-  orange: {
-    bgLight: 'bg-orange-50',
-    bgDark: 'dark:bg-orange-900/20',
-    bg100: 'bg-orange-100',
-    bg800: 'dark:bg-orange-800',
-    text600: 'text-orange-600',
-    text400: 'dark:text-orange-400',
-    border200: 'border-orange-200',
-    border700: 'dark:border-orange-700',
-    text500: 'text-orange-500',
-  },
-};
-
-// Enhanced Overview Tab Component
-const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
-  const progressMetrics = [
-    { 
-      label: safeT('completionRate'), 
-      value: stats.completionRate + '%', 
-      color: 'blue',
-      icon: Target,
-      progress: stats.completionRate,
-      description: safeT('completionRateDesc')
-    },
-    { 
-      label: safeT('completedTasks'), 
-      value: stats.completedTasks, 
-      color: 'green',
-      icon: CheckCircle,
-      progress: (stats.completedTasks / stats.totalTasks) * 100,
-      description: safeT('completedTasksDesc')
-    },
-    { 
-      label: safeT('timeSpent'), 
-      value: Math.round(stats.completedDuration / 60) + 'h', 
-      color: 'purple',
-      icon: Clock,
-      progress: (stats.completedDuration / stats.totalDuration) * 100,
-      description: safeT('timeSpentDesc')
-    },
-    { 
-      label: safeT('currentStreak'), 
-      value: stats.currentStreak, 
-      color: 'orange',
-      icon: Flame,
-      progress: (stats.currentStreak / stats.longestStreak) * 100,
-      description: safeT('currentStreakDesc')
-    },
-  ];
-
-  return (
-    <div className="space-y-8">
-      {/* Enhanced Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {progressMetrics.map((metric, index) => {
-          const Icon = metric.icon;
-          return (
-            <motion.div
-              key={metric.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-            >
-              <Card className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${colorClassMap[metric.color]?.bgLight} ${colorClassMap[metric.color]?.bgDark} opacity-50 group-hover:opacity-75 transition-opacity duration-300`} />
-                
-                {/* Content */}
-                <div className="relative z-10 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 ${colorClassMap[metric.color]?.bg100} ${colorClassMap[metric.color]?.bg800} rounded-full`}>
-                      <Icon className={`w-6 h-6 ${colorClassMap[metric.color]?.text600} dark:${colorClassMap[metric.color]?.text400}`} />
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {metric.value}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {metric.label}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Progress Ring */}
-                  <div className="relative w-16 h-16 mx-auto">
-                    <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-gray-200 dark:text-gray-700"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        className={colorClassMap[metric.color]?.text500}
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        fill="none"
-                        strokeDasharray={`${metric.progress}, 100`}
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                        {Math.round(metric.progress)}%
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                    {metric.description}
-                  </p>
-                </div>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Enhanced Task Types Distribution */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              {safeT('taskTypesDistribution')}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {safeT('distributionOfCompletedTasks')}
-            </p>
-          </div>
-          <Sparkles className="w-6 h-6 text-yellow-500" />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {[
-            { type: 'Blue Team', count: stats.blueTeamTasks, color: 'blue', icon: Target },
-            { type: 'Red Team', count: stats.redTeamTasks, color: 'red', icon: Zap },
-            { type: 'Practical', count: stats.practicalTasks, color: 'green', icon: CheckCircle },
-            { type: 'Theoretical', count: stats.theoreticalTasks, color: 'purple', icon: BookOpen },
-            { type: 'Policies', count: stats.policiesTasks, color: 'orange', icon: FileText }
-          ].map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.type}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`text-center p-4 ${colorClassMap[item.color]?.bgLight} ${colorClassMap[item.color]?.bgDark} rounded-lg border ${colorClassMap[item.color]?.border200} ${colorClassMap[item.color]?.border700} hover:shadow-md transition-all duration-300`}
-              >
-                <div className={`text-3xl font-bold ${colorClassMap[item.color]?.text600} dark:${colorClassMap[item.color]?.text400} mb-2`}>
-                  {item.count}
-                </div>
-                <div className="flex items-center justify-center mb-2">
-                  <Icon className={`w-5 h-5 ${colorClassMap[item.color]?.text500} mr-2`} />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {safeT(item.type.toLowerCase().replace(' ', ''))}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {((item.count / stats.completedTasks) * 100).toFixed(1)}%
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </Card>
-    </div>
-  );
-});
-
-// Enhanced Analytics Tab Component
-const EnhancedAnalyticsTab = React.memo(() => {
-  const { plan, progress } = useApp();
-  
-  // Prepare data for ProgressChart
-  const progressData = useMemo(() => {
-    if (!plan || !progress) return [];
-    
-    return plan.map((week, index) => {
-      const weekTasks = week.days.flatMap(day => day.tasks);
-      const completedTasks = progress.filter(p => 
-        p.done && weekTasks.some(task => task.id === p.taskId)
-      ).length;
-      
-      return {
-        week: `Week ${week.week}`,
-        completed: completedTasks,
-        total: weekTasks.length,
-        percentage: weekTasks.length > 0 ? (completedTasks / weekTasks.length) * 100 : 0
-      };
-    });
-  }, [plan, progress]);
-
-  // Prepare data for PieChart
-  const pieData = useMemo(() => {
-    if (!plan || !progress) return [];
-    
-    const taskTypes = {};
-    plan.forEach(week => {
-      week.days.forEach(day => {
-        day.tasks.forEach(task => {
-          taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
-        });
-      });
-    });
-
-    const colors = ['#3B82F6', '#EF4444', '#10B981', '#8B5CF6', '#F59E0B'];
-    
-    return Object.entries(taskTypes).map(([type, count], index) => ({
-      name: type,
-      value: count,
-      color: colors[index % colors.length]
-    }));
-  }, [plan, progress]);
-
-  return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="p-6 h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Progress Chart</h3>
-              <TrendingUp className="w-6 h-6 text-blue-500" />
-            </div>
-            <ProgressChart data={progressData} />
-          </Card>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="p-6 h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Task Distribution</h3>
-              <PieChart className="w-6 h-6 text-purple-500" />
-            </div>
-            <PieChartComponent data={pieData} />
-          </Card>
-        </motion.div>
-      </div>
-    </div>
-  );
-});
-
-// Enhanced Achievements Tab Component
-const EnhancedAchievementsTab = React.memo(() => {
-  return (
-    <div className="space-y-8">
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Achievements</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Track your milestones and achievements</p>
-          </div>
-          <Trophy className="w-6 h-6 text-yellow-500" />
-        </div>
-        <div className="text-center py-12">
-          <Trophy className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-600 dark:text-gray-400">Achievements and milestones will be displayed here.</p>
-        </div>
-      </Card>
-    </div>
-  );
-});
-
-// Enhanced Suggestions Tab Component
-const EnhancedSuggestionsTab = React.memo(({ language }) => {
-  const t = (ar, en) => language === 'ar' ? ar : en;
-  return (
-    <div className="space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="p-8 text-center relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-blue-500" />
-          </div>
-          
-          <div className="relative z-10">
-            <div className="relative inline-block mb-6">
-              <Lightbulb className="w-16 h-16 mx-auto text-green-500" />
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-            </div>
-            
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-              {t('ممتاز!', 'Excellent!')}
-            </h3>
-            
-            <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
-              {t('أنت على المسار الصحيح. استمر في التعلم والمثابرة!', "You're on the right track. Keep learning and persevering!")}
-            </p>
-            
-            <div className="mt-6 flex justify-center space-x-4">
-              <div className="flex items-center text-sm text-green-600 dark:text-green-400">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                {t('مستمر', 'Consistent')}
-              </div>
-              <div className="flex items-center text-sm text-blue-600 dark:text-blue-400">
-                <Target className="w-4 h-4 mr-1" />
-                {t('مركّز', 'Focused')}
-              </div>
-              <div className="flex items-center text-sm text-purple-600 dark:text-purple-400">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                {t('متقدم', 'Progressive')}
-              </div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-    </div>
-  );
-});
-
-// Data filtering function - moved outside components for reuse
-const filterDataByOptions = (options, plan, appState) => {
-  const { reportType, contentType, dateRange, selectedWeek, selectedPhase } = options;
-  const now = new Date();
-  
-  // Filter tasks based on report type
-  let filteredTasks = [];
-  let filteredNotes = [];
-  let filteredResources = [];
-  
-  switch (reportType) {
-    case 'weekly':
-      if (selectedWeek) {
-        // Export specific week data
-        filteredTasks = plan
-          .filter(week => week.week === parseInt(selectedWeek))
-          .flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => note.weekId === parseInt(selectedWeek));
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => resource.weekId === parseInt(selectedWeek));
-      } else {
-        // Export current week data
-        const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
-        filteredTasks = plan
-          .filter(week => week.week === currentWeek)
-          .flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => note.weekId === currentWeek);
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => resource.weekId === currentWeek);
-      }
-      break;
-      
-    case 'phase':
-      if (selectedPhase) {
-        // Export specific phase data
-        const phaseStartWeek = (parseInt(selectedPhase) - 1) * 4 + 1;
-        const phaseEndWeek = parseInt(selectedPhase) * 4;
-        filteredTasks = plan
-          .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
-          .flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
-      } else {
-        // Export current phase data
-        const currentWeek = Math.ceil((now.getTime() - new Date('2024-01-01').getTime()) / (7 * 24 * 60 * 60 * 1000));
-        const currentPhase = Math.ceil(currentWeek / 4);
-        const phaseStartWeek = (currentPhase - 1) * 4 + 1;
-        const phaseEndWeek = currentPhase * 4;
-        filteredTasks = plan
-          .filter(week => week.week >= phaseStartWeek && week.week <= phaseEndWeek)
-          .flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => note.weekId >= phaseStartWeek && note.weekId <= phaseEndWeek);
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => resource.weekId >= phaseStartWeek && resource.weekId <= phaseEndWeek);
-      }
-      break;
-      
-    case 'complete':
-      // Export all data
-      filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
-      filteredNotes = Object.values(appState.notes).flat();
-      filteredResources = Object.values(appState.resources || {}).flat();
-      break;
-      
-    case 'custom':
-      // Export data within custom date range
-      if (dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
-        
-        filteredTasks = plan.flatMap(week => week.days.flatMap(day => day.tasks));
-        filteredNotes = Object.values(appState.notes)
-          .flat()
-          .filter(note => {
-            const noteDate = new Date(note.createdAt);
-            return noteDate >= startDate && noteDate <= endDate;
-          });
-        filteredResources = Object.values(appState.resources || {})
-          .flat()
-          .filter(resource => {
-            const resourceDate = new Date(resource.createdAt);
-            return resourceDate >= startDate && resourceDate <= endDate;
-          });
-      }
-      break;
-  }
-  
-  // Filter by content type
-  if (contentType === 'progress') {
-    filteredNotes = [];
-    filteredResources = [];
-  } else if (contentType === 'notes') {
-    filteredTasks = [];
-    filteredResources = [];
-  }
-  
-  return { filteredTasks, filteredNotes, filteredResources };
-};
-
-// Enhanced Reports Tab Component
-const EnhancedReportsTab = React.memo(() => {
-  const { plan, progress, appState } = useApp();
-  const { language } = useLocalization();
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportOptions, setExportOptions] = useState({
-    reportType: 'weekly',
-    contentType: 'both',
-    format: 'pdf',
-    selectedWeek: '',
-    selectedPhase: '',
-    dateRange: { start: '', end: '' }
-  });
-
-  const getCurrentLanguageText = (text: { ar: string; en: string }) => {
-    return language === 'ar' ? text.ar : text.en;
-  };
-
-  // Generate weeks list
-  const weeksList = useMemo(() => {
-    if (!plan) return [];
-    return plan.map(week => ({
-      id: week.week,
-      label: getCurrentLanguageText({ ar: `الأسبوع ${week.week}`, en: `Week ${week.week}` })
-    }));
-  }, [plan, language]);
-
-  // Generate phases list
-  const phasesList = useMemo(() => {
-    if (!plan) return [];
-    const phases = [];
-    for (let i = 1; i <= Math.ceil(plan.length / 4); i++) {
-      phases.push({
-        id: i,
-        label: getCurrentLanguageText({ ar: `المرحلة ${i}`, en: `Phase ${i}` })
-      });
-    }
-    return phases;
-  }, [plan, language]);
-
-  const handleExport = useCallback(async () => {
-    setIsExporting(true);
-    try {
-      // Validate export options
-      if (!exportOptions.reportType || !exportOptions.contentType || !exportOptions.format) {
-        throw new Error('Please fill in all required export options');
-      }
-      
-      // Prepare export options based on selections
-      const options = {
-        reportType: exportOptions.reportType,
-        contentType: exportOptions.contentType,
-        format: exportOptions.format,
-        dateRange: exportOptions.dateRange,
-        selectedWeek: exportOptions.selectedWeek,
-        selectedPhase: exportOptions.selectedPhase
-      };
-      
-      // Call the main export function with the options
-      await performExport(options);
-      
-      toast.success(
-        language === 'ar' 
-          ? '✓ تم تصدير التقرير بنجاح' 
-          : '✓ Report exported successfully'
-      );
-    } catch (error) {
-      console.error('Export error:', error);
-      toast.error(
-        language === 'ar' 
-          ? `❌ فشل في تصدير التقرير: ${error.message}` 
-          : `❌ Failed to export report: ${error.message}`
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  }, [exportOptions, language, performExport]);
-
-  // Main export function that can be called from anywhere
-  const performExport = useCallback(async (options) => {
-    try {
-      // Validate inputs
-      if (!plan || !appState) {
-        throw new Error('No data available for export');
-      }
-      
-      if (!options || !options.format) {
-        throw new Error('Invalid export options');
-      }
-      
-      let fileName = 'cybersecurity-report-' + Date.now();
-      let blob: Blob;
-      const now = new Date();
-      const timestamp = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
-      const dayName = now.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long' });
-      const appUrl = window.location.origin;
-      
-      // Filter data based on options
-      const { filteredTasks, filteredNotes, filteredResources } = filterDataByOptions(options, plan, appState);
-      
-      // Prepare data for export
-      const totalNotes = filteredNotes.length;
-      const totalResources = filteredResources.length;
-      const taskTypes = {};
-      filteredTasks.forEach(task => {
-        taskTypes[task.type] = (taskTypes[task.type] || 0) + 1;
-      });
-      const mostTaskType = Object.entries(taskTypes).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
-      
-      // Create export data based on format
-      switch (options.format) {
-        case 'json': {
-          const exportData = {
-            metadata: {
-              appName: 'Gemini CyberPlan',
-              exportDate: timestamp,
-              reportType: options.reportType,
-              contentType: options.contentType,
-              language: language,
-              totalTasks: filteredTasks.length,
-              totalNotes: totalNotes,
-              totalResources: totalResources,
-              mostTaskType: mostTaskType
-            },
-            tasks: filteredTasks.map(task => ({
-              id: task.id,
-              title: language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
-              description: language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
-              type: task.type,
-              duration: task.duration,
-              isCompleted: progress.some(p => p.taskId === task.id && p.done),
-              completedDate: progress.find(p => p.taskId === task.id && p.done)?.updatedAt,
-              notesCount: filteredNotes.filter(n => n.taskId === task.id).length
-            })),
-            notes: filteredNotes.map(note => ({
-              id: note.id,
-              title: note.title,
-              content: note.content,
-              tags: note.tags,
-              createdAt: note.createdAt,
-              updatedAt: note.updatedAt,
-              taskId: note.taskId,
-              wordCount: note.content.split(' ').length
-            })),
-            resources: filteredResources.map(resource => ({
-              id: resource.id,
-              title: resource.title,
-              type: resource.type,
-              url: resource.url,
-              description: resource.description,
-              createdAt: resource.createdAt
-            }))
-          };
-          
-          blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-          fileName += '.json';
-          break;
-        }
-        case 'pdf': {
-          try {
-            // Dynamic import for jsPDF
-            const jsPDF = await import('jspdf').then(module => module.default);
-            const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(22);
-            doc.setTextColor('#1D4ED8');
-            doc.text(language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report', 110, 60, { align: 'left' });
-            doc.setFontSize(12);
-            doc.setTextColor('#333');
-            doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}`, 110, 80, { align: 'left' });
-            
-            // Add basic content
-            let y = 120;
-            doc.setFontSize(14);
-            doc.setTextColor('#1D4ED8');
-            doc.text(language === 'ar' ? 'ملخص التقرير' : 'Report Summary', 40, y);
-            y += 20;
-            doc.setFontSize(12);
-            doc.setTextColor('#222');
-            doc.text(`${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}`, 40, y);
-            y += 16;
-            doc.text(`${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}`, 40, y);
-            y += 16;
-            doc.text(`${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}`, 40, y);
-            
-            blob = doc.output('blob');
-            fileName += '.pdf';
-          } catch (pdfError) {
-            console.error('PDF generation error:', pdfError);
-            throw new Error('Failed to generate PDF. Please try another format.');
-          }
-          break;
-        }
-        case 'csv': {
-          try {
-            const csvData = [
-              ['Task ID', 'Title', 'Type', 'Duration', 'Completed'],
-              ...filteredTasks.map(task => [
-                task.id,
-                language === 'ar' ? (task?.description?.ar || '') : (task?.description?.en || ''),
-                task.type,
-                task.duration,
-                progress.some(p => p.taskId === task.id && p.done) ? 'Yes' : 'No'
-              ])
-            ];
-            
-            // Dynamic import for Papa
-            const Papa = await import('papaparse').then(module => module.default);
-            const csv = Papa.unparse(csvData);
-            blob = new Blob([csv], { type: 'text/csv' });
-            fileName += '.csv';
-          } catch (csvError) {
-            console.error('CSV generation error:', csvError);
-            throw new Error('Failed to generate CSV. Please try another format.');
-          }
-          break;
-        }
-        default: {
-          // Default to text format
-          let txt = `${language === 'ar' ? 'تقرير الأمن السيبراني' : 'Cybersecurity Report'}\n`;
-          txt += `${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${timestamp}\n\n`;
-          txt += `${language === 'ar' ? 'عدد المهام' : 'Total Tasks'}: ${filteredTasks.length}\n`;
-          txt += `${language === 'ar' ? 'عدد الملاحظات' : 'Total Notes'}: ${totalNotes}\n`;
-          txt += `${language === 'ar' ? 'عدد المراجع' : 'Total Resources'}: ${totalResources}\n`;
-          
-          blob = new Blob([txt], { type: 'text/plain' });
-          fileName += '.txt';
-          break;
-        }
-      }
-      
-      // Download the file
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Export error:', error);
-      throw error;
-    }
-  }, [language, plan, progress, appState]);
-
-  return (
-    <EnhancedReportsTab plan={plan} progress={progress} appState={appState} stats={stats} language={language} />
-  );
-});
-
-// 1. مكون تبويبات جديد
-function SimpleTabs({ tabs, activeTab, setActiveTab, language }) {
+// Improved Tab Component with better organization
+function EnhancedTabs({ tabs, activeTab, setActiveTab, language }) {
   const isRTL = language === 'ar';
+  
   return (
-    <div
-      className={`w-full overflow-x-auto border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-6`}
-      dir={isRTL ? 'rtl' : 'ltr'}
-    >
-      <div
-        className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-2 px-2 py-2`}
-        style={{ minWidth: '400px' }}
-      >
-        {tabs.map((tab, idx) => {
-          const isActive = activeTab === tab.id;
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center flex-1 min-w-[80px] px-2 py-2 rounded-lg transition-all duration-200
-                ${isActive ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow font-bold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}
-              `}
-              style={{ outline: isActive ? '2px solid #3B82F6' : 'none' }}
-            >
-              <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600 dark:text-blue-300' : 'text-gray-400 dark:text-gray-500'}`} />
-              <span className="text-xs whitespace-nowrap">{language === 'ar' ? tab.label.ar : tab.label.en}</span>
-              {tab.badge && (
-                <span className="mt-1 text-[10px] bg-yellow-200 text-yellow-800 rounded px-1 py-0.5">{tab.badge}</span>
-              )}
-            </button>
-          );
-        })}
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex overflow-x-auto scrollbar-hide">
+          <div className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-1 py-3`}>
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 rounded-lg transition-all duration-200 whitespace-nowrap min-w-fit tab-button
+                    ${isActive 
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-b-2 border-blue-500 shadow-sm' 
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+                    }
+                  `}
+                >
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                  <span className="text-sm font-medium">
+                    {language === 'ar' ? tab.label.ar : tab.label.en}
+                  </span>
+                  {tab.badge && (
+                    <span className="ml-2 px-2 py-0.5 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full tab-badge">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-// --- 3. Main Component (Enhanced) ---
+// Main Component
 export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
   const { language } = useLocalization();
@@ -1094,44 +259,16 @@ export default function ProgressPage() {
     }
   }, [language]);
 
-  const getCurrentLanguageText = (text: { ar: string; en: string }) => {
-    return language === 'ar' ? text.ar : text.en;
-  };
-
-  const APP_NAME = 'Gemini CyberPlan';
-  const LOGO_URL = window.location.origin + '/assets/Gemini_Generated_Image_26mado26mado26ma.png';
-
-  const getTaskTypeEmoji = useCallback((type) => {
-    switch(type) {
-      case 'Blue Team': return '🟦';
-      case 'Red Team': return '🟥';
-      case 'Soft Skills': return '🟨';
-      case 'Practical': return '🟩';
-      default: return '';
-    }
-  }, []);
-
-  const getResourceTypeEmoji = useCallback((type) => {
-    switch(type) {
-      case 'video': return '🎥';
-      case 'article': return '📰';
-      case 'book': return '📖';
-      case 'tool': return '🛠️';
-      case 'podcast': return '🎧';
-      case 'course': return '🎓';
-      case 'quiz': return '❓';
-      case 'project': return '🗂️';
-      case 'community': return '👥';
-      case 'news': return '🗞️';
-      case 'link': return '🔗';
-      default: return '';
-    }
-  }, []);
-
-  // Memoized export functions to prevent re-creation
+  // FIXED: Enhanced export function with proper error handling and validation
   const handleAdvancedExport = useCallback(async (options) => {
     if (!plan || !appState) {
       toast.error(language === 'ar' ? 'لا توجد بيانات للتصدير' : 'No data to export');
+      return;
+    }
+
+    // Validate options
+    if (!options?.format || !options?.content) {
+      toast.error(language === 'ar' ? 'يرجى اختيار صيغة الملف ونوع المحتوى' : 'Please select file format and content type');
       return;
     }
 
@@ -1162,9 +299,9 @@ export default function ProgressPage() {
             metadata: {
               appName: 'Gemini CyberPlan',
               exportDate: timestamp,
-              reportType: options.reportType,
-              contentType: options.contentType,
-              language: language,
+              reportType: options.reportType || 'complete',
+              contentType: options.contentType || 'both',
+              language: options.exportLanguage || language,
               totalTasks: filteredTasks.length,
               totalNotes: totalNotes,
               totalResources: totalResources
@@ -1297,6 +434,57 @@ export default function ProgressPage() {
     }
   }, [language, plan, progress, appState]);
 
+  // Helper function for filtering data with improved error handling
+  const filterDataByOptions = useCallback((options, planData, appStateData) => {
+    const result = {
+      filteredTasks: [],
+      filteredNotes: [],
+      filteredResources: []
+    };
+
+    try {
+      // Filter tasks based on time range
+      let filteredTasks = [];
+      if (options.timeRange === 'current-week') {
+        const currentWeek = new Date();
+        const weekStart = new Date(currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay()));
+        filteredTasks = planData.flatMap(w => w.days || [])
+          .flatMap(d => d.tasks || [])
+          .filter(task => {
+            const taskDate = new Date(task.date || Date.now());
+            return taskDate >= weekStart;
+          });
+      } else if (options.timeRange === 'current-phase') {
+        // Filter by current phase logic
+        filteredTasks = planData.flatMap(w => w.days || [])
+          .flatMap(d => d.tasks || []);
+      } else {
+        // All tasks
+        filteredTasks = planData.flatMap(w => w.days || [])
+          .flatMap(d => d.tasks || []);
+      }
+
+      // Add progress information to tasks
+      result.filteredTasks = filteredTasks.map(task => ({
+        ...task,
+        isCompleted: progress.some(p => p.taskId === task.id && p.done),
+        completedDate: progress.find(p => p.taskId === task.id && p.done)?.dayKey
+      }));
+
+      // Filter notes and resources
+      if (options.content === 'notes' || options.content === 'both') {
+        result.filteredNotes = Object.values(appStateData.notes || {}).flat();
+        result.filteredResources = Object.values(appStateData.resources || {}).flat();
+      }
+    } catch (error) {
+      console.error('Error filtering data:', error);
+      // Return empty arrays if filtering fails
+      return result;
+    }
+
+    return result;
+  }, [progress]);
+
   // Early return if no data
   if (!plan || !progress || !stats) {
     return (
@@ -1318,19 +506,21 @@ export default function ProgressPage() {
           subtitle={safeT('trackYourLearning')}
           showBottomBar={true}
         >
-          <motion.div {...animations.fadeIn} className="space-y-8">
+          {/* Tabs at the top with improved organization */}
+          <EnhancedTabs
+            tabs={ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development')}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            language={language}
+          />
+
+          <motion.div {...animations.fadeIn} className="space-y-6">
             {/* Overall Progress Card */}
             <OverallProgressCard />
-            {/* تبويبات جديدة */}
-            <SimpleTabs
-              tabs={ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development')}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              language={language}
-            />
-            {/* محتوى التاب */}
-            <Card className="overflow-hidden">
-              <div className="mt-2 p-2">
+            
+            {/* Tab Content with enhanced styling */}
+            <Card className="overflow-hidden enhanced-card">
+              <div className="p-6">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
