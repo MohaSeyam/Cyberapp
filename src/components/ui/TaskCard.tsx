@@ -124,6 +124,27 @@ function TaskCard({
           'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
         } ${glow ? 'glow-animate' : ''} ${className}`}
       >
+        {/* الأزرار في الأعلى */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+            <Clock className="w-3 h-3" />
+            <span className="text-xs">{task.duration} {t('minutes')}</span>
+          </div>
+          
+          {showNotes && onNoteClick && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onNoteClick}
+              className="p-1 border border-blue-300 dark:border-yellow-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
+              icon={<MessageSquare size={12} className="text-blue-600 dark:text-yellow-300" />}
+              disabled={!onNoteClick}
+              title={onNoteClick ? t('addNote') : t('noNoteAction')}
+            />
+          )}
+        </div>
+
+        {/* نص المهمة وزر التشيك في الأسفل */}
         <div className="flex items-center space-x-3">
           <button
             onClick={handleToggleComplete}
@@ -140,11 +161,11 @@ function TaskCard({
           </button>
           
           <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-semibold leading-relaxed ${
-            isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 
-            isLocked ? 'text-gray-400 dark:text-gray-500' : 
-            'text-gray-900 dark:text-white'
-          }`}>
+            <p className={`text-sm font-semibold leading-relaxed ${
+              isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 
+              isLocked ? 'text-gray-400 dark:text-gray-500' : 
+              'text-gray-900 dark:text-white'
+            }`}>
               {task.description[language]}
               {isLocked && (
                 <span className="ml-2 text-xs text-gray-400">
@@ -152,24 +173,7 @@ function TaskCard({
                 </span>
               )}
             </p>
-            <div className="flex items-center space-x-2 mt-1">
-              <span className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs font-medium">
-                {task.duration} {t('minutes')}
-              </span>
-            </div>
           </div>
-
-                      {showNotes && onNoteClick && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNoteClick}
-                className="flex-shrink-0 p-1 border-2 border-blue-300 dark:border-yellow-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
-                icon={<MessageSquare size={16} className="text-blue-600 dark:text-yellow-300" />}
-                disabled={!onNoteClick}
-                title={onNoteClick ? t('addNote') : t('noNoteAction')}
-              />
-            )}
         </div>
       </motion.div>
     );
@@ -185,7 +189,31 @@ function TaskCard({
           colors.bg + ' ' + colors.border
         } ${glow ? 'glow-animate' : ''} ${className}`}
       >
-        <div className="flex items-start justify-between mb-4">
+        {/* الأزرار في الأعلى */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
+              <Clock className="w-3 h-3" />
+              <span className="font-medium text-xs">{task.duration} {t('minutes')}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            {showNotes && onNoteClick && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onNoteClick}
+                className="p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-300 dark:border-yellow-400 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
+                icon={<MessageSquare size={14} className="text-blue-600 dark:text-yellow-300" />}
+                title={t('addNote')}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* نص المهمة وزر التشيك في الأسفل */}
+        <div className="flex items-start justify-between">
           <div className="flex items-center space-x-4">
             <button
               onClick={handleToggleComplete}
@@ -216,27 +244,9 @@ function TaskCard({
               </h3>
             </div>
           </div>
-
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
-              <Clock className="w-4 h-4" />
-              <span className="font-medium">{task.duration} {t('minutes')}</span>
-            </div>
-            
-            {showNotes && onNoteClick && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNoteClick}
-                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-2 border-blue-300 dark:border-yellow-400 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
-                icon={<MessageSquare size={18} className="text-blue-600 dark:text-yellow-300" />}
-                title={t('addNote')}
-              />
-            )}
-          </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-4">
           <div className="flex items-center space-x-4">
             {/* Removed ID display */}
           </div>
@@ -264,6 +274,35 @@ function TaskCard({
         colors.bg + ' ' + colors.border
       } ${glow ? 'glow-animate' : ''} ${className}`}
     >
+      {/* الأزرار في الأعلى */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-2">
+          <span className="text-lg">{colors.icon}</span>
+          <span className={`px-2 py-1 rounded text-xs font-medium ${colors.text} ${colors.bg}`}>
+            {task.type}
+          </span>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 text-xs text-gray-500">
+            <Clock className="w-3 h-3" />
+            <span className="text-xs">{task.duration} {t('minutes')}</span>
+          </div>
+          
+          {showNotes && onNoteClick && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onNoteClick}
+              className="p-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-300 dark:border-yellow-400 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
+              icon={<MessageSquare size={12} className="text-blue-600 dark:text-yellow-300" />}
+              title={t('addNote')}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* نص المهمة وزر التشيك في الأسفل */}
       <div className="flex items-start space-x-3">
         <button
           onClick={handleToggleComplete}
@@ -280,13 +319,6 @@ function TaskCard({
         </button>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-lg">{colors.icon}</span>
-            <span className={`px-2 py-1 rounded text-xs font-medium ${colors.text} ${colors.bg}`}>
-              {task.type}
-            </span>
-          </div>
-          
           <p className={`text-sm font-bold leading-relaxed tracking-wide ${
             isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 
             isLocked ? 'text-gray-400 dark:text-gray-500' : 
@@ -299,24 +331,6 @@ function TaskCard({
               </span>
             )}
           </p>
-          
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center space-x-1 text-xs text-gray-500">
-              <Clock className="w-3 h-3" />
-              <span>{task.duration} {t('minutes')}</span>
-            </div>
-            
-            {showNotes && onNoteClick && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onNoteClick}
-                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-2 border-blue-300 dark:border-yellow-400 shadow-sm hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
-                icon={<MessageSquare size={16} className="text-blue-600 dark:text-yellow-300" />}
-                title={t('addNote')}
-              />
-            )}
-          </div>
         </div>
       </div>
     </motion.div>
