@@ -240,11 +240,8 @@ export default function NoteViewPage() {
                 
                 {/* Enhanced Day/Subject Info */}
                 {dayInfo && dayInfo.day && (
-                  <motion.div 
+                  <div 
                     className="inline-block bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-xl px-6 py-4 mb-4 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors duration-200"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
                     onClick={() => {
                       if (dayInfo.week && dayInfo.day) {
                         // البحث عن فهرس اليوم في الأسبوع
@@ -270,7 +267,7 @@ export default function NoteViewPage() {
                         </>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Enhanced Date/Time Info */}
@@ -313,17 +310,14 @@ export default function NoteViewPage() {
                   <Tag className="w-4 h-4 text-gray-400" />
                   <div className="flex flex-wrap justify-center gap-2">
                     {note.tags.map((tag: string, index: number) => (
-                      <motion.span
+                      <span
                         key={index}
                         className="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full font-medium shadow-sm"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2, delay: 0.5 + index * 0.1 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         #{tag}
-                      </motion.span>
+                      </span>
                     ))}
                   </div>
                 </motion.div>

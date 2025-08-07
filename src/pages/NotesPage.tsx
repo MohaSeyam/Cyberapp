@@ -141,7 +141,7 @@ export default function NotesPage() {
       <PageLayout 
         title={t('notes')}
         headerAction={
-          <motion.button
+          <button
             onClick={() => setNoteModal({ isOpen: true, note: null })}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
             whileHover={{ scale: 1.05 }}
@@ -152,10 +152,10 @@ export default function NotesPage() {
           >
             <Plus className="w-5 h-5" />
             <span className="font-medium">{t('addNote')}</span>
-          </motion.button>
+          </button>
         }
       >
-        <motion.div
+        <div
           initial="hidden"
           animate="visible"
           variants={animations.page}
@@ -283,7 +283,7 @@ export default function NotesPage() {
           t={t}
           isSaving={isSaving}
                   />
-        </motion.div>
+        </div>
       </PageLayout>
     </ErrorBoundary>
   );

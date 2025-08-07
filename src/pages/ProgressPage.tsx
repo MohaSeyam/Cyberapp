@@ -138,7 +138,7 @@ const ENHANCED_TABS = [
   {
     id: 'analytics',
     label: { ar: 'التحليلات', en: 'Analytics' },
-    icon: LineChart,
+    icon: TrendingUp,
     color: 'purple',
     gradient: 'from-purple-500 to-purple-600',
     description: { ar: 'رسوم بيانية مفصلة', en: 'Detailed charts and graphs' },
@@ -328,7 +328,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
         {metrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
-            <motion.div
+            <div
               key={metric.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -386,7 +386,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
                   </p>
                 </div>
               </Card>
-            </motion.div>
+            </div>
           );
         })}
       </div>
@@ -415,7 +415,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
           ].map((item, index) => {
             const Icon = item.icon;
             return (
-              <motion.div
+              <div
                 key={item.type}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -434,7 +434,7 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {((item.count / stats.completedTasks) * 100).toFixed(1)}%
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -491,7 +491,7 @@ const EnhancedAnalyticsTab = React.memo(() => {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <motion.div
+        <div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
@@ -503,9 +503,9 @@ const EnhancedAnalyticsTab = React.memo(() => {
             </div>
             <ProgressChart data={progressData} />
           </Card>
-        </motion.div>
+        </div>
         
-        <motion.div
+        <div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -517,7 +517,7 @@ const EnhancedAnalyticsTab = React.memo(() => {
             </div>
             <PieChartComponent data={pieData} />
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
@@ -549,7 +549,7 @@ const EnhancedSuggestionsTab = React.memo(({ language }) => {
   const t = (ar, en) => language === 'ar' ? ar : en;
   return (
     <div className="space-y-8">
-      <motion.div
+      <div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -592,7 +592,7 @@ const EnhancedSuggestionsTab = React.memo(({ language }) => {
             </div>
           </div>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 });

@@ -240,11 +240,8 @@ export default function JournalViewPage() {
                 
                 {/* Enhanced Day/Subject Info */}
                 {dayInfo && dayInfo.day && (
-                  <motion.div 
+                  <div 
                     className="inline-block bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-xl px-6 py-4 mb-4 cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors duration-200"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
                     onClick={() => {
                       if (dayInfo.week && dayInfo.day) {
                         // البحث عن فهرس اليوم في الأسبوع
@@ -270,7 +267,7 @@ export default function JournalViewPage() {
                         </>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Enhanced Date/Time Info */}
@@ -313,17 +310,14 @@ export default function JournalViewPage() {
                   <Tag className="w-4 h-4 text-gray-400" />
                   <div className="flex flex-wrap justify-center gap-2">
                     {journalEntry.tags.map((tag: string, index: number) => (
-                      <motion.span
+                      <span
                         key={index}
                         className="px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full font-medium shadow-sm"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2, delay: 0.5 + index * 0.1 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         #{tag}
-                      </motion.span>
+                      </span>
                     ))}
                   </div>
                 </motion.div>

@@ -88,7 +88,7 @@ export default function JournalPage() {
       <PageLayout 
         title={t('journal')}
       >
-        <motion.div
+        <div
           initial="hidden"
           animate="visible"
           variants={animations.page}
@@ -203,7 +203,7 @@ export default function JournalPage() {
             </div>
           )}
 
-        </motion.div>
+        </div>
       </PageLayout>
     </ErrorBoundary>
   );

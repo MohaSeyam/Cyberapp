@@ -106,7 +106,7 @@ export default function HomePage() {
   // --- Sub-components for better organization ---
 
   const ProgressSection = () => (
-    <motion.div {...animations.fadeIn} transition={{ delay: 0.2 }} className="mb-12">
+    <div {...animations.fadeIn} transition={{ delay: 0.2 }} className="mb-12">
       <Card
         title={safeT('currentProgress')}
         subtitle={`${safeT('week')} ${currentWeek} - ${completionRate}% ${safeT('completed')}`}
@@ -136,15 +136,15 @@ export default function HomePage() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 
   const FeaturesSection = () => (
-    <motion.div {...animations.fadeIn} transition={{ delay: 0.5 }} className="mb-12">
+    <div {...animations.fadeIn} transition={{ delay: 0.5 }} className="mb-12">
       <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">مميزات المنصة</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature, index) => (
-          <motion.div
+          <div
             key={feature.title}
             {...animations.stagger(0.6 + index * 0.1)}
             whileHover={{ scale: 1.05 }}
@@ -159,10 +159,10 @@ export default function HomePage() {
               <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{safeT(feature.title)}</h3>
               <p className="text-gray-600 dark:text-gray-400">{safeT(feature.description)}</p>
             </Card>
-          </motion.div>
+          </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
   
   return (
@@ -173,7 +173,7 @@ export default function HomePage() {
         <HomeStats stats={stats} />
         <QuickActions actions={quickActions} />
         <FeaturesSection />
-        <motion.div {...animations.fadeIn} transition={{ delay: 0.8 }} className="text-center py-12">
+        <div {...animations.fadeIn} transition={{ delay: 0.8 }} className="text-center py-12">
           <Card variant="flat" className="bg-gray-50 dark:bg-gray-800/50">
             <Heart className="w-12 h-12 text-blue-500 mx-auto mb-4"/>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{safeT('ctaTitle')}</h2>
@@ -183,7 +183,7 @@ export default function HomePage() {
               {safeT('ctaButton')}
             </Button>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </PageLayout>
   );
