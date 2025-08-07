@@ -1,28 +1,13 @@
 // Progress Page - Enhanced with Tabs, Skills Matrix, and Charts
-import React, { useState, useMemo, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Target, Clock, Flame, Trophy, BarChart3, PieChart, 
-  TrendingUp, Award, Star, Users, BookOpen, Zap,
-  CheckCircle, Circle, Calendar, Activity, ArrowRight,
-  LineChart, Brain, Lightbulb, Download, FileText, 
-  FileSpreadsheet, FileCode, FileArchive, CalendarDays,
-  ChevronRight, ChevronLeft, Sparkles, Target as TargetIcon
+  BarChart3, TrendingUp, Brain, Lightbulb, FileText
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import Modal from '../components/ui/Modal';
-import { animations } from '../constants/theme';
-import { WeekPhaseProvider } from '../components/WeekPhaseProvider';
-import OverallProgressCard from '../components/progress/OverallProgressCard';
-import ProgressChart from '../components/charts/ProgressChart';
-import PieChartComponent from '../components/charts/PieChart';
-import Logo from '../components/ui/Logo';
-import toast from 'react-hot-toast';
-import { openDB } from 'idb';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { loadLibrary } from '../utils/lazyImports';
 import EnhancedOverviewTab from '../components/progress/EnhancedOverviewTab';
@@ -995,33 +980,26 @@ function SimpleTabs({ tabs, activeTab, setActiveTab, language }) {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
           return (
-            <motion.button
+            <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 font-medium text-sm
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium text-sm
                 ${isActive 
                   ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25' 
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                 }
               `}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-500'}`} />
               <span className="whitespace-nowrap font-medium">
                 {language === 'ar' ? tab.label.ar : tab.label.en}
               </span>
               {tab.badge && (
-                <motion.span 
-                  className="ml-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full px-2 py-0.5 font-medium"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                >
+                <span className="ml-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full px-2 py-0.5 font-medium">
                   {tab.badge}
-                </motion.span>
+                </span>
               )}
-            </motion.button>
+            </button>
           );
         })}
       </div>
@@ -1418,15 +1396,7 @@ export default function ProgressPage() {
             {/* Tab Content */}
             <Card className="overflow-hidden border-0 shadow-lg">
               <div className="p-6">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="tab-content"
-                  >
+                <div className="tab-content">
                     {isExporting && <LoadingSpinner />}
                     {activeTab === 'overview' && (
                       <Suspense fallback={<LoadingSpinner />}>
@@ -1456,8 +1426,7 @@ export default function ProgressPage() {
                         setExportOptions={setExportOptions}
                       />
                     )}
-                  </motion.div>
-                </AnimatePresence>
+                </div>
               </div>
             </Card>
           </motion.div>

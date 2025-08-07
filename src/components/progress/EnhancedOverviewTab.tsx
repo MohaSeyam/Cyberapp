@@ -81,19 +81,9 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap,
         {metrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
-            <motion.div
+            <div
               key={metric.label}
-              initial={{ opacity: 0, y: 30, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ 
-                duration: 0.5, 
-                delay: index * 0.1,
-                ease: "easeOut"
-              }}
-              whileHover={{ 
-                y: -5,
-                transition: { duration: 0.2 }
-              }}
+              className="transform transition-all duration-200 hover:scale-105"
             >
               <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 transform hover:scale-105 border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 {/* Animated Background */}
@@ -132,15 +122,13 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap,
                         fill="none"
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       />
-                      <motion.path
+                      <path
                         className={colorClassMap[metric.color]?.text500}
                         stroke="currentColor"
                         strokeWidth="3"
                         strokeLinecap="round"
                         fill="none"
-                        initial={{ strokeDasharray: "0, 100" }}
-                        animate={{ strokeDasharray: `${metric.progress}, 100` }}
-                        transition={{ duration: 1, delay: index * 0.1 }}
+                        strokeDasharray={`${metric.progress}, 100`}
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       />
                     </svg>
@@ -163,24 +151,17 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap,
 
       {/* Achievements Section */}
       <div className="mt-8">
-        <motion.h3 
-          className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
           {language === 'ar' ? 'الإنجازات' : 'Achievements'}
-        </motion.h3>
+        </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {achievements.map((achievement, index) => {
             const Icon = achievement.icon;
             return (
-              <motion.div
+              <div
                 key={achievement.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                className="transform transition-all duration-200 hover:scale-105"
               >
                 <Card className={`relative overflow-hidden transition-all duration-300 transform hover:scale-105 ${
                   achievement.unlocked 
@@ -217,14 +198,9 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT, colorClassMap,
                     </p>
                     
                     {achievement.unlocked && (
-                      <motion.div 
-                        className="mt-3 inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.8 + index * 0.1 }}
-                      >
+                      <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium">
                         {language === 'ar' ? 'مفتوح' : 'Unlocked'}
-                      </motion.div>
+                      </div>
                     )}
                   </div>
                 </Card>

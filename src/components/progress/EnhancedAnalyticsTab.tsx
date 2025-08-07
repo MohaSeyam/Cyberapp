@@ -127,12 +127,9 @@ const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colo
         {performanceMetrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
-            <motion.div
+            <div
               key={metric.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
+              className="transform transition-all duration-200 hover:scale-105"
             >
               <Card className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <div className="p-6">
@@ -166,11 +163,7 @@ const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colo
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Task Types Distribution */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
+        <div>
           <Card className="p-6 border-0 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -180,14 +173,10 @@ const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colo
             </div>
             <PieChart data={pieData} title={language === 'ar' ? 'أنواع المهام' : 'Task Types'} />
           </Card>
-        </motion.div>
+        </div>
 
         {/* Weekly Progress Chart */}
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
+        <div>
           <Card className="p-6 border-0 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -207,18 +196,16 @@ const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colo
                       {week.percentage}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                    <motion.div
-                      className={`h-3 rounded-full ${
-                        week.percentage >= 80 ? 'bg-green-500' :
-                        week.percentage >= 60 ? 'bg-yellow-500' :
-                        week.percentage >= 40 ? 'bg-orange-500' : 'bg-red-500'
-                      }`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${week.percentage}%` }}
-                      transition={{ duration: 1, delay: index * 0.1 }}
-                    />
-                  </div>
+                                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                     <div
+                       className={`h-3 rounded-full transition-all duration-500 ${
+                         week.percentage >= 80 ? 'bg-green-500' :
+                         week.percentage >= 60 ? 'bg-yellow-500' :
+                         week.percentage >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                       }`}
+                       style={{ width: `${week.percentage}%` }}
+                     />
+                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {week.completed}/{week.total} {language === 'ar' ? 'مهمة' : 'tasks'}
                   </div>
@@ -230,11 +217,7 @@ const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colo
       </div>
 
       {/* Streak Analysis */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-      >
+      <div>
         <Card className="p-6 border-0 shadow-lg bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">

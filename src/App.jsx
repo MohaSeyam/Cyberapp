@@ -49,27 +49,18 @@ const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
 const FeaturesDemoPage = lazy(() => import('./pages/FeaturesDemoPage'));
 
 function App() {
-  const [key, setKey] = useState(0);
-
   useEffect(() => {
-    const handleLanguageChange = () => {
-      // Force re-render of all components when language changes
-      setKey(prev => prev + 1);
-    };
-
     const handleSettingsChange = () => {
       // Apply settings when they change
       applyAppSettings();
     };
 
-    window.addEventListener('languageChanged', handleLanguageChange);
     window.addEventListener('settingsChanged', handleSettingsChange);
     
     // Apply initial settings
     applyAppSettings();
     
     return () => {
-      window.removeEventListener('languageChanged', handleLanguageChange);
       window.removeEventListener('settingsChanged', handleSettingsChange);
     };
   }, []);
@@ -81,7 +72,7 @@ function App() {
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <Suspense fallback={<LoadingSpinner />}>
               <Toaster />
-              <Routes key={key}>
+              <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/phases" element={<PhasesPage />} />

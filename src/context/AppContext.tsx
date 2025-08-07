@@ -80,9 +80,13 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     const handleLanguageChange = (event: CustomEvent) => {
       const newLang = event.detail;
-      console.log('AppContext received language change:', newLang);
-      setLangState(newLang);
-      localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
+      setLangState(prevLang => {
+        if (prevLang !== newLang) {
+          localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
+          return newLang;
+        }
+        return prevLang;
+      });
     };
 
     window.addEventListener('languageChanged', handleLanguageChange as EventListener);
