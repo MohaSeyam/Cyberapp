@@ -1,4 +1,4 @@
-// Enhanced // Enhanced Home Page - Refactored with Components and Hooks
+// Enhanced Home Page - Refactored with Components and Hooks
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -192,4 +192,4 @@ export default function HomePage() {
       </PageLayout>
     </ErrorBoundary>
   );
-  }Home Pageame={`w-8 h-8 ${feature.color}`
+                             }
