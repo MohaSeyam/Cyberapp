@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./styles/main.css";
 
+alert("main.jsx loaded!");
+
 console.log("main.jsx loaded");
 
 // Global error handler
