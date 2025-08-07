@@ -150,33 +150,10 @@ export default function PhasesPage() {
 
   return (
     <PageLayout 
-      title={safeT('learningPhases')}
-      subtitle={safeT('choosePhaseToStart')}
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
-        {/* Breadcrumbs */}
-        <Breadcrumbs 
-          items={[
-            { label: safeT('phases'), icon: BookOpen }
-          ]} 
-        />
-        
-        {/* Header Card */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="flex items-center justify-between">
-            <div className="text-center flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                خطة تعلم الأمن السيبراني
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                رحلة شاملة من المبتدئ إلى المتقدم في عالم الأمن السيبراني
-              </p>
-            </div>
-          </div>
-        </Card>
-
         {/* Phases Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {phases.map((phase, index) => {
@@ -198,8 +175,8 @@ export default function PhasesPage() {
                   }`} 
                   onClick={() => goToPhaseWeeks(phase.id)}
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-full ${
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`p-3 rounded-xl shadow-sm ${
                       phase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' : 
                       phase.color === 'green' ? 'bg-green-100 dark:bg-green-900' : 
                       phase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' : 
@@ -215,24 +192,15 @@ export default function PhasesPage() {
                       }`} />
                     </div>
                     <div className="text-right">
-                      <div className={`text-2xl font-bold ${
-                        phase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 
-                        phase.color === 'green' ? 'text-green-600 dark:text-green-400' : 
-                        phase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' : 
-                        phase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' : 
-                        'text-teal-600 dark:text-teal-400'
-                      }`}>
-                        {completion.progress}%
-                      </div>
                       <div className="text-xs text-gray-500 dark:text-gray-500">
-                        مكتمل
+                        {completion.completedWeeks}/{completion.totalWeeks} أسابيع
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         {phase.title[lang]}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -248,10 +216,6 @@ export default function PhasesPage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-500">المستوى:</span>
                         <span className="font-medium">{phase.difficulty}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-500">الأسابيع:</span>
-                        <span className="font-medium">{completion.completedWeeks}/{completion.totalWeeks}</span>
                       </div>
                     </div>
 

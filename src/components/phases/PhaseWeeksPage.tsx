@@ -208,16 +208,25 @@ export default function PhaseWeeksPage() {
 
   return (
     <PageLayout 
-      title={currentPhase?.title?.ar || safeT('phaseWeeks')}
-      subtitle={currentPhase?.focus?.ar || ''}
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
-        {/* Breadcrumbs */}
-        <Breadcrumbs phaseTitle={currentPhase.title?.ar || ''} />
-        
         {/* Phase Header */}
+        <div className="text-center mb-8">
+          <div className="mb-6">
+            <h1 className="text-6xl font-bold text-white mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {currentPhase.title?.ar}
+            </h1>
+            {currentPhase.focus?.ar && (
+              <p className="text-xl text-gray-600 dark:text-gray-400">
+                {currentPhase.focus.ar}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Phase Stats Card */}
         <Card className={`bg-gradient-to-r ${
           currentPhase.color === 'blue' ? 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20' :
           currentPhase.color === 'green' ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20' :
@@ -226,39 +235,30 @@ export default function PhaseWeeksPage() {
           'from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20'
         }`}>
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<ArrowLeft />}
-                onClick={goToPhases}
-              />
+            <div className="flex items-center space-x-3">
+              <div className={`p-3 rounded-xl ${
+                currentPhase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' :
+                currentPhase.color === 'green' ? 'bg-green-100 dark:bg-green-900' :
+                currentPhase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' :
+                currentPhase.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
+                'bg-teal-100 dark:bg-teal-900'
+              }`}>
+                <PhaseIcon className={`w-6 h-6 ${
+                  currentPhase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                  currentPhase.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                  currentPhase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
+                  currentPhase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                  'text-teal-600 dark:text-teal-400'
+                }`} />
+              </div>
               
-              <div className="flex items-center space-x-3">
-                <div className={`p-3 rounded-full ${
-                  currentPhase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' :
-                  currentPhase.color === 'green' ? 'bg-green-100 dark:bg-green-900' :
-                  currentPhase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' :
-                  currentPhase.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
-                  'bg-teal-100 dark:bg-teal-900'
-                }`}>
-                  <PhaseIcon className={`w-6 h-6 ${
-                    currentPhase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                    currentPhase.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                    currentPhase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
-                    currentPhase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                    'text-teal-600 dark:text-teal-400'
-                  }`} />
-                </div>
-                
-                <div>
-                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {currentPhase.title?.ar}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {currentPhase.focus?.ar}
-              </p>
-                </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {currentPhase.title?.ar}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {currentPhase.focus?.ar}
+                </p>
               </div>
             </div>
             
@@ -334,33 +334,72 @@ export default function PhaseWeeksPage() {
 
         {/* Weeks List */}
         <Card>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            أسابيع المرحلة
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-xl shadow-sm">
+                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  أسابيع المرحلة
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  اختر الأسبوع للبدء
+                </p>
+              </div>
+            </div>
+          </div>
           
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {phaseWeeks.map((week, index) => {
               const completion = getWeekCompletion(week.week);
               
               return (
-                <motion.div key={week.week} {...animations.stagger(index * 0.1)} className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${completion.percentage === 100 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'}`} onClick={() => goToWeekDays(week.week)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${completion.percentage === 100 ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                        {completion.percentage === 100 ? (<CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />) : (<Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />)}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white"> الأسبوع {week.week} </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400"> {week.title?.ar} </p>
-                      </div>
+                <motion.div 
+                  key={week.week} 
+                  {...animations.stagger(index * 0.1)} 
+                  className={`p-6 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg ${
+                    completion.percentage === 100 ? 
+                      'border-green-500 bg-green-50 dark:bg-green-900/20' : 
+                      'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                  }`} 
+                  onClick={() => goToWeekDays(week.week)}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+                      completion.percentage === 100 ? 
+                        'bg-green-100 dark:bg-green-900' : 
+                        'bg-gray-100 dark:bg-gray-700'
+                    }`}>
+                      {completion.percentage === 100 ? (
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                      ) : (
+                        <Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                      )}
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white"> {completion.percentage}% </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-500"> {completion.completed}/{completion.total} مهام </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500">
+                        {completion.completed}/{completion.total} مهام
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className={`h-2 rounded-full transition-all duration-300 ${completion.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${completion.percentage}%` }} />
+                  
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                      الأسبوع {week.week}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      {week.title?.ar}
+                    </p>
+                  </div>
+                  
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        completion.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'
+                      }`} 
+                      style={{ width: `${completion.percentage}%` }} 
+                    />
                   </div>
                 </motion.div>
               );
