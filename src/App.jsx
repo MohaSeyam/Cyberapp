@@ -9,6 +9,7 @@ import PerformanceOptimizer from './components/layout/PerformanceOptimizer';
 
 // Font size and theme application - memoized for performance
 const applyAppSettings = useCallback(() => {
+  console.log("🔧 Applying app settings...");
   const settings = JSON.parse(localStorage.getItem('app_settings') || '{}');
   const fontSize = settings.fontSize || 'medium';
   const compactMode = settings.compactMode || false;
@@ -22,10 +23,12 @@ const applyAppSettings = useCallback(() => {
   if (compactMode) {
     document.documentElement.classList.add('compact-mode');
   }
+  console.log("✅ App settings applied");
 }, []);
 
 // Memoized ErrorFallback component
 const ErrorFallback = React.memo(({ error }) => {
+  console.log("🚨 ErrorFallback rendered with error:", error);
   return (
     <div className="p-8 text-center text-red-600 dark:text-red-400">
       <h2 className="text-2xl font-bold mb-4">حدث خطأ غير متوقع</h2>
@@ -41,9 +44,11 @@ class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
+    console.log("🛡️ ErrorBoundary initialized");
   }
 
   static getDerivedStateFromError(error) {
+    console.log("🚨 ErrorBoundary caught error:", error);
     return { hasError: true, error };
   }
 
@@ -53,11 +58,13 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      console.log("🚨 ErrorBoundary rendering error state");
       return this.props.FallbackComponent ? 
         <this.props.FallbackComponent error={this.state.error} /> : 
         <ErrorFallback error={this.state.error} />;
     }
 
+    console.log("✅ ErrorBoundary rendering children");
     return this.props.children;
   }
 }
@@ -80,6 +87,7 @@ const FeaturesDemoPage = lazy(() => import('./pages/FeaturesDemoPage'));
 
 // Preload critical pages for faster navigation
 const preloadCriticalPages = () => {
+  console.log("📦 Preloading critical pages...");
   // Preload HomePage and PhasesPage as they are most commonly accessed
   const preloadHome = () => import('./pages/HomePage');
   const preloadPhases = () => import('./pages/PhasesPage');
@@ -89,36 +97,44 @@ const preloadCriticalPages = () => {
     window.requestIdleCallback(() => {
       preloadHome();
       preloadPhases();
+      console.log("✅ Critical pages preloaded");
     });
   } else {
     // Fallback for browsers that don't support requestIdleCallback
     setTimeout(() => {
       preloadHome();
       preloadPhases();
+      console.log("✅ Critical pages preloaded (fallback)");
     }, 1000);
   }
 };
 
 // Memoized App component
 const App = React.memo(() => {
+  console.log("🚀 App component starting...");
+  
+  // Apply settings on mount
   useEffect(() => {
-    const handleSettingsChange = () => {
-      applyAppSettings();
-    };
-
-    window.addEventListener('settingsChanged', handleSettingsChange);
-    
-    // Apply initial settings
+    console.log("🔧 App useEffect - applying settings");
     applyAppSettings();
-    
-    // Preload critical pages
     preloadCriticalPages();
-    
+  }, [applyAppSettings]);
+
+  const handleSettingsChange = () => {
+    console.log("⚙️ Settings changed, reapplying...");
+    applyAppSettings();
+  };
+
+  // Listen for settings changes
+  useEffect(() => {
+    console.log("👂 Setting up settings change listener");
+    window.addEventListener('settingsChanged', handleSettingsChange);
     return () => {
       window.removeEventListener('settingsChanged', handleSettingsChange);
     };
   }, []);
 
+  console.log("🎯 App component rendering...");
   // Memoized routes for better performance
   const routes = useMemo(() => (
     <Routes>

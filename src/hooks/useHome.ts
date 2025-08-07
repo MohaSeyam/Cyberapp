@@ -3,11 +3,25 @@ import { useApp } from '../context/AppContext';
 import { Calendar, Target, TrendingUp, Award, Rocket, BarChart3, FileText, BookOpen } from 'lucide-react';
 
 export const useHome = () => {
+  console.log("🏠 useHome hook starting...");
+  
   const { plan, progress } = useApp();
+  
+  console.log("📊 useHome: AppContext data:", { 
+    planLength: plan?.length, 
+    progressLength: progress?.length,
+    planType: typeof plan,
+    progressType: typeof progress
+  });
 
   // Comprehensive safety checks for data
   const safePlan = Array.isArray(plan) ? plan : [];
   const safeProgress = Array.isArray(progress) ? progress : [];
+  
+  console.log("🔒 useHome: Safe data:", { 
+    safePlanLength: safePlan.length, 
+    safeProgressLength: safeProgress.length 
+  });
 
   // Calculate statistics with comprehensive safety checks
   const totalWeeks = 50; // Total weeks from phases.json
@@ -21,6 +35,13 @@ export const useHome = () => {
   
   const completedTasks = safeProgress.filter(p => p && p.done).length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  console.log("📈 useHome: Calculated stats:", { 
+    totalWeeks, 
+    totalTasks, 
+    completedTasks, 
+    completionRate 
+  });
 
   // Get current week (you can implement your own logic)
   const currentWeek = 1; // This should be calculated based on user progress
@@ -102,43 +123,49 @@ export const useHome = () => {
   const features = useMemo(() => [
     {
       icon: 'Shield',
-      title: 'الأمان السيبراني',
-      description: 'تعلم أساسيات الأمان السيبراني وحماية الأنظمة',
+      title: 'comprehensiveLearning',
+      description: 'structuredPathDescription',
       color: 'text-blue-600 dark:text-blue-400'
     },
     {
       icon: 'Globe',
-      title: 'الشبكات العالمية',
-      description: 'فهم الشبكات والاتصالات العالمية',
+      title: 'multilingualSupport',
+      description: 'arabicEnglishSupport',
       color: 'text-green-600 dark:text-green-400'
     },
     {
-      icon: 'Zap',
-      title: 'التقنيات المتقدمة',
-      description: 'استكشاف أحدث التقنيات في مجال الأمن السيبراني',
+      icon: 'Bookmark',
+      title: 'progressTracking',
+      description: 'detailedProgressDescription',
       color: 'text-purple-600 dark:text-purple-400'
     },
     {
-      icon: 'Heart',
-      title: 'التعلم المستمر',
-      description: 'نهج التعلم المستمر والتطوير المهني',
+      icon: 'Settings',
+      title: 'personalizedExperience',
+      description: 'customizableInterfaceDescription',
       color: 'text-orange-600 dark:text-orange-400'
     }
   ], []);
 
-  return {
-    // Data
-    totalWeeks,
-    totalTasks,
-    completedTasks,
-    completionRate,
-    currentWeek,
-    stats,
-    quickActions,
-    features,
-    
-    // Safe data
-    safePlan,
-    safeProgress
+  const result = {
+    data: {
+      totalTasks,
+      completedTasks,
+      completionRate,
+      currentWeek,
+      stats,
+      quickActions,
+      features
+    },
+    isLoading: false,
+    error: null
   };
+
+  console.log("✅ useHome: Returning result:", { 
+    hasData: !!result.data, 
+    isLoading: result.isLoading, 
+    hasError: !!result.error 
+  });
+
+  return result;
 };

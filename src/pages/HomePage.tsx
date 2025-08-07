@@ -21,6 +21,7 @@ import QuickActions from '../components/home/QuickActions';
 // --- Fallback Components ---
 
 function LoadingComponent() {
+  console.log("⏳ HomePage: Loading component rendered");
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="text-xl font-semibold">جاري التحميل...</div>
@@ -29,6 +30,7 @@ function LoadingComponent() {
 }
 
 function ErrorComponent({ message }: { message?: string }) {
+  console.log("❌ HomePage: Error component rendered with message:", message);
   return (
     <div className="p-8 text-center text-red-600 dark:text-red-400">
       <h2 className="text-2xl font-bold mb-4">حدث خطأ ما</h2>
@@ -40,21 +42,35 @@ function ErrorComponent({ message }: { message?: string }) {
 // --- Main Home Page Component ---
 
 export default function HomePage() {
+  console.log("🏠 HomePage component starting...");
+  
   const { t } = useLocalization();
   const navigate = useNavigate();
   
   // Assume useHome returns an object with data, isLoading, and error states
   const { data: homeData, isLoading, error } = useHome();
+  
+  console.log("📊 HomePage: useHome result:", { 
+    hasData: !!homeData, 
+    isLoading, 
+    hasError: !!error,
+    dataKeys: homeData ? Object.keys(homeData) : [],
+    errorMessage: error?.message 
+  });
 
   // 1. Handle Loading State
   if (isLoading) {
+    console.log("⏳ HomePage: Showing loading state");
     return <LoadingComponent />;
   }
 
   // 2. Handle Error State
   if (error || !homeData) {
+    console.log("❌ HomePage: Showing error state", { error, hasData: !!homeData });
     return <ErrorComponent message={error?.message} />;
   }
+  
+  console.log("✅ HomePage: Rendering main content");
   
   // 3. Success State: Destructure data only when it's available
   const {
@@ -66,6 +82,16 @@ export default function HomePage() {
     quickActions,
     features
   } = homeData;
+
+  console.log("📈 HomePage: Data extracted:", { 
+    totalTasks, 
+    completedTasks, 
+    completionRate, 
+    currentWeek,
+    statsCount: stats?.length,
+    actionsCount: quickActions?.length,
+    featuresCount: features?.length
+  });
 
   // Safe translation function
   const safeT = (key: string) => {
