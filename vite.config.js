@@ -96,8 +96,8 @@ export default defineConfig({
   build: {
     // تحسين الأداء
     target: 'esnext',
-    minify: 'terser',
-    sourcemap: false,
+    minify: false,
+    sourcemap: true,
     rollupOptions: {
       output: {
         // تحسين chunk splitting
