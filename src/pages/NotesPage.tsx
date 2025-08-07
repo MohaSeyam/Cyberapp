@@ -11,7 +11,7 @@ import NotesList from '../components/notes/NotesList';
 import NoteModal from '../components/notes/NoteModal';
 import { useNotes, type Note, type NoteForm } from '../hooks/useNotes';
 import toast from 'react-hot-toast';
-import { ErrorBoundary } from 'react-error-boundary';
+// ErrorBoundary removed - using simple error handling
 
 function NotesErrorFallback({ error }: { error: Error }) {
   return (

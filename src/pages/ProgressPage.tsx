@@ -125,8 +125,13 @@ const ENHANCED_TABS = [
     gradient: 'from-indigo-500 to-indigo-600',
     description: { ar: 'تصدير التقارير', en: 'Export reports' },
     badge: 'جديد'
-  }
-];
+  },
+  {
+    id: 'overview',
+    label: { ar: 'نظرة عامة', en: 'Overview' },
+    icon: BarChart3,
+    color: 'blue',
+    gradient: 'from-blue-500 to-blue-600',
     description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' },
     badge: null
   },
@@ -164,15 +169,6 @@ const ENHANCED_TABS = [
     color: 'orange',
     gradient: 'from-orange-500 to-orange-600',
     description: { ar: 'نصائح للتحسين', en: 'Improvement tips' },
-    badge: null
-  },
-  {
-    id: 'reports',
-    label: { ar: 'التقارير', en: 'Reports' },
-    icon: Download,
-    color: 'red',
-    gradient: 'from-red-500 to-red-600',
-    description: { ar: 'تصدير التقارير', en: 'Export reports' },
     badge: null
   }
 ] as const;

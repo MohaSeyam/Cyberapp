@@ -6,13 +6,13 @@ export const lazyImport = {
   jsPDF: () => import('jspdf'),
   
   // Excel/CSV handling - only load when exporting
-  XLSX: () => import('xlsx'),
+  // XLSX: () => import('xlsx'), // Removed - not available
   
   // CSV parsing - only load when importing
-  Papa: () => import('papaparse'),
+  // Papa: () => import('papaparse'), // Removed - not available
   
   // QR code generation - only load when needed
-  QRCode: () => import('qrcode'),
+  // QRCode: () => import('qrcode'), // Removed - not available
   
   // Rich text editor - only load when editing
   RichTextEditor: () => import('../components/editors/RichTextEditor'),

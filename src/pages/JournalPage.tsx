@@ -8,7 +8,7 @@ import JournalSearchBar from '../components/journal/JournalSearchBar';
 import JournalList from '../components/journal/JournalList';
 import { useJournal, type JournalEntry, type JournalForm } from '../hooks/useJournal';
 import toast from 'react-hot-toast';
-import { ErrorBoundary } from 'react-error-boundary';
+// ErrorBoundary removed - using simple error handling
 
 function JournalErrorFallback({ error }: { error: Error }) {
   return (

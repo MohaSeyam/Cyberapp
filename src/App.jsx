@@ -4,7 +4,31 @@ import { AppProvider } from './context/AppContext';
 import { Toaster } from 'react-hot-toast';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import LanguageProvider from './components/layout/LanguageProvider';
-import { ErrorBoundary } from 'react-error-boundary';
+// Simple ErrorBoundary component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.FallbackComponent ? 
+        <this.props.FallbackComponent error={this.state.error} /> : 
+        <ErrorFallback error={this.state.error} />;
+    }
+
+    return this.props.children;
+  }
+}
 
 // Font size and theme application
 const applyAppSettings = () => {

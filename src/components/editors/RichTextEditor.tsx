@@ -13,7 +13,7 @@ import { BulletList } from "@tiptap/extension-bullet-list";
 import { OrderedList } from "@tiptap/extension-ordered-list";
 import { ListItem } from "@tiptap/extension-list-item";
 import Blockquote from "@tiptap/extension-blockquote";
-import Image from "@tiptap/extension-image";
+// Image extension removed - not available
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -21,8 +21,8 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
-import { FontFamily } from "@tiptap/extension-font-family";
-import { FontSize } from "@tiptap/extension-font-size";
+// FontFamily extension removed - not available
+// FontSize extension removed - not available
 import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
