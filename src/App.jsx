@@ -156,31 +156,37 @@ const App = React.memo(() => {
   ), []);
 
   return (
-    <PerformanceOptimizer>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
       <AppProvider>
         <LanguageProvider>
-          <Router>
-            <NavigationOptimizer>
-              <ErrorBoundary FallbackComponent={ErrorFallback}>
+          {/* <NavigationOptimizer> */}
+            {/* <PerformanceOptimizer> */}
+              <Router>
                 <Suspense fallback={<LoadingSpinner />}>
-                  <Toaster 
-                    position="top-right"
-                    toastOptions={{
-                      duration: 3000,
-                      style: {
-                        background: '#363636',
-                        color: '#fff',
-                      },
-                    }}
-                  />
-                  {routes}
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/progress" element={<ProgressPage />} />
+                    <Route path="/phases" element={<PhasesPage />} />
+                    <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+                    <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+                    <Route path="/days/:weekId" element={<DaysPage />} />
+                    <Route path="/notes" element={<NotesPage />} />
+                    <Route path="/journal" element={<JournalPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/note/:noteId" element={<NoteViewPage />} />
+                    <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
+                    <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
+                    <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
+                    <Route path="/features" element={<FeaturesDemoPage />} />
+                  </Routes>
                 </Suspense>
-              </ErrorBoundary>
-            </NavigationOptimizer>
-          </Router>
+              </Router>
+            {/* </PerformanceOptimizer> */}
+          {/* </NavigationOptimizer> */}
         </LanguageProvider>
       </AppProvider>
-    </PerformanceOptimizer>
+      {/* <Toaster /> */}
+    </ErrorBoundary>
   );
 });
 
