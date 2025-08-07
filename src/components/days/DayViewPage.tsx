@@ -415,14 +415,9 @@ export default function DayViewPage() {
 
   return (
     <PageLayout 
-      title={selectedDay?.name?.ar || 'اليوم'}
-      subtitle={selectedDay?.topic?.ar || ''}
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbs} />
         
         {/* Day Header */}
         <div className="text-center mb-8">
@@ -453,14 +448,25 @@ export default function DayViewPage() {
           </div>
           
           <div className="mb-6">
-            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-3">
-              {selectedDay.name?.ar}
+            <h1 className="text-6xl font-bold text-white mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {selectedDay.name?.[language] || selectedDay.name?.ar}
             </h1>
-            {selectedDay.topic?.ar && (
+            {selectedDay.topic?.[language] && (
               <p className="text-xl text-gray-600 dark:text-gray-400">
-                {selectedDay.topic?.ar}
+                {selectedDay.topic[language]}
               </p>
             )}
+            
+            {/* Day of Week Indicator */}
+            <div className="mt-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full border border-blue-200/50 dark:border-purple-200/50">
+              <DayIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                {language === 'ar' ? 
+                  `اليوم ${parseInt(dayIndex) + 1} من الأسبوع ${selectedWeek.week}` :
+                  `Day ${parseInt(dayIndex) + 1} of Week ${selectedWeek.week}`
+                }
+              </span>
+            </div>
           </div>
         </div>
 
@@ -468,12 +474,15 @@ export default function DayViewPage() {
         <motion.div {...animations.fadeIn} className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              مهام اليوم
+              {language === 'ar' ? 'مهام اليوم' : 'Today\'s Tasks'}
             </h2>
             <div className="flex items-center space-x-2">
               <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {(selectedDay.tasks || []).length} مهام
+                {language === 'ar' ? 
+                  `${(selectedDay.tasks || []).length} مهام` :
+                  `${(selectedDay.tasks || []).length} tasks`
+                }
               </span>
             </div>
           </div>
@@ -493,20 +502,28 @@ export default function DayViewPage() {
               
               return (
                 <Card key={type} className="mb-6">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className={`p-2 rounded-lg ${typeInfo.bgColor}`}>
-                      <TypeIcon className={`w-5 h-5 ${typeInfo.textColor}`} />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-3 rounded-xl ${typeInfo.bgColor} shadow-sm`}>
+                        <TypeIcon className={`w-6 h-6 ${typeInfo.textColor}`} />
+                      </div>
                     </div>
-                    <h3 className={`text-lg font-semibold ${typeInfo.textColor}`}>
-                      {type}
-                    </h3>
+                    <div className="flex items-center space-x-2">
+                      <h3 className={`text-lg font-semibold ${typeInfo.textColor}`}>
+                        {type}
+                      </h3>
+                      <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm rounded-full">
+                        {tasks?.length || 0}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {tasks?.map((task, index) => (
                       <motion.div
                         key={task.id}
                         {...animations.stagger(index * 0.1)}
+                        className="group"
                       >
                         <TaskCard
                           task={task}
@@ -534,22 +551,22 @@ export default function DayViewPage() {
           <Card>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-xl shadow-sm">
                   <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                    المراجع والموارد
+                    {language === 'ar' ? 'المراجع والموارد' : 'Resources & References'}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
-                    موارد مفيدة لليوم
+                    {language === 'ar' ? 'موارد مفيدة لليوم' : 'Useful resources for today'}
                   </p>
                 </div>
               </div>
               <button
                 className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
                 onClick={() => setResourceModal({ isOpen: true, resource: null })}
-                aria-label="إضافة مرجع جديد"
+                aria-label={language === 'ar' ? 'إضافة مرجع جديد' : 'Add new resource'}
               >
                 <Plus className="w-8 h-8" />
               </button>
@@ -567,14 +584,14 @@ export default function DayViewPage() {
                       className="group relative"
                     >
                       {/* Resource Card */}
-                      <div className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-300">
+                      <div className="w-full p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-300">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+                            <div className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700 shadow-sm">
                               <Icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 {resource.title}
                               </h4>
                               {resource.description && (
@@ -619,14 +636,18 @@ export default function DayViewPage() {
               ) : (
                 <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <h4 className="text-lg font-medium mb-2">لا توجد مراجع بعد</h4>
-                  <p className="text-sm mb-4">أضف مراجع مفيدة لليوم</p>
+                  <h4 className="text-lg font-medium mb-2">
+                    {language === 'ar' ? 'لا توجد مراجع بعد' : 'No resources yet'}
+                  </h4>
+                  <p className="text-sm mb-4">
+                    {language === 'ar' ? 'أضف مراجع مفيدة لليوم' : 'Add useful resources for today'}
+                  </p>
                   <Button
                     variant="outline"
                     icon={<Plus className="w-4 h-4" />}
                     onClick={() => setResourceModal({ isOpen: true, resource: null })}
                   >
-                    إضافة أول مرجع
+                    {language === 'ar' ? 'إضافة أول مرجع' : 'Add first resource'}
                   </Button>
                 </div>
               )}
@@ -636,19 +657,30 @@ export default function DayViewPage() {
 
         {/* Notes Section */}
         <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
-              <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <span>الملاحظات ({notes.length})</span>
-            </h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-xl shadow-sm">
+                <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {language === 'ar' ? 'الملاحظات' : 'Notes'}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'ملاحظات مهمة من المهام' : 'Important notes from tasks'}
+                </p>
+              </div>
+            </div>
           </div>
           
           {notes.length === 0 ? (
-            <div className="text-center py-8">
-              <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">لا توجد ملاحظات لهذا اليوم</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                أضف ملاحظات من كروت المهام
+            <div className="text-center py-12">
+              <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-400 opacity-50" />
+              <h4 className="text-lg font-medium mb-2 text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? 'لا توجد ملاحظات لهذا اليوم' : 'No notes for today'}
+              </h4>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                {language === 'ar' ? 'أضف ملاحظات من كروت المهام' : 'Add notes from task cards'}
               </p>
             </div>
           ) : (
@@ -658,23 +690,28 @@ export default function DayViewPage() {
                   key={note.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
+                  className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800 hover:shadow-lg"
                   onClick={() => navigate(`/note/${note.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
                         {note.title}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 break-words overflow-hidden">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4 break-words overflow-hidden">
                         {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{new Date(note.createdAt).toLocaleDateString('en-US')}</span>
+                        <span>{new Date(note.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
                         {note.tags && note.tags.length > 0 && (
                           <div className="flex items-center space-x-1">
                             <Tag className="w-3 h-3" />
-                            <span>{note.tags.length} وسوم</span>
+                            <span>
+                              {language === 'ar' ? 
+                                `${note.tags.length} وسوم` :
+                                `${note.tags.length} tags`
+                              }
+                            </span>
                           </div>
                         )}
                       </div>
@@ -700,17 +737,26 @@ export default function DayViewPage() {
 
         {/* Journal Section */}
         <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
-              <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span>المدونات ({journalEntries.length})</span>
-            </h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-xl shadow-sm">
+                <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {language === 'ar' ? 'المدونات' : 'Journal Entries'}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'تأملات وتجارب اليوم' : 'Today\'s reflections and experiences'}
+                </p>
+              </div>
+            </div>
             <button
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
+              className="w-14 h-14 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
               onClick={() => setJournalModal({ isOpen: true, entry: null })}
-              aria-label="إضافة مدونة جديدة"
+              aria-label={language === 'ar' ? 'إضافة مدونة جديدة' : 'Add new journal entry'}
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-8 h-8" />
             </button>
           </div>
           
@@ -733,9 +779,14 @@ export default function DayViewPage() {
 
           {/* Journal Entries */}
           {journalEntries.length === 0 ? (
-            <div className="text-center py-8">
-              <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-gray-500 dark:text-gray-400">لا توجد مدونات لهذا اليوم</p>
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400 opacity-50" />
+              <h4 className="text-lg font-medium mb-2 text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? 'لا توجد مدونات لهذا اليوم' : 'No journal entries for today'}
+              </h4>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                {language === 'ar' ? 'اكتب تأملاتك وتجاربك اليوم' : 'Write your reflections and experiences'}
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -744,23 +795,28 @@ export default function DayViewPage() {
                   key={entry.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
+                  className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800 hover:shadow-lg"
                   onClick={() => navigate(`/journal-entry/${entry.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
                         {entry.title}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 break-words overflow-hidden">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4 break-words overflow-hidden">
                         {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
+                        <span>{new Date(entry.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
                         {entry.tags && entry.tags.length > 0 && (
                           <div className="flex items-center space-x-1">
                             <Tag className="w-3 h-3" />
-                            <span>{entry.tags.length} وسوم</span>
+                            <span>
+                              {language === 'ar' ? 
+                                `${entry.tags.length} وسوم` :
+                                `${entry.tags.length} tags`
+                              }
+                            </span>
                           </div>
                         )}
                       </div>
