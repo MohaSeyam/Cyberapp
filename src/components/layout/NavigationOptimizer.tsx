@@ -17,16 +17,16 @@ const NavigationOptimizer = React.memo(({ children }: NavigationOptimizerProps) 
     // Preload based on current page
     if (currentPath === '/') {
       // Preload phases page when on home
-      import('../pages/PhasesPage');
+      import('../../pages/PhasesPage');
     } else if (currentPath === '/phases') {
       // Preload progress page when on phases
-      import('../pages/ProgressPage');
+      import('../../pages/ProgressPage');
     } else if (currentPath.startsWith('/phase/')) {
       // Preload days page when on phase
-      import('../components/days/DaysPage');
+      import('../../components/days/DaysPage');
     } else if (currentPath.startsWith('/days/')) {
       // Preload day view when on days
-      import('../components/days/DayViewPage');
+      import('../../components/days/DayViewPage');
     }
   }, [location.pathname]);
 
