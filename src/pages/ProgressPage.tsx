@@ -892,7 +892,8 @@ const EnhancedReportsTab = React.memo(() => {
             
             // Dynamic import for Papa
             const Papa = await import('papaparse').then(module => module.default);
-            const csv = Papa.unparse(csvData);
+            const Papa = await loadLibrary('Papa');
+        const csv = Papa.unparse(csvData);
             blob = new Blob([csv], { type: 'text/csv' });
             fileName += '.csv';
           } catch (csvError) {
@@ -1157,7 +1158,7 @@ export default function ProgressPage() {
           filename = `cyberplan-report-${new Date().toISOString().split('T')[0]}.pdf`;
           break;
         case 'csv':
-          content = generateCSVContent(filteredData, options, language);
+          content = await generateCSVContent(filteredData, options, language);
           filename = `cyberplan-data-${new Date().toISOString().split('T')[0]}.csv`;
           break;
         case 'json':
@@ -1226,7 +1227,8 @@ export default function ProgressPage() {
     return doc.output('blob');
   };
 
-  const generateCSVContent = (data, options, lang) => {
+  const generateCSVContent = async (data, options, lang) => {
+    const Papa = await loadLibrary('Papa');
     const headers = lang === 'ar' ? 
       ['المهمة', 'النوع', 'الحالة', 'التاريخ'] : 
       ['Task', 'Type', 'Status', 'Date'];
