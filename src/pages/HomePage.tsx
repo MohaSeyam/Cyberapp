@@ -1,4 +1,4 @@
-// Enhanced Home Page - Refactored with Components and Hooks
+// Enhanced // Enhanced Home Page - Refactored with Components and Hooks
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -140,4 +140,56 @@ export default function HomePage() {
             >
               <div className={`p-4 rounded-full bg-gray-50 dark:bg-gray-800 mb-4 inline-block`}>
                 {feature.icon === 'Shield' && <Shield className={`w-8 h-8 ${feature.color}`} />}
-                {feature.icon === 'Globe' && <Globe className={`w-8 h-8 ${feature.color}`
+                {feature.icon === 'Globe' && <Globe className={`w-8 h-8 ${feature.color}`} />}
+                {/* The rest of your feature icons would go here... */}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{t(feature.title)}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{t(feature.description)}</p>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  // Main component render
+  return (
+    <ErrorBoundary FallbackComponent={HomeErrorFallback}>
+      <PageLayout title={t('homePageTitle')} description={t('homePageDescription')}>
+        <div className="space-y-12">
+          <HomeHero />
+          <ProgressSection />
+          <HomeStats stats={stats} />
+          <QuickActions actions={quickActions} />
+          <FeaturesSection />
+
+          {/* Call to Action Section */}
+          <motion.div
+            {...animations.fadeIn}
+            transition={{ delay: 0.8 }}
+            className="text-center py-12"
+          >
+            <Card variant="flat" className="bg-gray-50 dark:bg-gray-800/50">
+                <Heart className="w-12 h-12 text-blue-500 mx-auto mb-4"/>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                  {t('ctaTitle')}
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+                  {t('ctaSubtitle')}
+                </p>
+                <Button
+                  size="lg"
+                  variant="primary"
+                  onClick={() => navigate('/register')}
+                  className="shadow-lg"
+                >
+                  <Rocket className="w-5 h-5 mr-2 rtl:ml-2 rtl:mr-0"/>
+                  {t('ctaButton')}
+                </Button>
+            </Card>
+          </motion.div>
+        </div>
+      </PageLayout>
+    </ErrorBoundary>
+  );
+  }Home Pageame={`w-8 h-8 ${feature.color}`
