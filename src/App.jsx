@@ -6,6 +6,23 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import LanguageProvider from './components/layout/LanguageProvider';
 import { ErrorBoundary } from 'react-error-boundary';
 
+// Font size and theme application
+const applyAppSettings = () => {
+  const settings = JSON.parse(localStorage.getItem('app_settings') || '{}');
+  const fontSize = settings.fontSize || 'medium';
+  const compactMode = settings.compactMode || false;
+  
+  // Apply font size
+  document.documentElement.className = document.documentElement.className
+    .replace(/text-size-\w+/g, '')
+    .replace(/compact-mode/g, '');
+  
+  document.documentElement.classList.add(`text-size-${fontSize}`);
+  if (compactMode) {
+    document.documentElement.classList.add('compact-mode');
+  }
+};
+
 function ErrorFallback({ error }) {
   return (
     <div className="p-8 text-center text-red-600 dark:text-red-400">
@@ -40,9 +57,20 @@ function App() {
       setKey(prev => prev + 1);
     };
 
+    const handleSettingsChange = () => {
+      // Apply settings when they change
+      applyAppSettings();
+    };
+
     window.addEventListener('languageChanged', handleLanguageChange);
+    window.addEventListener('settingsChanged', handleSettingsChange);
+    
+    // Apply initial settings
+    applyAppSettings();
+    
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange);
+      window.removeEventListener('settingsChanged', handleSettingsChange);
     };
   }, []);
 

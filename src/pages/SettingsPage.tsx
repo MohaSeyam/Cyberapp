@@ -29,8 +29,28 @@ export default function SettingsPage() {
     try {
       await updateSettings(localSettings);
       setHasChanges(false);
+      
+      // Apply settings immediately
+      const fontSize = localSettings.fontSize || 'medium';
+      const compactMode = localSettings.compactMode || false;
+      
+      // Apply font size
+      document.documentElement.className = document.documentElement.className
+        .replace(/text-size-\w+/g, '')
+        .replace(/compact-mode/g, '');
+      
+      document.documentElement.classList.add(`text-size-${fontSize}`);
+      if (compactMode) {
+        document.documentElement.classList.add('compact-mode');
+      }
+      
+      // Dispatch settings change event
+      window.dispatchEvent(new CustomEvent('settingsChanged'));
+      
+      toast.success(t('settingsSaved'));
     } catch (error) {
       console.error('Error saving settings:', error);
+      toast.error(t('errorSavingSettings'));
     }
   };
 

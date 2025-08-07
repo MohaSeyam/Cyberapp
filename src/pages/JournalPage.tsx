@@ -1,13 +1,11 @@
 // Journal Page - Refactored with Components and Hooks
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
 import { animations } from '../constants/theme';
 import JournalSearchBar from '../components/journal/JournalSearchBar';
 import JournalList from '../components/journal/JournalList';
-import JournalModal from '../components/journal/JournalModal';
 import { useJournal, type JournalEntry, type JournalForm } from '../hooks/useJournal';
 import toast from 'react-hot-toast';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -41,24 +39,13 @@ export default function JournalPage() {
   } = useJournal();
 
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
-  const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as JournalEntry | null });
-  const [journalForm, setJournalForm] = useState<JournalForm>({
-    title: '',
-    content: '',
-    tags: []
-  });
 
   const handleEntryClick = (entryId: number) => {
     window.location.href = `/journal-entry/${entryId}`;
   };
 
   const handleEditEntry = (entry: JournalEntry) => {
-    setJournalForm({
-      title: entry.title,
-      content: entry.content,
-      tags: entry.tags || []
-    });
-    setJournalModal({ isOpen: true, entry });
+    window.location.href = `/journal-entry/${entry.id}/edit`;
   };
 
   const handleDeleteEntryClick = async (entryId: number) => {
@@ -73,45 +60,12 @@ export default function JournalPage() {
     }
   };
 
-  const handleSaveEntryClick = async () => {
-    const success = await handleSaveEntry(journalForm, journalModal.entry);
-    if (success) {
-      toast.success(journalModal.entry ? t('entryUpdated') : t('entrySaved'));
-      setJournalForm({ title: '', content: '', tags: [] });
-      setJournalModal({ isOpen: false, entry: null });
-    } else {
-      toast.error(t('saveError'));
-    }
-  };
 
-  const addTag = (tag: string) => {
-    if (tag.trim() && !journalForm.tags.includes(tag.trim())) {
-      setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag.trim()] }));
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setJournalForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
-  };
 
   return (
     <ErrorBoundary FallbackComponent={JournalErrorFallback}>
       <PageLayout 
         title={t('journal')}
-        headerAction={
-          <motion.button
-            onClick={() => setJournalModal({ isOpen: true, entry: null })}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">{t('addJournalEntry')}</span>
-          </motion.button>
-        }
       >
         <motion.div
           initial="hidden"
@@ -150,7 +104,7 @@ export default function JournalPage() {
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-4">
                     <div className="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800">
-                      <Plus className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                      <span className="w-6 h-6 text-blue-600 dark:text-blue-400">📝</span>
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -228,19 +182,6 @@ export default function JournalPage() {
             </div>
           )}
 
-          {/* Add/Edit Journal Modal */}
-          <JournalModal
-            isOpen={journalModal.isOpen}
-            onClose={() => setJournalModal({ isOpen: false, entry: null })}
-            entry={journalModal.entry}
-            journalForm={journalForm}
-            setJournalForm={setJournalForm}
-            onSave={handleSaveEntryClick}
-            addTag={addTag}
-            removeTag={removeTag}
-            t={t}
-            isSaving={isSaving}
-          />
         </motion.div>
       </PageLayout>
     </ErrorBoundary>

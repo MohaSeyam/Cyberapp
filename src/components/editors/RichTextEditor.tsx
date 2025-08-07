@@ -99,6 +99,25 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
       }
     };
 
+    // إغلاق قائمة واحدة عند فتح أخرى
+    const closeOtherMenus = () => {
+      if (showColorPicker) {
+        setShowFontFamily(false);
+        setShowFontSize(false);
+      }
+      if (showFontFamily) {
+        setShowColorPicker(false);
+        setShowFontSize(false);
+      }
+      if (showFontSize) {
+        setShowColorPicker(false);
+        setShowFontFamily(false);
+      }
+    };
+
+    // تطبيق إغلاق القوائم الأخرى
+    closeOtherMenus();
+
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setShowColorPicker(false);
@@ -115,6 +134,28 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, []);
+
+  // إغلاق القوائم الأخرى عند فتح قائمة جديدة
+  useEffect(() => {
+    if (showColorPicker) {
+      setShowFontFamily(false);
+      setShowFontSize(false);
+    }
+  }, [showColorPicker]);
+
+  useEffect(() => {
+    if (showFontFamily) {
+      setShowColorPicker(false);
+      setShowFontSize(false);
+    }
+  }, [showFontFamily]);
+
+  useEffect(() => {
+    if (showFontSize) {
+      setShowColorPicker(false);
+      setShowFontFamily(false);
+    }
+  }, [showFontSize]);
   
   if (!editor) return null;
   
