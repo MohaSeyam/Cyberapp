@@ -138,7 +138,7 @@ const App = React.memo(() => {
   // Memoized routes for better performance
   const routes = useMemo(() => (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<div style={{color: 'red'}}>Test Render</div>} />
       <Route path="/progress" element={<ProgressPage />} />
       <Route path="/phases" element={<PhasesPage />} />
       <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
@@ -164,7 +164,7 @@ const App = React.memo(() => {
               <Router>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
-                    <Route path="/" element={<HomePage />} />
+                    <Route path="/" element={<div style={{color: 'red'}}>Test Render</div>} />
                     <Route path="/progress" element={<ProgressPage />} />
                     <Route path="/phases" element={<PhasesPage />} />
                     <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
