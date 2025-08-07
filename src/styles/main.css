@@ -81,3 +81,291 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: rgb(107 114 128);
 }
+
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
+
+/* Optimize animations */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+  will-change: opacity;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Optimize transitions */
+.transition-all {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Optimize scroll performance */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimize images */
+img {
+  max-width: 100%;
+  height: auto;
+  will-change: transform;
+}
+
+/* Optimize loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Optimize focus states */
+.focus-visible:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Optimize dark mode transitions */
+.dark {
+  color-scheme: dark;
+}
+
+/* Optimize font loading */
+@font-face {
+  font-family: 'Cairo';
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+}
+
+/* Optimize layout shifts */
+.layout-stable {
+  contain: layout style paint;
+}
+
+/* Optimize hover states */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Optimize button interactions */
+.btn-optimized {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-optimized::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.btn-optimized:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Optimize card interactions */
+.card-optimized {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  will-change: transform, box-shadow;
+}
+
+.card-optimized:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Optimize navigation */
+.nav-optimized {
+  contain: layout style;
+}
+
+/* Optimize modal animations */
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.modal-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.modal-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Optimize toast notifications */
+.toast-optimized {
+  will-change: transform, opacity;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.toast-optimized.show {
+  transform: translateX(0);
+}
+
+/* Optimize progress bars */
+.progress-optimized {
+  will-change: width;
+  transition: width 0.3s ease;
+}
+
+/* Optimize skeleton loading */
+.skeleton-optimized {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Optimize responsive images */
+.responsive-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Optimize text rendering */
+.text-optimized {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimize list rendering */
+.list-optimized {
+  contain: layout style;
+}
+
+.list-item-optimized {
+  contain: layout style;
+  will-change: transform;
+}
+
+/* Optimize form interactions */
+.form-optimized input,
+.form-optimized textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-optimized input:focus,
+.form-optimized textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Optimize table rendering */
+.table-optimized {
+  contain: layout style;
+}
+
+.table-optimized th,
+.table-optimized td {
+  contain: layout style;
+}
+
+/* Optimize chart animations */
+.chart-optimized {
+  will-change: transform;
+}
+
+.chart-optimized canvas {
+  will-change: transform;
+}
+
+/* Optimize mobile performance */
+@media (max-width: 768px) {
+  .mobile-optimized {
+    contain: layout style paint;
+  }
+  
+  .mobile-optimized * {
+    contain: layout style;
+  }
+}
+
+/* Optimize print styles */
+@media print {
+  .print-optimized {
+    contain: layout style;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Optimize accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Optimize high contrast mode */
+@media (prefers-contrast: high) {
+  .high-contrast-optimized {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Optimize dark mode performance */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-optimized {
+    color-scheme: dark;
+  }
+}

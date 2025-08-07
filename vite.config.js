@@ -4,7 +4,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // تحسين JSX
+      jsxRuntime: 'automatic',
+    }),
     // VitePWA({
     //   registerType: 'autoUpdate',
     //   manifest: {
@@ -91,8 +94,13 @@ export default defineConfig({
   ],
   publicDir: 'public',
   build: {
+    // تحسين الأداء
+    target: 'esnext',
+    minify: 'terser',
+    sourcemap: false,
     rollupOptions: {
       output: {
+        // تحسين chunk splitting
         manualChunks: {
           // فصل مكتبات React
           'react-vendor': ['react', 'react-dom'],
@@ -106,19 +114,42 @@ export default defineConfig({
           'db-vendor': ['dexie'],
           // فصل مكتبات الترجمة
           'i18n-vendor': ['i18next', 'react-i18next'],
+          // فصل مكتبات الأيقونات
+          'icons-vendor': ['lucide-react'],
+          // فصل مكتبات التوجيه
+          'router-vendor': ['react-router-dom'],
+          // فصل مكتبات الإشعارات
+          'toast-vendor': ['react-hot-toast'],
         },
+        // تحسين أسماء الملفات
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+      // تحسين tree shaking
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        unknownGlobalSideEffects: false,
       },
     },
     // تحسين حجم الحزمة
     chunkSizeWarningLimit: 1000,
     // تمكين ضغط الملفات
-    minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: true,
         drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 2,
+      },
+      mangle: {
+        toplevel: true,
       },
     },
+    // تحسين CSS
+    cssCodeSplit: true,
+    cssMinify: true,
   },
   // تحسين الأداء في التطوير
   optimizeDeps: {
@@ -131,6 +162,14 @@ export default defineConfig({
       'dexie',
       'chart.js',
       'react-chartjs-2',
+      'react-hot-toast',
+      'i18next',
+      'react-i18next',
+    ],
+    exclude: [
+      // استبعاد الملفات الكبيرة من pre-bundling
+      'jspdf',
+      'html2canvas',
     ],
   },
   // تحسين سرعة التطوير
@@ -138,5 +177,20 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
+    // تحسين caching
+    headers: {
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
+  },
+  // تحسين الأداء العام
+  esbuild: {
+    target: 'esnext',
+    supported: {
+      'top-level-await': true,
+    },
+  },
+  // تحسين CSS
+  css: {
+    devSourcemap: false,
   },
 });

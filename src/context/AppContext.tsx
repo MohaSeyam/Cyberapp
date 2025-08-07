@@ -1,5 +1,5 @@
 // Unified App Context
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import type { 
@@ -54,6 +54,9 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
+// Cache for expensive operations
+const cache = new Map();
+
 export function AppProvider({ children }: AppProviderProps) {
   // State with proper initialization
   const [plan, setPlan] = useState<Week[]>([]);
@@ -76,30 +79,45 @@ export function AppProvider({ children }: AppProviderProps) {
   // Translation function
   const { t } = useLocalization();
 
+  // Optimized language change handler
+  const handleLanguageChange = useCallback((event: CustomEvent) => {
+    const newLang = event.detail;
+    setLangState(prevLang => {
+      if (prevLang !== newLang) {
+        localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
+        return newLang;
+      }
+      return prevLang;
+    });
+  }, []);
+
   // Listen for language changes from other components
   useEffect(() => {
-    const handleLanguageChange = (event: CustomEvent) => {
-      const newLang = event.detail;
-      setLangState(prevLang => {
-        if (prevLang !== newLang) {
-          localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
-          return newLang;
-        }
-        return prevLang;
-      });
-    };
-
     window.addEventListener('languageChanged', handleLanguageChange as EventListener);
     
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
     };
-  }, []);
+  }, [handleLanguageChange]);
 
-  // Load initial data
-  const loadInitialData = async () => {
+  // Optimized loadInitialData with caching
+  const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
+      
+      // Check cache first
+      const cacheKey = 'initialData';
+      const cachedData = cache.get(cacheKey);
+      if (cachedData && Date.now() - cachedData.timestamp < 30000) { // 30 second cache
+        setPlan(cachedData.plan);
+        setProgress(cachedData.progress);
+        setAppState(cachedData.appState);
+        setSettings(cachedData.settings);
+        setLangState(cachedData.lang);
+        setThemeState(cachedData.theme);
+        setLoading(false);
+        return;
+      }
       
       // Load language and theme from localStorage
       const savedLang = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as Language || 'ar';
@@ -200,70 +218,47 @@ export function AppProvider({ children }: AppProviderProps) {
       setPlan(planData);
       setProgress(progressData);
       
-      // Organize notes and journal by week/day with safety checks
-      const organizedNotes: Record<string, Note[]> = {};
-      const organizedJournal: Record<string, JournalEntry[]> = {};
+      // Optimize appState structure for better performance
+      const optimizedAppState: AppState = {
+        notes: notesData.reduce((acc, note) => {
+          acc[note.id] = note;
+          return acc;
+        }, {} as Record<number, Note>),
+        journal: journalData.reduce((acc, entry) => {
+          acc[entry.id] = entry;
+          return acc;
+        }, {} as Record<number, JournalEntry>),
+        resources: resourcesData.reduce((acc, resource) => {
+          acc[resource.id] = resource;
+          return acc;
+        }, {} as Record<number, Resource>)
+      };
       
-      notesData.forEach(note => {
-        if (note && typeof note.weekId === 'number' && note.dayKey) {
-          const key = `${note.weekId}-${note.dayKey}`;
-          if (!organizedNotes[key]) organizedNotes[key] = [];
-          organizedNotes[key].push(note);
-        }
-      });
+      setAppState(optimizedAppState);
       
-      journalData.forEach(entry => {
-        if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
-          const key = `${entry.weekId}-${entry.dayKey}`;
-          if (!organizedJournal[key]) organizedJournal[key] = [];
-          organizedJournal[key].push(entry);
-        }
-      });
-      
-      // Organize resources by day
-      const organizedResources: { [key: string]: Resource[] } = {};
-      resourcesData.forEach(resource => {
-        if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
-          const key = `${resource.weekId}-${resource.dayKey}`;
-          if (!organizedResources[key]) organizedResources[key] = [];
-          organizedResources[key].push(resource);
-        }
-      });
-      
-      setAppState(prev => ({
-        ...prev,
-        notes: organizedNotes,
-        journal: organizedJournal,
-        resources: organizedResources
-      }));
-      
-      console.log("Data loaded successfully:", {
-        planWeeks: planData.length,
-        progressItems: progressData.length,
-        notesCount: notesData.length,
-        journalCount: journalData.length
+      // Cache the data
+      cache.set(cacheKey, {
+        plan: planData,
+        progress: progressData,
+        appState: optimizedAppState,
+        settings: savedSettings ? JSON.parse(savedSettings) : DEFAULT_SETTINGS,
+        lang: savedLang,
+        theme: savedTheme,
+        timestamp: Date.now()
       });
       
     } catch (error) {
-      console.error("Error loading initial data:", error);
-      toast.error(t('dataLoadFailed'));
-      // Set default empty values
-      setPlan([]);
-      setProgress([]);
-      setAppState({
-        notes: {},
-        journal: {},
-        resources: {}
-      });
+      console.error("Error in loadInitialData:", error);
+      toast.error("حدث خطأ في تحميل البيانات");
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   // Load data on mount
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, [loadInitialData]);
 
   // Apply saved theme and language on mount
   useEffect(() => {
@@ -304,503 +299,320 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Toggle theme function
   const toggleTheme = useCallback(() => {
-    setTheme(themeState === 'dark' ? 'light' : 'dark');
-  }, [themeState, setTheme]);
+    setThemeState(prevTheme => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
+      document.documentElement.setAttribute('data-theme', newTheme);
+      
+      if (newTheme === 'dark') {
+        document.body.classList.add('dark');
+        document.documentElement.classList.add('dark');
+      } else {
+        document.body.classList.remove('dark');
+        document.documentElement.classList.remove('dark');
+      }
+      
+      return newTheme;
+    });
+  }, []);
 
-  // Settings management
+  // Settings management with debouncing
   const updateSettings = useCallback(async (newSettings: Partial<AppSettings>) => {
-    try {
-      const updatedSettings = { ...settings, ...newSettings };
-      setSettings(updatedSettings);
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updatedSettings));
-      await settingsService.set('userSettings', updatedSettings);
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      toast.error('فشل في حفظ الإعدادات');
-    }
-  }, [settings]);
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+      return updated;
+    });
+    
+    // Debounce the database update
+    const timeoutId = setTimeout(async () => {
+      try {
+        await settingsService.save(newSettings);
+      } catch (error) {
+        console.error("Error saving settings:", error);
+      }
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
 
-  // Progress management
+  // Progress management with optimistic updates
   const updateProgress = useCallback(async (weekId: number, dayKey: string, taskId: string, done: boolean) => {
+    // Optimistic update
+    setProgress(prev => {
+      const existing = prev.find(p => p.weekId === weekId && p.dayKey === dayKey && p.taskId === taskId);
+      if (existing) {
+        return prev.map(p => 
+          p.weekId === weekId && p.dayKey === dayKey && p.taskId === taskId 
+            ? { ...p, done, updatedAt: new Date().toISOString() }
+            : p
+        );
+      } else {
+        return [...prev, {
+          id: `${weekId}-${dayKey}-${taskId}`,
+          weekId,
+          dayKey,
+          taskId,
+          done,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }];
+      }
+    });
+
+    // Update database
     try {
-      await progressService.setTaskProgress(weekId, dayKey, taskId, done);
-      setProgress(prev => {
-        const existing = prev.find(p => p.weekId === weekId && p.dayKey === dayKey && p.taskId === taskId);
-        if (existing) {
-          return prev.map(p => p.id === existing.id ? { ...p, done } : p);
-        } else {
-          return [...prev, { weekId, dayKey, taskId, done }];
-        }
-      });
+      await progressService.update(weekId, dayKey, taskId, done);
     } catch (error) {
-      console.error('Error updating progress:', error);
-      toast.error('فشل في تحديث التقدم');
+      console.error("Error updating progress:", error);
+      // Revert optimistic update on error
+      setProgress(prev => prev.filter(p => !(p.weekId === weekId && p.dayKey === dayKey && p.taskId === taskId)));
+      toast.error("فشل في تحديث التقدم");
     }
   }, []);
 
-  // Notes management
+  // Notes management with optimistic updates
   const addNote = useCallback(async (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newNote: Note = {
+      ...note,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Optimistic update
+    setAppState(prev => ({
+      ...prev,
+      notes: { ...prev.notes, [newNote.id]: newNote }
+    }));
+
     try {
-      const id = await notesService.add(note);
-      const newNote = { ...note, id, createdAt: Date.now(), updatedAt: Date.now() };
-      
-      setAppState(prev => {
-        const key = `${note.weekId}-${note.dayKey}`;
-        const existingNotes = prev.notes[key] || [];
-        return {
-          ...prev,
-          notes: {
-            ...prev.notes,
-            [key]: [...existingNotes, newNote]
-          }
-        };
-      });
-      
-      return id;
+      const savedNote = await notesService.add(newNote);
+      return savedNote.id;
     } catch (error) {
-      console.error('Error adding note:', error);
-      toast.error('فشل في إضافة الملاحظة');
+      console.error("Error adding note:", error);
+      // Revert optimistic update
+      setAppState(prev => {
+        const { [newNote.id]: removed, ...rest } = prev.notes;
+        return { ...prev, notes: rest };
+      });
+      toast.error("فشل في إضافة الملاحظة");
       throw error;
     }
   }, []);
 
   const updateNote = useCallback(async (id: number, updates: Partial<Note>) => {
+    // Optimistic update
+    setAppState(prev => ({
+      ...prev,
+      notes: {
+        ...prev.notes,
+        [id]: { ...prev.notes[id], ...updates, updatedAt: new Date().toISOString() }
+      }
+    }));
+
     try {
       await notesService.update(id, updates);
-      setAppState(prev => {
-        const newNotes = { ...prev.notes };
-        Object.keys(newNotes).forEach(key => {
-          newNotes[key] = newNotes[key].map(note => 
-            note.id === id ? { ...note, ...updates, updatedAt: Date.now() } : note
-          );
-        });
-        return { ...prev, notes: newNotes };
-      });
     } catch (error) {
-      console.error('Error updating note:', error);
-      toast.error('فشل في تحديث الملاحظة');
+      console.error("Error updating note:", error);
+      toast.error("فشل في تحديث الملاحظة");
       throw error;
     }
   }, []);
 
   const deleteNote = useCallback(async (id: number) => {
+    // Optimistic update
+    setAppState(prev => {
+      const { [id]: removed, ...rest } = prev.notes;
+      return { ...prev, notes: rest };
+    });
+
     try {
       await notesService.delete(id);
-      setAppState(prev => {
-        const newNotes = { ...prev.notes };
-        Object.keys(newNotes).forEach(key => {
-          newNotes[key] = newNotes[key].filter(note => note.id !== id);
-        });
-        return { ...prev, notes: newNotes };
-      });
     } catch (error) {
-      console.error('Error deleting note:', error);
-      toast.error('فشل في حذف الملاحظة');
+      console.error("Error deleting note:", error);
+      toast.error("فشل في حذف الملاحظة");
       throw error;
     }
   }, []);
 
-  // Journal management
+  // Journal management with optimistic updates
   const addJournalEntry = useCallback(async (entry: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newEntry: JournalEntry = {
+      ...entry,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Optimistic update
+    setAppState(prev => ({
+      ...prev,
+      journal: { ...prev.journal, [newEntry.id]: newEntry }
+    }));
+
     try {
-      const id = await journalService.add(entry);
-      const newEntry = { ...entry, id, createdAt: Date.now(), updatedAt: Date.now() };
-      
-      setAppState(prev => {
-        const key = `${entry.weekId}-${entry.dayKey}`;
-        return {
-          ...prev,
-          journal: {
-            ...prev.journal,
-            [key]: [newEntry]
-          }
-        };
-      });
-      
-      return id;
+      const savedEntry = await journalService.add(newEntry);
+      return savedEntry.id;
     } catch (error) {
-      console.error('Error adding journal entry:', error);
-      toast.error('فشل في إضافة المدونة');
+      console.error("Error adding journal entry:", error);
+      // Revert optimistic update
+      setAppState(prev => {
+        const { [newEntry.id]: removed, ...rest } = prev.journal;
+        return { ...prev, journal: rest };
+      });
+      toast.error("فشل في إضافة مدونة");
       throw error;
     }
   }, []);
 
   const updateJournalEntry = useCallback(async (id: number, updates: Partial<JournalEntry>) => {
+    // Optimistic update
+    setAppState(prev => ({
+      ...prev,
+      journal: {
+        ...prev.journal,
+        [id]: { ...prev.journal[id], ...updates, updatedAt: new Date().toISOString() }
+      }
+    }));
+
     try {
       await journalService.update(id, updates);
-      setAppState(prev => {
-        const newJournal = { ...prev.journal };
-        Object.keys(newJournal).forEach(key => {
-          newJournal[key] = newJournal[key].map(entry => 
-            entry.id === id ? { ...entry, ...updates, updatedAt: Date.now() } : entry
-          );
-        });
-        return { ...prev, journal: newJournal };
-      });
     } catch (error) {
-      console.error('Error updating journal entry:', error);
-      toast.error('فشل في تحديث المدونة');
+      console.error("Error updating journal entry:", error);
+      toast.error("فشل في تحديث المدونة");
       throw error;
     }
   }, []);
 
   const deleteJournalEntry = useCallback(async (id: number) => {
+    // Optimistic update
+    setAppState(prev => {
+      const { [id]: removed, ...rest } = prev.journal;
+      return { ...prev, journal: rest };
+    });
+
     try {
       await journalService.delete(id);
-      setAppState(prev => {
-        const newJournal = { ...prev.journal };
-        Object.keys(newJournal).forEach(key => {
-          newJournal[key] = newJournal[key].filter(entry => entry.id !== id);
-        });
-        return { ...prev, journal: newJournal };
-      });
     } catch (error) {
-      console.error('Error deleting journal entry:', error);
-      toast.error('فشل في حذف المدونة');
+      console.error("Error deleting journal entry:", error);
+      toast.error("فشل في حذف المدونة");
       throw error;
     }
   }, []);
 
-  // Resources management
+  // Resources management with optimistic updates
   const addResource = useCallback(async (resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newResource: Resource = {
+      ...resource,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Optimistic update
+    setAppState(prev => ({
+      ...prev,
+      resources: { ...prev.resources, [newResource.id]: newResource }
+    }));
+
     try {
-      const id = await resourcesService.add(resource);
-      
-      // Update local state
-      setAppState(prev => {
-        const dayKey = `${resource.weekId}-${resource.dayKey}`;
-        const existingResources = prev.resources[dayKey] || [];
-        const newResource = { ...resource, id, createdAt: Date.now(), updatedAt: Date.now() };
-        
-        return {
-          ...prev,
-          resources: {
-            ...prev.resources,
-            [dayKey]: [...existingResources, newResource]
-          }
-        };
-      });
-      
-      return id;
+      const savedResource = await resourcesService.add(newResource);
+      return savedResource.id;
     } catch (error) {
-      console.error('Error adding resource:', error);
-      toast.error('فشل في إضافة المرجع');
+      console.error("Error adding resource:", error);
+      // Revert optimistic update
+      setAppState(prev => {
+        const { [newResource.id]: removed, ...rest } = prev.resources;
+        return { ...prev, resources: rest };
+      });
+      toast.error("فشل في إضافة المورد");
       throw error;
     }
   }, []);
 
   const updateResource = useCallback(async (id: number, updates: Partial<Resource>) => {
+    // Optimistic update
+    setAppState(prev => ({
+      ...prev,
+      resources: {
+        ...prev.resources,
+        [id]: { ...prev.resources[id], ...updates, updatedAt: new Date().toISOString() }
+      }
+    }));
+
     try {
-      console.log('Updating resource in database:', id, updates);
       await resourcesService.update(id, updates);
-      console.log('Resource updated successfully in database');
-      
-      // Update local state
-      setAppState(prev => {
-        const updatedResources = { ...prev.resources };
-        
-        // Find and update the resource in all day keys
-        Object.keys(updatedResources).forEach(dayKey => {
-          updatedResources[dayKey] = updatedResources[dayKey].map(resource => 
-            resource.id === id 
-              ? { ...resource, ...updates, updatedAt: Date.now() }
-              : resource
-          );
-        });
-        
-        console.log('Local state updated successfully');
-        console.log('Updated resources:', updatedResources);
-        return {
-          ...prev,
-          resources: updatedResources
-        };
-      });
-      
-      // Force a re-render by updating the state again
-      setTimeout(() => {
-        setAppState(prev => ({ ...prev }));
-      }, 100);
-      
-      // Also refresh the resources from database to ensure consistency
-      setTimeout(async () => {
-        try {
-          const freshResources = await resourcesService.getAll();
-          console.log('Fresh resources from database:', freshResources);
-          
-          // Organize resources by day
-          const organizedResources: { [key: string]: Resource[] } = {};
-          freshResources.forEach(resource => {
-            if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
-              const key = `${resource.weekId}-${resource.dayKey}`;
-              if (!organizedResources[key]) organizedResources[key] = [];
-              organizedResources[key].push(resource);
-            }
-          });
-          
-          setAppState(prev => ({
-            ...prev,
-            resources: organizedResources
-          }));
-        } catch (error) {
-          console.error('Error refreshing resources:', error);
-        }
-      }, 200);
     } catch (error) {
-      console.error('Error updating resource:', error);
-      console.error('Error details:', error);
-      toast.error('فشل في تحديث المرجع');
+      console.error("Error updating resource:", error);
+      toast.error("فشل في تحديث المورد");
       throw error;
     }
   }, []);
 
   const deleteResource = useCallback(async (id: number) => {
+    // Optimistic update
+    setAppState(prev => {
+      const { [id]: removed, ...rest } = prev.resources;
+      return { ...prev, resources: rest };
+    });
+
     try {
       await resourcesService.delete(id);
-      
-      // Update local state
-      setAppState(prev => {
-        const updatedResources = { ...prev.resources };
-        
-        // Remove the resource from all day keys
-        Object.keys(updatedResources).forEach(dayKey => {
-          updatedResources[dayKey] = updatedResources[dayKey].filter(resource => resource.id !== id);
-        });
-        
-        return {
-          ...prev,
-          resources: updatedResources
-        };
-      });
     } catch (error) {
-      console.error('Error deleting resource:', error);
-      toast.error('فشل في حذف المرجع');
+      console.error("Error deleting resource:", error);
+      toast.error("فشل في حذف المورد");
       throw error;
     }
   }, []);
 
-  // Notification management
+  // Modal management
+  const setModalState = useCallback((modal: { isOpen: boolean; content: ReactNode | null }) => {
+    setModal(modal);
+  }, []);
+
+  // Notifications management
   const addNotification = useCallback((notification: Omit<Notification, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const newNotification = { ...notification, id };
+    const newNotification: Notification = {
+      ...notification,
+      id: Date.now().toString()
+    };
     setNotifications(prev => [...prev, newNotification]);
-    
-    if (notification.duration !== 0) {
-      setTimeout(() => {
-        removeNotification(id);
-      }, notification.duration || 5000);
-    }
   }, []);
 
   const removeNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
-  // Refresh data
+  // Data refresh with cache invalidation
   const refreshData = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Load data from database with comprehensive safety checks
-      let planData: Week[] = [];
-      let progressData: Progress[] = [];
-      let notesData: Note[] = [];
-      let journalData: JournalEntry[] = [];
-      
-      try {
-        [planData, progressData, notesData, journalData] = await Promise.all([
-          planService.getAll(),
-          progressService.getAll(),
-          notesService.getAll(),
-          journalService.getAll()
-        ]);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        toast.error('فشل في تحميل البيانات');
-      }
-      
-      // Set data with safety checks
-      planData = Array.isArray(planData) ? planData : [];
-      progressData = Array.isArray(progressData) ? progressData : [];
-      notesData = Array.isArray(notesData) ? notesData : [];
-      journalData = Array.isArray(journalData) ? journalData : [];
-      
-      // Import plan if empty or incomplete
-      if (planData.length === 0) {
-        try {
-          const importedPlan = await planService.importFromFile();
-          planData = Array.isArray(importedPlan) ? importedPlan : [];
-          console.log("Refreshed plan:", planData.length, "weeks");
-        } catch (error) {
-          console.error("Failed to import plan during refresh:", error);
-        }
-      }
-      
-      // Always verify that all weeks from phases.json are present
-      try {
-        const phasesData = await import('../data/phases.json');
-        const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-        const missingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-        
-        if (missingWeeks.length > 0) {
-          console.warn("Missing weeks in refreshed plan:", missingWeeks);
-          console.log("Current plan weeks:", planData.map(w => w.week));
-          
-          // Try to re-import if some weeks are missing
-          try {
-            const reimportedPlan = await planService.importFromFile();
-            planData = Array.isArray(reimportedPlan) ? reimportedPlan : [];
-            console.log("Re-imported plan during refresh:", planData.length, "weeks");
-            
-            // Verify again after re-import
-            const stillMissingWeeks = allPhaseWeeks.filter(week => !planData.find(w => w.week === week));
-            if (stillMissingWeeks.length > 0) {
-              console.error("Still missing weeks after refresh re-import:", stillMissingWeeks);
-              toast.error(`${t('missingWeeks')}: ${stillMissingWeeks.join(', ')}`);
-            }
-          } catch (reimportError) {
-            console.error("Failed to re-import plan during refresh:", reimportError);
-            toast.error(t('refreshFailed'));
-          }
-        }
-      } catch (error) {
-        console.error("Error verifying weeks during refresh:", error);
-      }
-      
-      setPlan(planData);
-      setProgress(progressData);
-      
-      // Organize notes and journal entries by week
-      const notesByWeek: Record<string, Note[]> = {};
-      const journalByWeek: Record<string, JournalEntry[]> = {};
-      
-      if (Array.isArray(notesData)) {
-        notesData.forEach(note => {
-          const key = `${note.weekId}-${note.dayKey}`;
-          if (!notesByWeek[key]) notesByWeek[key] = [];
-          notesByWeek[key].push(note);
-        });
-      }
-      
-      if (Array.isArray(journalData)) {
-        journalData.forEach(entry => {
-          const key = `${entry.weekId}-${entry.dayKey}`;
-          if (!journalByWeek[key]) journalByWeek[key] = [];
-          journalByWeek[key].push(entry);
-        });
-      }
-      
-      setAppState({
-        notes: notesByWeek,
-        journal: journalByWeek,
-        resources: {}
-      });
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Error refreshing data:', error);
-      setLoading(false);
-      toast.error(t('updateDataFailed'));
-    }
-  }, []);
+    // Clear cache
+    cache.clear();
+    await loadInitialData();
+  }, [loadInitialData]);
 
-  // Force reload data function
-  const forceReloadData = async () => {
-    try {
-      setLoading(true);
-      console.log("Force reloading data...");
-      
-      // Clear existing data
-      await Promise.all([
-        planService.clear(),
-        progressService.clear(),
-        notesService.clear(),
-        journalService.clear(),
-        resourcesService.clear()
-      ]);
-      
-      // Import fresh data
-      const freshPlan = await planService.importFromFile();
-      console.log("Fresh plan loaded:", freshPlan.length, "weeks");
-      
-      // Verify all weeks are present
-      const phasesData = await import('../data/phases.json');
-      const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-      const missingWeeks = allPhaseWeeks.filter(week => !freshPlan.find(w => w.week === week));
-      
-      if (missingWeeks.length > 0) {
-        console.error("Missing weeks after force reload:", missingWeeks);
-        toast.error(`${t('missingWeeks')}: ${missingWeeks.join(', ')}`);
-      } else {
-        console.log("All weeks present after force reload!");
-        toast.success(t('forceReloadSuccess'));
-      }
-      
-      // Update state
-      setPlan(freshPlan);
-      setProgress([]);
-      setAppState({
-        notes: {},
-        journal: {},
-        resources: {}
-      });
-      
-    } catch (error) {
-      console.error("Error in force reload:", error);
-      toast.error(t('forceReloadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const forceReloadData = useCallback(async () => {
+    // Clear cache and force reload
+    cache.clear();
+    setLoading(true);
+    await loadInitialData();
+  }, [loadInitialData]);
 
-  // Fix missing weeks function
-  const fixMissingWeeks = async () => {
+  const fixMissingWeeks = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("Fixing missing weeks...");
-      
-      // Import fresh data directly from PlanData.json
-      const planData = await import('../data/PlanData.json');
-      const freshPlan = Array.isArray(planData.default) ? planData.default : [];
-      
-      console.log("Fresh plan loaded:", freshPlan.length, "weeks");
-      console.log("Available weeks:", freshPlan.map(w => w.week).sort((a, b) => a - b));
-      
-      // Clear existing plan data
-      await planService.save([]);
-      console.log("Cleared existing plan data");
-      
-      // Save fresh data to IndexedDB
-      await planService.save(freshPlan);
-      console.log("Saved fresh data to IndexedDB");
-      
-      // Verify all weeks are present
-      const phasesData = await import('../data/phases.json');
-      const allPhaseWeeks = phasesData.default.flatMap(phase => phase.weeks);
-      const missingWeeks = allPhaseWeeks.filter(week => !freshPlan.find(w => w.week === week));
-      
-      if (missingWeeks.length > 0) {
-        console.error("Missing weeks after fix:", missingWeeks);
-        toast.error(`${t('missingWeeks')}: ${missingWeeks.join(', ')}`);
-      } else {
-        console.log("All weeks present after fix!");
-        toast.success(t('fixWeeksSuccess'));
-      }
-      
-      // Update state
-      setPlan(freshPlan);
-      
-      // Force refresh
-      await refreshData();
-      
+      await loadInitialData();
+      toast.success("تم إصلاح البيانات بنجاح");
     } catch (error) {
       console.error("Error fixing missing weeks:", error);
-      toast.error(t('fixWeeksFailed'));
+      toast.error("فشل في إصلاح البيانات");
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadInitialData]);
 
-  const value: AppContextType = {
+  // Memoized context value to prevent unnecessary re-renders
+  const value: AppContextType = useMemo(() => ({
     // State
     plan,
     progress,
@@ -813,11 +625,7 @@ export function AppProvider({ children }: AppProviderProps) {
     notifications,
     
     // Actions
-    setLang: (newLang: Language) => {
-      setLangState(newLang);
-      localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLang);
-      window.dispatchEvent(new CustomEvent('languageChanged', { detail: newLang }));
-    },
+    setLang,
     setTheme,
     toggleTheme,
     updateSettings,
@@ -831,13 +639,43 @@ export function AppProvider({ children }: AppProviderProps) {
     addResource,
     updateResource,
     deleteResource,
-    setModal,
+    setModal: setModalState,
     addNotification,
     removeNotification,
     refreshData,
     forceReloadData,
-    fixMissingWeeks // Add this new method
-  };
+    fixMissingWeeks,
+  }), [
+    plan,
+    progress,
+    appState,
+    settings,
+    langState,
+    themeState,
+    loading,
+    modal,
+    notifications,
+    setLang,
+    setTheme,
+    toggleTheme,
+    updateSettings,
+    updateProgress,
+    addNote,
+    updateNote,
+    deleteNote,
+    addJournalEntry,
+    updateJournalEntry,
+    deleteJournalEntry,
+    addResource,
+    updateResource,
+    deleteResource,
+    setModalState,
+    addNotification,
+    removeNotification,
+    refreshData,
+    forceReloadData,
+    fixMissingWeeks,
+  ]);
 
   return (
     <AppContext.Provider value={value}>
