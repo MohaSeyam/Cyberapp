@@ -46,23 +46,23 @@ interface RichTextEditorProps {
   saveStatus?: 'saving' | 'saved' | 'error';
 }
 
-// Font Families
+// Font Families - تحسين الخطوط العربية
 const fontFamilies = [
+  { name: 'Cairo', value: 'Cairo, sans-serif' },
+  { name: 'Amiri', value: 'Amiri, serif' },
+  { name: 'Noto Naskh Arabic', value: 'Noto Naskh Arabic, serif' },
+  { name: 'Scheherazade New', value: 'Scheherazade New, serif' },
+  { name: 'IBM Plex Sans Arabic', value: 'IBM Plex Sans Arabic, sans-serif' },
+  { name: 'Readex Pro', value: 'Readex Pro, sans-serif' },
   { name: 'Arial', value: 'Arial, sans-serif' },
   { name: 'Times New Roman', value: 'Times New Roman, serif' },
   { name: 'Courier New', value: 'Courier New, monospace' },
   { name: 'Georgia', value: 'Georgia, serif' },
   { name: 'Verdana', value: 'Verdana, sans-serif' },
-  { name: 'Tahoma', value: 'Tahoma, sans-serif' },
-  { name: 'Cairo', value: 'Cairo, sans-serif' },
-  { name: 'Amiri', value: 'Amiri, serif' },
-  { name: 'Noto Naskh Arabic', value: 'Noto Naskh Arabic, serif' },
-  { name: 'Scheherazade New', value: 'Scheherazade New, serif' },
-  { name: 'Readex Pro', value: 'Readex Pro, sans-serif' },
-  { name: 'IBM Plex Sans Arabic', value: 'IBM Plex Sans Arabic, sans-serif' }
+  { name: 'Tahoma', value: 'Tahoma, sans-serif' }
 ];
 
-// Font Sizes
+// Font Sizes - تحسين أحجام الخطوط
 const fontSizes = [
   { name: 'صغير جداً', value: '12px' },
   { name: 'صغير', value: '14px' },
@@ -71,7 +71,9 @@ const fontSizes = [
   { name: 'كبير', value: '20px' },
   { name: 'كبير جداً', value: '24px' },
   { name: 'عنوان', value: '28px' },
-  { name: 'عنوان رئيسي', value: '32px' }
+  { name: 'عنوان رئيسي', value: '32px' },
+  { name: 'عنوان كبير', value: '36px' },
+  { name: 'عنوان ضخم', value: '48px' }
 ];
 
 // Colors
@@ -222,14 +224,36 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
   };
 
   const setFontFamily = (fontFamily: string) => {
-    editor.chain().focus().setFontFamily(fontFamily).run();
+    // استخدام CSS مباشرة لتغيير الخط
+    editor.chain().focus().run(({ commands }) => {
+      // تطبيق الخط على النص المحدد أو النص الحالي
+      const { from, to } = editor.state.selection;
+      if (from !== to) {
+        // تطبيق على النص المحدد
+        editor.chain().focus().setMark('textStyle', { fontFamily }).run();
+      } else {
+        // تطبيق على النص الجديد
+        editor.chain().focus().setMark('textStyle', { fontFamily }).run();
+      }
+    });
     setShowFontFamily(false);
     // Force editor update
     editor.commands.focus();
   };
 
   const setFontSize = (fontSize: string) => {
-    editor.chain().focus().setFontSize(fontSize).run();
+    // استخدام CSS مباشرة لتغيير حجم الخط
+    editor.chain().focus().run(({ commands }) => {
+      // تطبيق حجم الخط على النص المحدد أو النص الحالي
+      const { from, to } = editor.state.selection;
+      if (from !== to) {
+        // تطبيق على النص المحدد
+        editor.chain().focus().setMark('textStyle', { fontSize }).run();
+      } else {
+        // تطبيق على النص الجديد
+        editor.chain().focus().setMark('textStyle', { fontSize }).run();
+      }
+    });
     setShowFontSize(false);
     // Force editor update
     editor.commands.focus();
@@ -466,15 +490,19 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
             title="نوع الخط"
           >
             <Type size={14} />
+            <span className="text-xs">خط</span>
             <ChevronDown size={12} />
           </button>
           {showFontFamily && (
-            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'} min-w-[200px]`}>
+            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'} min-w-[220px]`}>
+              <div className="p-2 border-b border-gray-200 dark:border-gray-600">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">اختر نوع الخط</span>
+              </div>
               {fontFamilies.map((font) => (
                 <button
                   key={font.value}
                   onClick={() => setFontFamily(font.value)}
-                  className={`block w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'text-right' : 'text-left'}`}
+                  className={`block w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'text-right' : 'text-left'} transition-colors duration-150`}
                   style={{ fontFamily: font.value }}
                 >
                   {font.name}
@@ -492,15 +520,19 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
             title="حجم الخط"
           >
             <Type size={14} />
+            <span className="text-xs">حجم</span>
             <ChevronDown size={12} />
           </button>
           {showFontSize && (
-            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'} min-w-[150px]`}>
+            <div className={`absolute top-full ${lang === 'ar' ? 'right-0' : 'left-0'} mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-[9999] max-h-60 overflow-y-auto ${lang === 'ar' ? 'text-right' : 'text-left'} min-w-[180px]`}>
+              <div className="p-2 border-b border-gray-200 dark:border-gray-600">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">اختر حجم الخط</span>
+              </div>
               {fontSizes.map((size) => (
                 <button
                   key={size.value}
                   onClick={() => setFontSize(size.value)}
-                  className={`block w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'text-right' : 'text-left'}`}
+                  className={`block w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${lang === 'ar' ? 'text-right' : 'text-left'} transition-colors duration-150`}
                   style={{ fontSize: size.value }}
                 >
                   {size.name}
@@ -667,12 +699,12 @@ export default function RichTextEditor({
       TableCell,
       TextStyle,
       Color,
-      FontFamily.configure({
-        types: ['textStyle'],
-      }),
-      FontSize.configure({
-        types: ['textStyle'],
-      }),
+      // FontFamily.configure({
+      //   types: ['textStyle'],
+      // }),
+      // FontSize.configure({
+      //   types: ['textStyle'],
+      // }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -721,6 +753,31 @@ export default function RichTextEditor({
 
   return (
     <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+      <style jsx>{`
+        .rich-text-editor .ProseMirror {
+          font-family: 'Cairo', 'Amiri', 'Noto Naskh Arabic', sans-serif;
+          line-height: 1.6;
+        }
+        .rich-text-editor .ProseMirror p {
+          margin-bottom: 1rem;
+        }
+        .rich-text-editor .ProseMirror h1,
+        .rich-text-editor .ProseMirror h2,
+        .rich-text-editor .ProseMirror h3,
+        .rich-text-editor .ProseMirror h4,
+        .rich-text-editor .ProseMirror h5,
+        .rich-text-editor .ProseMirror h6 {
+          font-weight: 600;
+          margin-top: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .rich-text-editor .ProseMirror h1 { font-size: 2rem; }
+        .rich-text-editor .ProseMirror h2 { font-size: 1.75rem; }
+        .rich-text-editor .ProseMirror h3 { font-size: 1.5rem; }
+        .rich-text-editor .ProseMirror h4 { font-size: 1.25rem; }
+        .rich-text-editor .ProseMirror h5 { font-size: 1.125rem; }
+        .rich-text-editor .ProseMirror h6 { font-size: 1rem; }
+      `}</style>
       {showToolbar && (
         <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} />
       )}
