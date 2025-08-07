@@ -156,37 +156,24 @@ const App = React.memo(() => {
   ), []);
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <AppProvider>
-        <LanguageProvider>
-          {/* <NavigationOptimizer> */}
-            {/* <PerformanceOptimizer> */}
-              <Router>
-                <Suspense fallback={<LoadingSpinner />}>
-                  <Routes>
-                    <Route path="/" element={<div style={{color: 'red'}}>Test Render</div>} />
-                    <Route path="/progress" element={<ProgressPage />} />
-                    <Route path="/phases" element={<PhasesPage />} />
-                    <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
-                    <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-                    <Route path="/days/:weekId" element={<DaysPage />} />
-                    <Route path="/notes" element={<NotesPage />} />
-                    <Route path="/journal" element={<JournalPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/note/:noteId" element={<NoteViewPage />} />
-                    <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
-                    <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
-                    <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
-                    <Route path="/features" element={<FeaturesDemoPage />} />
-                  </Routes>
-                </Suspense>
-              </Router>
-            {/* </PerformanceOptimizer> */}
-          {/* </NavigationOptimizer> */}
-        </LanguageProvider>
-      </AppProvider>
-      {/* <Toaster /> */}
-    </ErrorBoundary>
+    <Router>
+      <Routes>
+        <Route path="/" element={<div style={{color: 'red'}}>Test Render</div>} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/phases" element={<PhasesPage />} />
+        <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+        <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+        <Route path="/days/:weekId" element={<DaysPage />} />
+        <Route path="/notes" element={<NotesPage />} />
+        <Route path="/journal" element={<JournalPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/note/:noteId" element={<NoteViewPage />} />
+        <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
+        <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
+        <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
+        <Route path="/features" element={<FeaturesDemoPage />} />
+      </Routes>
+    </Router>
   );
 });
 
