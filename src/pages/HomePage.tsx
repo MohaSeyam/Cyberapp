@@ -17,43 +17,47 @@ import { animations } from '../constants/theme';
 import HomeHero from '../components/home/HomeHero';
 import HomeStats from '../components/home/HomeStats';
 import QuickActions from '../components/home/QuickActions';
-// ErrorBoundary removed - using simple error handling
 
-function HomeErrorFallback({ error }: { error: Error }) {
+// --- Fallback Components ---
+
+function LoadingComponent() {
   return (
-    <div className="p-8 text-center text-red-600 dark:text-red-400">
-      <h2 className="text-2xl font-bold mb-4">حدث خطأ في الصفحة الرئيسية</h2>
-      <p>{error?.message || 'يرجى إعادة تحميل الصفحة أو المحاولة لاحقًا.'}</p>
+    <div className="flex justify-center items-center h-screen">
+      <div className="text-xl font-semibold">جاري التحميل...</div>
     </div>
   );
 }
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-  }
-  render() {
-    if (this.state.hasError) {
-      return this.props.FallbackComponent ?
-        <this.props.FallbackComponent error={this.state.error} /> :
-        <HomeErrorFallback error={this.state.error} />;
-    }
-    return this.props.children;
-  }
+function ErrorComponent({ message }: { message?: string }) {
+  return (
+    <div className="p-8 text-center text-red-600 dark:text-red-400">
+      <h2 className="text-2xl font-bold mb-4">حدث خطأ ما</h2>
+      <p>{message || 'لم نتمكن من تحميل بيانات الصفحة الرئيسية. يرجى المحاولة مرة أخرى.'}</p>
+    </div>
+  );
 }
 
+// --- Main Home Page Component ---
+
 export default function HomePage() {
-  const { t, language } = useLocalization();
+  const { t } = useLocalization();
   const navigate = useNavigate();
+  
+  // Assume useHome returns an object with data, isLoading, and error states
+  const { data: homeData, isLoading, error } = useHome();
+
+  // 1. Handle Loading State
+  if (isLoading) {
+    return <LoadingComponent />;
+  }
+
+  // 2. Handle Error State
+  if (error || !homeData) {
+    return <ErrorComponent message={error?.message} />;
+  }
+  
+  // 3. Success State: Destructure data only when it's available
   const {
-    totalWeeks,
     totalTasks,
     completedTasks,
     completionRate,
@@ -61,28 +65,25 @@ export default function HomePage() {
     stats,
     quickActions,
     features
-  } = useHome();
+  } = homeData;
 
   // Safe translation function
   const safeT = (key: string) => {
     try {
       return t ? t(key) : key;
-    } catch (error) {
-      console.warn('Translation function not available:', error);
+    } catch (e) {
+      console.warn('Translation function not available:', e);
       return key;
     }
   };
 
-  // Enhanced Progress Section
+  // --- Sub-components for better organization ---
+
   const ProgressSection = () => (
-    <motion.div
-      {...animations.fadeIn}
-      transition={{ delay: 0.2 }}
-      className="mb-12"
-    >
+    <motion.div {...animations.fadeIn} transition={{ delay: 0.2 }} className="mb-12">
       <Card
-        title={t('currentProgress')}
-        subtitle={`${t('week')} ${currentWeek} - ${completionRate}% ${t('completed')}`}
+        title={safeT('currentProgress')}
+        subtitle={`${safeT('week')} ${currentWeek} - ${completionRate}% ${safeT('completed')}`}
         onClick={() => navigate('/progress')}
         className="cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
       >
@@ -93,21 +94,18 @@ export default function HomePage() {
                 initial={{ width: 0 }}
                 animate={{ width: `${completionRate}%` }}
                 transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 h-4 rounded-full relative"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-              </motion.div>
+                className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 h-4 rounded-full"
+              />
             </div>
           </div>
-
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="font-medium">{completedTasks} {t('completed')}</span>
+              <span className="font-medium">{completedTasks} {safeT('completed')}</span>
             </div>
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <Clock className="w-5 h-5 text-gray-500" />
-              <span className="font-medium">{totalTasks} {t('total')}</span>
+              <span className="font-medium">{totalTasks} {safeT('total')}</span>
             </div>
           </div>
         </div>
@@ -115,17 +113,9 @@ export default function HomePage() {
     </motion.div>
   );
 
-  // Features Section
   const FeaturesSection = () => (
-    <motion.div
-      {...animations.fadeIn}
-      transition={{ delay: 0.5 }}
-      className="mb-12"
-    >
-      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-        مميزات المنصة
-      </h2>
-
+    <motion.div {...animations.fadeIn} transition={{ delay: 0.5 }} className="mb-12">
+      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">مميزات المنصة</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature, index) => (
           <motion.div
@@ -134,62 +124,41 @@ export default function HomePage() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
           >
-            <Card
-              variant="elevated"
-              className="text-center p-6 hover:shadow-xl transition-all duration-300"
-            >
-              <div className={`p-4 rounded-full bg-gray-50 dark:bg-gray-800 mb-4 inline-block`}>
+            <Card variant="elevated" className="text-center p-6 hover:shadow-xl transition-all duration-300">
+              <div className="p-4 rounded-full bg-gray-50 dark:bg-gray-800 mb-4 inline-block">
                 {feature.icon === 'Shield' && <Shield className={`w-8 h-8 ${feature.color}`} />}
                 {feature.icon === 'Globe' && <Globe className={`w-8 h-8 ${feature.color}`} />}
-                {/* The rest of your feature icons would go here... */}
+                {/* Add other icons similarly */}
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{t(feature.title)}</h3>
-              <p className="text-gray-600 dark:text-gray-400">{t(feature.description)}</p>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{safeT(feature.title)}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{safeT(feature.description)}</p>
             </Card>
           </motion.div>
         ))}
       </div>
     </motion.div>
   );
-
-  // Main component render
+  
   return (
-    <ErrorBoundary FallbackComponent={HomeErrorFallback}>
-      <PageLayout title={t('homePageTitle')} description={t('homePageDescription')}>
-        <div className="space-y-12">
-          <HomeHero />
-          <ProgressSection />
-          <HomeStats stats={stats} />
-          <QuickActions actions={quickActions} />
-          <FeaturesSection />
-
-          {/* Call to Action Section */}
-          <motion.div
-            {...animations.fadeIn}
-            transition={{ delay: 0.8 }}
-            className="text-center py-12"
-          >
-            <Card variant="flat" className="bg-gray-50 dark:bg-gray-800/50">
-                <Heart className="w-12 h-12 text-blue-500 mx-auto mb-4"/>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  {t('ctaTitle')}
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-                  {t('ctaSubtitle')}
-                </p>
-                <Button
-                  size="lg"
-                  variant="primary"
-                  onClick={() => navigate('/register')}
-                  className="shadow-lg"
-                >
-                  <Rocket className="w-5 h-5 mr-2 rtl:ml-2 rtl:mr-0"/>
-                  {t('ctaButton')}
-                </Button>
-            </Card>
-          </motion.div>
-        </div>
-      </PageLayout>
-    </ErrorBoundary>
+    <PageLayout title={safeT('homePageTitle')} description={safeT('homePageDescription')}>
+      <div className="space-y-12">
+        <HomeHero />
+        <ProgressSection />
+        <HomeStats stats={stats} />
+        <QuickActions actions={quickActions} />
+        <FeaturesSection />
+        <motion.div {...animations.fadeIn} transition={{ delay: 0.8 }} className="text-center py-12">
+          <Card variant="flat" className="bg-gray-50 dark:bg-gray-800/50">
+            <Heart className="w-12 h-12 text-blue-500 mx-auto mb-4"/>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{safeT('ctaTitle')}</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">{safeT('ctaSubtitle')}</p>
+            <Button size="lg" variant="primary" onClick={() => navigate('/register')} className="shadow-lg">
+              <Rocket className="w-5 h-5 mr-2 rtl:ml-2 rtl:mr-0"/>
+              {safeT('ctaButton')}
+            </Button>
+          </Card>
+        </motion.div>
+      </div>
+    </PageLayout>
   );
-                             }
+}
