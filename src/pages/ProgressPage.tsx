@@ -891,7 +891,6 @@ const EnhancedReportsTab = React.memo(() => {
             ];
             
             // Dynamic import for Papa
-            const Papa = await import('papaparse').then(module => module.default);
             const Papa = await loadLibrary('Papa');
         const csv = Papa.unparse(csvData);
             blob = new Blob([csv], { type: 'text/csv' });
