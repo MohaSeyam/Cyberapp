@@ -211,29 +211,52 @@ export default function PhaseWeeksPage() {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        {/* Phase Title and Progress */}
-        <div className="text-center mb-4">
-          <h1 className="text-5xl font-bold text-white mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {currentPhase.title?.ar}
-          </h1>
-          {currentPhase.focus?.ar && (
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
-              {currentPhase.focus.ar}
-            </p>
-          )}
-          <div className="flex flex-col items-center justify-center mt-2">
-            <span className={`text-3xl font-bold ${
-              currentPhase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-              currentPhase.color === 'green' ? 'text-green-600 dark:text-green-400' :
-              currentPhase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
-              currentPhase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-              'text-teal-600 dark:text-teal-400'
-            }`}>
-              {phaseCompletion.progress}%
-            </span>
-            <span className="text-sm text-gray-500 dark:text-gray-500">
-              تقدم المرحلة
-            </span>
+        {/* Phase Header - تصميم عصري */}
+        <div className="text-center mb-10 mt-2">
+          <div className="flex flex-col items-center justify-center">
+            <div className="mb-4">
+              <span className={`inline-flex items-center justify-center rounded-full shadow-lg mb-4 p-4 bg-gradient-to-br from-blue-500 to-purple-600`}>
+                <PhaseIcon className="w-12 h-12 text-white drop-shadow-lg" />
+              </span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2 drop-shadow-lg">
+              {currentPhase.title?.ar}
+            </h1>
+            {currentPhase.focus?.ar && (
+              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 font-medium">
+                {currentPhase.focus.ar}
+              </p>
+            )}
+            <div className="flex flex-col items-center justify-center mt-4">
+              <div className="relative inline-flex items-center justify-center mb-2">
+                <svg width="120" height="120" className="block">
+                  <circle
+                    cx="60" cy="60" r="54"
+                    className="stroke-current text-gray-200 dark:text-gray-700"
+                    strokeWidth="12" fill="none"
+                  />
+                  <circle
+                    cx="60" cy="60" r="54"
+                    className={`stroke-current ${
+                      currentPhase.color === 'blue' ? 'text-blue-500' :
+                      currentPhase.color === 'green' ? 'text-green-500' :
+                      currentPhase.color === 'indigo' ? 'text-indigo-500' :
+                      currentPhase.color === 'purple' ? 'text-purple-500' :
+                      'text-teal-500'
+                    }`}
+                    strokeWidth="12" fill="none"
+                    strokeDasharray={339.292}
+                    strokeDashoffset={339.292 - (phaseCompletion.progress / 100) * 339.292}
+                    strokeLinecap="round"
+                    style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(.4,0,.2,1)' }}
+                  />
+                  <text x="50%" y="54%" textAnchor="middle" dominantBaseline="middle" className="text-4xl font-extrabold fill-current text-blue-600 dark:text-blue-400">
+                    {phaseCompletion.progress}%
+                  </text>
+                </svg>
+              </div>
+              <span className="text-lg text-gray-500 dark:text-gray-400 font-semibold tracking-wide">تقدم المرحلة</span>
+            </div>
           </div>
         </div>
 
