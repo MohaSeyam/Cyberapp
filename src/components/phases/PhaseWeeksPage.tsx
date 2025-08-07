@@ -211,128 +211,33 @@ export default function PhaseWeeksPage() {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        
-        {/* Phase Header */}
-        <div className="text-center mb-8">
-          <div className="mb-6">
-            <h1 className="text-6xl font-bold text-white mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {currentPhase.title?.ar}
-            </h1>
-            {currentPhase.focus?.ar && (
-              <p className="text-xl text-gray-600 dark:text-gray-400">
-                {currentPhase.focus.ar}
-              </p>
-            )}
+        {/* Phase Title and Progress */}
+        <div className="text-center mb-4">
+          <h1 className="text-5xl font-bold text-white mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {currentPhase.title?.ar}
+          </h1>
+          {currentPhase.focus?.ar && (
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
+              {currentPhase.focus.ar}
+            </p>
+          )}
+          <div className="flex flex-col items-center justify-center mt-2">
+            <span className={`text-3xl font-bold ${
+              currentPhase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+              currentPhase.color === 'green' ? 'text-green-600 dark:text-green-400' :
+              currentPhase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
+              currentPhase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+              'text-teal-600 dark:text-teal-400'
+            }`}>
+              {phaseCompletion.progress}%
+            </span>
+            <span className="text-sm text-gray-500 dark:text-gray-500">
+              تقدم المرحلة
+            </span>
           </div>
         </div>
 
-        {/* Phase Stats Card */}
-        <Card className={`bg-gradient-to-r ${
-          currentPhase.color === 'blue' ? 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20' :
-          currentPhase.color === 'green' ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20' :
-          currentPhase.color === 'indigo' ? 'from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20' :
-          currentPhase.color === 'purple' ? 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20' :
-          'from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20'
-        }`}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className={`p-3 rounded-xl ${
-                currentPhase.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900' :
-                currentPhase.color === 'green' ? 'bg-green-100 dark:bg-green-900' :
-                currentPhase.color === 'indigo' ? 'bg-indigo-100 dark:bg-indigo-900' :
-                currentPhase.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900' :
-                'bg-teal-100 dark:bg-teal-900'
-              }`}>
-                <PhaseIcon className={`w-6 h-6 ${
-                  currentPhase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                  currentPhase.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                  currentPhase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
-                  currentPhase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                  'text-teal-600 dark:text-teal-400'
-                }`} />
-              </div>
-              
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {currentPhase.title?.ar}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {currentPhase.focus?.ar}
-                </p>
-              </div>
-            </div>
-            
-            <div className="text-right">
-              <div className={`text-3xl font-bold ${
-                currentPhase.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                currentPhase.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                currentPhase.color === 'indigo' ? 'text-indigo-600 dark:text-indigo-400' :
-                currentPhase.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                'text-teal-600 dark:text-teal-400'
-              }`}>
-                {phaseCompletion.progress}%
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-500">
-                تقدم المرحلة
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                إجمالي الأسابيع
-              </h3>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {phaseCompletion.totalWeeks}
-              </p>
-            </div>
-
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                الأسابيع المكتملة
-              </h3>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {phaseCompletion.completedWeeks}
-              </p>
-            </div>
-
-            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-              <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                <Award className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                المستوى
-              </h3>
-              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                {currentPhase.difficulty}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-              <div 
-                className={`h-3 rounded-full transition-all duration-300 ${
-                  currentPhase.color === 'blue' ? 'bg-blue-500' :
-                  currentPhase.color === 'green' ? 'bg-green-500' :
-                  currentPhase.color === 'indigo' ? 'bg-indigo-500' :
-                  currentPhase.color === 'purple' ? 'bg-purple-500' :
-                  'bg-teal-500'
-                }`}
-                style={{ width: `${phaseCompletion.progress}%` }}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Weeks List */}
+        {/* Weeks List - moved up */}
         <Card>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -349,11 +254,9 @@ export default function PhaseWeeksPage() {
               </div>
             </div>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {phaseWeeks.map((week, index) => {
               const completion = getWeekCompletion(week.week);
-              
               return (
                 <motion.div 
                   key={week.week} 
@@ -383,7 +286,6 @@ export default function PhaseWeeksPage() {
                       </div>
                     </div>
                   </div>
-                  
                   <div>
                     <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                       الأسبوع {week.week}
@@ -392,7 +294,6 @@ export default function PhaseWeeksPage() {
                       {week.title?.ar}
                     </p>
                   </div>
-                  
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div 
                       className={`h-2 rounded-full transition-all duration-300 ${
@@ -404,6 +305,65 @@ export default function PhaseWeeksPage() {
                 </motion.div>
               );
             })}
+          </div>
+        </Card>
+
+        {/* Phase Stats Card - moved down */}
+        <Card className={`bg-gradient-to-r ${
+          currentPhase.color === 'blue' ? 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20' :
+          currentPhase.color === 'green' ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20' :
+          currentPhase.color === 'indigo' ? 'from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20' :
+          currentPhase.color === 'purple' ? 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20' :
+          'from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20'
+        }`}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                إجمالي الأسابيع
+              </h3>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {phaseCompletion.totalWeeks}
+              </p>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                الأسابيع المكتملة
+              </h3>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {phaseCompletion.completedWeeks}
+              </p>
+            </div>
+            <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                <Award className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                المستوى
+              </h3>
+              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                {currentPhase.difficulty}
+              </p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+              <div 
+                className={`h-3 rounded-full transition-all duration-300 ${
+                  currentPhase.color === 'blue' ? 'bg-blue-500' :
+                  currentPhase.color === 'green' ? 'bg-green-500' :
+                  currentPhase.color === 'indigo' ? 'bg-indigo-500' :
+                  currentPhase.color === 'purple' ? 'bg-purple-500' :
+                  'bg-teal-500'
+                }`}
+                style={{ width: `${phaseCompletion.progress}%` }}
+              />
+            </div>
           </div>
         </Card>
       </motion.div>

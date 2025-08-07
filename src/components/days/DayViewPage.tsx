@@ -108,6 +108,7 @@ export default function DayViewPage() {
   const navigate = useNavigate();
   const { plan, progress, addNote, addResource, updateResource, deleteResource, deleteNote, deleteJournalEntry, addJournalEntry, refreshData, appState } = useApp();
   const { t, language } = useLocalization();
+  const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
   // Safe translation function
   const safeT = (key: string) => {
@@ -417,7 +418,8 @@ export default function DayViewPage() {
     <PageLayout 
       showBottomBar={true}
     >
-      <motion.div {...animations.fadeIn} className="space-y-6">
+      <div dir={pageDirection}>
+        <motion.div {...animations.fadeIn} className="space-y-6">
         
         {/* Day Header */}
         <div className="text-center mb-8">
@@ -891,7 +893,7 @@ export default function DayViewPage() {
           </Card>
         </motion.div>
       </motion.div>
-
+      </div>
 
 
       {/* Resource Modal */}

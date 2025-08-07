@@ -82,7 +82,6 @@ export default function MobileBottomBar() {
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
-          
           return (
             <Link
               key={item.path}
@@ -93,25 +92,16 @@ export default function MobileBottomBar() {
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
-              <div className={`flex flex-col items-center space-y-1 ${
-                active ? 'transform scale-110' : ''
-              }`}>
-                <Icon className={`w-5 h-5 transition-all duration-200 ${
-                  active ? 'text-blue-600 dark:text-blue-400' : ''
-                }`} />
-                <span className={`text-xs font-medium transition-all duration-200 ${
-                  active ? 'text-blue-600 dark:text-blue-400' : ''
-                }`}>
-                  {item.name}
-                </span>
-              </div>
-              {active && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full"
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
+              {language === 'ar' ? (
+                <>
+                  <Icon className={`w-6 h-6 mb-1 transition-all duration-200 ${active ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                  <span className="text-xs font-medium leading-tight">{item.name}</span>
+                </>
+              ) : (
+                <>
+                  <Icon className={`w-6 h-6 mb-1 transition-all duration-200 ${active ? 'text-blue-600 dark:text-blue-400' : ''}`} />
+                  <span className="text-xs font-medium leading-tight">{item.name}</span>
+                </>
               )}
             </Link>
           );
