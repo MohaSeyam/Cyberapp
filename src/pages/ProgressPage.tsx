@@ -98,6 +98,50 @@ const ENHANCED_TABS = [
     icon: BarChart3,
     color: 'blue',
     gradient: 'from-blue-500 to-blue-600',
+    description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' }
+  },
+  {
+    id: 'analytics',
+    label: { ar: 'التحليلات', en: 'Analytics' },
+    icon: TrendingUp,
+    color: 'green',
+    gradient: 'from-green-500 to-green-600',
+    description: { ar: 'تحليل مفصل للبيانات', en: 'Detailed data analysis' }
+  },
+  {
+    id: 'skills',
+    label: { ar: 'المهارات', en: 'Skills' },
+    icon: Brain,
+    color: 'purple',
+    gradient: 'from-purple-500 to-purple-600',
+    description: { ar: 'تقييم المهارات المكتسبة', en: 'Assessment of acquired skills' }
+  },
+  {
+    id: 'achievements',
+    label: { ar: 'الإنجازات', en: 'Achievements' },
+    icon: Trophy,
+    color: 'orange',
+    gradient: 'from-orange-500 to-orange-600',
+    description: { ar: 'الإنجازات والجوائز', en: 'Achievements and awards' }
+  },
+  {
+    id: 'suggestions',
+    label: { ar: 'الاقتراحات', en: 'Suggestions' },
+    icon: Lightbulb,
+    color: 'yellow',
+    gradient: 'from-yellow-500 to-yellow-600',
+    description: { ar: 'نصائح للتحسين', en: 'Improvement suggestions' }
+  },
+  {
+    id: 'reports',
+    label: { ar: 'التقارير', en: 'Reports' },
+    icon: FileText,
+    color: 'indigo',
+    gradient: 'from-indigo-500 to-indigo-600',
+    description: { ar: 'تصدير التقارير', en: 'Export reports' },
+    badge: 'جديد'
+  }
+];
     description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' },
     badge: null
   },
@@ -935,36 +979,49 @@ const EnhancedReportsTab = React.memo(() => {
   );
 });
 
-// 1. مكون تبويبات جديد
+// Enhanced Tabs Component
 function SimpleTabs({ tabs, activeTab, setActiveTab, language }) {
   const isRTL = language === 'ar';
   return (
     <div
-      className={`w-full overflow-x-auto border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-6`}
+      className={`w-full overflow-x-auto bg-white dark:bg-gray-900`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div
-        className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-2 px-2 py-2`}
-        style={{ minWidth: '400px' }}
+        className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} gap-1 px-4 py-3`}
+        style={{ minWidth: '500px' }}
       >
         {tabs.map((tab, idx) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
           return (
-            <button
+            <motion.button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center flex-1 min-w-[80px] px-2 py-2 rounded-lg transition-all duration-200
-                ${isActive ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow font-bold' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 font-medium text-sm
+                ${isActive 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                }
               `}
-              style={{ outline: isActive ? '2px solid #3B82F6' : 'none' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600 dark:text-blue-300' : 'text-gray-400 dark:text-gray-500'}`} />
-              <span className="text-xs whitespace-nowrap">{language === 'ar' ? tab.label.ar : tab.label.en}</span>
+              <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-500'}`} />
+              <span className="whitespace-nowrap font-medium">
+                {language === 'ar' ? tab.label.ar : tab.label.en}
+              </span>
               {tab.badge && (
-                <span className="mt-1 text-[10px] bg-yellow-200 text-yellow-800 rounded px-1 py-0.5">{tab.badge}</span>
+                <motion.span 
+                  className="ml-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full px-2 py-0.5 font-medium"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {tab.badge}
+                </motion.span>
               )}
-            </button>
+            </motion.button>
           );
         })}
       </div>
@@ -1332,30 +1389,42 @@ export default function ProgressPage() {
     <WeekPhaseProvider>
       <div dir={pageDirection}>
         <PageLayout 
-          title={safeT('progress')}
-          subtitle={safeT('trackYourLearning')}
           showBottomBar={true}
         >
-          <motion.div {...animations.fadeIn} className="space-y-8">
+          <motion.div {...animations.fadeIn} className="space-y-6">
+            {/* Page Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-6xl font-bold text-white mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {safeT('progress')}
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-400">
+                {safeT('trackYourLearning')}
+              </p>
+            </div>
+
+            {/* Enhanced Tabs - Moved to top */}
+            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+              <SimpleTabs
+                tabs={ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development')}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                language={language}
+              />
+            </div>
+
             {/* Overall Progress Card */}
             <OverallProgressCard />
-            {/* تبويبات جديدة */}
-            <SimpleTabs
-              tabs={ENHANCED_TABS.filter(tab => !['skills', 'achievements'].includes(tab.id) || process.env.NODE_ENV === 'development')}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              language={language}
-            />
-            {/* محتوى التاب */}
-            <Card className="overflow-hidden">
-              <div className="mt-2 p-2">
+
+            {/* Tab Content */}
+            <Card className="overflow-hidden border-0 shadow-lg">
+              <div className="p-6">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                     className="tab-content"
                   >
                     {isExporting && <LoadingSpinner />}
