@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  BarChart3, TrendingUp, Brain, Lightbulb, FileText
+  BarChart3, TrendingUp, Brain, Lightbulb, FileText, Trophy
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
