@@ -94,7 +94,7 @@ export default function PhasesPage() {
       }
       const totalTasks = weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
       // توحيد نوع weekId في progress
-      const weekProgress = safeProgress.filter(p => p.weekId?.toString() === week?.toString());
+      const weekProgress = safeProgress.filter(p => Number(p.weekId) === Number(week));
       const completedTasks = weekProgress.filter(p => p.done).length;
       return totalTasks > 0 && completedTasks === totalTasks;
     }).length;
@@ -210,7 +210,7 @@ export default function PhasesPage() {
                               const weekData = safePlan.find(w => w.week === week);
                               if (weekData) {
                                 totalTasks += weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-                                const weekProgress = safeProgress.filter(p => p.weekId?.toString() === week?.toString());
+                                const weekProgress = safeProgress.filter(p => Number(p.weekId) === Number(week));
                                 completedTasks += weekProgress.filter(p => p.done).length;
                               }
                             });
@@ -310,7 +310,7 @@ export default function PhasesPage() {
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {safePlan.filter(week => {
                     const totalTasks = week.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-                    const weekProgress = safeProgress.filter(p => p.weekId === (week.week?.toString() || ''));
+                    const weekProgress = safeProgress.filter(p => Number(p.weekId) === Number(week.week));
                     const completedTasks = weekProgress.filter(p => p.done).length;
                     return totalTasks > 0 && completedTasks === totalTasks;
                   }).length}
