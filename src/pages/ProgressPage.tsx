@@ -145,6 +145,15 @@ const ENHANCED_TABS = [
     gradient: 'from-red-500 to-red-600',
     description: { ar: 'تصدير التقارير', en: 'Export reports' },
     badge: null
+  },
+  {
+    id: 'gantt',
+    label: { ar: 'مخطط زمني', en: 'Gantt Chart' },
+    icon: Calendar,
+    color: 'orange',
+    gradient: 'from-orange-500 to-yellow-500',
+    description: { ar: 'مخطط زمني للمهام', en: 'Timeline of tasks' },
+    badge: null
   }
 ] as const;
 
@@ -1034,6 +1043,55 @@ function SimpleTabs({ tabs, activeTab, setActiveTab, language }) {
   );
 }
 
+// GanttChartTab component
+const GanttChartTab = ({ plan, progress, language }) => {
+  // Gather all tasks grouped by week
+  const data = useMemo(() => {
+    if (!plan) return [];
+    return plan.map(week => ({
+      week: week.week,
+      tasks: week.days.flatMap(day => day.tasks.map(task => ({
+        ...task,
+        dayKey: day.key,
+        isCompleted: progress.some(p => p.taskId === task.id && p.done)
+      })))
+    }));
+  }, [plan, progress]);
+
+  return (
+    <div className="overflow-x-auto py-8">
+      <h2 className="text-2xl font-bold mb-6 text-orange-700 dark:text-orange-300 text-center">
+        {language === 'ar' ? 'مخطط زمني للمهام' : 'Tasks Gantt Chart'}
+      </h2>
+      <div className="min-w-[600px]">
+        {data.map(week => (
+          <div key={week.week} className="mb-8">
+            <div className="font-semibold text-lg text-gray-700 dark:text-gray-200 mb-2">
+              {language === 'ar' ? `الأسبوع ${week.week}` : `Week ${week.week}`}
+            </div>
+            <div className="space-y-2">
+              {week.tasks.map((task, idx) => (
+                <div key={task.id} className="flex items-center gap-2">
+                  <span className="w-32 truncate text-xs text-gray-600 dark:text-gray-300">{language === 'ar' ? (task.description?.ar || task.id) : (task.description?.en || task.id)}</span>
+                  <div className="flex-1 h-5 relative">
+                    <div
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 h-3 rounded-full ${task.isCompleted ? 'bg-green-400' : 'bg-orange-300'} transition-all`}
+                      style={{ width: `${Math.max(10, Math.min(100, (task.duration || 1) * 10))}px` }}
+                      title={language === 'ar' ? `المدة: ${task.duration} دقيقة` : `Duration: ${task.duration} min`}
+                    />
+                  </div>
+                  <span className={`text-xs font-semibold ${task.isCompleted ? 'text-green-600' : 'text-orange-600'}`}>{task.isCompleted ? (language === 'ar' ? 'مكتمل' : 'Done') : (language === 'ar' ? 'قيد التنفيذ' : 'In Progress')}</span>
+                  <span className="text-xs text-gray-400">{task.duration ? `${task.duration}m` : ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // --- 3. Main Component (Enhanced) ---
 export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
@@ -1447,6 +1505,9 @@ export default function ProgressPage() {
                         exportOptions={exportOptions}
                         setExportOptions={setExportOptions}
                       />
+                    )}
+                    {activeTab === 'gantt' && (
+                      <GanttChartTab plan={plan} progress={progress} language={language} />
                     )}
                   </motion.div>
                 </AnimatePresence>
