@@ -95,42 +95,60 @@ export default function ResourcesPage() {
             {language === 'ar' ? 'لا توجد موارد مطابقة أو لم تتم إضافة أي موارد بعد.' : 'No matching resources or no resources have been added yet.'}
           </div>
         ) : (
-          filteredResources.map(resource => (
-            <Card key={(resource.id || resource.title) + resource.title} className="p-5 flex flex-col gap-2">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
-                  {typeLabels[resource.type]?.[language] || resource.type}
-                </span>
-                <span className="text-xs text-gray-400">{resource.weekId ? `${language === 'ar' ? 'أسبوع' : 'Week'} ${resource.weekId}` : ''}</span>
-              </div>
-              <a
-                href={resource.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-lg text-blue-700 dark:text-blue-300 hover:underline"
-              >
-                {resource.title}
-              </a>
-              {resource.description && (
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  {resource.description}
+          filteredResources.map(resource => {
+            // Find the day label from the plan using weekId and dayIndex
+            let dayLabel = '';
+            if (resource.weekId && resource.dayIndex) {
+              const weekObj = plan.find(w => w.week === resource.weekId);
+              const dayObj = weekObj?.days?.find(d => d.key === resource.dayIndex);
+              if (dayObj) {
+                dayLabel = dayObj.day?.[language] || '';
+              }
+            }
+            return (
+              <Card key={(resource.id || resource.title) + resource.title} className="p-5 flex flex-col gap-2">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                    {typeLabels[resource.type]?.[language] || resource.type}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {resource.weekId ? `${language === 'ar' ? 'أسبوع' : 'Week'} ${resource.weekId}` : ''}
+                  </span>
+                  {dayLabel && (
+                    <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 rounded px-2 py-0.5">
+                      {language === 'ar' ? `اليوم: ${dayLabel}` : `Day: ${dayLabel}`}
+                    </span>
+                  )}
                 </div>
-              )}
-              <div className="flex justify-between items-center mt-auto">
-                <span className="text-xs text-gray-400">
-                  {resource.createdAt ? new Date(resource.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : ''}
-                </span>
                 <a
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-blue-500 hover:underline"
+                  className="font-bold text-lg text-blue-700 dark:text-blue-300 hover:underline"
                 >
-                  {language === 'ar' ? 'فتح المورد' : 'Open Resource'}
+                  {resource.title}
                 </a>
-              </div>
-            </Card>
-          ))
+                {resource.description && (
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    {resource.description}
+                  </div>
+                )}
+                <div className="flex justify-between items-center mt-auto">
+                  <span className="text-xs text-gray-400">
+                    {resource.createdAt ? new Date(resource.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : ''}
+                  </span>
+                  <a
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline"
+                  >
+                    {language === 'ar' ? 'فتح المورد' : 'Open Resource'}
+                  </a>
+                </div>
+              </Card>
+            );
+          })
         )}
       </div>
     </div>
