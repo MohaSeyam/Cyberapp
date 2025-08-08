@@ -1438,29 +1438,69 @@ export default function ProgressPage() {
     }
   };
 
-  // زر تصدير إلى Google Calendar
+  // زر تصدير جميع المهام إلى Google Calendar
   const handleCalendarExport = async () => {
     if (!googleToken) {
       toast.error(language === 'ar' ? 'يرجى تسجيل الدخول إلى Google أولاً' : 'Please log in with Google first');
       return;
     }
-    // توليد ملف .ics تجريبي (حدث واحد)
-    const dt = new Date();
-    const dtStart = dt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const dtEnd = new Date(dt.getTime() + 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${language === 'ar' ? 'مهمة أمن سيبراني' : 'Cybersecurity Task'}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nDESCRIPTION:${language === 'ar' ? 'حدث تجريبي من CyberPlan' : 'Sample event from CyberPlan'}\nEND:VEVENT\nEND:VCALENDAR`;
-    // رفع الحدث إلى Google Calendar API (placeholder: فقط تحميل الملف للمستخدم)
-    const blob = new Blob([ics], { type: 'text/calendar' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'cyberplan-event.ics';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success(language === 'ar' ? 'تم تصدير الحدث، يمكنك استيراده في Google Calendar.' : 'Event exported, you can import it in Google Calendar.');
-    // TODO: تكامل API حقيقي مع Google Calendar
+    if (!plan || plan.length === 0) {
+      toast.error(language === 'ar' ? 'لا توجد خطة متاحة.' : 'No plan data available.');
+      return;
+    }
+    // جمع جميع المهام (حد أقصى 20 للعرض التجريبي)
+    const allTasks = plan.flatMap(week =>
+      week.days.flatMap(day =>
+        (day.tasks || []).map(task => ({
+          ...task,
+          week,
+          day
+        }))
+      )
+    ).slice(0, 20);
+    let successCount = 0;
+    let errorCount = 0;
+    for (const task of allTasks) {
+      // حساب وقت البدء والانتهاء (تجريبي: كل مهمة ساعة واحدة)
+      const startDate = new Date('2024-01-01T08:00:00Z');
+      startDate.setDate(startDate.getDate() + (task.week.week - 1) * 7);
+      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+      const event = {
+        summary: language === 'ar' ? (task.description?.ar || 'مهمة أمن سيبراني') : (task.description?.en || 'Cybersecurity Task'),
+        description: language === 'ar' ? `مهمة من CyberPlan - الأسبوع ${task.week.week}` : `Task from CyberPlan - Week ${task.week.week}`,
+        start: { dateTime: startDate.toISOString() },
+        end: { dateTime: endDate.toISOString() },
+      };
+      try {
+        const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${googleToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(event),
+        });
+        if (res.ok) {
+          successCount++;
+        } else {
+          errorCount++;
+        }
+      } catch (err) {
+        errorCount++;
+      }
+    }
+    if (successCount > 0) {
+      toast.success(language === 'ar'
+        ? `تم تصدير ${successCount} مهمة إلى Google Calendar!`
+        : `${successCount} tasks exported to Google Calendar!`
+      );
+    }
+    if (errorCount > 0) {
+      toast.error(language === 'ar'
+        ? `فشل تصدير ${errorCount} مهمة إلى Google Calendar.`
+        : `${errorCount} tasks failed to export to Google Calendar.`
+      );
+    }
   };
 
   return (
