@@ -552,10 +552,63 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
           <button 
             onClick={insertTable} 
             className="p-1.5 rounded text-xs transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-            title="إدراج جدول"
+            title={lang === 'ar' ? 'إدراج جدول' : 'Insert Table'}
           >
             <TableIcon size={14} />
           </button>
+          {editor.isActive('table') && (
+            <>
+              <button
+                onClick={addRowBefore}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'إضافة صف قبل' : 'Add Row Before'}
+              >
+                <span className="text-xs">↑</span>
+              </button>
+              <button
+                onClick={addRowAfter}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'إضافة صف بعد' : 'Add Row After'}
+              >
+                <span className="text-xs">↓</span>
+              </button>
+              <button
+                onClick={addColumnBefore}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'إضافة عمود قبل' : 'Add Column Before'}
+              >
+                <span className="text-xs">←</span>
+              </button>
+              <button
+                onClick={addColumnAfter}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'إضافة عمود بعد' : 'Add Column After'}
+              >
+                <span className="text-xs">→</span>
+              </button>
+              <button
+                onClick={deleteRow}
+                className="p-1.5 rounded text-xs hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
+                title={lang === 'ar' ? 'حذف الصف' : 'Delete Row'}
+              >
+                <span className="text-xs">✕</span>
+              </button>
+              <button
+                onClick={deleteColumn}
+                className="p-1.5 rounded text-xs hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
+                title={lang === 'ar' ? 'حذف العمود' : 'Delete Column'}
+              >
+                <span className="text-xs">🞬</span>
+              </button>
+              <button
+                onClick={deleteTable}
+                className="p-1.5 rounded text-xs hover:bg-red-200 dark:hover:bg-red-800 text-red-700"
+                title={lang === 'ar' ? 'حذف الجدول' : 'Delete Table'}
+              >
+                <TableIcon size={12} className="inline-block mr-1" />✕
+              </button>
+            </>
+          )}
         </div>
 
         {/* Save Status */}
