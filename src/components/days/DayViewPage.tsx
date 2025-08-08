@@ -21,6 +21,7 @@ import RichTextEditor from '../editors/RichTextEditor';
 import { animations } from '../../constants/theme';
 import type { Week, Day, Task, Resource } from '../../types';
 import { TaskEvaluation } from '../../types';
+import { Star } from 'lucide-react';
 
 // Day icons mapping
 const dayIcons = {
@@ -105,54 +106,97 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 }
 
 // TaskEvaluationWidget component
-const TaskEvaluationWidget = ({ taskId, weekId, language }) => {
+const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false }) => {
   const { taskEvaluations, addOrUpdateTaskEvaluation } = useApp();
   const [rating, setRating] = useState(0);
   const [difficulty, setDifficulty] = useState('');
   const [note, setNote] = useState('');
+  const [open, setOpen] = useState(false);
+  const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
 
   useEffect(() => {
-    const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
     if (evalObj) {
       setRating(evalObj.rating);
       setDifficulty(evalObj.difficulty || '');
       setNote(evalObj.note || '');
+    } else {
+      setRating(0);
+      setDifficulty('');
+      setNote('');
     }
-  }, [taskEvaluations, taskId, weekId]);
+  }, [evalObj, taskId, weekId]);
 
   const handleSave = () => {
     addOrUpdateTaskEvaluation({ taskId, weekId, rating, difficulty: difficulty || undefined, note: note || undefined });
+    setOpen(false);
   };
 
+  // ملخص التقييم
+  const summary = evalObj && (evalObj.rating || evalObj.difficulty) ? (
+    <span className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300 ml-2">
+      {evalObj.rating ? (
+        <span className="flex items-center gap-0.5">
+          {[1,2,3,4,5].map(star => (
+            <span key={star} className={star <= evalObj.rating ? 'text-yellow-400' : 'text-gray-300'}>★</span>
+          ))}
+        </span>
+      ) : null}
+      {evalObj.difficulty ? (
+        <span className={`rounded px-2 py-0.5 ml-1 text-xs font-semibold ${evalObj.difficulty === 'easy' ? 'bg-green-100 text-green-700' : evalObj.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+          {language === 'ar'
+            ? evalObj.difficulty === 'easy' ? 'سهل' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
+            : evalObj.difficulty.charAt(0).toUpperCase() + evalObj.difficulty.slice(1)}
+        </span>
+      ) : null}
+    </span>
+  ) : null;
+
+  if (summaryOnly) return summary;
+
   return (
-    <div className="mt-2 mb-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم المهمة:' : 'Task Rating:'}</span>
-        {[1,2,3,4,5].map(star => (
-          <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
-            <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
-          </button>
-        ))}
-      </div>
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm text-gray-600 dark:text-gray-300">{language === 'ar' ? 'الصعوبة:' : 'Difficulty:'}</span>
-        <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="rounded px-2 py-1 text-sm border dark:bg-gray-900">
-          <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
-          <option value="easy">{language === 'ar' ? 'سهل' : 'Easy'}</option>
-          <option value="medium">{language === 'ar' ? 'متوسط' : 'Medium'}</option>
-          <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
-        </select>
-      </div>
-      <textarea
-        className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900 mb-2"
-        rows={2}
-        value={note}
-        onChange={e => setNote(e.target.value)}
-        placeholder={language === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'}
-      />
-      <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold">
-        {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
+    <div className="mt-2 mb-4">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`flex items-center gap-1 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm hover:bg-blue-50 dark:hover:bg-blue-800 transition-all text-xs font-semibold ${open ? 'ring-2 ring-blue-400' : ''}`}
+        title={language === 'ar' ? 'تقييم المهمة' : 'Rate Task'}
+      >
+        <Star className="w-4 h-4 text-yellow-400" />
+        {language === 'ar' ? 'تقييم' : 'Rate'}
+        {summary}
       </button>
+      {open && (
+        <div className="mt-3 p-4 rounded-xl bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-700 shadow-lg max-w-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم المهمة:' : 'Task Rating:'}</span>
+            {[1,2,3,4,5].map(star => (
+              <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
+                <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-sm text-gray-600 dark:text-gray-300">{language === 'ar' ? 'الصعوبة:' : 'Difficulty:'}</span>
+            <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="rounded px-2 py-1 text-sm border dark:bg-gray-900">
+              <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
+              <option value="easy">{language === 'ar' ? 'سهل' : 'Easy'}</option>
+              <option value="medium">{language === 'ar' ? 'متوسط' : 'Medium'}</option>
+              <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
+            </select>
+          </div>
+          <textarea
+            className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900 mb-3"
+            rows={2}
+            value={note}
+            onChange={e => setNote(e.target.value)}
+            placeholder={language === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'}
+          />
+          <div className="flex justify-end">
+            <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold shadow">
+              {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
