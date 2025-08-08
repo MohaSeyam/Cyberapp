@@ -33,7 +33,6 @@ import EnhancedSuggestionsTab from '../components/progress/EnhancedSuggestionsTa
 import EnhancedReportsTab from '../components/progress/EnhancedReportsTab';
 import useProgressStats from '../hooks/useProgressStats';
 import { Link } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -1048,7 +1047,6 @@ export default function ProgressPage() {
     timeRange: 'all',
     exportLanguage: language
   });
-  const [googleToken, setGoogleToken] = useState(null);
 
   // Memoized complex calculations
   const streaks = useMemo(() => {
@@ -1392,131 +1390,6 @@ export default function ProgressPage() {
 
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
-  // زر تسجيل الدخول (مؤقت، يمكن نقله لاحقًا)
-  const login = useGoogleLogin({
-    onSuccess: tokenResponse => {
-      setGoogleToken(tokenResponse.access_token);
-      toast.success(language === 'ar' ? 'تم تسجيل الدخول إلى Google!' : 'Logged in with Google!');
-    },
-    onError: () => {
-      toast.error(language === 'ar' ? 'فشل تسجيل الدخول إلى Google' : 'Google login failed');
-    },
-    scope: 'https://www.googleapis.com/auth/drive.file',
-  });
-
-  // زر رفع تقرير إلى Google Drive
-  const handleDriveExport = async () => {
-    if (!googleToken) {
-      toast.error(language === 'ar' ? 'يرجى تسجيل الدخول إلى Google أولاً' : 'Please log in with Google first');
-      return;
-    }
-    // توليد تقرير بسيط (نص)
-    const reportContent = language === 'ar' ? 'تقرير الأمن السيبراني\nتجريبي.' : 'Cybersecurity Report\nSample.';
-    const blob = new Blob([reportContent], { type: 'text/plain' });
-    const metadata = {
-      name: `cyberplan-report-${Date.now()}.txt`,
-      mimeType: 'text/plain',
-    };
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', blob);
-    try {
-      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${googleToken}`,
-        },
-        body: form,
-      });
-      if (res.ok) {
-        toast.success(language === 'ar' ? 'تم حفظ التقرير في Google Drive!' : 'Report saved to Google Drive!');
-      } else {
-        toast.error(language === 'ar' ? 'فشل رفع التقرير إلى Google Drive' : 'Failed to upload report to Google Drive');
-      }
-    } catch (err) {
-      toast.error(language === 'ar' ? 'حدث خطأ أثناء رفع التقرير' : 'Error uploading report');
-    }
-  };
-
-  // زر تصدير جميع المهام إلى Google Calendar (مع خيارات)
-  const handleCalendarExport = async () => {
-    if (!googleToken) {
-      toast.error(language === 'ar' ? 'يرجى تسجيل الدخول إلى Google أولاً' : 'Please log in with Google first');
-      return;
-    }
-    if (!plan || plan.length === 0) {
-      toast.error(language === 'ar' ? 'لا توجد خطة متاحة.' : 'No plan data available.');
-      return;
-    }
-    // جمع جميع المهام حسب الخيارات
-    let filteredWeeks = plan;
-    if (calendarExportWeek !== 'all') {
-      filteredWeeks = plan.filter(w => w.week === Number(calendarExportWeek));
-    }
-    const allTasks = filteredWeeks.flatMap(week =>
-      week.days.flatMap(day =>
-        (day.tasks || []).map(task => ({
-          ...task,
-          week,
-          day
-        }))
-      )
-    ).slice(0, 20);
-    let successCount = 0;
-    let errorCount = 0;
-    for (const task of allTasks) {
-      // حساب وقت البدء والانتهاء بدقة
-      const baseDate = new Date('2024-01-01T00:00:00Z');
-      const weekOffset = (task.week.week - 1) * 7;
-      const dayOffset = ['sat','sun','mon','tue','wed','thu','fri'].indexOf(task.day.key);
-      const startDate = new Date(baseDate.getTime());
-      startDate.setUTCDate(startDate.getUTCDate() + weekOffset + (dayOffset >= 0 ? dayOffset : 0));
-      startDate.setUTCHours(calendarExportHour, calendarExportMinute, 0, 0);
-      const durationMinutes = task.duration || 60;
-      const endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
-      const event = {
-        summary: language === 'ar' ? (task.description?.ar || 'مهمة أمن سيبراني') : (task.description?.en || 'Cybersecurity Task'),
-        description: language === 'ar' ? `مهمة من CyberPlan - الأسبوع ${task.week.week}` : `Task from CyberPlan - Week ${task.week.week}`,
-        start: { dateTime: startDate.toISOString() },
-        end: { dateTime: endDate.toISOString() },
-      };
-      try {
-        const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${googleToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(event),
-        });
-        if (res.ok) {
-          successCount++;
-        } else {
-          errorCount++;
-        }
-      } catch (err) {
-        errorCount++;
-      }
-    }
-    if (successCount > 0) {
-      toast.success(language === 'ar'
-        ? `تم تصدير ${successCount} مهمة إلى Google Calendar!`
-        : `${successCount} tasks exported to Google Calendar!`
-      );
-    }
-    if (errorCount > 0) {
-      toast.error(language === 'ar'
-        ? `فشل تصدير ${errorCount} مهمة إلى Google Calendar.`
-        : `${errorCount} tasks failed to export to Google Calendar.`
-      );
-    }
-  };
-
-  // Export options state
-  const [calendarExportWeek, setCalendarExportWeek] = useState('all');
-  const [calendarExportHour, setCalendarExportHour] = useState(9);
-  const [calendarExportMinute, setCalendarExportMinute] = useState(0);
-
   return (
     <WeekPhaseProvider>
       <div dir={pageDirection}>
@@ -1532,26 +1405,6 @@ export default function ProgressPage() {
             >
               📚 {language === 'ar' ? 'مستودع الموارد' : 'Resources Repository'}
             </Link>
-            <button
-              onClick={handleDriveExport}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition-all"
-            >
-              <span role="img" aria-label="drive">☁️</span> {language === 'ar' ? 'حفظ تقرير في Google Drive' : 'Save Report to Google Drive'}
-            </button>
-            <button
-              onClick={handleCalendarExport}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white font-semibold shadow transition-all"
-            >
-              <span role="img" aria-label="calendar">📅</span> {language === 'ar' ? 'تصدير إلى Google Calendar' : 'Export to Google Calendar'}
-            </button>
-            {!googleToken && (
-              <button
-                onClick={() => login()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow transition-all"
-              >
-                <span role="img" aria-label="google">🔑</span> {language === 'ar' ? 'تسجيل الدخول مع Google' : 'Sign in with Google'}
-              </button>
-            )}
           </div>
           <motion.div {...animations.fadeIn} className="space-y-8">
             {/* Overall Progress Card */}
@@ -1616,38 +1469,77 @@ export default function ProgressPage() {
                 {language === 'ar' ? 'الأسبوع:' : 'Week:'}
                 <select
                   className="ml-2 border rounded px-2 py-1 text-sm"
-                  value={calendarExportWeek}
-                  onChange={e => setCalendarExportWeek(e.target.value)}
+                  value={exportOptions.reportType}
+                  onChange={e => setExportOptions({ ...exportOptions, reportType: e.target.value })}
                 >
-                  <option value="all">{language === 'ar' ? 'كل الأسابيع' : 'All Weeks'}</option>
-                  {plan && plan.map(w => (
-                    <option key={w.week} value={w.week}>{language === 'ar' ? `الأسبوع ${w.week}` : `Week ${w.week}`}</option>
+                  {REPORT_TYPES.map(type => (
+                    <option key={type.id} value={type.id}>{type.label[language]}</option>
                   ))}
                 </select>
               </label>
               <label className="text-sm font-semibold">
-                {language === 'ar' ? 'وقت البدء:' : 'Start Time:'}
+                {language === 'ar' ? 'المحتوى:' : 'Content:'}
+                <select
+                  className="ml-2 border rounded px-2 py-1 text-sm"
+                  value={exportOptions.content}
+                  onChange={e => setExportOptions({ ...exportOptions, content: e.target.value })}
+                >
+                  {CONTENT_TYPES.map(type => (
+                    <option key={type.id} value={type.id}>{type.label[language]}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-semibold">
+                {language === 'ar' ? 'التنسيق:' : 'Format:'}
+                <select
+                  className="ml-2 border rounded px-2 py-1 text-sm"
+                  value={exportOptions.format}
+                  onChange={e => setExportOptions({ ...exportOptions, format: e.target.value })}
+                >
+                  {EXPORT_FORMATS.map(format => (
+                    <option key={format.id} value={format.id}>{format.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-semibold">
+                {language === 'ar' ? 'اللغة:' : 'Language:'}
+                <select
+                  className="ml-2 border rounded px-2 py-1 text-sm"
+                  value={exportOptions.language}
+                  onChange={e => setExportOptions({ ...exportOptions, language: e.target.value })}
+                >
+                  <option value="ar">Arabic</option>
+                  <option value="en">English</option>
+                </select>
+              </label>
+              <label className="text-sm font-semibold">
+                {language === 'ar' ? 'المدة الزمنية:' : 'Time Range:'}
+                <select
+                  className="ml-2 border rounded px-2 py-1 text-sm"
+                  value={exportOptions.timeRange}
+                  onChange={e => setExportOptions({ ...exportOptions, timeRange: e.target.value })}
+                >
+                  <option value="all">All Time</option>
+                  <option value="current-week">Current Week</option>
+                  <option value="current-phase">Current Phase</option>
+                </select>
+              </label>
+              <label className="text-sm font-semibold">
+                {language === 'ar' ? 'التاريخ:' : 'Date Range:'}
                 <input
-                  type="number"
-                  min={0}
-                  max={23}
-                  value={calendarExportHour}
-                  onChange={e => setCalendarExportHour(Number(e.target.value))}
-                  className="ml-2 w-12 border rounded px-1 py-1 text-sm"
+                  type="date"
+                  value={exportOptions.dateRange?.start?.toISOString().split('T')[0]}
+                  onChange={e => setExportOptions({ ...exportOptions, dateRange: { start: new Date(e.target.value), end: exportOptions.dateRange?.end } })}
+                  className="ml-2 w-32 border rounded px-1 py-1 text-sm"
                 />
-                :
+                -
                 <input
-                  type="number"
-                  min={0}
-                  max={59}
-                  value={calendarExportMinute}
-                  onChange={e => setCalendarExportMinute(Number(e.target.value))}
-                  className="w-12 border rounded px-1 py-1 text-sm"
+                  type="date"
+                  value={exportOptions.dateRange?.end?.toISOString().split('T')[0]}
+                  onChange={e => setExportOptions({ ...exportOptions, dateRange: { end: new Date(e.target.value), start: exportOptions.dateRange?.start } })}
+                  className="ml-2 w-32 border rounded px-1 py-1 text-sm"
                 />
               </label>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-end w-full">
-              {/* Add any additional export options form elements here */}
             </div>
           </div>
         </PageLayout>
