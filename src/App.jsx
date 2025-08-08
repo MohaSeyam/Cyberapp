@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import LanguageProvider from './components/layout/LanguageProvider';
 import { ErrorBoundary } from 'react-error-boundary';
+import NotificationSystem from './components/notifications/NotificationSystem';
+import { useNotifications } from './hooks/useNotifications';
 
 function ErrorFallback({ error }) {
   return (
@@ -31,8 +33,9 @@ const NoteEditPage = lazy(() => import('./pages/NoteEditPage'));
 const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
 const FeaturesDemoPage = lazy(() => import('./pages/FeaturesDemoPage'));
 
-function App() {
+function AppContent() {
   const [key, setKey] = useState(0);
+  const { notifications, dismissNotification } = useNotifications();
 
   useEffect(() => {
     const handleLanguageChange = () => {
@@ -47,31 +50,42 @@ function App() {
   }, []);
 
   return (
+    <Router>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Suspense fallback={<LoadingSpinner size="xl" text="جاري تحميل التطبيق..." variant="pulse" />}>
+          <Toaster />
+          <NotificationSystem 
+            notifications={notifications}
+            onDismiss={dismissNotification}
+            maxNotifications={5}
+          />
+          <Routes key={key}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/phases" element={<PhasesPage />} />
+            <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+            <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+            <Route path="/days/:weekId" element={<DaysPage />} />
+            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/journal" element={<JournalPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/note/:noteId" element={<NoteViewPage />} />
+            <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
+            <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
+            <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
+            <Route path="/features" element={<FeaturesDemoPage />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    </Router>
+  );
+}
+
+function App() {
+  return (
     <AppProvider>
       <LanguageProvider>
-        <Router>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Toaster />
-              <Routes key={key}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/progress" element={<ProgressPage />} />
-                <Route path="/phases" element={<PhasesPage />} />
-                <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
-                <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-                <Route path="/days/:weekId" element={<DaysPage />} />
-                <Route path="/notes" element={<NotesPage />} />
-                <Route path="/journal" element={<JournalPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/note/:noteId" element={<NoteViewPage />} />
-                <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
-                <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
-                <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
-                <Route path="/features" element={<FeaturesDemoPage />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </Router>
+        <AppContent />
       </LanguageProvider>
     </AppProvider>
   );
