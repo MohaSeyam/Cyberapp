@@ -13,6 +13,7 @@ interface CardProps {
   variant?: 'default' | 'elevated' | 'outlined';
   hover?: boolean;
   onClick?: () => void;
+  dir?: 'rtl' | 'ltr'; // أضف خاصية الاتجاه
 }
 
 export default function Card({
@@ -27,6 +28,7 @@ export default function Card({
   onClick
 }: CardProps) {
   const baseClasses = pageLayouts.card.base;
+  const direction = typeof window !== 'undefined' && document?.documentElement?.dir ? document.documentElement.dir : 'ltr';
   
   const variantClasses = {
     default: '',
@@ -41,7 +43,7 @@ export default function Card({
     <>
       {/* Card Header */}
       {(header || title || subtitle) && (
-        <div className={`${pageLayouts.card.header} rtl:text-right`}>
+        <div className={`${pageLayouts.card.header}`} dir={direction}>
           {header || (
             <>
               {title && (
@@ -60,13 +62,13 @@ export default function Card({
       )}
 
       {/* Card Body */}
-      <div className={`${pageLayouts.card.body} rtl:text-right`}>
+      <div className={`${pageLayouts.card.body}`} dir={direction}>
         {children}
       </div>
 
       {/* Card Footer */}
       {footer && (
-        <div className={`${pageLayouts.card.footer} rtl:text-right`}>
+        <div className={`${pageLayouts.card.footer}`} dir={direction}>
           {footer}
         </div>
       )}
@@ -81,6 +83,7 @@ export default function Card({
         className={`${baseClasses} ${variantClasses[variant]} ${hoverClasses} ${clickableClasses} ${className}`}
         whileHover={hover ? { scale: 1.02 } : {}}
         whileTap={{ scale: 0.98 }}
+        dir={direction}
       >
         {cardContent}
       </motion.div>
@@ -91,6 +94,7 @@ export default function Card({
     <motion.div
       {...animations.scaleIn}
       className={`${baseClasses} ${variantClasses[variant]} ${hoverClasses} ${className}`}
+      dir={direction}
     >
       {cardContent}
     </motion.div>
