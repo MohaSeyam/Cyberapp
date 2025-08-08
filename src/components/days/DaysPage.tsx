@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Calendar, ChevronRight, Target, Home, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText, Users, Star
+  Calendar, ChevronRight, ChevronLeft, Target, Clock, 
+  CheckCircle, PlayCircle, BookOpen, Users, Award,
+  TrendingUp, BarChart3, Activity, Star, Trophy,
+  Home, ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -11,6 +14,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
 
+// Day icons mapping
 const dayIcons = {
   sat: Sun,
   sun: Sun,
@@ -21,6 +25,7 @@ const dayIcons = {
   fri: Star
 };
 
+// Breadcrumbs component
 function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
   const navigate = useNavigate();
   
@@ -54,10 +59,11 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 
 export default function DaysPage() {
   const { plan, progress, refreshData } = useApp();
-  const { t, lang } = useLocalization();
+  const { t } = useLocalization();
   const navigate = useNavigate();
   const { weekId } = useParams();
 
+  // Safe translation function
   const safeT = (key: string) => {
     try {
       return t ? t(key) : key;
@@ -69,15 +75,17 @@ export default function DaysPage() {
 
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
 
+  // Safety checks for data
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
   const weekNumber = parseInt(weekId);
   const week = safePlan.find(w => w.week === weekNumber);
 
+  // Calculate day completion
   const getDayCompletion = (weekNumber: number, dayKey: string) => {
     const dayProgress = safeProgress.filter(p => 
-      p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey
+      p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
     );
     const completedTasks = dayProgress.filter(p => p.done).length;
     const totalTasks = dayProgress.length;
@@ -89,12 +97,13 @@ export default function DaysPage() {
     };
   };
 
+  // Calculate week completion
   const getWeekCompletion = (weekNumber: number) => {
     const week = safePlan.find(w => w.week === weekNumber);
     if (!week) return { completed: 0, total: 0, percentage: 0 };
 
     const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-    const weekProgress = safeProgress.filter(p => p.weekId?.toString() === (weekNumber?.toString() || ''));
+    const weekProgress = safeProgress.filter(p => p.weekId === (weekNumber?.toString() || ''));
     const completedTasks = weekProgress.filter(p => p.done).length;
 
     return {
@@ -104,6 +113,7 @@ export default function DaysPage() {
     };
   };
 
+  // Navigation functions
   const goToNextDay = () => {
     if (week && week.days && selectedDayIndex < week.days.length - 1) {
       setSelectedDayIndex(selectedDayIndex + 1);
@@ -156,6 +166,7 @@ export default function DaysPage() {
     { label: 'الأيام', icon: Calendar }
   ];
 
+  // Task type icons and colors mapping
   const taskTypeConfig = {
     'Blue Team': {
       icon: Shield,
@@ -190,27 +201,34 @@ export default function DaysPage() {
   };
 
   return (
-    <PageLayout showBottomBar={true}>
+    <PageLayout 
+      showBottomBar={true}
+    >
       <motion.div {...animations.fadeIn} className="space-y-6">
+        {/* Breadcrumbs */}
+        {/* تم إزالة العنوان والشرح من الأعلى */}
+        {/* Week Header - اسم الأسبوع صغير، العنوان كبير، لا زر عودة */}
         <div className="mb-4">
-          <span className="text-base text-gray-500 dark:text-gray-400">{t('week')} {weekNumber}</span>
+          <span className="text-base text-gray-500 dark:text-gray-400">الأسبوع {weekNumber}</span>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-1 mb-2">
-            {week.title?.[lang]}
+            {week.title?.ar}
           </h1>
         </div>
+        {/* Days List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {t('daysOfWeek')}
+            أيام الأسبوع
           </h3>
           <div className="space-y-3">
             {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
               const dayKey = day.key;
+              const dayProgress = safeProgress.filter(p => 
+                p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
+              );
+              const completedTasks = dayProgress.filter(p => p.done).length;
               const totalTasks = day.tasks?.length || 0;
-              const completedTasks = (day.tasks || []).filter(task => {
-                return safeProgress.some(p => p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey && p.taskId === task.id && p.done);
-              }).length;
+              const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
               const DayIcon = dayIcons[dayKey] || Calendar;
-
               return (
                 <motion.div 
                   key={dayKey} 
@@ -224,14 +242,14 @@ export default function DaysPage() {
                     </div>
                     <div>
                       <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                        {day.name?.[lang] || day.day?.[lang]}
+                        {day.name?.ar || day.day?.ar}
                       </h4>
                       <p className="text-base text-gray-600 dark:text-gray-400">
-                        {day.topic?.[lang]}
+                        {day.topic?.ar}
                       </p>
                     </div>
                     <div className="ml-auto flex flex-col items-end">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('tasksCount')}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">عدد المهام</span>
                       <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{completedTasks}/{totalTasks}</span>
                     </div>
                   </div>
@@ -249,4 +267,4 @@ export default function DaysPage() {
       </motion.div>
     </PageLayout>
   );
-}
+          }
