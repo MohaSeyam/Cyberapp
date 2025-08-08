@@ -22,7 +22,7 @@ const dayIcons = {
   fri: Star
 };
 
-// Breadcrumbs component (assuming it's a local component or imported)
+// Breadcrumbs component
 function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
   const navigate = useNavigate();
   
@@ -56,7 +56,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 
 export default function DaysPage() {
   const { plan, progress, refreshData } = useApp();
-  const { t, lang } = useLocalization(); // Get lang for dynamic content
+  const { t, lang } = useLocalization(); // Correctly get lang
   const navigate = useNavigate();
   const { weekId } = useParams();
 
@@ -79,6 +79,7 @@ export default function DaysPage() {
   const weekNumber = parseInt(weekId);
   const week = safePlan.find(w => w.week === weekNumber);
 
+  // Navigation functions
   const goToDayView = (dayIndex: number) => {
     navigate(`/day/${weekId}/${dayIndex}`);
   };
@@ -109,6 +110,15 @@ export default function DaysPage() {
       </PageLayout>
     );
   }
+  
+  // Task type icons and colors mapping
+  const taskTypeConfig = {
+    'Blue Team': { icon: Shield, color: 'blue', bgColor: 'bg-blue-100 dark:bg-blue-900', textColor: 'text-blue-600 dark:text-blue-400' },
+    'Red Team': { icon: Bug, color: 'red', bgColor: 'bg-red-100 dark:bg-red-900', textColor: 'text-red-600 dark:text-red-400' },
+    'Particular': { icon: Target, color: 'purple', bgColor: 'bg-purple-100 dark:bg-purple-900', textColor: 'text-purple-600 dark:text-purple-400' },
+    'Soft Skills': { icon: Users, color: 'green', bgColor: 'bg-green-100 dark:bg-green-900', textColor: 'text-green-600 dark:text-green-400' },
+    'Policies': { icon: FileText, color: 'orange', bgColor: 'bg-orange-100 dark:bg-orange-900', textColor: 'text-orange-600 dark:text-orange-400' }
+  };
 
   return (
     <PageLayout showBottomBar={true}>
@@ -185,4 +195,3 @@ export default function DaysPage() {
     </PageLayout>
   );
 }
-
