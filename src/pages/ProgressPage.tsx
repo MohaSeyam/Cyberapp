@@ -418,6 +418,66 @@ const EnhancedOverviewTab = React.memo(({ stats, language, safeT }) => {
   );
 });
 
+// Add SmartAnalyticsCard component
+const SmartAnalyticsCard = ({ plan, progress, language }) => {
+  // حساب نقاط القوة والضعف
+  const weekStats = useMemo(() => {
+    if (!plan || !progress) return [];
+    return plan.map(week => {
+      const weekTasks = week.days.flatMap(day => day.tasks);
+      const completed = progress.filter(p => p.done && weekTasks.some(task => task.id === p.taskId)).length;
+      return {
+        week: week.week,
+        total: weekTasks.length,
+        completed,
+        completionRate: weekTasks.length > 0 ? Math.round((completed / weekTasks.length) * 100) : 0
+      };
+    });
+  }, [plan, progress]);
+
+  // نقاط القوة: أعلى أسبوع/مرحلة إنجازاً
+  const bestWeek = weekStats.reduce((best, curr) => curr.completionRate > (best?.completionRate || 0) ? curr : best, null);
+  // نقاط الضعف: أقل أسبوع/مرحلة إنجازاً
+  const worstWeek = weekStats.reduce((worst, curr) => curr.completionRate < (worst?.completionRate ?? 101) ? curr : worst, null);
+
+  // اقتراحات بناءً على الأداء
+  const suggestion = useMemo(() => {
+    if (!bestWeek || !worstWeek) return '';
+    if (worstWeek.completionRate < 50) {
+      return language === 'ar'
+        ? `ركز على تحسين إنجازك في الأسبوع ${worstWeek.week}. حاول إنهاء المهام المتبقية.`
+        : `Focus on improving your completion in week ${worstWeek.week}. Try to finish the remaining tasks.`;
+    } else if (bestWeek.completionRate === 100) {
+      return language === 'ar'
+        ? `أداء ممتاز في الأسبوع ${bestWeek.week}! استمر بهذا المستوى.`
+        : `Excellent performance in week ${bestWeek.week}! Keep it up.`;
+    } else {
+      return language === 'ar'
+        ? `حافظ على تقدمك ووازن بين جميع الأسابيع.`
+        : `Maintain your progress and balance your effort across all weeks.`;
+    }
+  }, [bestWeek, worstWeek, language]);
+
+  return (
+    <div className="mb-8">
+      <div className="p-6 rounded-xl bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-2">
+            {language === 'ar' ? 'تحليل ذكي للتقدم' : 'Smart Progress Analytics'}
+          </h2>
+          <p className="text-gray-700 dark:text-gray-200">
+            {language === 'ar' ? 'نقاط القوة:' : 'Strengths:'} {bestWeek ? `${language === 'ar' ? 'الأسبوع' : 'Week'} ${bestWeek.week} (${bestWeek.completionRate}%)` : '-'}<br />
+            {language === 'ar' ? 'نقاط الضعف:' : 'Weaknesses:'} {worstWeek ? `${language === 'ar' ? 'الأسبوع' : 'Week'} ${worstWeek.week} (${worstWeek.completionRate}%)` : '-'}
+          </p>
+        </div>
+        <div className="text-green-700 dark:text-green-300 font-semibold text-lg">
+          {suggestion}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Enhanced Analytics Tab Component
 const EnhancedAnalyticsTab = React.memo(() => {
   const { plan, progress } = useApp();
@@ -465,6 +525,7 @@ const EnhancedAnalyticsTab = React.memo(() => {
 
   return (
     <div className="space-y-8">
+      <SmartAnalyticsCard plan={plan} progress={progress} language={language} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
