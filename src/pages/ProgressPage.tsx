@@ -204,6 +204,8 @@ function ReportsTab({ language }) {
     { id: 'phase', label: { ar: 'مرحلة محددة', en: 'Specific Phase' } }
   ];
 
+  const REPORT_LOGO_URL = '/logo192.png'; // You can change this to your logo path
+
   // Helper: gather data for export
   const getExportData = () => {
     // For simplicity, always export all for now
@@ -216,41 +218,82 @@ function ReportsTab({ language }) {
     }))) || [];
     const completed = tasks.filter(t => t.done).length;
     const total = tasks.length;
-    return { tasks, completed, total };
+    // إحصائيات إضافية
+    const bestWeek = plan?.reduce((best, week) => {
+      const weekTasks = week.days.flatMap(day => day.tasks);
+      const weekDone = weekTasks.filter(task => progress?.some(p => p.taskId === task.id && p.done)).length;
+      const rate = weekTasks.length > 0 ? weekDone / weekTasks.length : 0;
+      return rate > (best?.rate || 0) ? { week: week.week, rate } : best;
+    }, null);
+    const worstWeek = plan?.reduce((worst, week) => {
+      const weekTasks = week.days.flatMap(day => day.tasks);
+      const weekDone = weekTasks.filter(task => progress?.some(p => p.taskId === task.id && p.done)).length;
+      const rate = weekTasks.length > 0 ? weekDone / weekTasks.length : 1;
+      return rate < (worst?.rate ?? 1) ? { week: week.week, rate } : worst;
+    }, null);
+    return { tasks, completed, total, bestWeek, worstWeek };
   };
 
   // Export logic
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const { tasks, completed, total } = getExportData();
+      const { tasks, completed, total, bestWeek, worstWeek } = getExportData();
       const date = new Date().toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
       let blob, fileName;
       if (format === 'pdf') {
         const jsPDF = (await import('jspdf')).default;
         const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(22);
-        doc.text(language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report', 40, 60);
+        // Cover with color
+        doc.setFillColor(29, 78, 216); // blue
+        doc.rect(0, 0, 600, 100, 'F');
+        doc.setTextColor('#fff');
+        doc.setFontSize(28);
+        doc.text(language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report', 300, 60, { align: 'center' });
+        // Logo (optional)
+        try {
+          const img = new window.Image();
+          img.src = REPORT_LOGO_URL;
+          await new Promise(res => { img.onload = res; });
+          doc.addImage(img, 'PNG', 30, 30, 40, 40);
+        } catch {}
+        doc.setTextColor('#222');
         doc.setFontSize(12);
-        doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${date}`, 40, 80);
+        doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${date}`, 40, 120);
+        // Summary box
+        doc.setDrawColor(29, 78, 216);
+        doc.setFillColor(219, 234, 254);
+        doc.roundedRect(40, 135, 520, 60, 8, 8, 'FD');
         doc.setFontSize(14);
-        doc.text(`${language === 'ar' ? 'ملخص' : 'Summary'}: ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}`, 40, 110);
+        doc.text(`${language === 'ar' ? 'ملخص' : 'Summary'}: ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}`, 60, 160);
+        if (bestWeek)
+          doc.text(`${language === 'ar' ? 'أفضل أسبوع:' : 'Best week:'} ${bestWeek.week} (${Math.round(bestWeek.rate*100)}%)`, 60, 180);
+        if (worstWeek)
+          doc.text(`${language === 'ar' ? 'أضعف أسبوع:' : 'Weakest week:'} ${worstWeek.week} (${Math.round(worstWeek.rate*100)}%)`, 250, 180);
         // Table header
-        let y = 140;
+        let y = 220;
         doc.setFontSize(12);
+        doc.setTextColor('#1d4ed8');
+        doc.setFont(undefined, 'bold');
         doc.text(language === 'ar' ? 'الأسبوع' : 'Week', 40, y);
         doc.text(language === 'ar' ? 'اليوم' : 'Day', 90, y);
         doc.text(language === 'ar' ? 'المهمة' : 'Task', 180, y);
         doc.text(language === 'ar' ? 'النوع' : 'Type', 350, y);
         doc.text(language === 'ar' ? 'الحالة' : 'Status', 420, y);
         y += 20;
-        tasks.forEach(t => {
+        doc.setFont(undefined, 'normal');
+        // Table rows with alternating color
+        tasks.forEach((t, i) => {
+          if (i % 2 === 1) {
+            doc.setFillColor(240, 249, 255);
+            doc.rect(40, y - 12, 480, 18, 'F');
+          }
+          doc.setTextColor('#222');
           doc.text(String(t.week), 40, y);
           doc.text(String(t.day), 90, y);
           doc.text(String(t.task), 180, y, { maxWidth: 150 });
           doc.text(String(language === 'ar' ? translateType(t.type) : t.type), 350, y);
-          doc.text(t.done ? (language === 'ar' ? '✓ مكتملة' : '✓ Done') : (language === 'ar' ? 'غير مكتملة' : 'Not done'), 420, y);
+          doc.text(t.done ? (language === 'ar' ? '✓ مكتملة' : '✓ Done') : (language === 'ar' ? '✗ غير مكتملة' : '✗ Not done'), 420, y);
           y += 18;
           if (y > 750) { doc.addPage(); y = 60; }
         });
@@ -259,11 +302,15 @@ function ReportsTab({ language }) {
       } else if (format === 'markdown') {
         let md = `# ${language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report'}\n`;
         md += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}:** ${date}\n`;
-        md += `**${language === 'ar' ? 'ملخص' : 'Summary'}:** ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}\n\n`;
-        md += `| ${language === 'ar' ? 'الأسبوع' : 'Week'} | ${language === 'ar' ? 'اليوم' : 'Day'} | ${language === 'ar' ? 'المهمة' : 'Task'} | ${language === 'ar' ? 'النوع' : 'Type'} | ${language === 'ar' ? 'الحالة' : 'Status'} |\n`;
+        md += `**${language === 'ar' ? 'ملخص' : 'Summary'}:** ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}\n`;
+        if (bestWeek)
+          md += `- ${language === 'ar' ? 'أفضل أسبوع:' : 'Best week:'} ${bestWeek.week} (${Math.round(bestWeek.rate*100)}%)\n`;
+        if (worstWeek)
+          md += `- ${language === 'ar' ? 'أضعف أسبوع:' : 'Weakest week:'} ${worstWeek.week} (${Math.round(worstWeek.rate*100)}%)\n`;
+        md += `\n| ${language === 'ar' ? 'الأسبوع' : 'Week'} | ${language === 'ar' ? 'اليوم' : 'Day'} | ${language === 'ar' ? 'المهمة' : 'Task'} | ${language === 'ar' ? 'النوع' : 'Type'} | ${language === 'ar' ? 'الحالة' : 'Status'} |\n`;
         md += `|---|---|---|---|---|\n`;
         tasks.forEach(t => {
-          md += `| ${t.week} | ${t.day} | ${t.task} | ${language === 'ar' ? translateType(t.type) : t.type} | ${t.done ? (language === 'ar' ? '✓ مكتملة' : '✓ Done') : (language === 'ar' ? 'غير مكتملة' : 'Not done')} |\n`;
+          md += `| ${t.week} | ${t.day} | ${t.task} | ${language === 'ar' ? translateType(t.type) : t.type} | ${t.done ? '✓' : '✗'} |\n`;
         });
         blob = new Blob([md], { type: 'text/markdown' });
         fileName = `cyberplan-report-${date}.md`;
@@ -281,7 +328,9 @@ function ReportsTab({ language }) {
             exportDate: date,
             completed,
             total,
-            language
+            language,
+            bestWeek,
+            worstWeek
           },
           tasks
         }, null, 2);
