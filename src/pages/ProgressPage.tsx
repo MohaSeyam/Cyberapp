@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart3, Zap, LineChart, Download, Lightbulb, CheckCircle, Calendar, Flame, Clock } from 'lucide-react';
+import { BarChart3, LineChart, Download, Lightbulb, CheckCircle, Calendar, Flame, Clock, Zap, PieChart } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import { Link } from 'react-router-dom';
@@ -14,18 +14,11 @@ const TABS = [
     description: { ar: 'ملخص شامل للتقدم', en: 'Comprehensive progress summary' }
   },
   {
-    id: 'smart',
-    label: { ar: 'التحليل الذكي', en: 'Smart Analytics' },
-    icon: Zap,
-    color: 'green',
-    description: { ar: 'تحليل ذكي للأداء', en: 'Smart performance analytics' }
-  },
-  {
     id: 'analytics',
     label: { ar: 'التحليلات', en: 'Analytics' },
     icon: LineChart,
     color: 'purple',
-    description: { ar: 'رسوم بيانية مفصلة', en: 'Detailed charts and graphs' }
+    description: { ar: 'تحليل ذكي ورسوم بيانية', en: 'Smart analytics and charts' }
   },
   {
     id: 'reports',
@@ -67,6 +60,141 @@ function TabBar({ tabs, activeTab, setActiveTab, language }) {
       </div>
     </div>
   );
+}
+
+function SmartAnalyticsCard({ plan, progress, language }) {
+  // حساب نقاط القوة والضعف
+  const weekStats = useMemo(() => {
+    if (!plan || !progress) return [];
+    return plan.map(week => {
+      const weekTasks = week.days.flatMap(day => day.tasks);
+      const completed = progress.filter(p => p.done && weekTasks.some(task => task.id === p.taskId)).length;
+      return {
+        week: week.week,
+        total: weekTasks.length,
+        completed,
+        completionRate: weekTasks.length > 0 ? Math.round((completed / weekTasks.length) * 100) : 0
+      };
+    });
+  }, [plan, progress]);
+  // نقاط القوة: أعلى أسبوع إنجازاً
+  const bestWeek = weekStats.reduce((best, curr) => curr.completionRate > (best?.completionRate || 0) ? curr : best, null);
+  // نقاط الضعف: أقل أسبوع إنجازاً
+  const worstWeek = weekStats.reduce((worst, curr) => curr.completionRate < (worst?.completionRate ?? 101) ? curr : worst, null);
+  // اقتراحات بناءً على الأداء
+  const suggestion = useMemo(() => {
+    if (!bestWeek || !worstWeek) return '';
+    if (worstWeek.completionRate < 50) {
+      return language === 'ar'
+        ? `ركز على تحسين إنجازك في الأسبوع ${worstWeek.week}. حاول إنهاء المهام المتبقية.`
+        : `Focus on improving your completion in week ${worstWeek.week}. Try to finish the remaining tasks.`;
+    } else if (bestWeek.completionRate === 100) {
+      return language === 'ar'
+        ? `أداء ممتاز في الأسبوع ${bestWeek.week}! استمر بهذا المستوى.`
+        : `Excellent performance in week ${bestWeek.week}! Keep it up.`;
+    } else {
+      return language === 'ar'
+        ? `حافظ على تقدمك ووازن بين جميع الأسابيع.`
+        : `Maintain your progress and balance your effort across all weeks.`;
+    }
+  }, [bestWeek, worstWeek, language]);
+  return (
+    <Card className="p-6 mb-6 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-2">
+          {language === 'ar' ? 'تحليل ذكي للتقدم' : 'Smart Progress Analytics'}
+        </h2>
+        <p className="text-gray-700 dark:text-gray-200">
+          {language === 'ar' ? 'نقاط القوة:' : 'Strengths:'} {bestWeek ? `${language === 'ar' ? 'الأسبوع' : 'Week'} ${bestWeek.week} (${bestWeek.completionRate}%)` : '-'}<br />
+          {language === 'ar' ? 'نقاط الضعف:' : 'Weaknesses:'} {worstWeek ? `${language === 'ar' ? 'الأسبوع' : 'Week'} ${worstWeek.week} (${worstWeek.completionRate}%)` : '-'}
+        </p>
+      </div>
+      <div className="text-green-700 dark:text-green-300 font-semibold text-lg">
+        {suggestion}
+      </div>
+    </Card>
+  );
+}
+
+function AnalyticsTab({ language }) {
+  const { plan, progress } = useApp();
+  // بيانات رسم بياني تطور الإنجاز عبر الأسابيع
+  const weeklyData = useMemo(() => plan?.map(week => {
+    const weekTasks = week.days.reduce((s, d) => s + (d.tasks?.length || 0), 0);
+    const weekProgress = progress?.filter(p => Number(p.weekId) === Number(week.week));
+    const weekDone = weekProgress?.filter(p => p.done).length || 0;
+    return {
+      week: week.week,
+      percent: weekTasks > 0 ? Math.round((weekDone / weekTasks) * 100) : 0
+    };
+  }) || [], [plan, progress]);
+  // توزيع المهام حسب النوع
+  const taskTypeStats = useMemo(() => {
+    const stats = {};
+    plan?.forEach(week => {
+      week.days.forEach(day => {
+        day.tasks.forEach(task => {
+          stats[task.type] = (stats[task.type] || 0) + 1;
+        });
+      });
+    });
+    return stats;
+  }, [plan]);
+  const taskTypeColors = {
+    'Blue Team': 'bg-blue-400',
+    'Red Team': 'bg-red-400',
+    'Practical': 'bg-green-400',
+    'Theoretical': 'bg-purple-400',
+    'Policies': 'bg-orange-400'
+  };
+  return (
+    <div className="space-y-8">
+      <SmartAnalyticsCard plan={plan} progress={progress} language={language} />
+      {/* رسم بياني تطور الإنجاز */}
+      <Card className="p-6">
+        <h4 className="font-semibold mb-2 flex items-center gap-2"><LineChart className="w-5 h-5 text-blue-500" />{language === 'ar' ? 'تطور الإنجاز عبر الأسابيع' : 'Weekly Progress Trend'}</h4>
+        <div className="w-full h-32 flex items-end gap-2">
+          {weeklyData.map((w, i) => (
+            <div key={w.week} className="flex flex-col items-center flex-1">
+              <div
+                className="w-4 md:w-6 rounded-t bg-blue-400 dark:bg-blue-600 transition-all"
+                style={{ height: `${w.percent * 1.2}px`, minHeight: '8px' }}
+                title={`${language === 'ar' ? 'الأسبوع' : 'Week'} ${w.week}: ${w.percent}%`}
+              />
+              <span className="text-xs mt-1 text-gray-400">{w.week}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+      {/* توزيع المهام حسب النوع */}
+      <Card className="p-6">
+        <h4 className="font-semibold mb-2 flex items-center gap-2"><PieChart className="w-5 h-5 text-purple-500" />{language === 'ar' ? 'توزيع المهام حسب النوع' : 'Task Type Distribution'}</h4>
+        <div className="flex flex-wrap gap-4">
+          {Object.keys(taskTypeStats).length === 0 && (
+            <span className="text-gray-400">{language === 'ar' ? 'لا توجد بيانات' : 'No data'}</span>
+          )}
+          {Object.entries(taskTypeStats).map(([type, count]) => (
+            <div key={type} className="flex items-center gap-2">
+              <span className={`inline-block w-4 h-4 rounded-full ${taskTypeColors[type] || 'bg-gray-300'}`}></span>
+              <span className="text-sm font-semibold">{language === 'ar' ? translateType(type) : type}</span>
+              <span className="text-xs text-gray-500">{count}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function translateType(type) {
+  switch(type) {
+    case 'Blue Team': return 'الفريق الأزرق';
+    case 'Red Team': return 'الفريق الأحمر';
+    case 'Practical': return 'عملي';
+    case 'Theoretical': return 'نظري';
+    case 'Policies': return 'سياسات';
+    default: return type;
+  }
 }
 
 function OverviewTab({ language }) {
@@ -202,8 +330,7 @@ export default function ProgressPage() {
       </div>
       <TabBar tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} language={language} />
       {activeTab === 'overview' && <OverviewTab language={language} />}
-      {activeTab === 'smart' && <PlaceholderCard title={language === 'ar' ? 'التحليل الذكي' : 'Smart Analytics'} language={language} />}
-      {activeTab === 'analytics' && <PlaceholderCard title={language === 'ar' ? 'التحليلات' : 'Analytics'} language={language} />}
+      {activeTab === 'analytics' && <AnalyticsTab language={language} />}
       {activeTab === 'reports' && <PlaceholderCard title={language === 'ar' ? 'التقارير' : 'Reports'} language={language} />}
       {activeTab === 'suggestions' && <PlaceholderCard title={language === 'ar' ? 'الاقتراحات' : 'Suggestions'} language={language} />}
     </PageLayout>
