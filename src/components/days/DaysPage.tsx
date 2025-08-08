@@ -59,45 +59,79 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 }
 
 // WeekEvaluationWidget component
-const WeekEvaluationWidget = ({ weekId, language }) => {
+const WeekEvaluationWidget = ({ weekId, language, allTasksCompleted }) => {
   const { weekEvaluations, addOrUpdateWeekEvaluation } = useApp();
   const [rating, setRating] = useState(0);
   const [note, setNote] = useState('');
+  const [open, setOpen] = useState(false);
+  const evalObj = weekEvaluations.find(e => e.weekId === weekId);
 
   useEffect(() => {
-    const evalObj = weekEvaluations.find(e => e.weekId === weekId);
     if (evalObj) {
       setRating(evalObj.rating);
       setNote(evalObj.note || '');
+    } else {
+      setRating(0);
+      setNote('');
     }
-  }, [weekEvaluations, weekId]);
+  }, [evalObj, weekId]);
 
   const handleSave = () => {
     addOrUpdateWeekEvaluation({ weekId, rating, note: note || undefined });
+    setOpen(false);
   };
 
-  return (
-    <div className="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div className="flex items-center gap-2 mb-2 md:mb-0">
-        <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم الأسبوع:' : 'Week Rating:'}</span>
+  // ملخص التقييم
+  const summary = evalObj && evalObj.rating ? (
+    <span className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300 ml-2">
+      <span className="flex items-center gap-0.5">
         {[1,2,3,4,5].map(star => (
-          <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
-            <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
-          </button>
+          <span key={star} className={star <= evalObj.rating ? 'text-yellow-400' : 'text-gray-300'}>★</span>
         ))}
-      </div>
-      <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
-        <textarea
-          className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900"
-          rows={2}
-          value={note}
-          onChange={e => setNote(e.target.value)}
-          placeholder={language === 'ar' ? 'ملاحظات عن الأسبوع...' : 'Notes about this week...'}
-        />
-        <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold">
-          {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
-        </button>
-      </div>
+      </span>
+      {evalObj.note && (
+        <span className="ml-2 text-xs text-gray-400 max-w-xs truncate">{evalObj.note.slice(0, 30)}...</span>
+      )}
+    </span>
+  ) : null;
+
+  if (!allTasksCompleted) return null;
+
+  return (
+    <div className="mb-6">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`flex items-center gap-1 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm hover:bg-green-50 dark:hover:bg-green-800 transition-all text-xs font-semibold ${open ? 'ring-2 ring-green-400' : ''}`}
+        title={language === 'ar' ? 'تقييم الأسبوع' : 'Rate Week'}
+      >
+        <Star className="w-4 h-4 text-yellow-400" />
+        {language === 'ar' ? 'تقييم الأسبوع' : 'Rate Week'}
+        {summary}
+      </button>
+      {open && (
+        <div className="mt-3 p-4 rounded-xl bg-white dark:bg-gray-900 border border-green-200 dark:border-green-700 shadow-lg max-w-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم الأسبوع:' : 'Week Rating:'}</span>
+            {[1,2,3,4,5].map(star => (
+              <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
+                <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+              </button>
+            ))}
+          </div>
+          <textarea
+            className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900 mb-3"
+            rows={2}
+            value={note}
+            onChange={e => setNote(e.target.value)}
+            placeholder={language === 'ar' ? 'ملاحظات عن الأسبوع...' : 'Notes about this week...'}
+          />
+          <div className="flex justify-end">
+            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white rounded px-4 py-1 text-sm font-semibold shadow">
+              {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -203,6 +237,11 @@ export default function DaysPage() {
   const currentDay = week.days?.[selectedDayIndex];
   const weekCompletion = getWeekCompletion(weekNumber);
 
+  // في DaysPage، احسب هل جميع المهام في الأسبوع مكتملة، ومرر allTasksCompleted إلى WeekEvaluationWidget
+  const allTasksCompleted = week.days?.filter(day => day.key !== 'fri').every(day => 
+    getDayCompletion(weekNumber, day.key).percentage === 100
+  );
+
   const breadcrumbs = [
     { label: 'المراحل', icon: Calendar, onClick: goToWeekView },
     { label: `الأسبوع ${weekNumber}`, icon: Target },
@@ -258,7 +297,7 @@ export default function DaysPage() {
           </h1>
         </div>
         {/* Week Evaluation Widget */}
-        <WeekEvaluationWidget weekId={weekNumber} language={t('language') === 'ar' ? 'ar' : 'en'} />
+        <WeekEvaluationWidget weekId={weekNumber} language={t('language') === 'ar' ? 'ar' : 'en'} allTasksCompleted={allTasksCompleted} />
         {/* Days List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
