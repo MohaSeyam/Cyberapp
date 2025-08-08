@@ -310,6 +310,7 @@ export function AppProvider({ children }: AppProviderProps) {
       setSettings(updatedSettings);
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updatedSettings));
       await settingsService.set('userSettings', updatedSettings);
+      settingsService.applySettings();
     } catch (error) {
       console.error('Error updating settings:', error);
       toast.error('فشل في حفظ الإعدادات');
