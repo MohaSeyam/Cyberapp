@@ -7,7 +7,7 @@ import {
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
   ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
-  Shield, Bug, Users, Code, Trash2, X, Tag
+  Shield, Bug, Users, Code, Trash2, X, Tag, Activity
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -112,7 +112,9 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
   const [difficulty, setDifficulty] = useState('');
   const [note, setNote] = useState('');
   const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
   const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
+  const isRTL = language === 'ar';
 
   useEffect(() => {
     if (evalObj) {
@@ -128,7 +130,11 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
 
   const handleSave = () => {
     addOrUpdateTaskEvaluation({ taskId, weekId, rating, difficulty: difficulty || undefined, note: note || undefined });
-    setOpen(false);
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      setOpen(false);
+    }, 1200);
   };
 
   // ملخص التقييم
@@ -154,27 +160,31 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
   if (summaryOnly) return summary;
 
   return (
-    <div className="mt-2 mb-4">
+    <div className="mt-2 mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <button
         onClick={() => setOpen(o => !o)}
-        className={`flex items-center gap-1 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm hover:bg-blue-50 dark:hover:bg-blue-800 transition-all text-xs font-semibold ${open ? 'ring-2 ring-blue-400' : ''}`}
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow hover:bg-blue-50 dark:hover:bg-blue-800 transition-all text-xs font-semibold ${open ? 'ring-2 ring-blue-400' : ''}`}
         title={language === 'ar' ? 'تقييم المهمة' : 'Rate Task'}
       >
-        <Star className="w-4 h-4 text-yellow-400" />
+        <Star className="w-4 h-4 text-yellow-400 mr-1" />
         {language === 'ar' ? 'تقييم' : 'Rate'}
         {summary}
       </button>
       {open && (
-        <div className="mt-3 p-4 rounded-xl bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-700 shadow-lg max-w-xs">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mt-3 p-5 rounded-2xl bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-700 shadow-2xl max-w-xs animate-fade-in flex flex-col gap-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Star className="w-5 h-5 text-yellow-400" />
             <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم المهمة:' : 'Task Rating:'}</span>
-            {[1,2,3,4,5].map(star => (
-              <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
-                <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
-              </button>
-            ))}
+            <span className="flex items-center gap-0.5 ml-2">
+              {[1,2,3,4,5].map(star => (
+                <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
+                  <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+                </button>
+              ))}
+            </span>
           </div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Activity className="w-5 h-5 text-blue-400" />
             <span className="text-sm text-gray-600 dark:text-gray-300">{language === 'ar' ? 'الصعوبة:' : 'Difficulty:'}</span>
             <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="rounded px-2 py-1 text-sm border dark:bg-gray-900">
               <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
@@ -183,15 +193,21 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
               <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
             </select>
           </div>
-          <textarea
-            className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900 mb-3"
-            rows={2}
-            value={note}
-            onChange={e => setNote(e.target.value)}
-            placeholder={language === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'}
-          />
-          <div className="flex justify-end">
-            <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold shadow">
+          <div className="flex items-start gap-2 mb-1">
+            <FileText className="w-5 h-5 text-green-400 mt-1" />
+            <textarea
+              className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900"
+              rows={2}
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              placeholder={language === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'}
+            />
+          </div>
+          <div className="flex justify-end items-center gap-2 mt-2">
+            {saved && (
+              <span className="text-green-600 text-xs font-semibold transition-all">{language === 'ar' ? 'تم الحفظ بنجاح' : 'Saved!'}</span>
+            )}
+            <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold shadow transition-all">
               {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
             </button>
           </div>

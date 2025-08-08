@@ -64,7 +64,9 @@ const WeekEvaluationWidget = ({ weekId, language, allTasksCompleted }) => {
   const [rating, setRating] = useState(0);
   const [note, setNote] = useState('');
   const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
   const evalObj = weekEvaluations.find(e => e.weekId === weekId);
+  const isRTL = language === 'ar';
 
   useEffect(() => {
     if (evalObj) {
@@ -78,7 +80,11 @@ const WeekEvaluationWidget = ({ weekId, language, allTasksCompleted }) => {
 
   const handleSave = () => {
     addOrUpdateWeekEvaluation({ weekId, rating, note: note || undefined });
-    setOpen(false);
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      setOpen(false);
+    }, 1200);
   };
 
   // ملخص التقييم
@@ -98,35 +104,44 @@ const WeekEvaluationWidget = ({ weekId, language, allTasksCompleted }) => {
   if (!allTasksCompleted) return null;
 
   return (
-    <div className="mb-6">
+    <div className="mb-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <button
         onClick={() => setOpen(o => !o)}
-        className={`flex items-center gap-1 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm hover:bg-green-50 dark:hover:bg-green-800 transition-all text-xs font-semibold ${open ? 'ring-2 ring-green-400' : ''}`}
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow hover:bg-green-50 dark:hover:bg-green-800 transition-all text-xs font-semibold ${open ? 'ring-2 ring-green-400' : ''}`}
         title={language === 'ar' ? 'تقييم الأسبوع' : 'Rate Week'}
       >
-        <Star className="w-4 h-4 text-yellow-400" />
+        <Star className="w-4 h-4 text-yellow-400 mr-1" />
         {language === 'ar' ? 'تقييم الأسبوع' : 'Rate Week'}
         {summary}
       </button>
       {open && (
-        <div className="mt-3 p-4 rounded-xl bg-white dark:bg-gray-900 border border-green-200 dark:border-green-700 shadow-lg max-w-xs">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mt-3 p-5 rounded-2xl bg-white dark:bg-gray-900 border border-green-200 dark:border-green-700 shadow-2xl max-w-xs animate-fade-in flex flex-col gap-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Star className="w-5 h-5 text-yellow-400" />
             <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم الأسبوع:' : 'Week Rating:'}</span>
-            {[1,2,3,4,5].map(star => (
-              <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
-                <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
-              </button>
-            ))}
+            <span className="flex items-center gap-0.5 ml-2">
+              {[1,2,3,4,5].map(star => (
+                <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
+                  <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+                </button>
+              ))}
+            </span>
           </div>
-          <textarea
-            className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900 mb-3"
-            rows={2}
-            value={note}
-            onChange={e => setNote(e.target.value)}
-            placeholder={language === 'ar' ? 'ملاحظات عن الأسبوع...' : 'Notes about this week...'}
-          />
-          <div className="flex justify-end">
-            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white rounded px-4 py-1 text-sm font-semibold shadow">
+          <div className="flex items-start gap-2 mb-1">
+            <FileText className="w-5 h-5 text-green-400 mt-1" />
+            <textarea
+              className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900"
+              rows={2}
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              placeholder={language === 'ar' ? 'ملاحظات عن الأسبوع...' : 'Notes about this week...'}
+            />
+          </div>
+          <div className="flex justify-end items-center gap-2 mt-2">
+            {saved && (
+              <span className="text-green-600 text-xs font-semibold transition-all">{language === 'ar' ? 'تم الحفظ بنجاح' : 'Saved!'}</span>
+            )}
+            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white rounded px-4 py-1 text-sm font-semibold shadow transition-all">
               {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
             </button>
           </div>
