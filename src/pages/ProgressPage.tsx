@@ -133,7 +133,6 @@ function MinimalOverview({ language }) {
 }
 
 export default function ProgressPage() {
-  const [activeTab, setActiveTab] = useState('overview');
   const language = document.documentElement.dir === 'rtl' ? 'ar' : 'en';
   return (
     <PageLayout
@@ -146,10 +145,9 @@ export default function ProgressPage() {
           to="/resources"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow transition-all"
         >
-          📚 {language === 'ar' ? 'مستودع الموارد' : 'Resources Repository'}
+          📚 {language === 'ar' ? 'مستودع المراجع' : 'Resources Repository'}
         </Link>
       </div>
-      <TabBar tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} language={language} />
       <MinimalOverview language={language} />
     </PageLayout>
   );
