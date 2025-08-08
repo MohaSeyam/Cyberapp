@@ -2,10 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Calendar, ChevronRight, ChevronLeft, Target, Clock, 
+  Calendar, Target, Clock, 
   CheckCircle, PlayCircle, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText
+  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -24,38 +24,6 @@ const dayIcons = {
   thu: Brain,
   fri: Star
 };
-
-// Breadcrumbs component
-function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
-  const navigate = useNavigate();
-  
-  return (
-    <nav className="flex items-center space-x-2 mb-6 text-sm">
-      <button 
-        onClick={() => navigate('/')}
-        className="flex items-center text-blue-600 dark:text-blue-400 hover:underline"
-      >
-        <Home className="w-4 h-4 mr-1" />
-        الرئيسية
-      </button>
-      
-      {items.map((item, idx) => (
-        <span key={idx} className="flex items-center">
-          <ChevronRight className="w-4 h-4 mx-1 text-gray-400" />
-          {item.onClick ? (
-            <button onClick={item.onClick} className="text-blue-600 dark:text-blue-400 hover:underline">
-              {item.icon && <item.icon className="inline w-4 h-4 mr-1" />} {item.label}
-            </button>
-          ) : (
-            <span className="text-gray-700 dark:text-gray-200 font-semibold">
-              {item.icon && <item.icon className="inline w-4 h-4 mr-1" />} {item.label}
-            </span>
-          )}
-        </span>
-      ))}
-    </nav>
-  );
-}
 
 export default function DaysPage() {
   const { plan, progress, refreshData } = useApp();
@@ -98,24 +66,19 @@ export default function DaysPage() {
   };
 
   // Calculate week completion
-  const getWeekCompletion = (weekNumber: number) => {
-    const week = safePlan.find(w => w.week === weekNumber);
-    if (!week) return { completed: 0, total: 0, percentage: 0 };
+  const getWeekCompletion = () => {
+    if (!week) return { totalTasks: 0, completedTasks: 0, progress: 0 };
 
-    const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
+    const totalTasks = week.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
     const weekProgress = safeProgress.filter(p => p.weekId === (weekNumber?.toString() || ''));
     const completedTasks = weekProgress.filter(p => p.done).length;
+    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-    return {
-      completed: completedTasks,
-      total: totalTasks,
-      percentage: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-    };
+    return { totalTasks, completedTasks, progress };
   };
 
-  // Navigation functions
   const goToNextDay = () => {
-    if (week && week.days && selectedDayIndex < week.days.length - 1) {
+    if (selectedDayIndex < (week?.days?.length || 0) - 1) {
       setSelectedDayIndex(selectedDayIndex + 1);
     }
   };
@@ -136,184 +99,212 @@ export default function DaysPage() {
 
   if (!week) {
     return (
-      <PageLayout title="خطأ" subtitle="الأسبوع غير موجود" showHeader={true}>
+      <PageLayout 
+        title="أسبوع غير موجود"
+        subtitle="الأسبوع المطلوب غير متوفر"
+        showBottomBar={true}
+      >
         <div className="text-center py-12">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            الأسبوع {weekNumber} غير موجود
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            قد تكون البيانات غير محملة بشكل صحيح. جرب تحديث البيانات.
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            الأسبوع المطلوب غير موجود في الخطة
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button onClick={refreshData} variant="primary">
-              تحديث البيانات
-            </Button>
-            <Button onClick={goToWeekView} variant="outline">
-              العودة للمراحل
-            </Button>
-          </div>
+          <Button onClick={goToWeekView} variant="primary">
+            العودة إلى المراحل
+          </Button>
         </div>
       </PageLayout>
     );
   }
 
-  const currentDay = week.days?.[selectedDayIndex];
-  const weekCompletion = getWeekCompletion(weekNumber);
-
-  const breadcrumbs = [
-    { label: 'المراحل', icon: Calendar, onClick: goToWeekView },
-    { label: `الأسبوع ${weekNumber}`, icon: Target },
-    { label: 'الأيام', icon: Calendar }
-  ];
-
-  // Task type icons and colors mapping
-  const taskTypeConfig = {
-    'Blue Team': {
-      icon: Shield,
-      color: 'blue',
-      bgColor: 'bg-blue-100 dark:bg-blue-900',
-      textColor: 'text-blue-600 dark:text-blue-400'
-    },
-    'Red Team': {
-      icon: Bug,
-      color: 'red',
-      bgColor: 'bg-red-100 dark:bg-red-900',
-      textColor: 'text-red-600 dark:text-red-400'
-    },
-    'Particular': {
-      icon: Target,
-      color: 'purple',
-      bgColor: 'bg-purple-100 dark:bg-purple-900',
-      textColor: 'text-purple-600 dark:text-purple-400'
-    },
-    'Soft Skills': {
-      icon: Users,
-      color: 'green',
-      bgColor: 'bg-green-100 dark:bg-green-900',
-      textColor: 'text-green-600 dark:text-green-400'
-    },
-    'Policies': {
-      icon: FileText,
-      color: 'orange',
-      bgColor: 'bg-orange-100 dark:bg-orange-900',
-      textColor: 'text-orange-600 dark:text-orange-400'
-    }
-  };
+  const weekCompletion = getWeekCompletion();
+  const days = week.days?.filter(day => day.key !== 'fri') || [];
 
   return (
     <PageLayout 
-      title={safeT('weekDays')}
-      subtitle={week?.title?.ar || ''}
+      title={`الأسبوع ${weekNumber}`}
+      subtitle={`${weekCompletion.completedTasks} من ${weekCompletion.totalTasks} مهمة مكتملة`}
       showBottomBar={true}
     >
-      <motion.div {...animations.fadeIn} className="space-y-6">
-        
-        {/* Breadcrumbs */}
-        <Breadcrumbs 
-          items={[
-            { 
-              label: safeT('phases'), 
-              icon: BookOpen,
-              onClick: () => navigate('/phases')
-            },
-            { 
-              label: safeT('week'), 
-              icon: Calendar 
-            }
-          ]} 
-        />
-        
-        {/* Week Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              الأسبوع {weekNumber}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              {week.title?.ar}
-            </p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="space-y-8"
+      >
+        {/* Enhanced Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center mb-4">
+            <Button
+              onClick={goToWeekView}
+              variant="outline"
+              className="mr-4"
+            >
+              <ArrowLeft className="w-4 h-4 ml-2" />
+              العودة للمراحل
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<ArrowLeft />}
-            onClick={goToWeekView}
-          >
-            العودة للمراحل
-          </Button>
-        </div>
-
-        {/* Days List */}
-        <Card>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            أيام الأسبوع
-          </h3>
           
-          <div className="space-y-3">
-            {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
-              const dayKey = day.key;
-              const dayProgress = safeProgress.filter(p => 
-                p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
-              );
-              const completedTasks = dayProgress.filter(p => p.done).length;
-              const totalTasks = day.tasks?.length || 0;
-              const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-              
-              return (
-                <motion.div 
-                  key={dayKey} 
-                  {...animations.stagger(dayIndex * 0.1)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
-                    completionPercentage === 100 
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
-                      : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+            الأسبوع {weekNumber}
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-6">
+            {week.title?.ar || `أهداف ومهام الأسبوع ${weekNumber}`}
+          </p>
+          
+          {/* Week Progress */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg max-w-2xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
+                  <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    تقدم الأسبوع
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {weekCompletion.completedTasks} من {weekCompletion.totalTasks} مهمة مكتملة
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  {weekCompletion.progress}%
+                </div>
+              </div>
+            </div>
+            
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+              <div 
+                className="h-3 rounded-full transition-all duration-500 bg-blue-500"
+                style={{ width: `${weekCompletion.progress}%` }}
+              />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Days Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {days.map((day, index) => {
+            const completion = getDayCompletion(weekNumber, day.key);
+            const DayIcon = dayIcons[day.key as keyof typeof dayIcons] || Sun;
+            
+            return (
+              <motion.div
+                key={day.key}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1, duration: 0.6 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="cursor-pointer"
+                onClick={() => goToDayView(index)}
+              >
+                <Card
+                  className={`h-full hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
+                    completion.percentage === 100 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
                   }`}
-                  onClick={() => goToDayView(dayIndex)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        completionPercentage === 100 
-                          ? 'bg-green-100 dark:bg-green-900' 
-                          : 'bg-gray-100 dark:bg-gray-700'
-                      }`}>
-                        {completionPercentage === 100 ? (
-                          <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {day.name?.ar || day.day?.ar}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {day.topic?.ar}
-                        </p>
-                      </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
+                      <DayIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {completionPercentage}%
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {completion.percentage}%
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-500">
-                        {completedTasks}/{totalTasks} مهام
+                        مكتمل
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        completionPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${completionPercentage}%` }}
-                    />
+
+                  <div className="space-y-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {day.title?.ar || `اليوم ${index + 1}`}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {completion.total} مهمة - {completion.completed} مكتملة
+                      </p>
+                    </div>
+
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="h-2 rounded-full transition-all duration-300 bg-blue-500"
+                        style={{ width: `${completion.percentage}%` }}
+                      />
+                    </div>
+
+                    {completion.percentage === 100 && (
+                      <div className="flex items-center text-green-600 dark:text-green-400">
+                        <CheckCircle className="w-4 h-4 ml-2" />
+                        <span className="text-sm font-medium">مكتمل</span>
+                      </div>
+                    )}
                   </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </Card>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Week Summary */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+        >
+          <Card>
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                ملخص الأسبوع
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                    <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    إجمالي المهام
+                  </h4>
+                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {weekCompletion.totalTasks}
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    المهام المكتملة
+                  </h4>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {weekCompletion.completedTasks}
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                    <Trophy className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    نسبة الإنجاز
+                  </h4>
+                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {weekCompletion.progress}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
       </motion.div>
     </PageLayout>
   );
