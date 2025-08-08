@@ -5,9 +5,6 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Import RTL styles */
-@import './rtl.css';
-
 /* Import other custom styles */
 @import './content-display.css';
 @import './editor.css';
