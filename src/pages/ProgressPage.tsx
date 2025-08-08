@@ -1082,7 +1082,6 @@ const GanttChartTab = ({ plan, progress, language }) => {
 
   useEffect(() => {
     if (ganttRef.current && tasks.length > 0) {
-      // Clean previous chart
       ganttRef.current.innerHTML = '';
       const gantt = new Gantt(ganttRef.current, tasks, {
         language: language === 'ar' ? 'ar' : 'en',
@@ -1097,6 +1096,13 @@ const GanttChartTab = ({ plan, progress, language }) => {
         step: 24,
         date_format: 'YYYY-MM-DD',
         custom_class: 'rtl-gantt',
+        on_date_change: (task, start, end) => {
+          toast.success(
+            language === 'ar'
+              ? `تم تغيير موعد المهمة "${task.name}"\nمن ${start.toLocaleDateString('ar-EG')} إلى ${end.toLocaleDateString('ar-EG')}`
+              : `Task "${task.name}" rescheduled\nfrom ${start.toLocaleDateString('en-US')} to ${end.toLocaleDateString('en-US')}`
+          );
+        },
       });
     }
   }, [tasks, language]);
