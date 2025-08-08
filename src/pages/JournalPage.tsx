@@ -98,20 +98,7 @@ export default function JournalPage() {
     <ErrorBoundary FallbackComponent={JournalErrorFallback}>
       <PageLayout 
         title={t('journal')}
-        headerAction={
-          <motion.button
-            onClick={() => setJournalModal({ isOpen: true, entry: null })}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">{t('addJournalEntry')}</span>
-          </motion.button>
-        }
+        // Removed headerAction (add journal button)
       >
         <motion.div
           initial="hidden"
