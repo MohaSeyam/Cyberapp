@@ -92,11 +92,10 @@ export default function PhasesPage() {
         console.log(`Week ${week} not found in plan`);
         return false;
       }
-
       const totalTasks = weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-      const weekProgress = safeProgress.filter(p => p.weekId === (week?.toString() || ''));
+      // توحيد نوع weekId في progress
+      const weekProgress = safeProgress.filter(p => p.weekId?.toString() === week?.toString());
       const completedTasks = weekProgress.filter(p => p.done).length;
-
       return totalTasks > 0 && completedTasks === totalTasks;
     }).length;
 
@@ -192,6 +191,26 @@ export default function PhasesPage() {
                       }`} />
                     </div>
                     <div className="text-right">
+                      <div className="text-xs text-gray-500 dark:text-gray-500">
+                        {/* عداد المهام المنجزة/الإجمالي لكل مرحلة */}
+                        {
+                          (() => {
+                            // جميع أسابيع المرحلة
+                            const phaseWeeksArr = phase.weeks;
+                            let totalTasks = 0;
+                            let completedTasks = 0;
+                            phaseWeeksArr.forEach(week => {
+                              const weekData = safePlan.find(w => w.week === week);
+                              if (weekData) {
+                                totalTasks += weekData.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
+                                const weekProgress = safeProgress.filter(p => p.weekId?.toString() === week?.toString());
+                                completedTasks += weekProgress.filter(p => p.done).length;
+                              }
+                            });
+                            return `${completedTasks}/${totalTasks} ${lang === 'ar' ? 'مهام' : 'tasks'}`;
+                          })()
+                        }
+                      </div>
                       <div className="text-xs text-gray-500 dark:text-gray-500">
                         {completion.completedWeeks}/{completion.totalWeeks} أسابيع
                       </div>
