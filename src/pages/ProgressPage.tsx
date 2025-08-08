@@ -42,17 +42,39 @@ function TabBar({ tabs, activeTab, setActiveTab, language }) {
 }
 
 function MinimalOverview({ language }) {
-  const { plan, progress } = useApp();
-  const totalTasks = useMemo(() => plan?.reduce((sum, w) => sum + w.days.reduce((s, d) => s + (d.tasks?.length || 0), 0), 0) || 0, [plan]);
-  const completedTasks = useMemo(() => progress?.filter(p => p.done).length || 0, [progress]);
+  const { plan, progress, appState } = useApp();
+  // Count tasks by type
+  const typeLabels = {
+    'Blue Team': language === 'ar' ? 'الفريق الأزرق' : 'Blue',
+    'Red Team': language === 'ar' ? 'الفريق الأحمر' : 'Red',
+    'Career': language === 'ar' ? 'المسار المهني' : 'Career',
+    'Soft Skills': language === 'ar' ? 'مهارات ناعمة' : 'Soft',
+    'Practical': language === 'ar' ? 'عملي' : 'Practical',
+    'Policies': language === 'ar' ? 'سياسات' : 'Policies',
+  };
+  const typeOrder = ['Blue Team', 'Red Team', 'Career', 'Soft Skills', 'Practical', 'Policies'];
+  const allTasks = plan?.flatMap(week => week.days.flatMap(day => day.tasks.map(task => ({...task, week: week.week, day: day.day}))));
+  const completedTasks = allTasks?.filter(task => progress?.some(p => p.taskId === task.id && p.done));
+  const typeCounts = typeOrder.map(type => ({
+    type,
+    label: typeLabels[type],
+    count: completedTasks?.filter(task => task.type === type).length || 0
+  }));
+  // Totals
+  const notesCount = Object.values(appState?.notes || {}).flat().length;
+  const journalCount = Object.values(appState?.journal || {}).flat().length;
+  const resourcesCount = Object.values(appState?.resources || {}).flat().length;
+  // Main stats
+  const totalTasks = allTasks?.length || 0;
+  const completedTasksCount = completedTasks?.length || 0;
   const totalWeeks = plan?.length || 0;
-  const completedWeeks = useMemo(() => plan?.filter(week => {
+  const completedWeeks = plan?.filter(week => {
     const weekTasks = week.days.reduce((s, d) => s + (d.tasks?.length || 0), 0);
     const weekProgress = progress?.filter(p => Number(p.weekId) === Number(week.week));
     const weekDone = weekProgress?.filter(p => p.done).length || 0;
     return weekTasks > 0 && weekDone === weekTasks;
-  }).length || 0, [plan, progress]);
-  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  }).length || 0;
+  const completionRate = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
       <Card className="p-6 flex flex-col items-center">
@@ -64,13 +86,13 @@ function MinimalOverview({ language }) {
           />
         </div>
         <div className="text-sm text-gray-700 dark:text-gray-300">
-          {completedTasks} / {totalTasks} {language === 'ar' ? 'مهمة مكتملة' : 'Tasks Completed'}
+          {completedTasksCount} / {totalTasks} {language === 'ar' ? 'مهمة مكتملة' : 'Tasks Completed'}
         </div>
       </Card>
       <div className="grid grid-cols-2 gap-6">
         <Card className="flex flex-col items-center p-4">
           <CheckCircle className="w-7 h-7 text-green-500 mb-2" />
-          <div className="text-2xl font-bold">{completedTasks}</div>
+          <div className="text-2xl font-bold">{completedTasksCount}</div>
           <div className="text-xs text-gray-500">{language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}</div>
         </Card>
         <Card className="flex flex-col items-center p-4">
@@ -79,6 +101,33 @@ function MinimalOverview({ language }) {
           <div className="text-xs text-gray-500">{language === 'ar' ? 'الأسابيع المكتملة' : 'Completed Weeks'}</div>
         </Card>
       </div>
+      {/* جدول أنواع المهام */}
+      <Card className="p-4">
+        <h4 className="font-semibold mb-2 text-center">{language === 'ar' ? 'المهام المنجزة حسب النوع' : 'Completed Tasks by Type'}</h4>
+        <div className="flex flex-wrap justify-center gap-4">
+          {typeCounts.map(({ type, label, count }) => (
+            <div key={type} className="flex flex-col items-center min-w-[70px]">
+              <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{count}</span>
+              <span className="text-xs text-gray-500 mt-1">{label}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+      {/* إجماليات الملاحظات والمدونات والمراجع */}
+      <Card className="p-4 flex flex-wrap justify-center gap-6 text-center">
+        <div>
+          <div className="text-xl font-bold text-purple-600">{notesCount}</div>
+          <div className="text-xs text-gray-500">{language === 'ar' ? 'إجمالي الملاحظات' : 'Total Notes'}</div>
+        </div>
+        <div>
+          <div className="text-xl font-bold text-orange-600">{journalCount}</div>
+          <div className="text-xs text-gray-500">{language === 'ar' ? 'إجمالي المدونات' : 'Total Journals'}</div>
+        </div>
+        <div>
+          <div className="text-xl font-bold text-blue-600">{resourcesCount}</div>
+          <div className="text-xs text-gray-500">{language === 'ar' ? 'إجمالي المراجع' : 'Total Resources'}</div>
+        </div>
+      </Card>
     </div>
   );
 }
