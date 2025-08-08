@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -8,6 +8,7 @@ import {
   Home, ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { WeekEvaluation } from '../../types';
 import { useLocalization } from '../../hooks/useLocalization';
 import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
@@ -56,6 +57,50 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
     </nav>
   );
 }
+
+// WeekEvaluationWidget component
+const WeekEvaluationWidget = ({ weekId, language }) => {
+  const { weekEvaluations, addOrUpdateWeekEvaluation } = useApp();
+  const [rating, setRating] = useState(0);
+  const [note, setNote] = useState('');
+
+  useEffect(() => {
+    const evalObj = weekEvaluations.find(e => e.weekId === weekId);
+    if (evalObj) {
+      setRating(evalObj.rating);
+      setNote(evalObj.note || '');
+    }
+  }, [weekEvaluations, weekId]);
+
+  const handleSave = () => {
+    addOrUpdateWeekEvaluation({ weekId, rating, note: note || undefined });
+  };
+
+  return (
+    <div className="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex items-center gap-2 mb-2 md:mb-0">
+        <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم الأسبوع:' : 'Week Rating:'}</span>
+        {[1,2,3,4,5].map(star => (
+          <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
+            <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+          </button>
+        ))}
+      </div>
+      <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2">
+        <textarea
+          className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900"
+          rows={2}
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          placeholder={language === 'ar' ? 'ملاحظات عن الأسبوع...' : 'Notes about this week...'}
+        />
+        <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold">
+          {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default function DaysPage() {
   const { plan, progress, refreshData } = useApp();
@@ -212,6 +257,8 @@ export default function DaysPage() {
             {week.title?.ar}
           </h1>
         </div>
+        {/* Week Evaluation Widget */}
+        <WeekEvaluationWidget weekId={weekNumber} language={t('language') === 'ar' ? 'ar' : 'en'} />
         {/* Days List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
