@@ -1,7 +1,7 @@
 // Sidebar Component
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Calendar, FileText, BookOpen, TrendingUp, Settings } from 'lucide-react';
+import { Menu, X, Home, Calendar, FileText, BookOpen, TrendingUp, Settings, Book } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
 
@@ -33,6 +33,7 @@ export default function Sidebar() {
     { icon: Calendar, label: t('plan'), path: '/plan' },
     { icon: FileText, label: t('notes'), path: '/notes' },
     { icon: BookOpen, label: t('journal'), path: '/journal' },
+    { icon: Book, label: lang === 'ar' ? 'الموارد' : 'Resources', path: '/resources' },
     { icon: TrendingUp, label: t('progress'), path: '/progress' },
     { icon: Settings, label: t('settings'), path: '/settings' },
   ];
