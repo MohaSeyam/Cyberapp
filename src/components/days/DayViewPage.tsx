@@ -20,6 +20,7 @@ import Modal from '../ui/Modal';
 import RichTextEditor from '../editors/RichTextEditor';
 import { animations } from '../../constants/theme';
 import type { Week, Day, Task, Resource } from '../../types';
+import { TaskEvaluation } from '../../types';
 
 // Day icons mapping
 const dayIcons = {
@@ -102,6 +103,59 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
     </nav>
   );
 }
+
+// TaskEvaluationWidget component
+const TaskEvaluationWidget = ({ taskId, weekId, language }) => {
+  const { taskEvaluations, addOrUpdateTaskEvaluation } = useApp();
+  const [rating, setRating] = useState(0);
+  const [difficulty, setDifficulty] = useState('');
+  const [note, setNote] = useState('');
+
+  useEffect(() => {
+    const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
+    if (evalObj) {
+      setRating(evalObj.rating);
+      setDifficulty(evalObj.difficulty || '');
+      setNote(evalObj.note || '');
+    }
+  }, [taskEvaluations, taskId, weekId]);
+
+  const handleSave = () => {
+    addOrUpdateTaskEvaluation({ taskId, weekId, rating, difficulty: difficulty || undefined, note: note || undefined });
+  };
+
+  return (
+    <div className="mt-2 mb-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم المهمة:' : 'Task Rating:'}</span>
+        {[1,2,3,4,5].map(star => (
+          <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
+            <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-sm text-gray-600 dark:text-gray-300">{language === 'ar' ? 'الصعوبة:' : 'Difficulty:'}</span>
+        <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="rounded px-2 py-1 text-sm border dark:bg-gray-900">
+          <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
+          <option value="easy">{language === 'ar' ? 'سهل' : 'Easy'}</option>
+          <option value="medium">{language === 'ar' ? 'متوسط' : 'Medium'}</option>
+          <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
+        </select>
+      </div>
+      <textarea
+        className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900 mb-2"
+        rows={2}
+        value={note}
+        onChange={e => setNote(e.target.value)}
+        placeholder={language === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'}
+      />
+      <button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-1 text-sm font-semibold">
+        {language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'}
+      </button>
+    </div>
+  );
+};
 
 export default function DayViewPage() {
   const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
@@ -525,6 +579,7 @@ export default function DayViewPage() {
                           showNotes={true}
                           onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
                         />
+                        <TaskEvaluationWidget taskId={task.id} weekId={selectedWeek.week} language={language} />
                       </motion.div>
                     ))}
                   </div>

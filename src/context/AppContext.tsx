@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import type { 
   Week, Note, JournalEntry, Resource, Progress, AppSettings, 
-  AppState, Notification, Language, Theme 
+  AppState, Notification, Language, Theme, TaskEvaluation, WeekEvaluation 
 } from '../types';
 import { 
   planService, notesService, journalService, resourcesService, 
@@ -24,6 +24,8 @@ interface AppContextType {
   loading: boolean;
   modal: { isOpen: boolean; content: ReactNode | null };
   notifications: Notification[];
+  taskEvaluations: TaskEvaluation[];
+  weekEvaluations: WeekEvaluation[];
   
   // Actions
   setLang: (lang: Language) => void;
@@ -46,6 +48,8 @@ interface AppContextType {
   refreshData: () => Promise<void>;
   forceReloadData: () => Promise<void>;
   fixMissingWeeks: () => Promise<void>;
+  addOrUpdateTaskEvaluation: (evaluation: TaskEvaluation) => void;
+  addOrUpdateWeekEvaluation: (evaluation: WeekEvaluation) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -72,6 +76,32 @@ export function AppProvider({ children }: AppProviderProps) {
     content: null
   });
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [taskEvaluations, setTaskEvaluations] = useState<TaskEvaluation[]>([]);
+  const [weekEvaluations, setWeekEvaluations] = useState<WeekEvaluation[]>([]);
+
+  const addOrUpdateTaskEvaluation = (evaluation: TaskEvaluation) => {
+    setTaskEvaluations(prev => {
+      const idx = prev.findIndex(e => e.taskId === evaluation.taskId && e.weekId === evaluation.weekId);
+      if (idx !== -1) {
+        const updated = [...prev];
+        updated[idx] = evaluation;
+        return updated;
+      }
+      return [...prev, evaluation];
+    });
+  };
+
+  const addOrUpdateWeekEvaluation = (evaluation: WeekEvaluation) => {
+    setWeekEvaluations(prev => {
+      const idx = prev.findIndex(e => e.weekId === evaluation.weekId);
+      if (idx !== -1) {
+        const updated = [...prev];
+        updated[idx] = evaluation;
+        return updated;
+      }
+      return [...prev, evaluation];
+    });
+  };
 
   // Translation function
   const { t } = useLocalization();
@@ -806,6 +836,8 @@ export function AppProvider({ children }: AppProviderProps) {
     loading,
     modal,
     notifications,
+    taskEvaluations,
+    weekEvaluations,
     
     // Actions
     setLang: (newLang: Language) => {
@@ -831,7 +863,9 @@ export function AppProvider({ children }: AppProviderProps) {
     removeNotification,
     refreshData,
     forceReloadData,
-    fixMissingWeeks // Add this new method
+    fixMissingWeeks,
+    addOrUpdateTaskEvaluation,
+    addOrUpdateWeekEvaluation
   };
 
   return (

@@ -117,3 +117,17 @@ export interface Notification {
 
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
+
+export interface TaskEvaluation {
+  taskId: string;
+  weekId: number;
+  rating: number; // 1-5 stars
+  difficulty?: 'easy' | 'medium' | 'hard';
+  note?: string;
+}
+
+export interface WeekEvaluation {
+  weekId: number;
+  rating: number; // 1-5 stars
+  note?: string;
+}
