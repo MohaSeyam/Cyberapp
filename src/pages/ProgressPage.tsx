@@ -32,8 +32,6 @@ import EnhancedAchievementsTab from '../components/progress/EnhancedAchievements
 import EnhancedSuggestionsTab from '../components/progress/EnhancedSuggestionsTab';
 import EnhancedReportsTab from '../components/progress/EnhancedReportsTab';
 import useProgressStats from '../hooks/useProgressStats';
-import Gantt from 'frappe-gantt';
-import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 // Lazy load components for better performance
@@ -147,15 +145,6 @@ const ENHANCED_TABS = [
     color: 'red',
     gradient: 'from-red-500 to-red-600',
     description: { ar: 'تصدير التقارير', en: 'Export reports' },
-    badge: null
-  },
-  {
-    id: 'gantt',
-    label: { ar: 'مخطط زمني', en: 'Gantt Chart' },
-    icon: Calendar,
-    color: 'orange',
-    gradient: 'from-orange-500 to-yellow-500',
-    description: { ar: 'مخطط زمني للمهام', en: 'Timeline of tasks' },
     badge: null
   }
 ] as const;
@@ -1046,86 +1035,6 @@ function SimpleTabs({ tabs, activeTab, setActiveTab, language }) {
   );
 }
 
-// GanttChartTab component
-const GanttChartTab = ({ plan, progress, language }) => {
-  const ganttRef = useRef(null);
-  // Prepare Gantt tasks
-  const tasks = useMemo(() => {
-    if (!plan) return [];
-    const startDate = new Date('2024-01-01');
-    let dayOffset = 0;
-    return plan.flatMap(week =>
-      week.days.flatMap((day, dayIdx) =>
-        day.tasks.map((task, tIdx) => {
-          // حساب تاريخ البدء بناءً على الأسبوع واليوم
-          const taskStart = new Date(startDate.getTime() + ((week.week - 1) * 7 + dayIdx) * 24 * 60 * 60 * 1000);
-          const durationDays = Math.max(1, Math.ceil((task.duration || 60) / 60 / 8)); // كل 8 ساعات = يوم
-          const taskEnd = new Date(taskStart.getTime() + durationDays * 24 * 60 * 60 * 1000);
-          const isCompleted = progress.some(p => p.taskId === task.id && p.done);
-          return {
-            id: `${week.week}-${day.key}-${task.id}`,
-            name: language === 'ar' ? (task.description?.ar || task.id) : (task.description?.en || task.id),
-            start: taskStart.toISOString().slice(0, 10),
-            end: taskEnd.toISOString().slice(0, 10),
-            progress: isCompleted ? 100 : 0,
-            custom_class: isCompleted ? 'gantt-bar-done' : 'gantt-bar-inprogress',
-            week: week.week,
-            day: day.key,
-            duration: task.duration,
-            isCompleted,
-            taskObj: task
-          };
-        })
-      )
-    );
-  }, [plan, progress, language]);
-
-  useEffect(() => {
-    if (ganttRef.current && tasks.length > 0) {
-      ganttRef.current.innerHTML = '';
-      const gantt = new Gantt(ganttRef.current, tasks, {
-        language: language === 'ar' ? 'ar' : 'en',
-        custom_popup_html: (task) => {
-          return `<div class='p-2'><b>${task.name}</b><br/>${language === 'ar' ? 'المدة' : 'Duration'}: ${task.duration || '-'}m<br/>${language === 'ar' ? 'الحالة' : 'Status'}: ${task.progress === 100 ? (language === 'ar' ? 'مكتمل' : 'Done') : (language === 'ar' ? 'قيد التنفيذ' : 'In Progress')}</div>`;
-        },
-        view_mode: 'Day',
-        bar_height: 28,
-        column_width: 48,
-        header_height: 40,
-        padding: 24,
-        step: 24,
-        date_format: 'YYYY-MM-DD',
-        custom_class: 'rtl-gantt',
-        on_date_change: (task, start, end) => {
-          toast.success(
-            language === 'ar'
-              ? `تم تغيير موعد المهمة "${task.name}"\nمن ${start.toLocaleDateString('ar-EG')} إلى ${end.toLocaleDateString('ar-EG')}`
-              : `Task "${task.name}" rescheduled\nfrom ${start.toLocaleDateString('en-US')} to ${end.toLocaleDateString('en-US')}`
-          );
-        },
-      });
-    }
-  }, [tasks, language]);
-
-  return (
-    <div className="overflow-x-auto py-8">
-      <h2 className="text-2xl font-bold mb-6 text-orange-700 dark:text-orange-300 text-center">
-        {language === 'ar' ? 'مخطط زمني احترافي للمهام' : 'Professional Tasks Gantt Chart'}
-      </h2>
-      {tasks.length === 0 ? (
-        <div className="text-center text-gray-500 py-12">{language === 'ar' ? 'لا توجد مهام لعرضها.' : 'No tasks to display.'}</div>
-      ) : (
-        <div ref={ganttRef} className="w-full min-w-[700px] bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-700" style={{ direction: language === 'ar' ? 'rtl' : 'ltr' }} />
-      )}
-      <style>{`
-        .gantt-bar-done { fill: #22c55e !important; }
-        .gantt-bar-inprogress { fill: #f59e42 !important; }
-        .rtl-gantt .bar-label { font-family: inherit; }
-      `}</style>
-    </div>
-  );
-};
-
 // --- 3. Main Component (Enhanced) ---
 export default function ProgressPage() {
   const { plan, progress, appState } = useApp();
@@ -1547,9 +1456,6 @@ export default function ProgressPage() {
                         exportOptions={exportOptions}
                         setExportOptions={setExportOptions}
                       />
-                    )}
-                    {activeTab === 'gantt' && (
-                      <GanttChartTab plan={plan} progress={progress} language={language} />
                     )}
                   </motion.div>
                 </AnimatePresence>
