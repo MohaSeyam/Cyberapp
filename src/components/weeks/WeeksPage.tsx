@@ -70,7 +70,7 @@ export default function WeeksPage() {
     if (!week) return { completed: 0, total: 0, percentage: 0 };
 
     const totalTasks = week.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-    const weekProgress = safeProgress.filter(p => p.weekId === (weekNumber?.toString() || ''));
+    const weekProgress = safeProgress.filter(p => p.weekId?.toString() === (weekNumber?.toString() || ''));
     const completedTasks = weekProgress.filter(p => p.done).length;
 
     return {

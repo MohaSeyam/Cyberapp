@@ -85,7 +85,7 @@ export default function DaysPage() {
   // Calculate day completion
   const getDayCompletion = (weekNumber: number, dayKey: string) => {
     const dayProgress = safeProgress.filter(p => 
-      p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
+      p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey
     );
     const completedTasks = dayProgress.filter(p => p.done).length;
     const totalTasks = dayProgress.length;
@@ -103,7 +103,7 @@ export default function DaysPage() {
     if (!week) return { completed: 0, total: 0, percentage: 0 };
 
     const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-    const weekProgress = safeProgress.filter(p => p.weekId === (weekNumber?.toString() || ''));
+    const weekProgress = safeProgress.filter(p => p.weekId?.toString() === (weekNumber?.toString() || ''));
     const completedTasks = weekProgress.filter(p => p.done).length;
 
     return {
@@ -223,7 +223,7 @@ export default function DaysPage() {
             {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
               const dayKey = day.key;
               const dayProgress = safeProgress.filter(p => 
-                p.weekId === (weekNumber?.toString() || '') && p.dayKey === dayKey
+                p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey
               );
               const completedTasks = dayProgress.filter(p => p.done).length;
               const totalTasks = day.tasks?.length || 0;
