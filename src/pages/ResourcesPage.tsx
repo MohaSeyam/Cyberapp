@@ -37,21 +37,25 @@ export default function ResourcesPage() {
     );
   }
 
-  // Gather all resources from all weeks/days
-  const allResources: Resource[] = useMemo(() => {
-    if (!plan) return [];
-    return plan.flatMap(week =>
-      week.days.flatMap(day =>
+  let allResources: Resource[] = [];
+  try {
+    allResources = plan.flatMap(week =>
+      (week.days || []).flatMap(day =>
         (day.resources || []).map(resource => ({ ...resource, weekId: week.week, dayIndex: day.key }))
       )
     );
-  }, [plan]);
+  } catch (err) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 text-center text-red-500 dark:text-red-400">
+        {language === 'ar' ? 'حدث خطأ أثناء تحميل الموارد.' : 'An error occurred while loading resources.'}
+      </div>
+    );
+  }
 
-  // Filtered and searched resources
   const filteredResources = useMemo(() => {
     return allResources.filter(resource => {
       const matchesType = !typeFilter || resource.type === typeFilter;
-      const matchesSearch = !search || resource.title.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = !search || (resource.title && resource.title.toLowerCase().includes(search.toLowerCase()));
       return matchesType && matchesSearch;
     });
   }, [allResources, search, typeFilter]);
@@ -80,7 +84,7 @@ export default function ResourcesPage() {
           <option value="">{language === 'ar' ? 'كل الأنواع' : 'All types'}</option>
           {RESOURCE_TYPES.map(type => (
             <option key={type} value={type}>
-              {typeLabels[type][language]}
+              {typeLabels[type]?.[language] || type}
             </option>
           ))}
         </select>
@@ -88,14 +92,14 @@ export default function ResourcesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredResources.length === 0 ? (
           <div className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">
-            {language === 'ar' ? 'لا توجد موارد مطابقة.' : 'No matching resources.'}
+            {language === 'ar' ? 'لا توجد موارد مطابقة أو لم تتم إضافة أي موارد بعد.' : 'No matching resources or no resources have been added yet.'}
           </div>
         ) : (
           filteredResources.map(resource => (
-            <Card key={resource.id + resource.title} className="p-5 flex flex-col gap-2">
+            <Card key={(resource.id || resource.title) + resource.title} className="p-5 flex flex-col gap-2">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
-                  {typeLabels[resource.type][language]}
+                  {typeLabels[resource.type]?.[language] || resource.type}
                 </span>
                 <span className="text-xs text-gray-400">{resource.weekId ? `${language === 'ar' ? 'أسبوع' : 'Week'} ${resource.weekId}` : ''}</span>
               </div>
