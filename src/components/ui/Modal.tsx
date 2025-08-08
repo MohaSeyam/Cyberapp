@@ -81,6 +81,7 @@ export default function Modal({
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ type: "spring", duration: 0.3 }}
             className={`w-full ${modalSizes[size]} bg-white dark:bg-gray-800 rounded-lg shadow-xl max-h-[90vh] flex flex-col ${className}`}
+            dir={lang === 'ar' ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
