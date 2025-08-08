@@ -199,40 +199,42 @@ export default function HomePage() {
 
   return (
     <ErrorBoundary FallbackComponent={HomeErrorFallback}>
-      <PageLayout 
-        title={safeT('welcome')}
-        subtitle={safeT('cyberSecurityLearning')}
-        showBottomBar={true}
-      >
-        {/* Hero Section */}
-        <HomeHero 
-          language={language}
-          t={t}
-          navigate={navigate}
-        />
+      <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <PageLayout 
+          title={safeT('welcome')}
+          subtitle={safeT('cyberSecurityLearning')}
+          showBottomBar={true}
+        >
+          {/* Hero Section */}
+          <HomeHero 
+            language={language}
+            t={t}
+            navigate={navigate}
+          />
 
-        {/* Progress Section */}
-        <ProgressSection />
+          {/* Progress Section */}
+          <ProgressSection />
 
-        {/* Statistics Cards */}
-        <HomeStats 
-          stats={stats}
-          t={t}
-          navigate={navigate}
-        />
+          {/* Statistics Cards */}
+          <HomeStats 
+            stats={stats}
+            t={t}
+            navigate={navigate}
+          />
 
-        {/* Quick Actions */}
-        <QuickActions 
-          actions={quickActions}
-          t={t}
-        />
+          {/* Quick Actions */}
+          <QuickActions 
+            actions={quickActions}
+            t={t}
+          />
 
-        {/* Features Section */}
-        <FeaturesSection />
+          {/* Features Section */}
+          <FeaturesSection />
 
-        {/* Recent Activity */}
-        <RecentActivitySection />
-      </PageLayout>
+          {/* Recent Activity */}
+          <RecentActivitySection />
+        </PageLayout>
+      </div>
     </ErrorBoundary>
   );
 }
