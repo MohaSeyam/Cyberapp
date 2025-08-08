@@ -18,7 +18,6 @@ export const lazyImport = {
   RichTextEditor: () => import('../components/editors/RichTextEditor'),
   
   // Advanced analytics - only load when viewing analytics
-  AdvancedDashboard: () => import('../components/analytics/AdvancedDashboard'),
   
   // Smart recommendations - only load when viewing recommendations
   SmartRecommendations: () => import('../components/smart/SmartRecommendations'),
