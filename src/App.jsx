@@ -20,9 +20,9 @@ function ErrorFallback({ error }) {
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
 const PhasesPage = lazy(() => import('./pages/PhasesPage'));
-const PhaseWeeksPage = lazy(() => import('./components/phases/PhaseWeeksPage'));
-const DaysPage = lazy(() => import('./components/days/DaysPage'));
-const DayViewPage = lazy(() => import('./components/days/DayViewPage'));
+const PhaseWeeksPage = lazy(() => import('./pages/PhaseWeeksPage'));
+const DaysPage = lazy(() => import('./pages/DaysPage'));
+const DayViewPage = lazy(() => import('./pages/DayViewPage'));
 const ProgressPage = lazy(() => import('./pages/ProgressPage'));
 const NotesPage = lazy(() => import('./pages/NotesPage'));
 const JournalPage = lazy(() => import('./pages/JournalPage'));
@@ -31,7 +31,6 @@ const NoteViewPage = lazy(() => import('./pages/NoteViewPage'));
 const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
 const NoteEditPage = lazy(() => import('./pages/NoteEditPage'));
 const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
-const FeaturesDemoPage = lazy(() => import('./pages/FeaturesDemoPage'));
 
 function AppContent() {
   const [key, setKey] = useState(0);
@@ -73,7 +72,6 @@ function AppContent() {
             <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
             <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
             <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
-            <Route path="/features" element={<FeaturesDemoPage />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>
