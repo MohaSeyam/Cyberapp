@@ -123,8 +123,8 @@ export default function WeeksPage() {
   }
 
   const breadcrumbs = [
-    { label: 'الخطة', icon: Calendar },
-    { label: `الأسبوع ${selectedWeek}`, icon: Target }
+    { label: t('plan'), icon: Calendar },
+    { label: `${t('week')} ${selectedWeek}`, icon: Target }
   ];
 
   return (
@@ -174,14 +174,14 @@ export default function WeeksPage() {
                 size="sm"
                 onClick={() => setViewMode('all')}
               >
-                جميع الأسابيع
+                {t('allWeeks')}
               </Button>
               <Button
                 variant={viewMode === 'phase' ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('phase')}
               >
-                أسابيع المرحلة
+                {t('phaseWeeks')}
               </Button>
               <Button
                 variant="outline"
@@ -193,7 +193,7 @@ export default function WeeksPage() {
                 }}
                 className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
               >
-                إصلاح الأسابيع المفقودة
+                {t('fixMissingWeeks')}
               </Button>
             </div>
           </div>
@@ -233,10 +233,10 @@ export default function WeeksPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {currentPhase?.title[lang] || `المرحلة ${currentWeekData.phase}`}
+                {currentPhase?.title[lang] || `${t('phase')} ${currentWeekData.phase}`}
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                {currentPhase?.focus[lang] || 'لا يوجد وصف للمرحلة'}
+                {currentPhase?.focus[lang] || t('noPhaseDescription')}
               </p>
             </div>
             <div className="text-right">
@@ -244,7 +244,7 @@ export default function WeeksPage() {
                 {getPhaseProgress(currentWeekData.phase)}%
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-500">
-                تقدم المرحلة
+                {t('phaseProgress')}
               </div>
             </div>
           </div>
@@ -257,15 +257,15 @@ export default function WeeksPage() {
           </div>
           
           <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-            <span>{currentPhaseWeeks.length} أسابيع في المرحلة</span>
-            <span>{currentPhaseWeeks.filter(w => getWeekCompletion(w.week).percentage === 100).length} مكتملة</span>
+            <span>{currentPhaseWeeks.length} {t('weeksInPhase')}</span>
+            <span>{currentPhaseWeeks.filter(w => getWeekCompletion(w.week).percentage === 100).length} {t('completed')}</span>
           </div>
         </Card>
 
         {/* Weeks List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {viewMode === 'all' ? 'جميع الأسابيع' : 'أسابيع المرحلة'}
+            {viewMode === 'all' ? t('allWeeks') : t('phaseWeeks')}
           </h3>
           
           <div className="space-y-3">
@@ -300,7 +300,7 @@ export default function WeeksPage() {
                       
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white">
-                          الأسبوع {week.week}
+                          {t('week')} {week.week}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           {week.title[lang]}
@@ -314,7 +314,7 @@ export default function WeeksPage() {
                           {completion.percentage}%
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-500">
-                          {completion.completed}/{completion.total} مهام
+                          {completion.completed}/{completion.total} {t('tasks')}
                         </div>
                       </div>
                       
@@ -326,7 +326,7 @@ export default function WeeksPage() {
                           goToDays(week.week);
                         }}
                       >
-                        عرض الأيام
+                        {t('viewDays')}
                       </Button>
                     </div>
                   </div>

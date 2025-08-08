@@ -59,7 +59,7 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 
 export default function DaysPage() {
   const { plan, progress, refreshData } = useApp();
-  const { t } = useLocalization();
+  const { t, lang } = useLocalization();
   const navigate = useNavigate();
   const { weekId } = useParams();
 
@@ -209,15 +209,15 @@ export default function DaysPage() {
         {/* تم إزالة العنوان والشرح من الأعلى */}
         {/* Week Header - اسم الأسبوع صغير، العنوان كبير، لا زر عودة */}
         <div className="mb-4">
-          <span className="text-base text-gray-500 dark:text-gray-400">الأسبوع {weekNumber}</span>
+          <span className="text-base text-gray-500 dark:text-gray-400">{t('week')} {weekNumber}</span>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-1 mb-2">
-            {week.title?.ar}
+            {week.title?.[lang]}
           </h1>
         </div>
         {/* Days List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            أيام الأسبوع
+            {t('daysOfWeek')}
           </h3>
           <div className="space-y-3">
             {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
@@ -242,14 +242,14 @@ export default function DaysPage() {
                     </div>
                     <div>
                       <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                        {day.name?.ar || day.day?.ar}
+                        {day.name?.[lang] || day.day?.[lang]}
                       </h4>
                       <p className="text-base text-gray-600 dark:text-gray-400">
-                        {day.topic?.ar}
+                        {day.topic?.[lang]}
                       </p>
                     </div>
                     <div className="ml-auto flex flex-col items-end">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">عدد المهام</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('tasksCount')}</span>
                       <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{completedTasks}/{totalTasks}</span>
                     </div>
                   </div>
