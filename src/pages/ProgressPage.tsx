@@ -186,6 +186,52 @@ function AnalyticsTab({ language }) {
   );
 }
 
+function ReportsTab({ language }) {
+  // Placeholder export logic
+  const [format, setFormat] = useState('pdf');
+  const [range, setRange] = useState('all');
+  const formats = [
+    { id: 'pdf', label: { ar: 'PDF', en: 'PDF' } },
+    { id: 'csv', label: { ar: 'CSV', en: 'CSV' } },
+    { id: 'json', label: { ar: 'JSON', en: 'JSON' } },
+    { id: 'markdown', label: { ar: 'Markdown', en: 'Markdown' } }
+  ];
+  const ranges = [
+    { id: 'all', label: { ar: 'كامل الخطة', en: 'Entire Plan' } },
+    { id: 'week', label: { ar: 'أسبوع محدد', en: 'Specific Week' } },
+    { id: 'phase', label: { ar: 'مرحلة محددة', en: 'Specific Phase' } }
+  ];
+  return (
+    <Card className="p-8 max-w-2xl mx-auto mt-8">
+      <h2 className="text-xl font-bold mb-4">{language === 'ar' ? 'تصدير التقارير' : 'Export Reports'}</h2>
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <label className="flex-1">
+          <span className="block mb-1 font-semibold text-sm">{language === 'ar' ? 'نوع التصدير:' : 'Export Format:'}</span>
+          <select value={format} onChange={e => setFormat(e.target.value)} className="w-full border rounded px-3 py-2">
+            {formats.map(f => <option key={f.id} value={f.id}>{f.label[language]}</option>)}
+          </select>
+        </label>
+        <label className="flex-1">
+          <span className="block mb-1 font-semibold text-sm">{language === 'ar' ? 'النطاق:' : 'Range:'}</span>
+          <select value={range} onChange={e => setRange(e.target.value)} className="w-full border rounded px-3 py-2">
+            {ranges.map(r => <option key={r.id} value={r.id}>{r.label[language]}</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+        <div className="font-semibold mb-2">{language === 'ar' ? 'ملخص البيانات:' : 'Data Summary:'}</div>
+        <ul className="text-sm text-gray-600 dark:text-gray-300 list-disc pl-5">
+          <li>{language === 'ar' ? 'عدد المهام المكتملة، الملاحظات، الموارد...' : 'Number of completed tasks, notes, resources...'}</li>
+          <li>{language === 'ar' ? 'تفاصيل الإنجاز حسب النطاق المختار' : 'Progress details for selected range'}</li>
+        </ul>
+      </div>
+      <button className="bg-blue-600 hover:bg-blue-700 text-white rounded px-6 py-2 font-semibold shadow transition-all">
+        {language === 'ar' ? 'تصدير' : 'Export'}
+      </button>
+    </Card>
+  );
+}
+
 function translateType(type) {
   switch(type) {
     case 'Blue Team': return 'الفريق الأزرق';
@@ -331,7 +377,7 @@ export default function ProgressPage() {
       <TabBar tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} language={language} />
       {activeTab === 'overview' && <OverviewTab language={language} />}
       {activeTab === 'analytics' && <AnalyticsTab language={language} />}
-      {activeTab === 'reports' && <PlaceholderCard title={language === 'ar' ? 'التقارير' : 'Reports'} language={language} />}
+      {activeTab === 'reports' && <ReportsTab language={language} />}
       {activeTab === 'suggestions' && <PlaceholderCard title={language === 'ar' ? 'الاقتراحات' : 'Suggestions'} language={language} />}
     </PageLayout>
   );
