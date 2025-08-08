@@ -34,6 +34,7 @@ import EnhancedReportsTab from '../components/progress/EnhancedReportsTab';
 import useProgressStats from '../hooks/useProgressStats';
 import Gantt from 'frappe-gantt';
 import { useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -1482,6 +1483,14 @@ export default function ProgressPage() {
           subtitle={safeT('trackYourLearning')}
           showBottomBar={true}
         >
+          <div className="flex justify-end mb-4">
+            <Link
+              to="/resources"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow transition-all"
+            >
+              📚 {language === 'ar' ? 'مستودع الموارد' : 'Resources Repository'}
+            </Link>
+          </div>
           <motion.div {...animations.fadeIn} className="space-y-8">
             {/* Overall Progress Card */}
             <OverallProgressCard />
