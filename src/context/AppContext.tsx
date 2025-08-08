@@ -323,14 +323,10 @@ export function AppProvider({ children }: AppProviderProps) {
   const updateProgress = useCallback(async (weekId: number, dayKey: string, taskId: string, done: boolean) => {
     try {
       await progressService.setTaskProgress(weekId, dayKey, taskId, done);
-      setProgress(prev => {
-        const existing = prev.find(p => p.weekId === weekId && p.dayKey === dayKey && p.taskId === taskId);
-        if (existing) {
-          return prev.map(p => p.id === existing.id ? { ...p, done } : p);
-        } else {
-          return [...prev, { weekId, dayKey, taskId, done }];
-        }
-      });
+      // أعد تحميل progress من القاعدة بعد التحديث
+      const dbProgress = await progressService.getAll();
+      setProgress(dbProgress);
+      console.log('Progress after update:', dbProgress);
     } catch (error) {
       console.error('Error updating progress:', error);
       toast.error('فشل في تحديث التقدم');
