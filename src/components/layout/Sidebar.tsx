@@ -12,7 +12,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [selectedPhase, setSelectedPhase] = useState<number | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Remove isSidebarOpen and toggle button logic
 
   // استخراج المراحل
   const phases = Array.from(new Set((plan || []).map(week => week?.phase).filter(Boolean))).sort();
@@ -39,48 +39,35 @@ export default function Sidebar() {
   ];
 
   return (
-    <>
-      {/* Toggle Button for Large Screens */}
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden lg:block xl:hidden"
-      >
-        {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
-
-      {/* Sidebar */}
-      <aside className={`hidden lg:block w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto transition-transform duration-300 z-40 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="p-4">
-          {/* Navigation Items */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-              {t('navigation')}
-            </h3>
-            <nav className="space-y-1">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path || 
-                  (item.path !== '/' && location.pathname.startsWith(item.path));
-                
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      isActive 
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+    <aside className="fixed top-0 bottom-0 left-0 right-auto w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto z-30 shadow-lg">
+      <div className="p-4">
+        {/* Navigation Items */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+            {t('navigation')}
+          </h3>
+          <nav className="space-y-1">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path || 
+                (item.path !== '/' && location.pathname.startsWith(item.path));
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive 
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
           {/* Plan Tree */}
           <div>
@@ -132,6 +119,5 @@ export default function Sidebar() {
           </div>
         </div>
       </aside>
-    </>
   );
 }
