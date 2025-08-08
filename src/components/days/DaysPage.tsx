@@ -105,7 +105,6 @@ export default function DaysPage() {
     const totalTasks = week.days?.reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
     const weekProgress = safeProgress.filter(p => p.weekId === (weekNumber?.toString() || ''));
     const completedTasks = weekProgress.filter(p => p.done).length;
-    const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     return {
       completed: completedTasks,
@@ -203,53 +202,23 @@ export default function DaysPage() {
 
   return (
     <PageLayout 
-      title={safeT('weekDays')}
-      subtitle={week?.title?.ar || ''}
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        
         {/* Breadcrumbs */}
-        <Breadcrumbs 
-          items={[
-            { 
-              label: safeT('phases'), 
-              icon: BookOpen,
-              onClick: () => navigate('/phases')
-            },
-            { 
-              label: safeT('week'), 
-              icon: Calendar 
-            }
-          ]} 
-        />
-        
-        {/* Week Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              الأسبوع {weekNumber}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              {week.title?.ar}
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<ArrowLeft />}
-            onClick={goToWeekView}
-          >
-            العودة للمراحل
-          </Button>
+        {/* تم إزالة العنوان والشرح من الأعلى */}
+        {/* Week Header - اسم الأسبوع صغير، العنوان كبير، لا زر عودة */}
+        <div className="mb-4">
+          <span className="text-base text-gray-500 dark:text-gray-400">الأسبوع {weekNumber}</span>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-1 mb-2">
+            {week.title?.ar}
+          </h1>
         </div>
-
         {/* Days List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             أيام الأسبوع
           </h3>
-          
           <div className="space-y-3">
             {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
               const dayKey = day.key;
@@ -258,38 +227,37 @@ export default function DaysPage() {
               );
               const completedTasks = dayProgress.filter(p => p.done).length;
               const totalTasks = day.tasks?.length || 0;
-              const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-              
+              const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+              const DayIcon = dayIcons[dayKey] || Calendar;
               return (
                 <motion.div 
                   key={dayKey} 
                   {...animations.stagger(dayIndex * 0.1)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
-                    completionPercentage === 100 
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
-                      : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
-                  }`} onClick={() => goToDayView(dayIndex)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${completionPercentage === 100 ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                        {completionPercentage === 100 ? (<CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />) : (<Calendar className="w-6 h-6 text-gray-600 dark:text-gray-400" />)}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {day.name?.ar || day.day?.ar}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {day.topic?.ar}
-                        </p>
-                      </div>
+                  className={`p-6 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600`}
+                  onClick={() => goToDayView(dayIndex)}
+                >
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-blue-100 dark:bg-blue-900 shadow-sm">
+                      <DayIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white"> {completionPercentage}% </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-500"> {completedTasks}/{totalTasks} مهام </div>
+                    <div>
+                      <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                        {day.name?.ar || day.day?.ar}
+                      </h4>
+                      <p className="text-base text-gray-600 dark:text-gray-400">
+                        {day.topic?.ar}
+                      </p>
+                    </div>
+                    <div className="ml-auto flex flex-col items-end">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">عدد المهام</span>
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{completedTasks}/{totalTasks}</span>
                     </div>
                   </div>
-                  <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className={`h-2 rounded-full transition-all duration-300 ${completionPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${completionPercentage}%` }} />
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-2">
+                    <div 
+                      className="h-3 rounded-full transition-all duration-300 bg-blue-500"
+                      style={{ width: totalTasks > 0 ? `${(completedTasks / totalTasks) * 100}%` : '0%' }}
+                    />
                   </div>
                 </motion.div>
               );
@@ -299,4 +267,4 @@ export default function DaysPage() {
       </motion.div>
     </PageLayout>
   );
-}
+        }
