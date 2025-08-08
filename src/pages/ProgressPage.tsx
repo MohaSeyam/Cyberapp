@@ -33,6 +33,7 @@ import EnhancedSuggestionsTab from '../components/progress/EnhancedSuggestionsTa
 import EnhancedReportsTab from '../components/progress/EnhancedReportsTab';
 import useProgressStats from '../hooks/useProgressStats';
 import { Link } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 
 // Lazy load components for better performance
 const ProgressOverview = lazy(() => import('../components/progress/ProgressOverview'));
@@ -1047,6 +1048,7 @@ export default function ProgressPage() {
     timeRange: 'all',
     exportLanguage: language
   });
+  const [googleToken, setGoogleToken] = useState(null);
 
   // Memoized complex calculations
   const streaks = useMemo(() => {
@@ -1390,6 +1392,52 @@ export default function ProgressPage() {
 
   const pageDirection = language === 'ar' ? 'rtl' : 'ltr';
 
+  // زر تسجيل الدخول (مؤقت، يمكن نقله لاحقًا)
+  const login = useGoogleLogin({
+    onSuccess: tokenResponse => {
+      setGoogleToken(tokenResponse.access_token);
+      toast.success(language === 'ar' ? 'تم تسجيل الدخول إلى Google!' : 'Logged in with Google!');
+    },
+    onError: () => {
+      toast.error(language === 'ar' ? 'فشل تسجيل الدخول إلى Google' : 'Google login failed');
+    },
+    scope: 'https://www.googleapis.com/auth/drive.file',
+  });
+
+  // زر رفع تقرير إلى Google Drive
+  const handleDriveExport = async () => {
+    if (!googleToken) {
+      toast.error(language === 'ar' ? 'يرجى تسجيل الدخول إلى Google أولاً' : 'Please log in with Google first');
+      return;
+    }
+    // توليد تقرير بسيط (نص)
+    const reportContent = language === 'ar' ? 'تقرير الأمن السيبراني\nتجريبي.' : 'Cybersecurity Report\nSample.';
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const metadata = {
+      name: `cyberplan-report-${Date.now()}.txt`,
+      mimeType: 'text/plain',
+    };
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', blob);
+    try {
+      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${googleToken}`,
+        },
+        body: form,
+      });
+      if (res.ok) {
+        toast.success(language === 'ar' ? 'تم حفظ التقرير في Google Drive!' : 'Report saved to Google Drive!');
+      } else {
+        toast.error(language === 'ar' ? 'فشل رفع التقرير إلى Google Drive' : 'Failed to upload report to Google Drive');
+      }
+    } catch (err) {
+      toast.error(language === 'ar' ? 'حدث خطأ أثناء رفع التقرير' : 'Error uploading report');
+    }
+  };
+
   return (
     <WeekPhaseProvider>
       <div dir={pageDirection}>
@@ -1398,13 +1446,27 @@ export default function ProgressPage() {
           subtitle={safeT('trackYourLearning')}
           showBottomBar={true}
         >
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-wrap gap-2 justify-end mb-4">
             <Link
               to="/resources"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow transition-all"
             >
               📚 {language === 'ar' ? 'مستودع الموارد' : 'Resources Repository'}
             </Link>
+            <button
+              onClick={handleDriveExport}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition-all"
+            >
+              <span role="img" aria-label="drive">☁️</span> {language === 'ar' ? 'حفظ تقرير في Google Drive' : 'Save Report to Google Drive'}
+            </button>
+            {!googleToken && (
+              <button
+                onClick={() => login()}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow transition-all"
+              >
+                <span role="img" aria-label="google">🔑</span> {language === 'ar' ? 'تسجيل الدخول مع Google' : 'Sign in with Google'}
+              </button>
+            )}
           </div>
           <motion.div {...animations.fadeIn} className="space-y-8">
             {/* Overall Progress Card */}
