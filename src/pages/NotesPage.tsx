@@ -16,8 +16,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 function NotesErrorFallback({ error }: { error: Error }) {
   return (
     <div className="p-8 text-center text-red-600 dark:text-red-400">
-      <h2 className="text-2xl font-bold mb-4">حدث خطأ في صفحة الملاحظات</h2>
-      <p>{error?.message || 'يرجى إعادة تحميل الصفحة أو المحاولة لاحقًا.'}</p>
+      <h2 className="text-2xl font-bold mb-4">{t('notesPageError')}</h2>
+      <p>{error?.message || t('reloadOrTryLater')}</p>
     </div>
   );
 }
@@ -58,7 +58,7 @@ export default function NotesPage() {
       setNoteForm({
         title: '',
         content: '',
-        tags: ['ملاحظة عامة'], // Auto-add general note tag
+        tags: [t('generalNote')], // Auto-add general note tag
         weekId: 1,
         dayKey: 'general',
         taskId: 'general'
