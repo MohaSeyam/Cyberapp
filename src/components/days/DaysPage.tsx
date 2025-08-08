@@ -13,7 +13,7 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
-import { FixedSizeList as List } from 'react-window';
+// import { FixedSizeList as List } from 'react-window';
 
 // Day icons mapping
 const dayIcons = {
@@ -220,69 +220,50 @@ export default function DaysPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t('daysOfWeek')}
           </h3>
-          {/* virtualization: استخدم react-window بدلاً من map */}
-          <div style={{ height: 500, width: '100%' }}>
-            <List
-              height={500}
-              itemCount={week.days?.filter(day => day.key !== 'fri').length || 0}
-              itemSize={140}
-              width={'100%'}
-              itemData={{
-                days: week.days?.filter(day => day.key !== 'fri') || [],
-                safeProgress,
-                weekNumber,
-                lang,
-                t,
-                goToDayView,
-                animations
-              }}
-            >
-              {({ index, style, data }) => {
-                const day = data.days[index];
-                const dayKey = day.key;
-                const dayProgress = data.safeProgress.filter(p => 
-                  p.weekId?.toString() === (data.weekNumber?.toString() || '') && p.dayKey === dayKey
-                );
-                const completedTasks = dayProgress.filter(p => p.done).length;
-                const totalTasks = day.tasks?.length || 0;
-                const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-                const DayIcon = dayIcons[dayKey] || Calendar;
-                return (
-                  <div style={style}>
-                    <motion.div 
-                      key={dayKey} 
-                      {...data.animations.stagger(index * 0.1)}
-                      className={`p-6 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600`}
-                      onClick={() => data.goToDayView(index)}
-                    >
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-blue-100 dark:bg-blue-900 shadow-sm">
-                          <DayIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                          <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                            {day.name?.[data.lang] || day.day?.[data.lang]}
-                          </h4>
-                          <p className="text-base text-gray-600 dark:text-gray-400">
-                            {day.topic?.[data.lang]}
-                          </p>
-                        </div>
-                        <div className="ml-auto flex flex-col items-end">
-                          <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">{data.t('tasksCount')}</span>
-                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{completedTasks}/{totalTasks}</span>
-                        </div>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-2">
-                        <div 
-                          className="h-3 rounded-full transition-all duration-300 bg-blue-500"
-                          style={{ width: totalTasks > 0 ? `${(completedTasks / totalTasks) * 100}%` : '0%' }}
-                        />
-                      </div>
-                    </motion.div>
+          {/* أعد استخدام map التقليدي بدلاً من virtualization */}
+          <div className="space-y-3">
+            {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
+              const dayKey = day.key;
+              const totalTasks = day.tasks?.length || 0;
+              const completedTasks = (day.tasks || []).filter(task => {
+                // تحقق من وجود progress منجز لهذه المهمة
+                return safeProgress.some(p => p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey && p.taskId === task.id && p.done);
+              }).length;
+              const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+              const DayIcon = dayIcons[dayKey] || Calendar;
+              return (
+                <motion.div 
+                  key={dayKey} 
+                  {...animations.stagger(dayIndex * 0.1)}
+                  className={`p-6 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600`}
+                  onClick={() => goToDayView(dayIndex)}
+                >
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-blue-100 dark:bg-blue-900 shadow-sm">
+                      <DayIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                        {day.name?.[lang] || day.day?.[lang]}
+                      </h4>
+                      <p className="text-base text-gray-600 dark:text-gray-400">
+                        {day.topic?.[lang]}
+                      </p>
+                    </div>
+                    <div className="ml-auto flex flex-col items-end">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('tasksCount')}</span>
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{completedTasks}/{totalTasks}</span>
+                    </div>
                   </div>
-                );
-              }}
-            </List>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-2">
+                    <div 
+                      className="h-3 rounded-full transition-all duration-300 bg-blue-500"
+                      style={{ width: totalTasks > 0 ? `${(completedTasks / totalTasks) * 100}%` : '0%' }}
+                    />
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </Card>
       </motion.div>

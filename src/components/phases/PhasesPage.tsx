@@ -153,10 +153,11 @@ export default function PhasesPage() {
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         
-        {/* وصف مختصر أعلى الصفحة */}
+        {/* شرح ثابت عن طبيعة المراحل */}
         <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{safeT('phasesPageTitle') || 'المراحل'}</h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{safeT('phasesPageDescription') || 'تعرّف على مراحل خطة التعلم، تقدم في كل مرحلة، واطلع على ملخص الإنجاز.'}</p>
+          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            المراحل تمثل محطات رئيسية في خطة التعلم، كل مرحلة تتضمن مجموعة من الأسابيع والمهام. يمكنك تتبع تقدمك في كل مرحلة من خلال المؤشرات أدناه.
+          </p>
         </div>
 
         {/* Phases Grid */}
@@ -263,6 +264,22 @@ export default function PhasesPage() {
           })}
         </div>
 
+        {/* نسبة التقدم الإجمالية للخطة */}
+        <Card className="mb-6">
+          <div className="flex flex-col items-center justify-center">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">نسبة التقدم الكلية</h3>
+            <div className="w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+              <div
+                className="h-3 bg-blue-500 rounded-full transition-all duration-300"
+                style={{ width: `${Math.round((safeProgress.filter(p => p.done).length / (safePlan.reduce((sum, w) => sum + w.days.filter(d => d.key !== 'fri').reduce((s, d) => s + (d.tasks?.length || 0), 0), 0) || 1)) * 100)}%` }}
+              />
+            </div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              {safeProgress.filter(p => p.done).length} / {safePlan.reduce((sum, w) => sum + w.days.filter(d => d.key !== 'fri').reduce((s, d) => s + (d.tasks?.length || 0), 0), 0)} مهمة مكتملة
+            </div>
+          </div>
+        </Card>
+
         {/* Progress Summary */}
         <Card>
           <div className="text-center">
@@ -315,24 +332,9 @@ export default function PhasesPage() {
           </div>
         </Card>
 
+        {/* أزل شريط أرقام المراحل أسفل الصفحة */}
         {/* مؤشر تنقل دقيق بين صفحات المراحل إذا العدد كبير */}
-        {phases.length > 4 && (
-          <div className="flex justify-center mt-8">
-            {/* شريط تنقل أفقي بسيط */}
-            <div className="flex space-x-2 rtl:space-x-reverse">
-              {phases.map((phase, idx) => (
-                <button
-                  key={phase.id}
-                  onClick={() => goToPhaseWeeks(phase.id)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200"
-                  title={phase.title[lang]}
-                >
-                  {idx + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* تم الحذف بناءً على طلب المستخدم */}
       </motion.div>
     </PageLayout>
   );

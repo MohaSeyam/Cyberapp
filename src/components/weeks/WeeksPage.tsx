@@ -14,7 +14,7 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
-import { FixedSizeList as List } from 'react-window';
+// import { FixedSizeList as List } from 'react-window';
 
 // Breadcrumbs component
 function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
@@ -69,11 +69,14 @@ export default function WeeksPage() {
   const getWeekCompletion = (weekNumber: number) => {
     const week = safePlan.find(w => w.week === weekNumber);
     if (!week) return { completed: 0, total: 0, percentage: 0 };
-
+    // عد جميع المهام في الأيام عدا الجمعة
     const totalTasks = week.days?.filter(day => day.key !== 'fri').reduce((sum, day) => sum + (day.tasks?.length || 0), 0) || 0;
-    const weekProgress = safeProgress.filter(p => p.weekId?.toString() === (weekNumber?.toString() || ''));
-    const completedTasks = weekProgress.filter(p => p.done).length;
-
+    // عد المهام المنجزة فعلاً من progress
+    let completedTasks = 0;
+    week.days?.filter(day => day.key !== 'fri').forEach(day => {
+      const dayProgress = safeProgress.filter(p => p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === day.key && p.done);
+      completedTasks += dayProgress.length;
+    });
     return {
       completed: completedTasks,
       total: totalTasks,
@@ -269,98 +272,78 @@ export default function WeeksPage() {
             {viewMode === 'all' ? t('allWeeks') : t('phaseWeeks')}
           </h3>
           
-          {/* virtualization: استخدم react-window بدلاً من map */}
-          <div style={{ height: 500, width: '100%' }}>
-            <List
-              height={500}
-              itemCount={(viewMode === 'all' ? safePlan : currentPhaseWeeks).length}
-              itemSize={120}
-              width={'100%'}
-              itemData={{
-                weeks: (viewMode === 'all' ? safePlan : currentPhaseWeeks),
-                selectedWeek,
-                getWeekCompletion,
-                t,
-                lang,
-                selectWeek,
-                goToDays,
-                animations
-              }}
-            >
-              {({ index, style, data }) => {
-                const week = data.weeks[index];
-                const completion = data.getWeekCompletion(week.week);
-                const isCurrentWeek = week.week === data.selectedWeek;
-                return (
-                  <div style={style}>
-                    <motion.div
-                      key={week.week}
-                      {...data.animations.stagger(week.week * 0.1)}
-                      className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
-                        isCurrentWeek
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
-                      }`}
-                      onClick={() => data.selectWeek(week.week)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            completion.percentage === 100
-                              ? 'bg-green-100 dark:bg-green-900'
-                              : 'bg-gray-100 dark:bg-gray-700'
-                          }`}>
-                            {completion.percentage === 100 ? (
-                              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                            ) : (
-                              <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900 dark:text-white">
-                              {data.t('week')} {week.week}
-                            </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              {week.title[data.lang]}
-                            </p>
-                          </div>
+          {/* أعد استخدام map التقليدي بدلاً من virtualization */}
+          <div className="space-y-3">
+            {(viewMode === 'all' ? safePlan : currentPhaseWeeks).map((week) => {
+              const completion = getWeekCompletion(week.week);
+              const isCurrentWeek = week.week === selectedWeek;
+              return (
+                <motion.div
+                  key={week.week}
+                  {...animations.stagger(week.week * 0.1)}
+                  className={`p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
+                    isCurrentWeek
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                  }`}
+                  onClick={() => selectWeek(week.week)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        completion.percentage === 100
+                          ? 'bg-green-100 dark:bg-green-900'
+                          : 'bg-gray-100 dark:bg-gray-700'
+                      }`}>
+                        {completion.percentage === 100 ? (
+                          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white">
+                          {t('week')} {week.week}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {week.title[lang]}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {completion.percentage}%
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="text-right">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
-                              {completion.percentage}%
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-500">
-                              {completion.completed}/{completion.total} {data.t('tasks')}
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={e => {
-                              e.stopPropagation();
-                              data.goToDays(week.week);
-                            }}
-                          >
-                            {data.t('viewDays')}
-                          </Button>
+                        <div className="text-xs text-gray-500 dark:text-gray-500">
+                          {completion.completed}/{completion.total} {t('tasks')}
                         </div>
                       </div>
-                      <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            completion.percentage === 100
-                              ? 'bg-green-500'
-                              : 'bg-blue-500'
-                          }`}
-                          style={{ width: `${completion.percentage}%` }}
-                        />
-                      </div>
-                    </motion.div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={e => {
+                          e.stopPropagation();
+                          goToDays(week.week);
+                        }}
+                      >
+                        {t('viewDays')}
+                      </Button>
+                    </div>
                   </div>
-                );
-              }}
-            </List>
+                  <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        completion.percentage === 100
+                          ? 'bg-green-500'
+                          : 'bg-blue-500'
+                      }`}
+                      style={{ width: `${completion.percentage}%` }}
+                    />
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </Card>
       </motion.div>
