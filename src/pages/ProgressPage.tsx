@@ -63,7 +63,12 @@ function MinimalOverview({ language }) {
   // Totals
   const notesCount = Object.values(appState?.notes || {}).flat().length;
   const journalCount = Object.values(appState?.journal || {}).flat().length;
-  const resourcesCount = Object.values(appState?.resources || {}).flat().length;
+  // Combine plan resources and user-added resources, avoid duplicates by url+title
+  const planResources = plan?.flatMap(week => week.days.flatMap(day => day.resources || [])) || [];
+  const userResources = Object.values(appState?.resources || {}).flat();
+  const allResources = [...planResources, ...userResources];
+  const uniqueResources = Array.from(new Map(allResources.map(r => [r.url + '|' + r.title, r])).values());
+  const resourcesCount = uniqueResources.length;
   // Main stats
   const totalTasks = allTasks?.length || 0;
   const completedTasksCount = completedTasks?.length || 0;
