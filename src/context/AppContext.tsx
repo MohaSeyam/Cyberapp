@@ -308,8 +308,10 @@ export function AppProvider({ children }: AppProviderProps) {
     try {
       const updatedSettings = { ...settings, ...newSettings };
       setSettings(updatedSettings);
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updatedSettings));
       await settingsService.set('userSettings', updatedSettings);
+      // أعد تحميل الإعدادات من القاعدة بعد الحفظ
+      const dbSettings = await settingsService.get('userSettings');
+      console.log('Settings after save:', dbSettings);
       settingsService.applySettings();
     } catch (error) {
       console.error('Error updating settings:', error);
