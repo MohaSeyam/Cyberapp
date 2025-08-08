@@ -192,6 +192,10 @@ function ReportsTab({ language }) {
   const [format, setFormat] = useState('pdf');
   const [range, setRange] = useState('all');
   const [isExporting, setIsExporting] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [preview, setPreview] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const formats = [
     { id: 'pdf', label: { ar: 'PDF', en: 'PDF' } },
     { id: 'csv', label: { ar: 'CSV', en: 'CSV' } },
@@ -203,8 +207,7 @@ function ReportsTab({ language }) {
     { id: 'week', label: { ar: 'أسبوع محدد', en: 'Specific Week' } },
     { id: 'phase', label: { ar: 'مرحلة محددة', en: 'Specific Phase' } }
   ];
-
-  const REPORT_LOGO_URL = '/logo192.png'; // You can change this to your logo path
+  const REPORT_LOGO_URL = logoUrl || '/logo192.png';
 
   // Helper: gather data for export
   const getExportData = () => {
@@ -257,6 +260,9 @@ function ReportsTab({ language }) {
           await new Promise(res => { img.onload = res; });
           doc.addImage(img, 'PNG', 30, 30, 40, 40);
         } catch {}
+        doc.setTextColor('#fff');
+        doc.setFontSize(14);
+        if (userName) doc.text(`${language === 'ar' ? 'المستخدم' : 'User'}: ${userName}`, 500, 60, { align: 'right' });
         doc.setTextColor('#222');
         doc.setFontSize(12);
         doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${date}`, 40, 120);
@@ -301,6 +307,8 @@ function ReportsTab({ language }) {
         fileName = `cyberplan-report-${date}.pdf`;
       } else if (format === 'markdown') {
         let md = `# ${language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report'}\n`;
+        if (userName) md += `**${language === 'ar' ? 'المستخدم' : 'User'}:** ${userName}\n`;
+        if (logoUrl) md += `![logo](${logoUrl})\n`;
         md += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}:** ${date}\n`;
         md += `**${language === 'ar' ? 'ملخص' : 'Summary'}:** ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}\n`;
         if (bestWeek)
@@ -330,7 +338,9 @@ function ReportsTab({ language }) {
             total,
             language,
             bestWeek,
-            worstWeek
+            worstWeek,
+            userName,
+            logoUrl
           },
           tasks
         }, null, 2);
@@ -354,9 +364,45 @@ function ReportsTab({ language }) {
     }
   };
 
+  // Preview logic
+  const handlePreview = async () => {
+    setShowPreview(true);
+    const { tasks, completed, total, bestWeek, worstWeek } = getExportData();
+    const date = new Date().toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
+    if (format === 'markdown') {
+      let md = `# ${language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report'}\n`;
+      if (userName) md += `**${language === 'ar' ? 'المستخدم' : 'User'}:** ${userName}\n`;
+      if (logoUrl) md += `![logo](${logoUrl})\n`;
+      md += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}:** ${date}\n`;
+      md += `**${language === 'ar' ? 'ملخص' : 'Summary'}:** ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}\n`;
+      if (bestWeek)
+        md += `- ${language === 'ar' ? 'أفضل أسبوع:' : 'Best week:'} ${bestWeek.week} (${Math.round(bestWeek.rate*100)}%)\n`;
+      if (worstWeek)
+        md += `- ${language === 'ar' ? 'أضعف أسبوع:' : 'Weakest week:'} ${worstWeek.week} (${Math.round(worstWeek.rate*100)}%)\n`;
+      md += `\n| ${language === 'ar' ? 'الأسبوع' : 'Week'} | ${language === 'ar' ? 'اليوم' : 'Day'} | ${language === 'ar' ? 'المهمة' : 'Task'} | ${language === 'ar' ? 'النوع' : 'Type'} | ${language === 'ar' ? 'الحالة' : 'Status'} |\n`;
+      md += `|---|---|---|---|---|\n`;
+      tasks.forEach(t => {
+        md += `| ${t.week} | ${t.day} | ${t.task} | ${language === 'ar' ? translateType(t.type) : t.type} | ${t.done ? '✓' : '✗'} |\n`;
+      });
+      setPreview(md);
+    } else {
+      setPreview(language === 'ar' ? 'معاينة PDF غير مدعومة مباشرة هنا. يرجى التصدير للاطلاع.' : 'PDF preview not supported here. Please export to view.');
+    }
+  };
+
   return (
     <Card className="p-8 max-w-2xl mx-auto mt-8">
       <h2 className="text-xl font-bold mb-4">{language === 'ar' ? 'تصدير التقارير' : 'Export Reports'}</h2>
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <label className="flex-1">
+          <span className="block mb-1 font-semibold text-sm">{language === 'ar' ? 'اسم المستخدم/الجهة:' : 'User/Org Name:'}</span>
+          <input type="text" value={userName} onChange={e => setUserName(e.target.value)} className="w-full border rounded px-3 py-2" placeholder={language === 'ar' ? 'مثال: أكاديمية الأمن السيبراني' : 'e.g. Cybersecurity Academy'} />
+        </label>
+        <label className="flex-1">
+          <span className="block mb-1 font-semibold text-sm">{language === 'ar' ? 'رابط الشعار (اختياري):' : 'Logo URL (optional):'}</span>
+          <input type="text" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} className="w-full border rounded px-3 py-2" placeholder={language === 'ar' ? 'رابط صورة الشعار' : 'Logo image URL'} />
+        </label>
+      </div>
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <label className="flex-1">
           <span className="block mb-1 font-semibold text-sm">{language === 'ar' ? 'نوع التصدير:' : 'Export Format:'}</span>
@@ -378,13 +424,32 @@ function ReportsTab({ language }) {
           <li>{language === 'ar' ? 'تفاصيل الإنجاز حسب النطاق المختار' : 'Progress details for selected range'}</li>
         </ul>
       </div>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white rounded px-6 py-2 font-semibold shadow transition-all disabled:opacity-60"
-        onClick={handleExport}
-        disabled={isExporting}
-      >
-        {isExporting ? (language === 'ar' ? 'جاري التصدير...' : 'Exporting...') : (language === 'ar' ? 'تصدير' : 'Export')}
-      </button>
+      <div className="flex gap-4 mb-4">
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded px-6 py-2 font-semibold shadow transition-all disabled:opacity-60"
+          onClick={handleExport}
+          disabled={isExporting}
+        >
+          {isExporting ? (language === 'ar' ? 'جاري التصدير...' : 'Exporting...') : (language === 'ar' ? 'تصدير' : 'Export')}
+        </button>
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 rounded px-6 py-2 font-semibold shadow transition-all"
+          onClick={handlePreview}
+          disabled={isExporting}
+        >
+          {language === 'ar' ? 'معاينة' : 'Preview'}
+        </button>
+      </div>
+      {showPreview && (
+        <div className="mt-6">
+          <h3 className="text-lg font-bold mb-2">{language === 'ar' ? 'معاينة التقرير' : 'Report Preview'}</h3>
+          {format === 'markdown' ? (
+            <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded overflow-x-auto text-xs whitespace-pre-wrap text-left" dir={language === 'ar' ? 'rtl' : 'ltr'}>{preview}</pre>
+          ) : (
+            <div className="text-gray-500 text-sm">{preview}</div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
