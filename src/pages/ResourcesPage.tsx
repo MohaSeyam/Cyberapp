@@ -29,6 +29,14 @@ export default function ResourcesPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
+  if (!plan || plan.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 text-center text-gray-500 dark:text-gray-400">
+        {language === 'ar' ? 'لا توجد خطة متاحة أو لم يتم تحميل البيانات بعد.' : 'No plan data available or not loaded yet.'}
+      </div>
+    );
+  }
+
   // Gather all resources from all weeks/days
   const allResources: Resource[] = useMemo(() => {
     if (!plan) return [];
