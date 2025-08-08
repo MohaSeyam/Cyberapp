@@ -22,8 +22,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 function HomeErrorFallback({ error }: { error: Error }) {
   return (
     <div className="p-8 text-center text-red-600 dark:text-red-400">
-      <h2 className="text-2xl font-bold mb-4">حدث خطأ في الصفحة الرئيسية</h2>
-      <p>{error?.message || 'يرجى إعادة تحميل الصفحة أو المحاولة لاحقًا.'}</p>
+      <h2 className="text-2xl font-bold mb-4">{t('homePageError')}</h2>
+      <p>{error?.message || t('reloadOrTryLater')}</p>
     </div>
   );
 }
@@ -102,7 +102,7 @@ export default function HomePage() {
       className="mb-12"
     >
       <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-        مميزات المنصة
+        {t('platformFeatures')}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -160,7 +160,7 @@ export default function HomePage() {
               <CheckCircle className="w-6 h-6 text-green-600" />
               <div className="flex-1">
                 <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                  {t('completedTask')}: {t('cybersecurityBasics')}
+                  {t('taskCompletedSuccessfully')}
                 </span>
                 <p className="text-xs text-green-600 dark:text-green-400 mt-1">
                   تم إكمال المهمة بنجاح
