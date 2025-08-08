@@ -39,6 +39,7 @@
   "homepage": "https://github.com/MohSeyam/cyberplan#readme",
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
+    "@react-oauth/google": "^0.12.2",
     "@sentry/react": "^10.0.0",
     "@sentry/tracing": "^7.120.4",
     "@tiptap/extension-code": "^3.0.7",

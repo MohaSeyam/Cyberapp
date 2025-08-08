@@ -12,6 +12,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
 import toast from 'react-hot-toast';
+import { GoogleLogin, googleLogout } from '@react-oauth/google';
 
 export default function SettingsPage() {
   const { theme, lang, toggleTheme, setLang, settings, updateSettings, forceReloadData, fixMissingWeeks } = useApp();
@@ -222,6 +223,27 @@ export default function SettingsPage() {
       subtitle={safeT('customizeYourExperience')}
       showBottomBar={true}
     >
+      {/* Google Integration Section */}
+      <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 shadow flex flex-col items-center gap-4">
+        <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-2">
+          {lang === 'ar' ? 'تكامل Google' : 'Google Integration'}
+        </h2>
+        <GoogleLogin
+          onSuccess={credentialResponse => {
+            toast.success(lang === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in with Google!');
+            // يمكنك حفظ التوكن هنا في السياق أو الحالة
+          }}
+          onError={() => {
+            toast.error(lang === 'ar' ? 'فشل تسجيل الدخول إلى Google' : 'Google login failed');
+          }}
+          useOneTap
+          width="300"
+          locale={lang === 'ar' ? 'ar' : 'en'}
+          text={lang === 'ar' ? 'تسجيل الدخول مع Google' : 'Sign in with Google'}
+          // ملاحظة: يجب استبدال clientId بـ OAuth Client ID الخاص بك
+          clientId="YOUR_GOOGLE_CLIENT_ID"
+        />
+      </div>
       {/* Save/Reset Buttons */}
       {hasChanges && (
         <motion.div
