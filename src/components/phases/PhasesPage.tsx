@@ -157,21 +157,21 @@ export default function PhasesPage() {
           <h1 className="text-3xl md:text-4xl font-extrabold text-blue-700 dark:text-blue-300 mb-2">خطة الأمن السيبراني</h1>
         </div>
 
-        {/* Overall Progress Bar */}
-        <div className="mb-6 flex flex-col items-center justify-center">
-          <div className="w-full max-w-xl">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-lg font-semibold text-gray-700 dark:text-gray-200">التقدم الكلي</span>
-              <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{phases.length > 0 ? Math.round(phases.filter(phase => getPhaseCompletion(phase.id).progress === 100).length / phases.length * 100) : 0}%</span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-              <div 
-                className="h-4 rounded-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
-                style={{ width: `${phases.length > 0 ? (phases.filter(phase => getPhaseCompletion(phase.id).progress === 100).length / phases.length * 100) : 0}%` }}
+        {/* Move the working overall progress card here (was below phases grid) */}
+        <Card className="mb-6">
+          <div className="flex flex-col items-center justify-center">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">نسبة التقدم الكلية</h3>
+            <div className="w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+              <div
+                className="h-3 bg-blue-500 rounded-full transition-all duration-300"
+                style={{ width: `${Math.round((safeProgress.filter(p => p.done).length / (safePlan.reduce((sum, w) => sum + w.days.filter(d => d.key !== 'fri').reduce((s, d) => s + (d.tasks?.length || 0), 0), 0) || 1)) * 100)}%` }}
               />
             </div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              {safeProgress.filter(p => p.done).length} / {safePlan.reduce((sum, w) => sum + w.days.filter(d => d.key !== 'fri').reduce((s, d) => s + (d.tasks?.length || 0), 0), 0)} مهمة مكتملة
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* شرح ثابت عن طبيعة المراحل */}
         <div className="mb-6 text-center">
@@ -283,22 +283,6 @@ export default function PhasesPage() {
             );
           })}
         </div>
-
-        {/* نسبة التقدم الإجمالية للخطة */}
-        <Card className="mb-6">
-          <div className="flex flex-col items-center justify-center">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">نسبة التقدم الكلية</h3>
-            <div className="w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
-              <div
-                className="h-3 bg-blue-500 rounded-full transition-all duration-300"
-                style={{ width: `${Math.round((safeProgress.filter(p => p.done).length / (safePlan.reduce((sum, w) => sum + w.days.filter(d => d.key !== 'fri').reduce((s, d) => s + (d.tasks?.length || 0), 0), 0) || 1)) * 100)}%` }}
-              />
-            </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">
-              {safeProgress.filter(p => p.done).length} / {safePlan.reduce((sum, w) => sum + w.days.filter(d => d.key !== 'fri').reduce((s, d) => s + (d.tasks?.length || 0), 0), 0)} مهمة مكتملة
-            </div>
-          </div>
-        </Card>
 
         {/* Progress Summary */}
         <Card>
