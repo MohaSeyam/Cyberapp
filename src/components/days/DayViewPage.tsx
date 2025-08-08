@@ -6,7 +6,7 @@ import {
   Calendar, Clock, Target, BookOpen, MessageSquare,
   ExternalLink, Plus, CheckCircle, Circle, Video, FileText, 
   Wrench, Mic, GraduationCap, Edit2, ChevronLeft, ChevronRight,
-  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star,
+  ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Star, Home,
   Shield, Bug, Users, Code, Trash2, X, Tag
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -71,241 +71,182 @@ const taskTypeConfig = {
   }
 };
 
-export default function DayViewPage() {
-  const { plan, progress, refreshData, appState } = useApp();
-  const { t } = useLocalization();
+// Breadcrumbs component
+function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
   const navigate = useNavigate();
-  const { weekId, dayIndex } = useParams();
+  
+  return (
+    <nav className="flex items-center space-x-2 mb-6 text-sm">
+      <button 
+        onClick={() => navigate('/')}
+        className="flex items-center text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        <Home className="w-4 h-4 mr-1" />
+        الرئيسية
+      </button>
+      
+      {items.map((item, idx) => (
+        <span key={idx} className="flex items-center">
+          <ChevronRight className="w-4 h-4 mx-1 text-gray-400" />
+          {item.onClick ? (
+            <button onClick={item.onClick} className="text-blue-600 dark:text-blue-400 hover:underline">
+              {item.icon && <item.icon className="inline w-4 h-4 mr-1" />} {item.label}
+            </button>
+          ) : (
+            <span className="text-gray-700 dark:text-gray-200 font-semibold">
+              {item.icon && <item.icon className="inline w-4 h-4 mr-1" />} {item.label}
+            </span>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}
 
-  // Safe translation function
-  const safeT = (key: string) => {
-    try {
-      return t ? t(key) : key;
-    } catch (error) {
-      console.warn('Translation function not available:', error);
-      return key;
-    }
-  };
+export default function DayViewPage() {
+  const { weekId = "1", dayIndex = "0" } = useParams<{ weekId: string; dayIndex: string }>();
+  const navigate = useNavigate();
+  const { plan, progress, addNote, addResource, updateResource, deleteResource, deleteNote, deleteJournalEntry, addJournalEntry, refreshData, appState } = useApp();
+  const { t, language } = useLocalization();
 
-  // State for modals and forms
-  const [showNoteModal, setShowNoteModal] = useState(false);
-  const [showResourceModal, setShowResourceModal] = useState(false);
-  const [showJournalModal, setShowJournalModal] = useState(false);
-  const [newNote, setNewNote] = useState('');
-  const [newResource, setNewResource] = useState({ title: '', url: '', type: 'article' as const });
-  const [newJournalEntry, setNewJournalEntry] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [availableTags] = useState([
-    'مهم', 'عاجل', 'مفيد', 'صعب', 'سهل', 'ممارسة', 'نظرية', 'عملي'
-  ]);
+  const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Day | null>(null);
+  const [noteModal, setNoteModal] = useState({ isOpen: false, taskId: '' });
+  const [noteForm, setNoteForm] = useState({
+    title: '',
+    content: '',
+    tags: [] as string[]
+  });
+  const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null as Resource | null });
+  const [noteContent, setNoteContent] = useState('');
+  const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'video' as const });
+  const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] as string[] });
+  const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null as any });
 
-  // Safety checks for data
+  // Safety check for plan
   const safePlan = plan || [];
-  const safeProgress = progress || [];
 
-  const selectedWeek = safePlan.find(w => w.week === parseInt(weekId));
-  const selectedDay = selectedWeek?.days?.[parseInt(dayIndex)];
+  // Find current week and day with safety checks
+  useEffect(() => {
+    const week = safePlan.find(w => w.week === parseInt(weekId));
+    if (week) {
+      setSelectedWeek(week);
+      const day = week.days?.[parseInt(dayIndex)];
+      if (day) {
+        setSelectedDay(day);
+      }
+    }
+  }, [safePlan, weekId, dayIndex]);
 
-  // Calculate day completion
-  const getDayCompletion = () => {
-    if (!selectedWeek || !selectedDay) return { completed: 0, total: 0, percentage: 0 };
-
-    const dayProgress = safeProgress.filter(p => 
-      p.weekId === (weekId?.toString() || '') && p.dayKey === selectedDay.key
-    );
-    const completedTasks = dayProgress.filter(p => p.done).length;
-    const totalTasks = selectedDay.tasks?.length || 0;
-    const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-
-    return { completed: completedTasks, total: totalTasks, percentage };
-  };
-
-  const dayCompletion = getDayCompletion();
-
-  // Tag management
+  // Tag management functions
   const addTag = (tag: string) => {
-    if (!selectedTags.includes(tag)) {
-      setSelectedTags([...selectedTags, tag]);
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !noteForm.tags.includes(trimmedTag)) {
+      setNoteForm(prev => ({ ...prev, tags: [...prev.tags, trimmedTag] }));
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+    setNoteForm(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
-  // Note management
   const handleAddNote = async () => {
-    if (!newNote.trim()) {
-      toast.error('يرجى إدخال محتوى الملاحظة');
-      return;
-    }
-
-    try {
-      const noteData = {
-        id: Date.now(),
-        content: newNote,
-        tags: selectedTags,
-        timestamp: new Date().toISOString(),
-        dayKey: selectedDay?.key || ''
-      };
-
-      // Add note to app state
-      const updatedNotes = {
-        ...appState?.notes,
-        [`${weekId}-${selectedDay?.key}`]: [
-          ...(appState?.notes?.[`${weekId}-${selectedDay?.key}`] || []),
-          noteData
-        ]
-      };
-
-      // Update app state
-      console.log('Note added:', noteData);
-      toast.success('تم إضافة الملاحظة بنجاح');
-      
-      setNewNote('');
-      setSelectedTags([]);
-      setShowNoteModal(false);
-    } catch (error) {
-      console.error('Error adding note:', error);
-      toast.error('حدث خطأ أثناء إضافة الملاحظة');
+    if (noteForm.title.trim() && noteForm.content.trim() && selectedWeek && selectedDay) {
+      try {
+        await addNote({
+          title: noteForm.title,
+          content: noteForm.content,
+          keywords: '',
+          tags: noteForm.tags,
+          weekId: selectedWeek.week,
+          dayKey: selectedDay.key,
+          taskId: noteModal.taskId
+        });
+        setNoteForm({ title: '', content: '', tags: [] });
+        setNoteModal({ isOpen: false, taskId: '' });
+        toast.success('تم إضافة الملاحظة بنجاح');
+      } catch (error) {
+        console.error('Error adding note:', error);
+        toast.error('فشل في إضافة الملاحظة');
+      }
+    } else {
+      toast.error('يرجى ملء العنوان والمحتوى');
     }
   };
 
-  // Resource management
   const handleAddResource = async () => {
-    if (!newResource.title.trim() || !newResource.url.trim()) {
-      toast.error('يرجى إدخال عنوان وروابط المورد');
-      return;
-    }
-
-    if (!isValidUrl(newResource.url)) {
-      toast.error('يرجى إدخال رابط صحيح');
-      return;
-    }
-
-    try {
-      const resourceData = {
-        id: Date.now().toString(),
-        title: newResource.title,
-        url: newResource.url,
-        type: newResource.type,
-        timestamp: new Date().toISOString(),
-        dayKey: selectedDay?.key || ''
-      };
-
-      // Add resource to app state
-      const updatedResources = {
-        ...appState?.resources,
-        [`${weekId}-${selectedDay?.key}`]: [
-          ...(appState?.resources?.[`${weekId}-${selectedDay?.key}`] || []),
-          resourceData
-        ]
-      };
-
-      // Update app state
-      console.log('Resource added:', resourceData);
-      toast.success('تم إضافة المورد بنجاح');
-      
-      setNewResource({ title: '', url: '', type: 'article' });
-      setShowResourceModal(false);
-    } catch (error) {
-      console.error('Error adding resource:', error);
-      toast.error('حدث خطأ أثناء إضافة المورد');
+    if (resourceForm.title.trim() && resourceForm.url.trim() && selectedWeek && selectedDay) {
+      try {
+        await addResource({
+          title: resourceForm.title,
+          url: resourceForm.url,
+          type: resourceForm.type,
+          weekId: selectedWeek.week,
+          dayKey: selectedDay.key
+        });
+        setResourceForm({ title: '', url: '', type: 'video' });
+        setResourceModal({ isOpen: false, resource: null });
+        toast.success('تم إضافة المرجع بنجاح');
+      } catch (error) {
+        console.error('Error adding resource:', error);
+        toast.error('فشل في إضافة المرجع');
+      }
     }
   };
 
   const handleDeleteResource = async (resourceId: string) => {
-    try {
-      // Remove resource from app state
-      const updatedResources = {
-        ...appState?.resources,
-        [`${weekId}-${selectedDay?.key}`]: (appState?.resources?.[`${weekId}-${selectedDay?.key}`] || [])
-          .filter((resource: Resource) => resource.id !== resourceId)
-      };
-
-      // Update app state
-      console.log('Resource deleted:', resourceId);
-      toast.success('تم حذف المورد بنجاح');
-    } catch (error) {
-      console.error('Error deleting resource:', error);
-      toast.error('حدث خطأ أثناء حذف المورد');
+    if (window.confirm('هل أنت متأكد من حذف هذا المرجع؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      if (selectedWeek && selectedDay) {
+        try {
+          await deleteResource(resourceId);
+          setResourceModal({ isOpen: false, resource: null });
+        } catch (error) {
+          console.error('Error deleting resource:', error);
+        }
+      }
     }
   };
 
-  // Note deletion
   const handleDeleteNote = async (noteId: number) => {
-    try {
-      // Remove note from app state
-      const updatedNotes = {
-        ...appState?.notes,
-        [`${weekId}-${selectedDay?.key}`]: (appState?.notes?.[`${weekId}-${selectedDay?.key}`] || [])
-          .filter((note: any) => note.id !== noteId)
-      };
-
-      // Update app state
-      console.log('Note deleted:', noteId);
-      toast.success('تم حذف الملاحظة بنجاح');
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      toast.error('حدث خطأ أثناء حذف الملاحظة');
+    if (window.confirm('هل أنت متأكد من حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      try {
+        await deleteNote(noteId);
+      } catch (error) {
+        console.error('Error deleting note:', error);
+      }
     }
   };
 
-  // Journal management
   const handleDeleteJournalEntry = async (entryId: number) => {
-    try {
-      // Remove journal entry from app state
-      const updatedJournal = {
-        ...appState?.journal,
-        [`${weekId}-${selectedDay?.key}`]: (appState?.journal?.[`${weekId}-${selectedDay?.key}`] || [])
-          .filter((entry: any) => entry.id !== entryId)
-      };
-
-      // Update app state
-      console.log('Journal entry deleted:', entryId);
-      toast.success('تم حذف مدخل اليومية بنجاح');
-    } catch (error) {
-      console.error('Error deleting journal entry:', error);
-      toast.error('حدث خطأ أثناء حذف مدخل اليومية');
+    if (window.confirm('هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+      try {
+        await deleteJournalEntry(entryId);
+      } catch (error) {
+        console.error('Error deleting journal entry:', error);
+      }
     }
   };
 
   const handleAddJournalEntry = async () => {
-    if (!newJournalEntry.trim()) {
-      toast.error('يرجى إدخال محتوى مدخل اليومية');
-      return;
-    }
-
-    try {
-      const journalData = {
-        id: Date.now(),
-        content: newJournalEntry,
-        timestamp: new Date().toISOString(),
-        dayKey: selectedDay?.key || ''
-      };
-
-      // Add journal entry to app state
-      const updatedJournal = {
-        ...appState?.journal,
-        [`${weekId}-${selectedDay?.key}`]: [
-          ...(appState?.journal?.[`${weekId}-${selectedDay?.key}`] || []),
-          journalData
-        ]
-      };
-
-      // Update app state
-      console.log('Journal entry added:', journalData);
-      toast.success('تم إضافة مدخل اليومية بنجاح');
-      
-      setNewJournalEntry('');
-      setShowJournalModal(false);
-    } catch (error) {
-      console.error('Error adding journal entry:', error);
-      toast.error('حدث خطأ أثناء إضافة مدخل اليومية');
+    if (journalForm.title.trim() && journalForm.content.trim() && selectedWeek && selectedDay) {
+      try {
+        await addJournalEntry({
+          title: journalForm.title,
+          content: journalForm.content,
+          tags: journalForm.tags,
+          weekId: selectedWeek.week,
+          dayKey: selectedDay.key,
+          taskId: 'journal'
+        });
+        setJournalForm({ title: '', content: '', tags: [] });
+        setJournalModal({ isOpen: false, entry: null });
+      } catch (error) {
+        console.error('Error adding journal entry:', error);
+      }
     }
   };
 
-  // Utility functions
+  // دالة التحقق من صحة الرابط
   const isValidUrl = (url: string): boolean => {
     try {
       new URL(url);
@@ -316,21 +257,31 @@ export default function DayViewPage() {
   };
 
   const openResourceInNewTab = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open(url, '_blank');
   };
 
   // Navigation functions
   const goToNextDay = () => {
-    const nextDayIndex = parseInt(dayIndex) + 1;
-    if (nextDayIndex < (selectedWeek?.days?.length || 0)) {
-      navigate(`/day/${weekId}/${nextDayIndex}`);
+    if (selectedWeek && selectedWeek.days) {
+      const filteredDays = selectedWeek.days.filter(day => day.key !== 'fri');
+      const currentDayInFiltered = filteredDays.findIndex(day => day.key === selectedDay.key);
+      if (currentDayInFiltered < filteredDays.length - 1) {
+        const nextDay = filteredDays[currentDayInFiltered + 1];
+        const nextDayIndex = selectedWeek.days.findIndex(day => day.key === nextDay.key);
+        navigate(`/day/${weekId}/${nextDayIndex}`);
+      }
     }
   };
 
   const goToPreviousDay = () => {
-    const prevDayIndex = parseInt(dayIndex) - 1;
-    if (prevDayIndex >= 0) {
-      navigate(`/day/${weekId}/${prevDayIndex}`);
+    if (selectedWeek && selectedWeek.days) {
+      const filteredDays = selectedWeek.days.filter(day => day.key !== 'fri');
+      const currentDayInFiltered = filteredDays.findIndex(day => day.key === selectedDay.key);
+      if (currentDayInFiltered > 0) {
+        const prevDay = filteredDays[currentDayInFiltered - 1];
+        const prevDayIndex = selectedWeek.days.findIndex(day => day.key === prevDay.key);
+        navigate(`/day/${weekId}/${prevDayIndex}`);
+      }
     }
   };
 
@@ -344,11 +295,7 @@ export default function DayViewPage() {
 
   if (!selectedWeek || !selectedDay) {
     return (
-      <PageLayout 
-        title="جاري التحميل"
-        subtitle="جاري تحميل محتوى اليوم"
-        showBottomBar={true}
-      >
+      <PageLayout title="جاري التحميل">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400 mb-6">
@@ -380,6 +327,13 @@ export default function DayViewPage() {
 
   const DayIcon = dayIcons[selectedDay.key as keyof typeof dayIcons] || Calendar;
 
+  const breadcrumbs = [
+    { label: 'المراحل', icon: Calendar, onClick: goToWeekView },
+    { label: `الأسبوع ${selectedWeek.week}`, icon: Target, onClick: goToDayList },
+    { label: 'الأيام', icon: Calendar, onClick: goToDayList },
+    { label: selectedDay.name?.ar || 'اليوم', icon: DayIcon }
+  ];
+
   // تعريف مفاتيح اليوم
   const dayKey = selectedWeek && selectedDay ? `${selectedWeek.week}-${selectedDay.key}` : '';
   const notes = (appState?.notes && dayKey) ? appState.notes[dayKey] || [] : [];
@@ -391,463 +345,705 @@ export default function DayViewPage() {
       subtitle={selectedDay?.topic?.ar || ''}
       showBottomBar={true}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="space-y-8"
-      >
-        {/* Enhanced Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-center mb-8"
-        >
-          <div className="flex items-center justify-center mb-4">
+      <motion.div {...animations.fadeIn} className="space-y-6">
+        
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbs} />
+        
+        {/* Day Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-between mb-4">
             <Button
+              variant="ghost"
+              size="sm"
+              icon={<ArrowLeft />}
               onClick={goToDayList}
-              variant="outline"
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 ml-2" />
-              العودة للأيام
-            </Button>
+            />
             
             <div className="flex items-center space-x-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
+                icon={<ChevronLeft />}
                 onClick={goToPreviousDay}
                 disabled={parseInt(dayIndex) <= 0}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
+              />
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
+                icon={<ChevronRight />}
                 onClick={goToNextDay}
                 disabled={parseInt(dayIndex) >= (selectedWeek.days?.length || 0) - 1}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-          
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-            {selectedDay.name?.ar}
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-6">
-            {selectedDay.topic?.ar}
-          </p>
-          
-          {/* Day Progress */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg max-w-2xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
-                  <DayIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    تقدم اليوم
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {dayCompletion.completed} من {dayCompletion.total} مهمة مكتملة
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {dayCompletion.percentage}%
-                </div>
-              </div>
-            </div>
-            
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-              <div 
-                className="h-3 rounded-full transition-all duration-500 bg-blue-500"
-                style={{ width: `${dayCompletion.percentage}%` }}
               />
             </div>
           </div>
+          
+          <div className="mb-6">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-3">
+              {selectedDay.name?.ar}
+            </h1>
+            {selectedDay.topic?.ar && (
+              <p className="text-xl text-gray-600 dark:text-gray-400">
+                {selectedDay.topic?.ar}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Tasks Section by Type */}
+        <motion.div {...animations.fadeIn} className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              مهام اليوم
+            </h2>
+            <div className="flex items-center space-x-2">
+              <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {(selectedDay.tasks || []).length} مهام
+              </span>
+            </div>
+          </div>
+
+          {/* Group tasks by type */}
+          {(() => {
+            const tasksByType = (selectedDay.tasks || []).reduce((acc, task) => {
+              const type = task.type || 'Technical Skills';
+              if (!acc[type]) acc[type] = [];
+              acc[type].push(task);
+              return acc;
+            }, {} as Record<string, typeof selectedDay.tasks>);
+
+            return Object.entries(tasksByType).map(([type, tasks]) => {
+              const typeInfo = taskTypeConfig[type as keyof typeof taskTypeConfig] || taskTypeConfig['Blue Team'];
+              const TypeIcon = typeInfo?.icon || Shield;
+              
+              return (
+                <Card key={type} className="mb-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className={`p-2 rounded-lg ${typeInfo.bgColor}`}>
+                      <TypeIcon className={`w-5 h-5 ${typeInfo.textColor}`} />
+                    </div>
+                    <h3 className={`text-lg font-semibold ${typeInfo.textColor}`}>
+                      {type}
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {tasks?.map((task, index) => (
+                      <motion.div
+                        key={task.id}
+                        {...animations.stagger(index * 0.1)}
+                      >
+                        <TaskCard
+                          task={task}
+                          weekId={selectedWeek.week}
+                          dayKey={selectedDay.key}
+                          variant="detailed"
+                          showNotes={true}
+                          onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </Card>
+              );
+            });
+          })()}
         </motion.div>
 
-        {/* Tasks Section */}
+        {/* Resources Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          {...animations.fadeIn}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
         >
           <Card>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                مهام اليوم
-              </h2>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {dayCompletion.completed} من {dayCompletion.total} مكتملة
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              {selectedDay.tasks?.map((task, index) => (
-                <TaskCard
-                  key={index}
-                  task={task}
-                  weekId={weekId}
-                  dayKey={selectedDay.key}
-                  taskTypeConfig={taskTypeConfig}
-                />
-              ))}
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Notes and Resources Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Notes Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            <Card>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  الملاحظات
-                </h3>
-                <Button
-                  onClick={() => setShowNoteModal(true)}
-                  variant="primary"
-                  size="sm"
-                >
-                  <Plus className="w-4 h-4 ml-2" />
-                  إضافة ملاحظة
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {notes.map((note: any) => (
-                  <div key={note.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-gray-900 dark:text-white">{note.content}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {note.tags?.map((tag: string) => (
-                            <span key={tag} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => handleDeleteNote(note.id)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                
-                {notes.length === 0 && (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    لا توجد ملاحظات بعد. أضف ملاحظة جديدة!
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    المراجع والموارد
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    موارد مفيدة لليوم
                   </p>
-                )}
+                </div>
               </div>
-            </Card>
-          </motion.div>
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+                onClick={() => setResourceModal({ isOpen: true, resource: null })}
+                aria-label="إضافة مرجع جديد"
+              >
+                <Plus className="w-8 h-8" />
+              </button>
+            </div>
 
-          {/* Resources Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <Card>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  الموارد
-                </h3>
-                <Button
-                  onClick={() => setShowResourceModal(true)}
-                  variant="primary"
-                  size="sm"
-                >
-                  <Plus className="w-4 h-4 ml-2" />
-                  إضافة مورد
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {(appState?.resources?.[dayKey] || []).map((resource: Resource) => {
-                  const ResourceIcon = resourceTypeIcons[resource.type] || FileText;
-                  return (
-                    <div key={resource.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-3 flex-1">
-                          <ResourceIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-1" />
+            <div className="space-y-3">
+              {(selectedDay.resources || []).map((resource, index) => {
+                const Icon = resourceTypeIcons[resource.type] || FileText;
+                
+                return (
+                  <motion.div
+                    key={index}
+                    {...animations.stagger(0.3 + index * 0.1)}
+                    className="group relative"
+                  >
+                    {/* Resource Card */}
+                    <div className="w-full p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-300">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+                            <Icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                          </div>
                           <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 dark:text-white">
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
                               {resource.title}
                             </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {resource.url}
-                            </p>
+                            {resource.description && (
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {resource.description}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Button
+
+                          {/* Open in New Tab Button */}
+                          <button
                             onClick={() => openResourceInNewTab(resource.url)}
-                            variant="ghost"
-                            size="sm"
-                            className="text-blue-500 hover:text-blue-700"
+                            className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors"
+                            title="فتح في تبويب جديد"
                           >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                          <Button
+                            <ExternalLink className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </button>
+                          {/* Edit Button */}
+                          <button
+                            onClick={() => setResourceModal({ isOpen: true, resource })}
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                            title="تعديل المرجع"
+                          >
+                            <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          </button>
+                          {/* Delete Button */}
+                          <button
                             onClick={() => handleDeleteResource(resource.id)}
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500 hover:text-red-700"
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                            title="حذف المرجع"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                            <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                          </button>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-                
-                {(appState?.resources?.[dayKey] || []).length === 0 && (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    لا توجد موارد بعد. أضف مورد جديد!
-                  </p>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Journal Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0, duration: 0.6 }}
-        >
-          <Card>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                يومية المساء
-              </h3>
-              <Button
-                onClick={() => setShowJournalModal(true)}
-                variant="primary"
-                size="sm"
-              >
-                <Plus className="w-4 h-4 ml-2" />
-                إضافة مدخل
-              </Button>
-            </div>
-            
-            <div className="space-y-3">
-              {journalEntries.map((entry: any) => (
-                <div key={entry.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-gray-900 dark:text-white">{entry.content}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        {new Date(entry.timestamp).toLocaleString('ar-SA')}
-                      </p>
-                    </div>
-                    <Button
-                      onClick={() => handleDeleteJournalEntry(entry.id)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              
-              {journalEntries.length === 0 && (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                  لا توجد مداخل في اليومية بعد. أضف مدخل جديد!
-                </p>
-              )}
+                  </motion.div>
+                );
+              })}
             </div>
           </Card>
         </motion.div>
 
-        {/* Modals */}
-        {/* Note Modal */}
-        <Modal
-          isOpen={showNoteModal}
-          onClose={() => setShowNoteModal(false)}
-          title="إضافة ملاحظة جديدة"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                محتوى الملاحظة
-              </label>
-              <textarea
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                rows={4}
-                placeholder="اكتب ملاحظتك هنا..."
-              />
+        {/* Notes Section */}
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+              <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span>الملاحظات ({notes.length})</span>
+            </h3>
+          </div>
+          
+          {notes.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-500 dark:text-gray-400">لا توجد ملاحظات لهذا اليوم</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                أضف ملاحظات من كروت المهام
+              </p>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                العلامات
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {availableTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => addTag(tag)}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      selectedTags.includes(tag)
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    {tag}
-                  </button>
+          ) : (
+            <div className="space-y-3">
+              {notes.map((note) => (
+                <motion.div
+                  key={note.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
+                  onClick={() => navigate(`/note/${note.id}`)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        {note.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 break-words overflow-hidden">
+                        {note.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{new Date(note.createdAt).toLocaleDateString('en-US')}</span>
+                        {note.tags && note.tags.length > 0 && (
+                          <div className="flex items-center space-x-1">
+                            <Tag className="w-3 h-3" />
+                            <span>{note.tags.length} وسوم</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNote(note.id);
+                        }}
+                        className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                        title="حذف"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Journal Section */}
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+              <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <span>المدونات ({journalEntries.length})</span>
+            </h3>
+            <button
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
+              onClick={() => setJournalModal({ isOpen: true, entry: null })}
+              aria-label="إضافة مدونة جديدة"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {/* Notes Prompt - Always Show */}
+          {selectedDay?.notes_prompt && (
+            <div className="mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+              <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-3">
+                {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'نص المدونة المقترح'}
+              </h4>
+              <div className="space-y-2 text-sm text-purple-700 dark:text-purple-300">
+                {selectedDay.notes_prompt.points?.map((point: any, index: number) => (
+                  <div key={index} className="flex items-start space-x-2">
+                    <span className="text-purple-600 dark:text-purple-400 font-medium">•</span>
+                    <span>{point[language] || point.ar || point.en}</span>
+                  </div>
                 ))}
               </div>
             </div>
-            
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowNoteModal(false)}
-                variant="outline"
-              >
-                إلغاء
-              </Button>
-              <Button
-                onClick={handleAddNote}
-                variant="primary"
-              >
-                إضافة الملاحظة
-              </Button>
-            </div>
-          </div>
-        </Modal>
+          )}
 
-        {/* Resource Modal */}
-        <Modal
-          isOpen={showResourceModal}
-          onClose={() => setShowResourceModal(false)}
-          title="إضافة مورد جديد"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                عنوان المورد
-              </label>
-              <input
-                type="text"
-                value={newResource.title}
-                onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="أدخل عنوان المورد"
-              />
+          {/* Journal Entries */}
+          {journalEntries.length === 0 ? (
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-500 dark:text-gray-400">لا توجد مدونات لهذا اليوم</p>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                رابط المورد
-              </label>
-              <input
-                type="url"
-                value={newResource.url}
-                onChange={(e) => setNewResource({ ...newResource, url: e.target.value })}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="https://example.com"
-              />
+          ) : (
+            <div className="space-y-3">
+              {journalEntries.map((entry) => (
+                <motion.div
+                  key={entry.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800"
+                  onClick={() => navigate(`/journal-entry/${entry.id}`)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                        {entry.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 break-words overflow-hidden">
+                        {entry.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{new Date(entry.createdAt).toLocaleDateString('en-US')}</span>
+                        {entry.tags && entry.tags.length > 0 && (
+                          <div className="flex items-center space-x-1">
+                            <Tag className="w-3 h-3" />
+                            <span>{entry.tags.length} وسوم</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setJournalForm({
+                            title: entry.title,
+                            content: entry.content,
+                            tags: entry.tags || []
+                          });
+                          setJournalModal({ isOpen: true, entry });
+                        }}
+                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title="تعديل"
+                      >
+                        <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteJournalEntry(entry.id);
+                        }}
+                        className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+                        title="حذف"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                نوع المورد
-              </label>
-              <select
-                value={newResource.type}
-                onChange={(e) => setNewResource({ ...newResource, type: e.target.value as any })}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                <option value="article">مقال</option>
-                <option value="video">فيديو</option>
-                <option value="book">كتاب</option>
-                <option value="tool">أداة</option>
-                <option value="podcast">بودكاست</option>
-                <option value="course">دورة</option>
-              </select>
-            </div>
-            
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={() => setShowResourceModal(false)}
-                variant="outline"
-              >
-                إلغاء
-              </Button>
-              <Button
-                onClick={handleAddResource}
-                variant="primary"
-              >
-                إضافة المورد
-              </Button>
-            </div>
-          </div>
-        </Modal>
+          )}
+        </Card>
 
-        {/* Journal Modal */}
-        <Modal
-          isOpen={showJournalModal}
-          onClose={() => setShowJournalModal(false)}
-          title="إضافة مدخل في اليومية"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                محتوى المدخل
-              </label>
-              <textarea
-                value={newJournalEntry}
-                onChange={(e) => setNewJournalEntry(e.target.value)}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                rows={6}
-                placeholder="اكتب انعكاساتك على ما تعلمته اليوم..."
-              />
-            </div>
-            
-            <div className="flex justify-end space-x-3">
+        {/* Navigation Footer */}
+        <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
+          <Card>
+            <div className="flex items-center justify-between">
               <Button
-                onClick={() => setShowJournalModal(false)}
-                variant="outline"
+                variant="ghost"
+                onClick={goToDayList}
+                icon={<ArrowLeft />}
               >
-                إلغاء
+                العودة للأيام
               </Button>
-              <Button
-                onClick={handleAddJournalEntry}
-                variant="primary"
-              >
-                إضافة المدخل
-              </Button>
+              
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<ChevronLeft />}
+                  onClick={goToPreviousDay}
+                  disabled={parseInt(dayIndex) <= 0}
+                >
+                  اليوم السابق
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<ChevronRight />}
+                  onClick={goToNextDay}
+                  disabled={parseInt(dayIndex) >= (selectedWeek.days?.length || 0) - 1}
+                >
+                  اليوم التالي
+                </Button>
+              </div>
             </div>
-          </div>
-        </Modal>
+          </Card>
+        </motion.div>
       </motion.div>
+
+      {/* Resource Modal */}
+      <Modal
+        isOpen={resourceModal.isOpen}
+        onClose={() => setResourceModal({ isOpen: false, resource: null })}
+        title={resourceModal.resource ? 'تعديل المورد' : 'إضافة مورد'}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              عنوان المورد
+            </label>
+            <input
+              type="text"
+              value={resourceForm.title}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="أدخل العنوان"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              رابط المورد
+            </label>
+            <input
+              type="url"
+              value={resourceForm.url}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
+                resourceForm.url && !isValidUrl(resourceForm.url) 
+                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
+              placeholder="https://www.example.com"
+            />
+            {resourceForm.url && !isValidUrl(resourceForm.url) && (
+              <p className="text-red-500 text-sm mt-1">
+                يرجى إدخال رابط صحيح يبدأ بـ https://
+              </p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              نوع المورد
+            </label>
+            <select
+              value={resourceForm.type}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value as any }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="video">فيديو</option>
+              <option value="article">مقال</option>
+              <option value="book">كتاب</option>
+              <option value="tool">أداة</option>
+              <option value="podcast">بودكاست</option>
+              <option value="course">دورة</option>
+            </select>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => setResourceModal({ isOpen: false, resource: null })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddResource}
+              disabled={!resourceForm.title.trim() || !resourceForm.url.trim() || !isValidUrl(resourceForm.url)}
+            >
+              {resourceModal.resource ? 'تحديث' : 'إضافة'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Note Modal */}
+      <Modal
+        isOpen={noteModal.isOpen}
+        onClose={() => setNoteModal({ isOpen: false, taskId: '' })}
+        title="إضافة ملاحظة"
+        size="xl"
+      >
+        <div className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              عنوان الملاحظة
+            </label>
+            <input
+              type="text"
+              value={noteForm.title}
+              onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="أدخل عنوان الملاحظة"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              التاقات
+            </label>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {noteForm.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => setNoteForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))}
+                      className="ml-1 hover:text-blue-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="أضف تاق"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const tag = e.currentTarget.value.trim();
+                      if (tag && !noteForm.tags.includes(tag)) {
+                        setNoteForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                        e.currentTarget.value = '';
+                      }
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const tag = input.value.trim();
+                    if (tag && !noteForm.tags.includes(tag)) {
+                      setNoteForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                      input.value = '';
+                    }
+                  }}
+                >
+                  إضافة
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              محتوى الملاحظة
+            </label>
+            <RichTextEditor
+              content={noteForm.content}
+              onChange={(content) => setNoteForm(prev => ({ ...prev, content }))}
+              placeholder="اكتب ملاحظتك هنا..."
+              lang={language}
+              minHeight="400px"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setNoteModal({ isOpen: false, taskId: '' });
+                setNoteForm({ title: '', content: '', tags: [] });
+              }}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddNote}
+              disabled={!noteForm.title.trim() || !noteForm.content.trim()}
+            >
+              حفظ الملاحظة
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Journal Modal */}
+      <Modal
+        isOpen={journalModal.isOpen}
+        onClose={() => setJournalModal({ isOpen: false, entry: null })}
+        title={journalModal.entry ? 'تعديل المدونة' : 'إضافة مدونة جديدة'}
+        size="xl"
+      >
+        <div className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              عنوان المدونة
+            </label>
+            <input
+              type="text"
+              value={journalForm.title}
+              onChange={(e) => setJournalForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="أدخل عنوان المدونة"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              التاقات
+            </label>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {journalForm.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => setJournalForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))}
+                      className="ml-1 hover:text-blue-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="أضف تاق"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const tag = e.currentTarget.value.trim();
+                      if (tag && !journalForm.tags.includes(tag)) {
+                        setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                        e.currentTarget.value = '';
+                      }
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const tag = input.value.trim();
+                    if (tag && !journalForm.tags.includes(tag)) {
+                      setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                      input.value = '';
+                    }
+                  }}
+                >
+                  إضافة
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              محتوى المدونة
+            </label>
+            <RichTextEditor
+              content={journalForm.content}
+              onChange={(content) => setJournalForm(prev => ({ ...prev, content }))}
+              placeholder="اكتب محتوى المدونة هنا..."
+              lang={language}
+              minHeight="400px"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setJournalModal({ isOpen: false, entry: null })}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddJournalEntry}
+              disabled={!journalForm.title.trim() || !journalForm.content.trim()}
+            >
+              {journalModal.entry ? 'تحديث المدونة' : 'حفظ المدونة'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </PageLayout>
   );
 }
