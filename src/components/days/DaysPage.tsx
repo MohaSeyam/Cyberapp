@@ -1,11 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Calendar, ChevronRight, ChevronLeft, Target, Clock, 
-  CheckCircle, PlayCircle, BookOpen, Users, Award,
-  TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ArrowLeft, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText
+  Calendar, ChevronRight, Target, Home, Sun, Coffee, Zap, Heart, Brain, Shield, Bug, FileText, Users, Star
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -13,9 +10,7 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
-// import { FixedSizeList as List } from 'react-window';
 
-// Day icons mapping
 const dayIcons = {
   sat: Sun,
   sun: Sun,
@@ -26,7 +21,6 @@ const dayIcons = {
   fri: Star
 };
 
-// Breadcrumbs component
 function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => void; icon?: any }> }) {
   const navigate = useNavigate();
   
@@ -64,7 +58,6 @@ export default function DaysPage() {
   const navigate = useNavigate();
   const { weekId } = useParams();
 
-  // Safe translation function
   const safeT = (key: string) => {
     try {
       return t ? t(key) : key;
@@ -76,14 +69,12 @@ export default function DaysPage() {
 
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
 
-  // Safety checks for data
   const safePlan = plan || [];
   const safeProgress = progress || [];
 
   const weekNumber = parseInt(weekId);
   const week = safePlan.find(w => w.week === weekNumber);
 
-  // Calculate day completion
   const getDayCompletion = (weekNumber: number, dayKey: string) => {
     const dayProgress = safeProgress.filter(p => 
       p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey
@@ -98,7 +89,6 @@ export default function DaysPage() {
     };
   };
 
-  // Calculate week completion
   const getWeekCompletion = (weekNumber: number) => {
     const week = safePlan.find(w => w.week === weekNumber);
     if (!week) return { completed: 0, total: 0, percentage: 0 };
@@ -114,7 +104,6 @@ export default function DaysPage() {
     };
   };
 
-  // Navigation functions
   const goToNextDay = () => {
     if (week && week.days && selectedDayIndex < week.days.length - 1) {
       setSelectedDayIndex(selectedDayIndex + 1);
@@ -167,7 +156,6 @@ export default function DaysPage() {
     { label: 'الأيام', icon: Calendar }
   ];
 
-  // Task type icons and colors mapping
   const taskTypeConfig = {
     'Blue Team': {
       icon: Shield,
@@ -202,35 +190,27 @@ export default function DaysPage() {
   };
 
   return (
-    <PageLayout 
-      showBottomBar={true}
-    >
+    <PageLayout showBottomBar={true}>
       <motion.div {...animations.fadeIn} className="space-y-6">
-        {/* Breadcrumbs */}
-        {/* تم إزالة العنوان والشرح من الأعلى */}
-        {/* Week Header - اسم الأسبوع صغير، العنوان كبير، لا زر عودة */}
         <div className="mb-4">
           <span className="text-base text-gray-500 dark:text-gray-400">{t('week')} {weekNumber}</span>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-1 mb-2">
             {week.title?.[lang]}
           </h1>
         </div>
-        {/* Days List */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t('daysOfWeek')}
           </h3>
-          {/* أعد استخدام map التقليدي بدلاً من virtualization */}
           <div className="space-y-3">
             {week.days?.filter(day => day.key !== 'fri').map((day, dayIndex) => {
               const dayKey = day.key;
               const totalTasks = day.tasks?.length || 0;
               const completedTasks = (day.tasks || []).filter(task => {
-                // تحقق من وجود progress منجز لهذه المهمة
                 return safeProgress.some(p => p.weekId?.toString() === (weekNumber?.toString() || '') && p.dayKey === dayKey && p.taskId === task.id && p.done);
               }).length;
-              const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
               const DayIcon = dayIcons[dayKey] || Calendar;
+
               return (
                 <motion.div 
                   key={dayKey} 
@@ -269,4 +249,4 @@ export default function DaysPage() {
       </motion.div>
     </PageLayout>
   );
-        }
+}
