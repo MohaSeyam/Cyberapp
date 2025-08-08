@@ -1438,6 +1438,31 @@ export default function ProgressPage() {
     }
   };
 
+  // زر تصدير إلى Google Calendar
+  const handleCalendarExport = async () => {
+    if (!googleToken) {
+      toast.error(language === 'ar' ? 'يرجى تسجيل الدخول إلى Google أولاً' : 'Please log in with Google first');
+      return;
+    }
+    // توليد ملف .ics تجريبي (حدث واحد)
+    const dt = new Date();
+    const dtStart = dt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const dtEnd = new Date(dt.getTime() + 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${language === 'ar' ? 'مهمة أمن سيبراني' : 'Cybersecurity Task'}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nDESCRIPTION:${language === 'ar' ? 'حدث تجريبي من CyberPlan' : 'Sample event from CyberPlan'}\nEND:VEVENT\nEND:VCALENDAR`;
+    // رفع الحدث إلى Google Calendar API (placeholder: فقط تحميل الملف للمستخدم)
+    const blob = new Blob([ics], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cyberplan-event.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(language === 'ar' ? 'تم تصدير الحدث، يمكنك استيراده في Google Calendar.' : 'Event exported, you can import it in Google Calendar.');
+    // TODO: تكامل API حقيقي مع Google Calendar
+  };
+
   return (
     <WeekPhaseProvider>
       <div dir={pageDirection}>
@@ -1458,6 +1483,12 @@ export default function ProgressPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition-all"
             >
               <span role="img" aria-label="drive">☁️</span> {language === 'ar' ? 'حفظ تقرير في Google Drive' : 'Save Report to Google Drive'}
+            </button>
+            <button
+              onClick={handleCalendarExport}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white font-semibold shadow transition-all"
+            >
+              <span role="img" aria-label="calendar">📅</span> {language === 'ar' ? 'تصدير إلى Google Calendar' : 'Export to Google Calendar'}
             </button>
             {!googleToken && (
               <button
