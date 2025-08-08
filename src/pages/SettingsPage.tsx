@@ -80,7 +80,7 @@ export default function SettingsPage() {
       indexedDB.deleteDatabase('CyberPlanOffline');
       
       // Show success message
-      toast.success('تم مسح جميع البيانات بنجاح');
+      toast.success(t('allDataCleared'));
       
       // Refresh the page to reload data
       setTimeout(() => {
@@ -95,24 +95,24 @@ export default function SettingsPage() {
       indexedDB.deleteDatabase('CyberPlanDB');
       
       // Refresh data
-      await refreshData();
+      await forceReloadData();
       
-      toast.success('تم إعادة تحميل البيانات بنجاح');
+      toast.success(t('dataReloaded'));
     } catch (error) {
       console.error('Error forcing data reload:', error);
-      toast.error('فشل في إعادة تحميل البيانات');
+      toast.error(t('dataReloadFailed'));
     }
   };
 
   const handleClearAndReload = async () => {
-    if (window.confirm('هل أنت متأكد من إصلاح الأسابيع المفقودة؟')) {
+    if (window.confirm(t('confirmFixMissingWeeks'))) {
       try {
         // Use the new fixMissingWeeks function
         await fixMissingWeeks();
-        toast.success('تم إصلاح الأسابيع المفقودة بنجاح');
+        toast.success(t('missingWeeksFixed'));
       } catch (error) {
         console.error('Error fixing missing weeks:', error);
-        toast.error('فشل في إصلاح الأسابيع المفقودة');
+        toast.error(t('missingWeeksFixFailed'));
       }
     }
   };
@@ -127,8 +127,8 @@ export default function SettingsPage() {
           label: t('language'),
           type: 'select',
           options: [
-            { value: 'ar', label: 'العربية' },
-            { value: 'en', label: 'English' }
+            { value: 'ar', label: t('arabic') },
+            { value: 'en', label: t('english') }
           ],
           value: lang,
           onChange: (value: string) => setLang(value as 'ar' | 'en')
@@ -335,19 +335,15 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">{t('appName')}</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                Cyber Security Journey
-              </span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{t('appNameValue')}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">{t('version')}</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">1.0.0</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{t('appVersion')}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">{t('lastUpdated')}</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                {new Date().toLocaleDateString()}
-              </span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{t('lastUpdatedValue', { date: new Date().toLocaleDateString() })}</span>
             </div>
           </div>
         </Card>
