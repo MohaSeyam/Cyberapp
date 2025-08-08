@@ -15,8 +15,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 function JournalErrorFallback({ error }: { error: Error }) {
   return (
     <div className="p-8 text-center text-red-600 dark:text-red-400">
-      <h2 className="text-2xl font-bold mb-4">حدث خطأ في صفحة المدونة</h2>
-      <p>{error?.message || 'يرجى إعادة تحميل الصفحة أو المحاولة لاحقًا.'}</p>
+      <h2 className="text-2xl font-bold mb-4">{t('journalPageError')}</h2>
+      <p>{error?.message || t('reloadOrTryLater')}</p>
     </div>
   );
 }
