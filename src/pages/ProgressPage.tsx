@@ -4,6 +4,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import toast from 'react-hot-toast';
 
 const TABS = [
   {
@@ -187,9 +188,10 @@ function AnalyticsTab({ language }) {
 }
 
 function ReportsTab({ language }) {
-  // Placeholder export logic
+  const { plan, progress } = useApp();
   const [format, setFormat] = useState('pdf');
   const [range, setRange] = useState('all');
+  const [isExporting, setIsExporting] = useState(false);
   const formats = [
     { id: 'pdf', label: { ar: 'PDF', en: 'PDF' } },
     { id: 'csv', label: { ar: 'CSV', en: 'CSV' } },
@@ -201,6 +203,108 @@ function ReportsTab({ language }) {
     { id: 'week', label: { ar: 'أسبوع محدد', en: 'Specific Week' } },
     { id: 'phase', label: { ar: 'مرحلة محددة', en: 'Specific Phase' } }
   ];
+
+  // Helper: gather data for export
+  const getExportData = () => {
+    // For simplicity, always export all for now
+    const tasks = plan?.flatMap(week => week.days.flatMap(day => day.tasks.map(task => ({
+      week: week.week,
+      day: day.day?.ar || day.day?.en || '',
+      task: language === 'ar' ? task.description?.ar : task.description?.en,
+      type: task.type,
+      done: progress?.some(p => p.taskId === task.id && p.done),
+    }))) || [];
+    const completed = tasks.filter(t => t.done).length;
+    const total = tasks.length;
+    return { tasks, completed, total };
+  };
+
+  // Export logic
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const { tasks, completed, total } = getExportData();
+      const date = new Date().toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US');
+      let blob, fileName;
+      if (format === 'pdf') {
+        const jsPDF = (await import('jspdf')).default;
+        const doc = new jsPDF({ orientation: language === 'ar' ? 'rtl' : 'ltr', unit: 'pt', format: 'a4' });
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.text(language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report', 40, 60);
+        doc.setFontSize(12);
+        doc.text(`${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}: ${date}`, 40, 80);
+        doc.setFontSize(14);
+        doc.text(`${language === 'ar' ? 'ملخص' : 'Summary'}: ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}`, 40, 110);
+        // Table header
+        let y = 140;
+        doc.setFontSize(12);
+        doc.text(language === 'ar' ? 'الأسبوع' : 'Week', 40, y);
+        doc.text(language === 'ar' ? 'اليوم' : 'Day', 90, y);
+        doc.text(language === 'ar' ? 'المهمة' : 'Task', 180, y);
+        doc.text(language === 'ar' ? 'النوع' : 'Type', 350, y);
+        doc.text(language === 'ar' ? 'الحالة' : 'Status', 420, y);
+        y += 20;
+        tasks.forEach(t => {
+          doc.text(String(t.week), 40, y);
+          doc.text(String(t.day), 90, y);
+          doc.text(String(t.task), 180, y, { maxWidth: 150 });
+          doc.text(String(language === 'ar' ? translateType(t.type) : t.type), 350, y);
+          doc.text(t.done ? (language === 'ar' ? '✓ مكتملة' : '✓ Done') : (language === 'ar' ? 'غير مكتملة' : 'Not done'), 420, y);
+          y += 18;
+          if (y > 750) { doc.addPage(); y = 60; }
+        });
+        blob = doc.output('blob');
+        fileName = `cyberplan-report-${date}.pdf`;
+      } else if (format === 'markdown') {
+        let md = `# ${language === 'ar' ? 'تقرير خطة الأمن السيبراني' : 'Cybersecurity Plan Report'}\n`;
+        md += `**${language === 'ar' ? 'تاريخ التصدير' : 'Export Date'}:** ${date}\n`;
+        md += `**${language === 'ar' ? 'ملخص' : 'Summary'}:** ${completed}/${total} ${language === 'ar' ? 'مهمة مكتملة' : 'tasks completed'}\n\n`;
+        md += `| ${language === 'ar' ? 'الأسبوع' : 'Week'} | ${language === 'ar' ? 'اليوم' : 'Day'} | ${language === 'ar' ? 'المهمة' : 'Task'} | ${language === 'ar' ? 'النوع' : 'Type'} | ${language === 'ar' ? 'الحالة' : 'Status'} |\n`;
+        md += `|---|---|---|---|---|\n`;
+        tasks.forEach(t => {
+          md += `| ${t.week} | ${t.day} | ${t.task} | ${language === 'ar' ? translateType(t.type) : t.type} | ${t.done ? (language === 'ar' ? '✓ مكتملة' : '✓ Done') : (language === 'ar' ? 'غير مكتملة' : 'Not done')} |\n`;
+        });
+        blob = new Blob([md], { type: 'text/markdown' });
+        fileName = `cyberplan-report-${date}.md`;
+      } else if (format === 'csv') {
+        const Papa = (await import('papaparse')).default;
+        const csv = Papa.unparse([
+          ['Week', 'Day', 'Task', 'Type', 'Status'],
+          ...tasks.map(t => [t.week, t.day, t.task, t.type, t.done ? 'Done' : 'Not done'])
+        ]);
+        blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        fileName = `cyberplan-report-${date}.csv`;
+      } else if (format === 'json') {
+        const json = JSON.stringify({
+          metadata: {
+            exportDate: date,
+            completed,
+            total,
+            language
+          },
+          tasks
+        }, null, 2);
+        blob = new Blob([json], { type: 'application/json' });
+        fileName = `cyberplan-report-${date}.json`;
+      }
+      // Download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success(language === 'ar' ? 'تم تصدير التقرير بنجاح!' : 'Report exported successfully!');
+    } catch (e) {
+      toast.error(language === 'ar' ? 'حدث خطأ أثناء التصدير' : 'Export failed');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <Card className="p-8 max-w-2xl mx-auto mt-8">
       <h2 className="text-xl font-bold mb-4">{language === 'ar' ? 'تصدير التقارير' : 'Export Reports'}</h2>
@@ -225,8 +329,12 @@ function ReportsTab({ language }) {
           <li>{language === 'ar' ? 'تفاصيل الإنجاز حسب النطاق المختار' : 'Progress details for selected range'}</li>
         </ul>
       </div>
-      <button className="bg-blue-600 hover:bg-blue-700 text-white rounded px-6 py-2 font-semibold shadow transition-all">
-        {language === 'ar' ? 'تصدير' : 'Export'}
+      <button
+        className="bg-blue-600 hover:bg-blue-700 text-white rounded px-6 py-2 font-semibold shadow transition-all disabled:opacity-60"
+        onClick={handleExport}
+        disabled={isExporting}
+      >
+        {isExporting ? (language === 'ar' ? 'جاري التصدير...' : 'Exporting...') : (language === 'ar' ? 'تصدير' : 'Export')}
       </button>
     </Card>
   );
