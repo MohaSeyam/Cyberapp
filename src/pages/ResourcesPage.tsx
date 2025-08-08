@@ -40,14 +40,26 @@ export default function ResourcesPage() {
   let allResources: Resource[] = [];
   try {
     allResources = plan.flatMap(week =>
-      (week.days || []).flatMap(day =>
-        (day.resources || []).map(resource => ({ ...resource, weekId: week.week, dayIndex: day.key }))
+      (Array.isArray(week.days) ? week.days : []).flatMap(day =>
+        (Array.isArray(day.resources) ? day.resources : []).map(resource => ({
+          ...resource,
+          weekId: week.week,
+          dayIndex: day.key
+        }))
       )
     );
   } catch (err) {
     return (
       <div className="max-w-2xl mx-auto py-20 text-center text-red-500 dark:text-red-400">
-        {language === 'ar' ? 'حدث خطأ أثناء تحميل المراجع.' : 'An error occurred while loading resources.'}
+        {language === 'ar' ? 'حدث خطأ أثناء تحميل المراجع. تحقق من صحة بيانات الخطة.' : 'An error occurred while loading resources. Please check your plan data.'}
+      </div>
+    );
+  }
+
+  if (!allResources || allResources.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 text-center text-gray-500 dark:text-gray-400">
+        {language === 'ar' ? 'لا توجد مراجع متاحة في الخطة.' : 'No resources available in the plan.'}
       </div>
     );
   }
@@ -97,12 +109,22 @@ export default function ResourcesPage() {
         ) : (
           filteredResources.map(resource => {
             let dayLabel = '';
+            let dayError = false;
             if (resource.weekId && resource.dayIndex) {
               const weekObj = plan.find(w => w.week === resource.weekId);
               const dayObj = weekObj?.days?.find(d => d.key === resource.dayIndex);
-              if (dayObj) {
+              if (dayObj && dayObj.day) {
                 dayLabel = dayObj.day?.[language] || '';
+              } else {
+                dayError = true;
               }
+            }
+            if (!resource.title || !resource.url) {
+              return (
+                <Card key={resource.id || Math.random()} className="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300">
+                  {language === 'ar' ? 'مرجع غير مكتمل البيانات (العنوان أو الرابط مفقود).' : 'Resource missing title or URL.'}
+                </Card>
+              );
             }
             return (
               <Card key={(resource.id || resource.title) + resource.title} className="p-4 flex flex-col gap-2">
@@ -116,6 +138,11 @@ export default function ResourcesPage() {
                   {dayLabel && (
                     <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 rounded px-2 py-0.5">
                       {language === 'ar' ? `اليوم: ${dayLabel}` : `Day: ${dayLabel}`}
+                    </span>
+                  )}
+                  {dayError && (
+                    <span className="text-xs text-red-500 bg-red-100 dark:bg-red-800 rounded px-2 py-0.5">
+                      {language === 'ar' ? 'اليوم غير معروف بالخطة' : 'Day not found in plan'}
                     </span>
                   )}
                 </div>
