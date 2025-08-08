@@ -152,7 +152,27 @@ export default function PhasesPage() {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        
+        {/* Main Title */}
+        <div className="mb-4 text-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-blue-700 dark:text-blue-300 mb-2">خطة الأمن السيبراني</h1>
+        </div>
+
+        {/* Overall Progress Bar */}
+        <div className="mb-6 flex flex-col items-center justify-center">
+          <div className="w-full max-w-xl">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-lg font-semibold text-gray-700 dark:text-gray-200">التقدم الكلي</span>
+              <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{phases.length > 0 ? Math.round(phases.filter(phase => getPhaseCompletion(phase.id).progress === 100).length / phases.length * 100) : 0}%</span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+              <div 
+                className="h-4 rounded-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
+                style={{ width: `${phases.length > 0 ? (phases.filter(phase => getPhaseCompletion(phase.id).progress === 100).length / phases.length * 100) : 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* شرح ثابت عن طبيعة المراحل */}
         <div className="mb-6 text-center">
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
