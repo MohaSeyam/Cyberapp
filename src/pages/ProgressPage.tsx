@@ -1438,7 +1438,7 @@ export default function ProgressPage() {
     }
   };
 
-  // زر تصدير جميع المهام إلى Google Calendar
+  // زر تصدير جميع المهام إلى Google Calendar (مع خيارات)
   const handleCalendarExport = async () => {
     if (!googleToken) {
       toast.error(language === 'ar' ? 'يرجى تسجيل الدخول إلى Google أولاً' : 'Please log in with Google first');
@@ -1448,8 +1448,12 @@ export default function ProgressPage() {
       toast.error(language === 'ar' ? 'لا توجد خطة متاحة.' : 'No plan data available.');
       return;
     }
-    // جمع جميع المهام (حد أقصى 20 للعرض التجريبي)
-    const allTasks = plan.flatMap(week =>
+    // جمع جميع المهام حسب الخيارات
+    let filteredWeeks = plan;
+    if (calendarExportWeek !== 'all') {
+      filteredWeeks = plan.filter(w => w.week === Number(calendarExportWeek));
+    }
+    const allTasks = filteredWeeks.flatMap(week =>
       week.days.flatMap(day =>
         (day.tasks || []).map(task => ({
           ...task,
@@ -1461,10 +1465,15 @@ export default function ProgressPage() {
     let successCount = 0;
     let errorCount = 0;
     for (const task of allTasks) {
-      // حساب وقت البدء والانتهاء (تجريبي: كل مهمة ساعة واحدة)
-      const startDate = new Date('2024-01-01T08:00:00Z');
-      startDate.setDate(startDate.getDate() + (task.week.week - 1) * 7);
-      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+      // حساب وقت البدء والانتهاء بدقة
+      const baseDate = new Date('2024-01-01T00:00:00Z');
+      const weekOffset = (task.week.week - 1) * 7;
+      const dayOffset = ['sat','sun','mon','tue','wed','thu','fri'].indexOf(task.day.key);
+      const startDate = new Date(baseDate.getTime());
+      startDate.setUTCDate(startDate.getUTCDate() + weekOffset + (dayOffset >= 0 ? dayOffset : 0));
+      startDate.setUTCHours(calendarExportHour, calendarExportMinute, 0, 0);
+      const durationMinutes = task.duration || 60;
+      const endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
       const event = {
         summary: language === 'ar' ? (task.description?.ar || 'مهمة أمن سيبراني') : (task.description?.en || 'Cybersecurity Task'),
         description: language === 'ar' ? `مهمة من CyberPlan - الأسبوع ${task.week.week}` : `Task from CyberPlan - Week ${task.week.week}`,
@@ -1502,6 +1511,11 @@ export default function ProgressPage() {
       );
     }
   };
+
+  // Export options state
+  const [calendarExportWeek, setCalendarExportWeek] = useState('all');
+  const [calendarExportHour, setCalendarExportHour] = useState(9);
+  const [calendarExportMinute, setCalendarExportMinute] = useState(0);
 
   return (
     <WeekPhaseProvider>
@@ -1595,6 +1609,47 @@ export default function ProgressPage() {
               </div>
             </Card>
           </motion.div>
+          <div className="flex flex-col gap-2 mb-4 items-end">
+            {/* Export Options Form */}
+            <div className="flex flex-wrap gap-2 items-center justify-end w-full">
+              <label className="text-sm font-semibold">
+                {language === 'ar' ? 'الأسبوع:' : 'Week:'}
+                <select
+                  className="ml-2 border rounded px-2 py-1 text-sm"
+                  value={calendarExportWeek}
+                  onChange={e => setCalendarExportWeek(e.target.value)}
+                >
+                  <option value="all">{language === 'ar' ? 'كل الأسابيع' : 'All Weeks'}</option>
+                  {plan && plan.map(w => (
+                    <option key={w.week} value={w.week}>{language === 'ar' ? `الأسبوع ${w.week}` : `Week ${w.week}`}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-semibold">
+                {language === 'ar' ? 'وقت البدء:' : 'Start Time:'}
+                <input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={calendarExportHour}
+                  onChange={e => setCalendarExportHour(Number(e.target.value))}
+                  className="ml-2 w-12 border rounded px-1 py-1 text-sm"
+                />
+                :
+                <input
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={calendarExportMinute}
+                  onChange={e => setCalendarExportMinute(Number(e.target.value))}
+                  className="w-12 border rounded px-1 py-1 text-sm"
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-2 justify-end w-full">
+              {/* Add any additional export options form elements here */}
+            </div>
+          </div>
         </PageLayout>
       </div>
     </WeekPhaseProvider>
