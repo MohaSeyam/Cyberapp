@@ -481,6 +481,7 @@ const SmartAnalyticsCard = ({ plan, progress, language }) => {
 // Enhanced Analytics Tab Component
 const EnhancedAnalyticsTab = React.memo(() => {
   const { plan, progress } = useApp();
+  const { language } = useLocalization();
   
   // Prepare data for ProgressChart
   const progressData = useMemo(() => {
