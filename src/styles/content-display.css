@@ -1,0 +1,415 @@
+/* Content Display Styles for Notes and Journal Entries */
+
+/* Base Content Styles */
+.content-display {
+  font-family: 'Cairo', 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.dark .content-display {
+  color: #d1d5db;
+}
+
+/* Headings */
+.content-display h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1.5rem 0 1rem 0;
+  color: #111827;
+}
+
+.dark .content-display h1 {
+  color: #f9fafb;
+}
+
+.content-display h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1.25rem 0 0.75rem 0;
+  color: #111827;
+}
+
+.dark .content-display h2 {
+  color: #f9fafb;
+}
+
+.content-display h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 1rem 0 0.5rem 0;
+  color: #111827;
+}
+
+.dark .content-display h3 {
+  color: #f9fafb;
+}
+
+/* Paragraphs */
+.content-display p {
+  margin: 0.75rem 0;
+  text-align: justify;
+}
+
+/* Bold and Italic */
+.content-display strong {
+  font-weight: bold;
+  color: #111827;
+}
+
+.dark .content-display strong {
+  color: #f9fafb;
+}
+
+.content-display em {
+  font-style: italic;
+}
+
+/* Links */
+.content-display a {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dark .content-display a {
+  color: #60a5fa;
+}
+
+.content-display a:hover {
+  color: #1d4ed8;
+}
+
+.dark .content-display a:hover {
+  color: #93c5fd;
+}
+
+/* Lists */
+.content-display ul,
+.content-display ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.content-display li {
+  margin: 0.25rem 0;
+}
+
+/* Blockquotes */
+.content-display blockquote {
+  border-left: 4px solid #3b82f6;
+  margin: 1rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  background-color: #f8fafc;
+  font-style: italic;
+}
+
+.dark .content-display blockquote {
+  background-color: #1e293b;
+  border-left-color: #60a5fa;
+}
+
+/* Code */
+.content-display code {
+  background-color: #f1f5f9;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.dark .content-display code {
+  background-color: #334155;
+  color: #fca5a5;
+}
+
+.content-display pre {
+  background-color: #f1f5f9;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.dark .content-display pre {
+  background-color: #334155;
+}
+
+.content-display pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Tables */
+.content-display table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .content-display table {
+  border-color: #374151;
+}
+
+.content-display table th,
+.content-display table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: right;
+}
+
+.dark .content-display table th,
+.dark .content-display table td {
+  border-color: #374151;
+}
+
+.content-display table th {
+  background-color: #f9fafb;
+  font-weight: bold;
+}
+
+.dark .content-display table th {
+  background-color: #374151;
+}
+
+/* Horizontal Rules */
+.content-display hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+.dark .content-display hr {
+  border-top-color: #374151;
+}
+
+/* Font Family Styles */
+.content-display [data-font-family="Arial, sans-serif"] {
+  font-family: Arial, sans-serif;
+}
+
+.content-display [data-font-family="Times New Roman, serif"] {
+  font-family: "Times New Roman", serif;
+}
+
+.content-display [data-font-family="Courier New, monospace"] {
+  font-family: "Courier New", monospace;
+}
+
+.content-display [data-font-family="Georgia, serif"] {
+  font-family: Georgia, serif;
+}
+
+.content-display [data-font-family="Verdana, sans-serif"] {
+  font-family: Verdana, sans-serif;
+}
+
+.content-display [data-font-family="Tahoma, sans-serif"] {
+  font-family: Tahoma, sans-serif;
+}
+
+.content-display [data-font-family="Cairo, sans-serif"] {
+  font-family: Cairo, sans-serif;
+}
+
+.content-display [data-font-family="Amiri, serif"] {
+  font-family: Amiri, serif;
+}
+
+.content-display [data-font-family="Noto Naskh Arabic, serif"] {
+  font-family: "Noto Naskh Arabic", serif;
+}
+
+.content-display [data-font-family="Scheherazade New, serif"] {
+  font-family: "Scheherazade New", serif;
+}
+
+.content-display [data-font-family="Readex Pro, sans-serif"] {
+  font-family: "Readex Pro", sans-serif;
+}
+
+.content-display [data-font-family="IBM Plex Sans Arabic, sans-serif"] {
+  font-family: "IBM Plex Sans Arabic", sans-serif;
+}
+
+/* Font Size Styles */
+.content-display [data-font-size="12px"] {
+  font-size: 12px;
+}
+
+.content-display [data-font-size="14px"] {
+  font-size: 14px;
+}
+
+.content-display [data-font-size="16px"] {
+  font-size: 16px;
+}
+
+.content-display [data-font-size="18px"] {
+  font-size: 18px;
+}
+
+.content-display [data-font-size="20px"] {
+  font-size: 20px;
+}
+
+.content-display [data-font-size="24px"] {
+  font-size: 24px;
+}
+
+.content-display [data-font-size="28px"] {
+  font-size: 28px;
+}
+
+.content-display [data-font-size="32px"] {
+  font-size: 32px;
+}
+
+/* Color Styles */
+.content-display [data-color="#000000"] {
+  color: #000000;
+}
+
+.content-display [data-color="#434343"] {
+  color: #434343;
+}
+
+.content-display [data-color="#666666"] {
+  color: #666666;
+}
+
+.content-display [data-color="#999999"] {
+  color: #999999;
+}
+
+.content-display [data-color="#b7b7b7"] {
+  color: #b7b7b7;
+}
+
+.content-display [data-color="#cccccc"] {
+  color: #cccccc;
+}
+
+.content-display [data-color="#d9d9d9"] {
+  color: #d9d9d9;
+}
+
+.content-display [data-color="#efefef"] {
+  color: #efefef;
+}
+
+.content-display [data-color="#f3f3f3"] {
+  color: #f3f3f3;
+}
+
+.content-display [data-color="#ffffff"] {
+  color: #ffffff;
+}
+
+.content-display [data-color="#980000"] {
+  color: #980000;
+}
+
+.content-display [data-color="#ff0000"] {
+  color: #ff0000;
+}
+
+.content-display [data-color="#ff9900"] {
+  color: #ff9900;
+}
+
+.content-display [data-color="#ffff00"] {
+  color: #ffff00;
+}
+
+.content-display [data-color="#00ff00"] {
+  color: #00ff00;
+}
+
+.content-display [data-color="#00ffff"] {
+  color: #00ffff;
+}
+
+.content-display [data-color="#4a86e8"] {
+  color: #4a86e8;
+}
+
+.content-display [data-color="#0000ff"] {
+  color: #0000ff;
+}
+
+.content-display [data-color="#9900ff"] {
+  color: #9900ff;
+}
+
+.content-display [data-color="#ff00ff"] {
+  color: #ff00ff;
+}
+
+/* Dark mode color adjustments */
+.dark .content-display [data-color="#000000"] {
+  color: #ffffff;
+}
+
+.dark .content-display [data-color="#ffffff"] {
+  color: #000000;
+}
+
+/* RTL Support */
+.content-display {
+  direction: rtl;
+  text-align: right;
+}
+
+.content-display table th,
+.content-display table td {
+  text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-display {
+    font-size: 14px;
+  }
+  
+  .content-display h1 {
+    font-size: 1.5rem;
+  }
+  
+  .content-display h2 {
+    font-size: 1.25rem;
+  }
+  
+  .content-display h3 {
+    font-size: 1.125rem;
+  }
+  
+  .content-display table {
+    font-size: 12px;
+  }
+  
+  .content-display table th,
+  .content-display table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .content-display {
+    color: black !important;
+    background: white !important;
+  }
+  
+  .content-display table {
+    border-color: black !important;
+  }
+  
+  .content-display table th,
+  .content-display table td {
+    border-color: black !important;
+  }
+}

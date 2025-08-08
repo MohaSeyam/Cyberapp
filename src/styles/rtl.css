@@ -1,0 +1,805 @@
+/* RTL Support for Arabic Language */
+/* This file contains comprehensive RTL (Right-to-Left) styles for Arabic text direction */
+
+/* Base RTL Container */
+.rtl-container {
+  direction: rtl;
+  text-align: right;
+}
+
+/* RTL Direction for Arabic */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Flex Direction Reversal */
+.rtl .flex,
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+.rtl .flex-col,
+[dir="rtl"] .flex-col {
+  flex-direction: column-reverse;
+}
+
+/* Grid Direction Reversal */
+.rtl .grid,
+[dir="rtl"] .grid {
+  direction: rtl;
+}
+
+/* Spacing and Margins */
+.rtl .space-x-1 > * + *,
+[dir="rtl"] .space-x-1 > * + * {
+  margin-right: 0.25rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-2 > * + *,
+[dir="rtl"] .space-x-2 > * + * {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-3 > * + *,
+[dir="rtl"] .space-x-3 > * + * {
+  margin-right: 0.75rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-4 > * + *,
+[dir="rtl"] .space-x-4 > * + * {
+  margin-right: 1rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-6 > * + *,
+[dir="rtl"] .space-x-6 > * + * {
+  margin-right: 1.5rem;
+  margin-left: 0;
+}
+
+.rtl .space-x-8 > * + *,
+[dir="rtl"] .space-x-8 > * + * {
+  margin-right: 2rem;
+  margin-left: 0;
+}
+
+/* Padding Adjustments */
+.rtl .pl-1,
+[dir="rtl"] .pl-1 {
+  padding-left: 0;
+  padding-right: 0.25rem;
+}
+
+.rtl .pl-2,
+[dir="rtl"] .pl-2 {
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+
+.rtl .pl-3,
+[dir="rtl"] .pl-3 {
+  padding-left: 0;
+  padding-right: 0.75rem;
+}
+
+.rtl .pl-4,
+[dir="rtl"] .pl-4 {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+.rtl .pl-6,
+[dir="rtl"] .pl-6 {
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+
+.rtl .pr-1,
+[dir="rtl"] .pr-1 {
+  padding-right: 0;
+  padding-left: 0.25rem;
+}
+
+.rtl .pr-2,
+[dir="rtl"] .pr-2 {
+  padding-right: 0;
+  padding-left: 0.5rem;
+}
+
+.rtl .pr-3,
+[dir="rtl"] .pr-3 {
+  padding-right: 0;
+  padding-left: 0.75rem;
+}
+
+.rtl .pr-4,
+[dir="rtl"] .pr-4 {
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+.rtl .pr-6,
+[dir="rtl"] .pr-6 {
+  padding-right: 0;
+  padding-left: 1.5rem;
+}
+
+/* Margin Adjustments */
+.rtl .ml-1,
+[dir="rtl"] .ml-1 {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+.rtl .ml-2,
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.rtl .ml-3,
+[dir="rtl"] .ml-3 {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.rtl .ml-4,
+[dir="rtl"] .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.rtl .ml-6,
+[dir="rtl"] .ml-6 {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+
+.rtl .mr-1,
+[dir="rtl"] .mr-1 {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}
+
+.rtl .mr-2,
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .mr-3,
+[dir="rtl"] .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+.rtl .mr-4,
+[dir="rtl"] .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+.rtl .mr-6,
+[dir="rtl"] .mr-6 {
+  margin-right: 0;
+  margin-left: 1.5rem;
+}
+
+/* Text Alignment */
+.rtl .text-left,
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+.rtl .text-right,
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* Icon Positioning */
+.rtl .icon-left,
+[dir="rtl"] .icon-left {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .icon-right,
+[dir="rtl"] .icon-right {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Form Elements */
+.rtl input,
+.rtl textarea,
+.rtl select,
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+.rtl .form-input,
+[dir="rtl"] .form-input {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* Button Icon Positioning */
+.rtl .btn-icon-left,
+[dir="rtl"] .btn-icon-left {
+  flex-direction: row-reverse;
+}
+
+.rtl .btn-icon-right,
+[dir="rtl"] .btn-icon-right {
+  flex-direction: row;
+}
+
+/* Card Layouts */
+.rtl .card-header,
+[dir="rtl"] .card-header {
+  text-align: right;
+}
+
+.rtl .card-body,
+[dir="rtl"] .card-body {
+  text-align: right;
+}
+
+.rtl .card-footer,
+[dir="rtl"] .card-footer {
+  text-align: right;
+}
+
+/* Navigation */
+.rtl .nav-item,
+[dir="rtl"] .nav-item {
+  text-align: right;
+}
+
+.rtl .nav-link,
+[dir="rtl"] .nav-link {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Modal */
+.rtl .modal-header,
+[dir="rtl"] .modal-header {
+  text-align: right;
+}
+
+.rtl .modal-body,
+[dir="rtl"] .modal-body {
+  text-align: right;
+}
+
+.rtl .modal-footer,
+[dir="rtl"] .modal-footer {
+  text-align: right;
+}
+
+/* Table */
+.rtl table,
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+.rtl th,
+.rtl td,
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* Lists */
+.rtl ul,
+.rtl ol,
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+.rtl li,
+[dir="rtl"] li {
+  text-align: right;
+}
+
+/* Progress Indicators */
+.rtl .progress-bar,
+[dir="rtl"] .progress-bar {
+  direction: rtl;
+}
+
+/* Tooltips and Popovers */
+.rtl .tooltip,
+[dir="rtl"] .tooltip {
+  text-align: right;
+}
+
+.rtl .popover,
+[dir="rtl"] .popover {
+  text-align: right;
+}
+
+/* Charts (keep LTR for charts) */
+.rtl .chart-container,
+[dir="rtl"] .chart-container {
+  direction: ltr;
+}
+
+/* Rich Text Editor */
+.rtl .rich-text-editor,
+[dir="rtl"] .rich-text-editor {
+  direction: rtl;
+}
+
+.rtl .rich-text-editor .toolbar,
+[dir="rtl"] .rich-text-editor .toolbar {
+  direction: rtl;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+}
+
+.rtl .rich-text-editor .toolbar .toolbar-group,
+[dir="rtl"] .rich-text-editor .toolbar .toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-direction: row-reverse;
+}
+
+.rtl .rich-text-editor .editor-content,
+[dir="rtl"] .rich-text-editor .editor-content {
+  direction: rtl;
+  text-align: right;
+  padding: 1rem;
+}
+
+.rtl .rich-text-editor .editor-content p,
+[dir="rtl"] .rich-text-editor .editor-content p {
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+.rtl .rich-text-editor .editor-content h1,
+.rtl .rich-text-editor .editor-content h2,
+.rtl .rich-text-editor .editor-content h3,
+.rtl .rich-text-editor .editor-content h4,
+.rtl .rich-text-editor .editor-content h5,
+.rtl .rich-text-editor .editor-content h6,
+[dir="rtl"] .rich-text-editor .editor-content h1,
+[dir="rtl"] .rich-text-editor .editor-content h2,
+[dir="rtl"] .rich-text-editor .editor-content h3,
+[dir="rtl"] .rich-text-editor .editor-content h4,
+[dir="rtl"] .rich-text-editor .editor-content h5,
+[dir="rtl"] .rich-text-editor .editor-content h6 {
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+.rtl .rich-text-editor .editor-content ul,
+.rtl .rich-text-editor .editor-content ol,
+[dir="rtl"] .rich-text-editor .editor-content ul,
+[dir="rtl"] .rich-text-editor .editor-content ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+  text-align: right;
+}
+
+.rtl .rich-text-editor .editor-content li,
+[dir="rtl"] .rich-text-editor .editor-content li {
+  text-align: right;
+}
+
+.rtl .rich-text-editor .editor-content blockquote,
+[dir="rtl"] .rich-text-editor .editor-content blockquote {
+  border-right: 4px solid #3b82f6;
+  border-left: none;
+  padding-right: 1rem;
+  padding-left: 0;
+  margin-right: 0;
+  margin-left: 0;
+  text-align: right;
+}
+
+.rtl .rich-text-editor .editor-content code,
+[dir="rtl"] .rich-text-editor .editor-content code {
+  direction: ltr;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+.rtl .rich-text-editor .editor-content pre,
+[dir="rtl"] .rich-text-editor .editor-content pre {
+  direction: ltr;
+  text-align: left;
+  font-family: 'Courier New', monospace;
+}
+
+/* Dropdown Fixes */
+.rtl .dropdown,
+[dir="rtl"] .dropdown {
+  position: relative;
+}
+
+.rtl .dropdown-menu,
+[dir="rtl"] .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: auto;
+  z-index: 50;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  color: #374151;
+  text-align: right;
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.rtl .dropdown-item,
+[dir="rtl"] .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #374151;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+}
+
+.rtl .dropdown-item:hover,
+[dir="rtl"] .dropdown-item:hover {
+  color: #1f2937;
+  background-color: #f3f4f6;
+}
+
+/* Button Fixes */
+.rtl .btn,
+[dir="rtl"] .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-direction: row-reverse;
+}
+
+.rtl .btn-icon-left,
+[dir="rtl"] .btn-icon-left {
+  flex-direction: row-reverse;
+}
+
+.rtl .btn-icon-right,
+[dir="rtl"] .btn-icon-right {
+  flex-direction: row;
+}
+
+/* Input Fixes */
+.rtl input,
+.rtl textarea,
+.rtl select,
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+  direction: rtl;
+}
+
+.rtl input::placeholder,
+.rtl textarea::placeholder,
+[dir="rtl"] input::placeholder,
+[dir="rtl"] textarea::placeholder {
+  text-align: right;
+}
+
+/* Modal Fixes */
+.rtl .modal,
+[dir="rtl"] .modal {
+  direction: rtl;
+}
+
+.rtl .modal-header,
+[dir="rtl"] .modal-header {
+  text-align: right;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.rtl .modal-body,
+[dir="rtl"] .modal-body {
+  text-align: right;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.rtl .modal-footer,
+[dir="rtl"] .modal-footer {
+  text-align: right;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+/* Table Fixes */
+.rtl table,
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+.rtl th,
+.rtl td,
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+/* List Fixes */
+.rtl ul,
+.rtl ol,
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+  text-align: right;
+}
+
+.rtl li,
+[dir="rtl"] li {
+  text-align: right;
+}
+
+/* Alert Fixes */
+.rtl .alert,
+[dir="rtl"] .alert {
+  text-align: right;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.rtl .alert-icon,
+[dir="rtl"] .alert-icon {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Toast Fixes */
+.rtl .toast,
+[dir="rtl"] .toast {
+  text-align: right;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+.rtl .toast-icon,
+[dir="rtl"] .toast-icon {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Loading Spinner Fixes */
+.rtl .loading-spinner,
+[dir="rtl"] .loading-spinner {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Badge and Tag Fixes */
+.rtl .badge,
+.rtl .tag,
+[dir="rtl"] .badge,
+[dir="rtl"] .tag {
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Avatar Fixes */
+.rtl .avatar,
+[dir="rtl"] .avatar {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Navigation Fixes */
+.rtl .nav,
+[dir="rtl"] .nav {
+  direction: rtl;
+}
+
+.rtl .nav-item,
+[dir="rtl"] .nav-item {
+  text-align: right;
+}
+
+.rtl .nav-link,
+[dir="rtl"] .nav-link {
+  text-align: right;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* Breadcrumb Fixes */
+.rtl .breadcrumb,
+[dir="rtl"] .breadcrumb {
+  direction: rtl;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.rtl .breadcrumb-item,
+[dir="rtl"] .breadcrumb-item {
+  text-align: right;
+}
+
+.rtl .breadcrumb-item + .breadcrumb-item,
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item {
+  padding-right: 0.5rem;
+  padding-left: 0;
+}
+
+.rtl .breadcrumb-item + .breadcrumb-item::before,
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before {
+  padding-right: 0.5rem;
+  padding-left: 0;
+  content: "/";
+}
+
+/* Pagination Fixes */
+.rtl .pagination,
+[dir="rtl"] .pagination {
+  direction: rtl;
+}
+
+.rtl .page-item,
+[dir="rtl"] .page-item {
+  text-align: center;
+}
+
+.rtl .page-link,
+[dir="rtl"] .page-link {
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Progress Bar Fixes */
+.rtl .progress,
+[dir="rtl"] .progress {
+  direction: rtl;
+}
+
+.rtl .progress-bar,
+[dir="rtl"] .progress-bar {
+  direction: rtl;
+  text-align: center;
+}
+
+/* Tooltip Fixes */
+.rtl .tooltip,
+[dir="rtl"] .tooltip {
+  text-align: right;
+}
+
+/* Popover Fixes */
+.rtl .popover,
+[dir="rtl"] .popover {
+  text-align: right;
+}
+
+/* Chart Container Fixes (keep LTR for charts) */
+.rtl .chart-container,
+[dir="rtl"] .chart-container {
+  direction: ltr;
+}
+
+/* Mobile Responsiveness Fixes */
+@media (max-width: 768px) {
+  .rtl .mobile-container,
+  [dir="rtl"] .mobile-container {
+    direction: rtl;
+  }
+  
+  .rtl .mobile-nav,
+  [dir="rtl"] .mobile-nav {
+    direction: rtl;
+  }
+  
+  .rtl .mobile-bottom-bar,
+  [dir="rtl"] .mobile-bottom-bar {
+    direction: rtl;
+  }
+  
+  .rtl .mobile-menu,
+  [dir="rtl"] .mobile-menu {
+    text-align: right;
+  }
+  
+  .rtl .mobile-card,
+  [dir="rtl"] .mobile-card {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  .rtl .mobile-input,
+  [dir="rtl"] .mobile-input {
+    text-align: right;
+    direction: rtl;
+  }
+  
+  .rtl .mobile-button,
+  [dir="rtl"] .mobile-button {
+    flex-direction: row-reverse;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .rtl .dark,
+  [dir="rtl"] .dark {
+    color-scheme: dark;
+  }
+  
+  .rtl .dark .bg-white,
+  [dir="rtl"] .dark .bg-white {
+    background-color: #1f2937;
+  }
+  
+  .rtl .dark .text-gray-900,
+  [dir="rtl"] .dark .text-gray-900 {
+    color: #f9fafb;
+  }
+  
+  .rtl .dark .border-gray-200,
+  [dir="rtl"] .dark .border-gray-200 {
+    border-color: #374151;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .rtl .print,
+  [dir="rtl"] .print {
+    direction: rtl;
+  }
+  
+  .rtl .print .page,
+  [dir="rtl"] .print .page {
+    direction: rtl;
+    text-align: right;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .rtl .high-contrast,
+  [dir="rtl"] .high-contrast {
+    border-width: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .rtl .reduced-motion,
+  [dir="rtl"] .reduced-motion {
+    animation: none;
+    transition: none;
+  }
+}
