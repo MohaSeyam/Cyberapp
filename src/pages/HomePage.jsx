@@ -18,20 +18,8 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
   
-  // Wrap useApp in try-catch to handle any context errors
-  let appData;
-  try {
-    appData = useApp();
-  } catch (error) {
-    console.error('Error accessing app context:', error);
-    appData = {
-      plan: [],
-      progress: [],
-      notes: [],
-      journalEntries: []
-    };
-  }
-  
+  // Use useApp safely
+  const appData = useApp();
   const { plan, progress, notes, journalEntries } = appData;
   
   // Ensure data is available with additional safety

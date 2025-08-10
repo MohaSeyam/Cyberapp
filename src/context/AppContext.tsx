@@ -1105,64 +1105,12 @@ export function AppProvider({ children }: AppProviderProps) {
 }
 
 export function useApp() {
-  try {
-    const context = useContext(AppContext);
-    
-    // Validate context exists
-    if (!context) {
-      console.error('AppContext is undefined');
-      throw new Error('AppContext is not available');
-    }
-    
-    // Add safety checks for context values with better error handling
-    const safeContext = {
-      ...context,
-      plan: Array.isArray(context.plan) ? context.plan : [],
-      progress: Array.isArray(context.progress) ? context.progress : [],
-      notes: Array.isArray(context.notes) ? context.notes : [],
-      journalEntries: Array.isArray(context.journalEntries) ? context.journalEntries : [],
-      resources: Array.isArray(context.resources) ? context.resources : [],
-      taskEvaluations: Array.isArray(context.taskEvaluations) ? context.taskEvaluations : [],
-      weekEvaluations: Array.isArray(context.weekEvaluations) ? context.weekEvaluations : [],
-      notifications: Array.isArray(context.notifications) ? context.notifications : [],
-      appState: context.appState && typeof context.appState === 'object' ? context.appState : { notes: {}, journal: {}, resources: {} },
-      settings: context.settings && typeof context.settings === 'object' ? context.settings : {},
-      lang: typeof context.lang === 'string' ? context.lang : 'ar',
-      theme: typeof context.theme === 'string' ? context.theme : 'light',
-      loading: typeof context.loading === 'boolean' ? context.loading : false,
-      modal: context.modal && typeof context.modal === 'object' ? context.modal : { isOpen: false, content: null },
-      setLang: typeof context.setLang === 'function' ? context.setLang : (() => {}),
-      setTheme: typeof context.setTheme === 'function' ? context.setTheme : (() => {}),
-      toggleTheme: typeof context.toggleTheme === 'function' ? context.toggleTheme : (() => {}),
-      updateSettings: typeof context.updateSettings === 'function' ? context.updateSettings : (async () => {}),
-      updateProgress: typeof context.updateProgress === 'function' ? context.updateProgress : (async () => {}),
-      addOrUpdateProgress: typeof context.addOrUpdateProgress === 'function' ? context.addOrUpdateProgress : (async () => {}),
-      addNote: typeof context.addNote === 'function' ? context.addNote : (async () => 0),
-      updateNote: typeof context.updateNote === 'function' ? context.updateNote : (async () => {}),
-      deleteNote: typeof context.deleteNote === 'function' ? context.deleteNote : (async () => {}),
-      addJournalEntry: typeof context.addJournalEntry === 'function' ? context.addJournalEntry : (async () => 0),
-      updateJournalEntry: typeof context.updateJournalEntry === 'function' ? context.updateJournalEntry : (async () => {}),
-      deleteJournalEntry: typeof context.deleteJournalEntry === 'function' ? context.deleteJournalEntry : (async () => {}),
-      addResource: typeof context.addResource === 'function' ? context.addResource : (async () => 0),
-      updateResource: typeof context.updateResource === 'function' ? context.updateResource : (async () => {}),
-      deleteResource: typeof context.deleteResource === 'function' ? context.deleteResource : (async () => {}),
-      setModal: typeof context.setModal === 'function' ? context.setModal : (() => {}),
-      addNotification: typeof context.addNotification === 'function' ? context.addNotification : (() => {}),
-      removeNotification: typeof context.removeNotification === 'function' ? context.removeNotification : (() => {}),
-      refreshData: typeof context.refreshData === 'function' ? context.refreshData : (async () => {}),
-      forceReloadData: typeof context.forceReloadData === 'function' ? context.forceReloadData : (async () => {}),
-      fixMissingWeeks: typeof context.fixMissingWeeks === 'function' ? context.fixMissingWeeks : (async () => {}),
-      addOrUpdateTaskEvaluation: typeof context.addOrUpdateTaskEvaluation === 'function' ? context.addOrUpdateTaskEvaluation : (() => {}),
-      addOrUpdateWeekEvaluation: typeof context.addOrUpdateWeekEvaluation === 'function' ? context.addOrUpdateWeekEvaluation : (() => {}),
-      exportData: typeof context.exportData === 'function' ? context.exportData : (async () => {}),
-      importData: typeof context.importData === 'function' ? context.importData : (async () => {}),
-      clearAllData: typeof context.clearAllData === 'function' ? context.clearAllData : (async () => {})
-    };
-    
-    return safeContext;
-  } catch (error) {
-    console.error('Error in useApp:', error);
-    // Return default values on error
+  const context = useContext(AppContext);
+  
+  // Validate context exists
+  if (!context) {
+    console.error('AppContext is undefined');
+    // Return default values instead of throwing
     return {
       plan: [],
       progress: [],
@@ -1206,4 +1154,23 @@ export function useApp() {
       clearAllData: async () => {}
     };
   }
+  
+  // Add safety checks for context values
+  return {
+    ...context,
+    plan: Array.isArray(context.plan) ? context.plan : [],
+    progress: Array.isArray(context.progress) ? context.progress : [],
+    notes: Array.isArray(context.notes) ? context.notes : [],
+    journalEntries: Array.isArray(context.journalEntries) ? context.journalEntries : [],
+    resources: Array.isArray(context.resources) ? context.resources : [],
+    taskEvaluations: Array.isArray(context.taskEvaluations) ? context.taskEvaluations : [],
+    weekEvaluations: Array.isArray(context.weekEvaluations) ? context.weekEvaluations : [],
+    notifications: Array.isArray(context.notifications) ? context.notifications : [],
+    appState: context.appState && typeof context.appState === 'object' ? context.appState : { notes: {}, journal: {}, resources: {} },
+    settings: context.settings && typeof context.settings === 'object' ? context.settings : {},
+    lang: typeof context.lang === 'string' ? context.lang : 'ar',
+    theme: typeof context.theme === 'string' ? context.theme : 'light',
+    loading: typeof context.loading === 'boolean' ? context.loading : false,
+    modal: context.modal && typeof context.modal === 'object' ? context.modal : { isOpen: false, content: null }
+  };
 }

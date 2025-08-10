@@ -65,36 +65,36 @@ function App() {
 
     // Language change handler
     const handleLanguageChange = (event) => {
-      console.log('Language change detected in App:', event.detail);
-      const { language, direction } = event.detail;
-      
-      // Update app root element
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.dir = direction;
-        appRoot.style.direction = direction;
-        appRoot.offsetHeight; // Force reflow
+      try {
+        console.log('Language change detected in App:', event.detail);
+        const { language, direction } = event.detail;
+        
+        // Update app root element
+        const appRoot = document.getElementById('app-root');
+        if (appRoot) {
+          appRoot.dir = direction;
+          appRoot.style.direction = direction;
+          appRoot.offsetHeight; // Force reflow
+        }
+        
+        // Update document element
+        document.documentElement.dir = direction;
+        document.documentElement.lang = language;
+        document.documentElement.offsetHeight; // Force reflow
+        
+        // Add CSS classes for immediate visual feedback
+        document.documentElement.classList.remove('rtl', 'ltr');
+        document.documentElement.classList.add(direction);
+        
+        console.log('Language change applied:', language, 'direction:', direction);
+      } catch (error) {
+        console.error('Error in handleLanguageChange:', error);
       }
-      
-      // Update document element
-      document.documentElement.dir = direction;
-      document.documentElement.lang = language;
-      document.documentElement.offsetHeight; // Force reflow
-      
-      // Force a re-render by dispatching a custom event
-      window.dispatchEvent(new CustomEvent('forceRerender', { detail: { language, direction } }));
-      
-      // Add CSS classes for immediate visual feedback
-      document.documentElement.classList.remove('rtl', 'ltr');
-      document.documentElement.classList.add(direction);
-      
-      console.log('Language change applied:', language, 'direction:', direction);
     };
 
     window.addEventListener('error', handleGlobalError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
     window.addEventListener('languageChanged', handleLanguageChange);
-    window.addEventListener('forceRerender', handleLanguageChange);
 
     // Initialize language direction on app load
     setTimeout(() => {
@@ -569,7 +569,6 @@ function App() {
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
       window.removeEventListener('languageChanged', handleLanguageChange);
-      window.removeEventListener('forceRerender', handleLanguageChange);
     };
   }, []);
 
