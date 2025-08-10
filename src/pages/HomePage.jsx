@@ -15,14 +15,14 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
   const { plan, progress, notes, journalEntries } = useApp();
-  const isRTL = safeLanguage === 'ar';
-
+  
   // Ensure data is available with additional safety
   const safePlan = plan || [];
   const safeProgress = progress || [];
   const safeNotes = notes || [];
   const safeJournalEntries = journalEntries || [];
   const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   // Quick actions
   const quickActions = [
