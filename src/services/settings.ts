@@ -26,7 +26,7 @@ export interface UserSettings {
   
   // التلقائية
   autoSave: boolean;
-  autoBackup: boolean;
+
   autoSync: boolean;
   backupFrequency: 'daily' | 'weekly' | 'monthly';
   syncProvider: 'google-drive' | 'dropbox' | 'local-backup' | 'none';
@@ -131,7 +131,7 @@ class SettingsService {
       
       // التلقائية
       autoSave: true,
-      autoBackup: true,
+  
       autoSync: false,
       backupFrequency: 'weekly',
       syncProvider: 'local-backup',
@@ -358,7 +358,7 @@ class SettingsService {
             defaultValue: true
           },
           {
-            key: 'autoBackup',
+        
             type: 'boolean',
             label: { ar: 'النسخ الاحتياطي التلقائي', en: 'Auto Backup' },
             defaultValue: true

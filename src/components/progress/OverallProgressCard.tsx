@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, Target, Calendar, Award, Clock, CheckCircle,
-  BarChart3, PieChart, Activity, Star, Trophy, Zap,
+  BarChart3, Activity, Star, Trophy, Zap,
   Lightbulb, BookOpen, Users, Rocket, Shield, Brain,
   Heart, Coffee, Flame, Crown, Medal, Gift, Sparkles
 } from 'lucide-react';

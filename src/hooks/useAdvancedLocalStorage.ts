@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 interface StorageOptions {
   encrypt?: boolean;
   compress?: boolean;
-  autoBackup?: boolean;
+
   backupInterval?: number; // in minutes
   maxBackups?: number;
 }
@@ -95,7 +95,7 @@ class AdvancedLocalStorage {
       localStorage.setItem(key, dataToStore);
 
       // Auto backup
-      if (options.autoBackup) {
+      if (false) { // autoBackup removed
         this.createBackup(key, value, options);
       }
     } catch (error) {
@@ -288,7 +288,7 @@ export function useAdvancedLocalStorage<T>(
 
   // Auto-backup effect
   useEffect(() => {
-    if (options.autoBackup && options.backupInterval) {
+    if (false && options.backupInterval) { // autoBackup removed
       const interval = setInterval(() => {
         storage.setItem(key, storedValue, { ...options, autoBackup: false });
       }, options.backupInterval * 60 * 1000);

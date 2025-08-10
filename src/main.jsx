@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./styles/main.css";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+
 
 console.log("main.jsx loaded");
 
@@ -88,16 +88,12 @@ class RootErrorBoundary extends React.Component {
 
 try {
   const root = ReactDOM.createRoot(document.getElementById("root"));
-  const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // استبدل لاحقًا بالمعرف الحقيقي
-
   root.render(
-    <GoogleOAuthProvider clientId={clientId}>
-      <React.StrictMode>
-        <RootErrorBoundary>
-          <App />
-        </RootErrorBoundary>
-      </React.StrictMode>
-    </GoogleOAuthProvider>
+    <React.StrictMode>
+      <RootErrorBoundary>
+        <App />
+      </RootErrorBoundary>
+    </React.StrictMode>
   );
   console.log("App rendered successfully");
 } catch (error) {

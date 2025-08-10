@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card } from '../ui/Card';
 import { motion } from 'framer-motion';
-import PieChart from '../charts/PieChart';
+
 
 const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colorClassMap }) => {
   // مثال: حساب بيانات الرسم البياني
@@ -28,7 +28,9 @@ const EnhancedAnalyticsTab = React.memo(({ plan, progress, stats, language, colo
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card className="p-6">
         <h3 className="text-lg font-bold mb-4">{language === 'ar' ? 'توزيع أنواع المهام' : 'Task Types Distribution'}</h3>
-        <PieChart data={pieData} title={language === 'ar' ? 'أنواع المهام' : 'Task Types'} />
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          {language === 'ar' ? 'الرسم البياني غير متاح حالياً' : 'Chart not available'}
+        </div>
       </Card>
       {/* يمكن إضافة المزيد من التحليلات هنا */}
     </div>

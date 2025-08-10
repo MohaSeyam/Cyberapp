@@ -14,9 +14,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { animations } from '../constants/theme';
-import HomeHero from '../components/home/HomeHero';
-import HomeStats from '../components/home/HomeStats';
-import QuickActions from '../components/home/QuickActions';
+
 import { ErrorBoundary } from 'react-error-boundary';
 
 function HomeErrorFallback({ error }: { error: Error }) {

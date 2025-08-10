@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart3, LineChart, Download, Lightbulb, CheckCircle, Calendar, Flame, Clock, Zap, PieChart } from 'lucide-react';
+import { BarChart3, LineChart, Download, Lightbulb, CheckCircle, Calendar, Flame, Clock, Zap } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import { Link } from 'react-router-dom';
