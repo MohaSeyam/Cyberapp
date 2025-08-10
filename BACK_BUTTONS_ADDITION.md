@@ -18,9 +18,10 @@
 
 ### 3. صفحة الأيام (DaysPage) 📋
 - **الموقع**: أعلى الصفحة
-- **النص**: "العودة للمراحل"
-- **الوظيفة**: العودة لصفحة المراحل
+- **النص**: "العودة لمرحلة [اسم المرحلة]" أو "العودة للمراحل"
+- **الوظيفة**: العودة لصفحة المرحلة المحددة أو صفحة المراحل
 - **التصميم**: زر بسيط مع أيقونة ArrowLeft
+- **الذكاء**: يحدد تلقائياً المرحلة التي ينتمي إليها الأسبوع
 
 ### 4. صفحة اليوم (DayViewPage) 📖
 - **الموقع**: أعلى الصفحة
@@ -52,13 +53,14 @@ rounded-lg transition-all duration-200
 ### الملفات المحدثة:
 1. `src/components/phases/PhasesPage.tsx`
 2. `src/components/phases/PhaseWeeksPage.tsx`
-3. `src/components/days/DaysPage.tsx`
+3. `src/components/days/DaysPage.tsx` - **محدث مع ذكاء تحديد المرحلة**
 4. `src/components/days/DayViewPage.tsx`
 
 ### الإضافات:
 - استيراد `ArrowLeft` من lucide-react
 - إضافة أزرار رجوع في أعلى كل صفحة
 - تحسين تجربة التنقل للمستخدم
+- **ذكاء تحديد المرحلة**: في صفحة الأيام، يحدد تلقائياً المرحلة الصحيحة
 
 ## النتائج
 
@@ -69,8 +71,8 @@ rounded-lg transition-all duration-200
 
 ## مثال على الاستخدام
 
+### زر رجوع بسيط:
 ```typescript
-// في كل صفحة
 <div className="flex items-center mb-4">
   <button
     onClick={() => navigate('/previous-page')}
@@ -80,4 +82,33 @@ rounded-lg transition-all duration-200
     <span>العودة للصفحة السابقة</span>
   </button>
 </div>
+```
+
+### زر رجوع ذكي (مثل صفحة الأيام):
+```typescript
+// تحديد المرحلة التي ينتمي إليها الأسبوع
+const getCurrentPhase = () => {
+  return phasesData.find(phase => phase.weeks.includes(weekNumber));
+};
+
+const currentPhase = getCurrentPhase();
+
+const goToWeekView = () => {
+  if (currentPhase) {
+    navigate(`/phase/${currentPhase.id}`);
+  } else {
+    navigate('/phases');
+  }
+};
+
+// في JSX
+<button onClick={goToWeekView}>
+  <ArrowLeft className="w-5 h-5" />
+  <span>
+    {currentPhase 
+      ? `العودة لمرحلة ${currentPhase.title?.ar}`
+      : 'العودة للمراحل'
+    }
+  </span>
+</button>
 ```

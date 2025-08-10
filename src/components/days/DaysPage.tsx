@@ -14,6 +14,7 @@ import PageLayout from '../layout/PageLayout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { animations } from '../../constants/theme';
+import phasesData from '../../data/phases.json';
 
 // Day icons mapping
 const dayIcons = {
@@ -222,8 +223,19 @@ export default function DaysPage() {
     navigate(`/day/${weekId}/${dayIndex}`);
   };
 
+  // تحديد المرحلة التي ينتمي إليها هذا الأسبوع
+  const getCurrentPhase = () => {
+    return phasesData.find(phase => phase.weeks.includes(weekNumber));
+  };
+
+  const currentPhase = getCurrentPhase();
+
   const goToWeekView = () => {
-    navigate('/phases');
+    if (currentPhase) {
+      navigate(`/phase/${currentPhase.id}`);
+    } else {
+      navigate('/phases');
+    }
   };
 
   if (!week) {
@@ -309,7 +321,12 @@ export default function DaysPage() {
             className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>العودة للمراحل</span>
+            <span>
+              {currentPhase 
+                ? `العودة لمرحلة ${currentPhase.title?.ar || currentPhase.title?.en || 'المرحلة'}`
+                : 'العودة للمراحل'
+              }
+            </span>
           </button>
         </div>
 
