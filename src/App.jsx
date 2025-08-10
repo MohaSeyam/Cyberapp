@@ -46,8 +46,32 @@ const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const TestPage = lazy(() => import('./pages/TestPage'));
 
 function App() {
+  // Global error handler
+  React.useEffect(() => {
+    const handleGlobalError = (event) => {
+      console.error('Global error caught:', event.error);
+      // Prevent the error from being logged to console
+      event.preventDefault();
+    };
+
+    const handleUnhandledRejection = (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Prevent the error from being logged to console
+      event.preventDefault();
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   return (
     <LocalizationProvider>
       <AppProvider>
@@ -83,6 +107,9 @@ function App() {
                   
                   {/* Settings */}
                   <Route path="/settings" element={<SettingsPage />} />
+                  
+                  {/* Test Page */}
+                  <Route path="/test" element={<TestPage />} />
                   
                   {/* Redirect old routes */}
                   <Route path="/plan" element={<Navigate to="/phases" replace />} />
