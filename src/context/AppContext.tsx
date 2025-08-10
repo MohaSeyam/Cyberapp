@@ -60,7 +60,48 @@ interface AppContextType {
   clearAllData: () => Promise<void>;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType>({
+  plan: [],
+  progress: [],
+  appState: { notes: {}, journal: {}, resources: {} },
+  settings: {},
+  lang: 'ar',
+  theme: 'light',
+  loading: false,
+  modal: { isOpen: false, content: null },
+  notifications: [],
+  taskEvaluations: [],
+  weekEvaluations: [],
+  notes: [],
+  journalEntries: [],
+  resources: [],
+  setLang: () => {},
+  setTheme: () => {},
+  toggleTheme: () => {},
+  updateSettings: async () => {},
+  updateProgress: async () => {},
+  addOrUpdateProgress: async () => {},
+  addNote: async () => 0,
+  updateNote: async () => {},
+  deleteNote: async () => {},
+  addJournalEntry: async () => 0,
+  updateJournalEntry: async () => {},
+  deleteJournalEntry: async () => {},
+  addResource: async () => 0,
+  updateResource: async () => {},
+  deleteResource: async () => {},
+  setModal: () => {},
+  addNotification: () => {},
+  removeNotification: () => {},
+  refreshData: async () => {},
+  forceReloadData: async () => {},
+  fixMissingWeeks: async () => {},
+  addOrUpdateTaskEvaluation: () => {},
+  addOrUpdateWeekEvaluation: () => {},
+  exportData: async () => {},
+  importData: async () => {},
+  clearAllData: async () => {}
+});
 
 interface AppProviderProps {
   children: ReactNode;
@@ -905,9 +946,9 @@ export function AppProvider({ children }: AppProviderProps) {
           theme: themeState,
           taskEvaluations: taskEvaluations,
           weekEvaluations: weekEvaluations,
-          notes: Object.values(appState.notes).flat(),
-          journalEntries: Object.values(appState.journal).flat(),
-          resources: Object.values(appState.resources).flat(),
+          notes: Object.values(appState.notes || {}).flat(),
+          journalEntries: Object.values(appState.journal || {}).flat(),
+          resources: Object.values(appState.resources || {}).flat(),
         };
         const json = JSON.stringify(data, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
@@ -1020,52 +1061,8 @@ export function AppProvider({ children }: AppProviderProps) {
 export function useApp() {
   try {
     const context = useContext(AppContext);
-    if (context === undefined) {
-      console.warn('useApp called outside of AppProvider, returning default values');
-      // Return default values instead of throwing error
-      return {
-        plan: [],
-        progress: [],
-        appState: { notes: {}, journal: {}, resources: {} },
-        settings: {},
-        lang: 'ar',
-        theme: 'light',
-        loading: false,
-        modal: { isOpen: false, content: null },
-        notifications: [],
-        taskEvaluations: [],
-        weekEvaluations: [],
-        notes: [],
-        journalEntries: [],
-        resources: [],
-        setLang: () => {},
-        setTheme: () => {},
-        toggleTheme: () => {},
-        updateSettings: async () => {},
-        updateProgress: async () => {},
-        addOrUpdateProgress: async () => {},
-        addNote: async () => 0,
-        updateNote: async () => {},
-        deleteNote: async () => {},
-        addJournalEntry: async () => 0,
-        updateJournalEntry: async () => {},
-        deleteJournalEntry: async () => {},
-        addResource: async () => 0,
-        updateResource: async () => {},
-        deleteResource: async () => {},
-        setModal: () => {},
-        addNotification: () => {},
-        removeNotification: () => {},
-        refreshData: async () => {},
-        forceReloadData: async () => {},
-        fixMissingWeeks: async () => {},
-        addOrUpdateTaskEvaluation: () => {},
-        addOrUpdateWeekEvaluation: () => {},
-        exportData: async () => {},
-        importData: async () => {},
-        clearAllData: async () => {}
-      };
-    }
+    // Since we now have a default value, context should never be undefined
+    // But we'll still add safety checks for the context values
     
     // Add safety checks for context values
     const safeContext = {

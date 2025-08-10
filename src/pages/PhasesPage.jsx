@@ -23,9 +23,9 @@ const PhasesPage = () => {
   const safeProgress = progress || [];
 
   // Get phases data with safety check
-  const phasesData = (() => {
+  const safePhasesData = (() => {
     try {
-      return require('../data/phases.json');
+      return phasesData || [];
     } catch (error) {
       console.error('Error loading phases data:', error);
       return [];
@@ -126,7 +126,7 @@ const PhasesPage = () => {
 
         {/* Phases Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {phasesData.map((phase, index) => {
+                      {safePhasesData.map((phase, index) => {
             const completion = getPhaseCompletion(phase);
             const isCompleted = completion.percentage === 100;
             const isInProgress = completion.percentage > 0 && completion.percentage < 100;
@@ -223,7 +223,7 @@ const PhasesPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {phasesData.length}
+                  {safePhasesData.length}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'المراحل' : 'Phases'}
@@ -231,7 +231,7 @@ const PhasesPage = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {phasesData.reduce((acc, phase) => acc + phase.weeks.length, 0)}
+                  {safePhasesData.reduce((acc, phase) => acc + phase.weeks.length, 0)}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'الأسابيع' : 'Weeks'}
@@ -239,7 +239,7 @@ const PhasesPage = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {phasesData.filter(phase => getPhaseCompletion(phase).percentage === 100).length}
+                  {safePhasesData.filter(phase => getPhaseCompletion(phase).percentage === 100).length}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'مكتملة' : 'Completed'}
@@ -247,7 +247,7 @@ const PhasesPage = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {Math.round(phasesData.reduce((acc, phase) => acc + getPhaseCompletion(phase).percentage, 0) / phasesData.length)}%
+                  {Math.round(safePhasesData.reduce((acc, phase) => acc + getPhaseCompletion(phase).percentage, 0) / safePhasesData.length)}%
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}

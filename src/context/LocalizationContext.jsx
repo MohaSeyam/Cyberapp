@@ -44,24 +44,28 @@ const translations = {
   }
 };
 
-const LocalizationContext = createContext();
+const LocalizationContext = createContext({
+  language: 'ar',
+  direction: 'rtl',
+  isRTL: true,
+  setLanguage: () => {},
+  toggleLanguage: () => {},
+  t: (key) => key
+});
 
 export const useLocalization = () => {
   try {
     const context = useContext(LocalizationContext);
-    if (!context) {
-      console.warn('useLocalization called outside of LocalizationProvider, returning default values');
-      // Return default values instead of throwing error
-      return {
-        language: 'ar',
-        direction: 'rtl',
-        isRTL: true,
-        setLanguage: () => {},
-        toggleLanguage: () => {},
-        t: (key) => key
-      };
-    }
-    return context;
+    // Since we now have a default value, context should never be undefined
+    // But we'll still add safety checks for the context values
+    return {
+      language: context.language || 'ar',
+      direction: context.direction || 'rtl',
+      isRTL: context.isRTL !== undefined ? context.isRTL : true,
+      setLanguage: context.setLanguage || (() => {}),
+      toggleLanguage: context.toggleLanguage || (() => {}),
+      t: context.t || ((key) => key)
+    };
   } catch (error) {
     console.error('Error in useLocalization:', error);
     // Return default values on error
