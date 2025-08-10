@@ -977,33 +977,27 @@ export default function DayViewPage() {
         {/* Navigation Footer */}
         <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
           <Card>
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                onClick={goToDayList}
-                icon={<ArrowLeft />}
-              >
-                العودة للأيام
-              </Button>
-              
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center">
+              <div className="flex items-center space-x-4">
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  variant="outline"
+                  size="lg"
                   icon={<ChevronLeft />}
                   onClick={goToPreviousDay}
                   disabled={parseInt(dayIndex) <= 0}
+                  className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500"
                 >
-                  اليوم السابق
+                  {language === 'ar' ? 'اليوم السابق' : 'Previous Day'}
                 </Button>
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  variant="outline"
+                  size="lg"
                   icon={<ChevronRight />}
                   onClick={goToNextDay}
                   disabled={parseInt(dayIndex) >= (selectedWeek.days?.length || 0) - 1}
+                  className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500"
                 >
-                  اليوم التالي
+                  {language === 'ar' ? 'اليوم التالي' : 'Next Day'}
                 </Button>
               </div>
             </div>
