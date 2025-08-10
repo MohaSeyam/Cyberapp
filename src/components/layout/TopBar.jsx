@@ -7,8 +7,35 @@ import { useApp } from '../../context/AppContext';
 const TopBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { language, direction, isRTL, toggleLanguage } = useLocalization();
-  const { theme, toggleTheme } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language, direction, isRTL, toggleLanguage } = localizationData;
+  
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      theme: 'light',
+      toggleTheme: () => {}
+    };
+  }
+  const { theme, toggleTheme } = appData;
+  
   const safeLanguage = language || 'ar';
   const safeTheme = theme || 'light';
 

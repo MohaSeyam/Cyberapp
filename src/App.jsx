@@ -49,6 +49,9 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const TestPage = lazy(() => import('./pages/TestPage'));
 
 function App() {
+  // Debug logging to help identify React #130 issues
+  console.log('App component rendering...');
+  
   // Global error handler
   React.useEffect(() => {
     const handleGlobalError = (event) => {
@@ -572,6 +575,9 @@ function App() {
     };
   }, []);
 
+  // Debug logging to help identify React #130 issues
+  console.log('App component returning JSX...');
+
   return (
     <LocalizationProvider>
       <AppProvider>
@@ -586,9 +592,9 @@ function App() {
                   {/* Main Routes */}
                   <Route path="/" element={<HomePage />} />
                   <Route path="/phases" element={<PhasesPage />} />
-                  <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
-                  <Route path="/week/:weekId" element={<DaysPage />} />
-                  <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+                  <Route path="/phases/:phaseId" element={<PhaseWeeksPage />} />
+                  <Route path="/phases/:phaseId/weeks/:weekId" element={<DaysPage />} />
+                  <Route path="/phases/:phaseId/weeks/:weekId/days/:dayKey" element={<DayViewPage />} />
                   
                   {/* Progress & Analytics */}
                   <Route path="/progress" element={<ProgressPage />} />
@@ -596,14 +602,14 @@ function App() {
                   {/* Notes Management */}
                   <Route path="/notes" element={<NotesPage />} />
                   <Route path="/notes/new" element={<NoteEditPage />} />
-                  <Route path="/notes/:noteId" element={<NoteViewPage />} />
-                  <Route path="/notes/:noteId/edit" element={<NoteEditPage />} />
+                  <Route path="/notes/:id" element={<NoteViewPage />} />
+                  <Route path="/notes/:id/edit" element={<NoteEditPage />} />
                   
                   {/* Journal Management */}
                   <Route path="/journal" element={<JournalPage />} />
                   <Route path="/journal/new" element={<JournalEditPage />} />
-                  <Route path="/journal/:entryId" element={<JournalViewPage />} />
-                  <Route path="/journal/:entryId/edit" element={<JournalEditPage />} />
+                  <Route path="/journal/:id" element={<JournalViewPage />} />
+                  <Route path="/journal/:id/edit" element={<JournalEditPage />} />
                   
                   {/* Resources Management */}
                   <Route path="/resources" element={<ResourcesPage />} />
@@ -630,5 +636,8 @@ function App() {
     </LocalizationProvider>
   );
 }
+
+// Debug logging to help identify React #130 issues
+console.log('App component exported successfully');
 
 export default App;

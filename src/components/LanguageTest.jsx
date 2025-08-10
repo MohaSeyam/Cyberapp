@@ -2,7 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useLocalization } from '../context/LocalizationContext';
 
 const LanguageTest = () => {
-  const { language, direction, isRTL, toggleLanguage } = useLocalization();
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+
+  const { language, direction, isRTL, toggleLanguage } = localizationData;
   const [testCount, setTestCount] = useState(0);
 
   // Debug logging to help identify React #130 issues

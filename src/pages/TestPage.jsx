@@ -5,7 +5,21 @@ import LanguageTest from '../components/LanguageTest';
 
 const TestPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
 
   const handleNavigation = (path) => {
     try {

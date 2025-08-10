@@ -13,7 +13,20 @@ const PageLayout = ({
   className = '',
   ...props
 }) => {
-  const { language, direction, isRTL } = useLocalization();
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language, direction, isRTL } = localizationData;
   const safeLanguage = language || 'ar';
 
   return (

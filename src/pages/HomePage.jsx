@@ -14,10 +14,35 @@ import LanguageTest from '../components/LanguageTest';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
   
-  // Use useApp safely
-  const appData = useApp();
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
+  
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      plan: [],
+      progress: [],
+      notes: [],
+      journalEntries: []
+    };
+  }
   const { plan, progress, notes, journalEntries } = appData;
   
   // Ensure data is available with additional safety
