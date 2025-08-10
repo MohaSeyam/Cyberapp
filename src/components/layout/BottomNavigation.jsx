@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Target, BarChart3, FileText, BookOpen } from 'lucide-react';
+import { Home, Target, BarChart3, FileText, BookOpen, Link } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLocalization } from '../../hooks/useLocalization';
 
@@ -40,6 +40,12 @@ const BottomNavigation = () => {
       icon: BookOpen,
       label: language === 'ar' ? 'المدونة' : 'Journal',
       labelShort: language === 'ar' ? 'المدونة' : 'Journal'
+    },
+    {
+      path: '/resources',
+      icon: Link,
+      label: language === 'ar' ? 'المراجع' : 'Resources',
+      labelShort: language === 'ar' ? 'المراجع' : 'Resources'
     }
   ];
 

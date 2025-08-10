@@ -28,7 +28,7 @@ const ProgressPage = () => {
     const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
     
     // Calculate average rating
-    const ratings = taskEvaluations.map(eval => eval.rating).filter(rating => rating > 0);
+    const ratings = taskEvaluations.map(evaluation => evaluation.rating).filter(rating => rating > 0);
     const averageRating = ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
     
     // Calculate phase progress

@@ -19,6 +19,7 @@ const NoteViewPage = lazy(() => import('./pages/NoteViewPage'));
 const JournalPage = lazy(() => import('./pages/JournalPage'));
 const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
 const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
+const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -52,6 +53,9 @@ function App() {
                   <Route path="/journal/new" element={<JournalEditPage />} />
                   <Route path="/journal/:entryId" element={<JournalViewPage />} />
                   <Route path="/journal/:entryId/edit" element={<JournalEditPage />} />
+                  
+                  {/* Resources Management */}
+                  <Route path="/resources" element={<ResourcesPage />} />
                   
                   {/* Settings */}
                   <Route path="/settings" element={<SettingsPage />} />
