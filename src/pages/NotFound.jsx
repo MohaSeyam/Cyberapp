@@ -12,6 +12,8 @@ import Button from '../components/ui/Button';
 const NotFound = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
+  const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   const animations = {
     fadeIn: {
@@ -32,7 +34,7 @@ const NotFound = () => {
 
   return (
     <PageLayout
-      title={language === 'ar' ? 'الصفحة غير موجودة' : 'Page Not Found'}
+      title={safeLanguage === 'ar' ? 'الصفحة غير موجودة' : 'Page Not Found'}
       showBottomBar={false}
     >
       <motion.div {...animations.fadeIn} className="min-h-[60vh] flex items-center justify-center">
@@ -55,16 +57,16 @@ const NotFound = () => {
             className="mb-8"
           >
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {language === 'ar' ? 'عذراً!' : 'Oops!'}
+              {safeLanguage === 'ar' ? 'عذراً!' : 'Oops!'}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {language === 'ar' 
+              {safeLanguage === 'ar' 
                 ? 'الصفحة التي تبحث عنها غير موجودة أو تم نقلها.'
                 : 'The page you are looking for does not exist or has been moved.'
               }
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {language === 'ar' 
+              {safeLanguage === 'ar' 
                 ? 'تحقق من الرابط أو جرب البحث في الموقع.'
                 : 'Check the link or try searching the site.'
               }
@@ -84,7 +86,7 @@ const NotFound = () => {
               onClick={() => navigate('/')}
               className="w-full"
             >
-              {language === 'ar' ? 'العودة للرئيسية' : 'Go to Home'}
+              {safeLanguage === 'ar' ? 'العودة للرئيسية' : 'Go to Home'}
             </Button>
             
             <Button
@@ -93,7 +95,7 @@ const NotFound = () => {
               onClick={() => navigate(-1)}
               className="w-full"
             >
-              {language === 'ar' ? 'العودة للصفحة السابقة' : 'Go Back'}
+              {safeLanguage === 'ar' ? 'العودة للصفحة السابقة' : 'Go Back'}
             </Button>
           </motion.div>
 
@@ -105,32 +107,32 @@ const NotFound = () => {
             className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700"
           >
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-              {language === 'ar' ? 'أو جرب هذه الصفحات:' : 'Or try these pages:'}
+              {safeLanguage === 'ar' ? 'أو جرب هذه الصفحات:' : 'Or try these pages:'}
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => navigate('/phases')}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
               >
-                {language === 'ar' ? 'المراحل' : 'Phases'}
+                {safeLanguage === 'ar' ? 'المراحل' : 'Phases'}
               </button>
               <button
                 onClick={() => navigate('/progress')}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
               >
-                {language === 'ar' ? 'التقدم' : 'Progress'}
+                {safeLanguage === 'ar' ? 'التقدم' : 'Progress'}
               </button>
               <button
                 onClick={() => navigate('/notes')}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
               >
-                {language === 'ar' ? 'الملاحظات' : 'Notes'}
+                {safeLanguage === 'ar' ? 'الملاحظات' : 'Notes'}
               </button>
               <button
                 onClick={() => navigate('/journal')}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
               >
-                {language === 'ar' ? 'المدونات' : 'Journal'}
+                {safeLanguage === 'ar' ? 'المدونات' : 'Journal'}
               </button>
             </div>
           </motion.div>

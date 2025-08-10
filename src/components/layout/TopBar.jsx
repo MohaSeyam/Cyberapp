@@ -9,20 +9,20 @@ const TopBar = () => {
   const location = useLocation();
   const { language, toggleLanguage } = useLocalization();
   const { theme, toggleTheme } = useApp();
-
-  const isRTL = language === 'ar';
+  const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   const getPageTitle = () => {
     const path = location.pathname;
     
-    if (path === '/') return language === 'ar' ? 'الرئيسية' : 'Home';
-    if (path === '/phases') return language === 'ar' ? 'المراحل' : 'Phases';
-    if (path === '/progress') return language === 'ar' ? 'التقدم' : 'Progress';
-    if (path === '/notes') return language === 'ar' ? 'الملاحظات' : 'Notes';
-    if (path === '/journal') return language === 'ar' ? 'المدونة' : 'Journal';
-    if (path === '/settings') return language === 'ar' ? 'الإعدادات' : 'Settings';
+    if (path === '/') return safeLanguage === 'ar' ? 'الرئيسية' : 'Home';
+    if (path === '/phases') return safeLanguage === 'ar' ? 'المراحل' : 'Phases';
+    if (path === '/progress') return safeLanguage === 'ar' ? 'التقدم' : 'Progress';
+    if (path === '/notes') return safeLanguage === 'ar' ? 'الملاحظات' : 'Notes';
+    if (path === '/journal') return safeLanguage === 'ar' ? 'المدونة' : 'Journal';
+    if (path === '/settings') return safeLanguage === 'ar' ? 'الإعدادات' : 'Settings';
     
-    return language === 'ar' ? 'التطبيق' : 'App';
+    return safeLanguage === 'ar' ? 'التطبيق' : 'App';
   };
 
   return (
@@ -39,7 +39,7 @@ const TopBar = () => {
                 <span className="text-white font-bold text-sm">ش</span>
               </div>
               <span className="hidden sm:block">
-                {language === 'ar' ? 'خطة الأمن السيبراني' : 'Cyber Security Plan'}
+                {safeLanguage === 'ar' ? 'خطة الأمن السيبراني' : 'Cyber Security Plan'}
               </span>
             </button>
           </div>
@@ -57,11 +57,11 @@ const TopBar = () => {
             <button
               onClick={toggleLanguage}
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              title={language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
+              title={safeLanguage === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
             >
-              <span className="text-sm font-medium">
-                {language === 'ar' ? 'EN' : 'عربي'}
-              </span>
+                              <span className="text-sm font-medium">
+                  {safeLanguage === 'ar' ? 'EN' : 'عربي'}
+                </span>
             </button>
 
             {/* Theme Toggle */}
@@ -81,7 +81,7 @@ const TopBar = () => {
             <button
               onClick={() => navigate('/settings')}
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              title={language === 'ar' ? 'الإعدادات' : 'Settings'}
+              title={safeLanguage === 'ar' ? 'الإعدادات' : 'Settings'}
             >
               <Settings className="w-5 h-5" />
             </button>

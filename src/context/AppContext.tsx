@@ -1018,29 +1018,119 @@ export function AppProvider({ children }: AppProviderProps) {
 }
 
 export function useApp() {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error('useApp must be used within an AppProvider');
+  try {
+    const context = useContext(AppContext);
+    if (context === undefined) {
+      console.warn('useApp called outside of AppProvider, returning default values');
+      // Return default values instead of throwing error
+      return {
+        plan: [],
+        progress: [],
+        appState: { notes: {}, journal: {}, resources: {} },
+        settings: {},
+        lang: 'ar',
+        theme: 'light',
+        loading: false,
+        modal: { isOpen: false, content: null },
+        notifications: [],
+        taskEvaluations: [],
+        weekEvaluations: [],
+        notes: [],
+        journalEntries: [],
+        resources: [],
+        setLang: () => {},
+        setTheme: () => {},
+        toggleTheme: () => {},
+        updateSettings: async () => {},
+        updateProgress: async () => {},
+        addOrUpdateProgress: async () => {},
+        addNote: async () => 0,
+        updateNote: async () => {},
+        deleteNote: async () => {},
+        addJournalEntry: async () => 0,
+        updateJournalEntry: async () => {},
+        deleteJournalEntry: async () => {},
+        addResource: async () => 0,
+        updateResource: async () => {},
+        deleteResource: async () => {},
+        setModal: () => {},
+        addNotification: () => {},
+        removeNotification: () => {},
+        refreshData: async () => {},
+        forceReloadData: async () => {},
+        fixMissingWeeks: async () => {},
+        addOrUpdateTaskEvaluation: () => {},
+        addOrUpdateWeekEvaluation: () => {},
+        exportData: async () => {},
+        importData: async () => {},
+        clearAllData: async () => {}
+      };
+    }
+    
+    // Add safety checks for context values
+    const safeContext = {
+      ...context,
+      plan: context.plan || [],
+      progress: context.progress || [],
+      notes: context.notes || [],
+      journalEntries: context.journalEntries || [],
+      resources: context.resources || [],
+      taskEvaluations: context.taskEvaluations || [],
+      weekEvaluations: context.weekEvaluations || [],
+      notifications: context.notifications || [],
+      appState: context.appState || { notes: {}, journal: {}, resources: {} },
+      settings: context.settings || {},
+      lang: context.lang || 'ar',
+      theme: context.theme || 'light',
+      loading: context.loading || false,
+      modal: context.modal || { isOpen: false, content: null }
+    };
+    
+    return safeContext;
+  } catch (error) {
+    console.error('Error in useApp:', error);
+    // Return default values on error
+    return {
+      plan: [],
+      progress: [],
+      appState: { notes: {}, journal: {}, resources: {} },
+      settings: {},
+      lang: 'ar',
+      theme: 'light',
+      loading: false,
+      modal: { isOpen: false, content: null },
+      notifications: [],
+      taskEvaluations: [],
+      weekEvaluations: [],
+      notes: [],
+      journalEntries: [],
+      resources: [],
+      setLang: () => {},
+      setTheme: () => {},
+      toggleTheme: () => {},
+      updateSettings: async () => {},
+      updateProgress: async () => {},
+      addOrUpdateProgress: async () => {},
+      addNote: async () => 0,
+      updateNote: async () => {},
+      deleteNote: async () => {},
+      addJournalEntry: async () => 0,
+      updateJournalEntry: async () => {},
+      deleteJournalEntry: async () => {},
+      addResource: async () => 0,
+      updateResource: async () => {},
+      deleteResource: async () => {},
+      setModal: () => {},
+      addNotification: () => {},
+      removeNotification: () => {},
+      refreshData: async () => {},
+      forceReloadData: async () => {},
+      fixMissingWeeks: async () => {},
+      addOrUpdateTaskEvaluation: () => {},
+      addOrUpdateWeekEvaluation: () => {},
+      exportData: async () => {},
+      importData: async () => {},
+      clearAllData: async () => {}
+    };
   }
-  
-  // Add safety checks for context values
-  const safeContext = {
-    ...context,
-    plan: context.plan || [],
-    progress: context.progress || [],
-    notes: context.notes || [],
-    journalEntries: context.journalEntries || [],
-    resources: context.resources || [],
-    taskEvaluations: context.taskEvaluations || [],
-    weekEvaluations: context.weekEvaluations || [],
-    notifications: context.notifications || [],
-    appState: context.appState || { notes: {}, journal: {}, resources: {} },
-    settings: context.settings || {},
-    lang: context.lang || 'ar',
-    theme: context.theme || 'light',
-    loading: context.loading || false,
-    modal: context.modal || { isOpen: false, content: null }
-  };
-  
-  return safeContext;
 }

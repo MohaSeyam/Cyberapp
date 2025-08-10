@@ -7,45 +7,45 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useLocalization();
-
-  const isRTL = language === 'ar';
+  const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   const navigationItems = [
     {
       path: '/',
       icon: Home,
-      label: language === 'ar' ? 'الرئيسية' : 'Home',
-      labelShort: language === 'ar' ? 'الرئيسية' : 'Home'
+      label: safeLanguage === 'ar' ? 'الرئيسية' : 'Home',
+      labelShort: safeLanguage === 'ar' ? 'الرئيسية' : 'Home'
     },
     {
       path: '/phases',
       icon: Target,
-      label: language === 'ar' ? 'المراحل' : 'Phases',
-      labelShort: language === 'ar' ? 'المراحل' : 'Phases'
+      label: safeLanguage === 'ar' ? 'المراحل' : 'Phases',
+      labelShort: safeLanguage === 'ar' ? 'المراحل' : 'Phases'
     },
     {
       path: '/progress',
       icon: BarChart3,
-      label: language === 'ar' ? 'التقدم' : 'Progress',
-      labelShort: language === 'ar' ? 'التقدم' : 'Progress'
+      label: safeLanguage === 'ar' ? 'التقدم' : 'Progress',
+      labelShort: safeLanguage === 'ar' ? 'التقدم' : 'Progress'
     },
     {
       path: '/notes',
       icon: FileText,
-      label: language === 'ar' ? 'الملاحظات' : 'Notes',
-      labelShort: language === 'ar' ? 'الملاحظات' : 'Notes'
+      label: safeLanguage === 'ar' ? 'الملاحظات' : 'Notes',
+      labelShort: safeLanguage === 'ar' ? 'الملاحظات' : 'Notes'
     },
     {
       path: '/journal',
       icon: BookOpen,
-      label: language === 'ar' ? 'المدونة' : 'Journal',
-      labelShort: language === 'ar' ? 'المدونة' : 'Journal'
+      label: safeLanguage === 'ar' ? 'المدونة' : 'Journal',
+      labelShort: safeLanguage === 'ar' ? 'المدونة' : 'Journal'
     },
     {
       path: '/resources',
       icon: Link,
-      label: language === 'ar' ? 'المراجع' : 'Resources',
-      labelShort: language === 'ar' ? 'المراجع' : 'Resources'
+      label: safeLanguage === 'ar' ? 'المراجع' : 'Resources',
+      labelShort: safeLanguage === 'ar' ? 'المراجع' : 'Resources'
     }
   ];
 

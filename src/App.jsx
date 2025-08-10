@@ -1,10 +1,34 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ErrorBoundary } from 'react-error-boundary';
 import { LocalizationProvider } from './context/LocalizationContext';
 import { AppProvider } from './context/AppContext';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorFallback from './components/ui/ErrorFallback';
+
+// Custom Error Boundary
+class CustomErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Custom Error Boundary caught error:', error, errorInfo);
+    this.setState({ errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} resetErrorBoundary={() => this.setState({ hasError: false })} />;
+    }
+
+    return this.props.children;
+  }
+}
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -27,7 +51,7 @@ function App() {
   return (
     <LocalizationProvider>
       <AppProvider>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <CustomErrorBoundary>
           <Router>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
               <Suspense fallback={<LoadingSpinner />}>
@@ -71,7 +95,7 @@ function App() {
               </Suspense>
             </div>
           </Router>
-        </ErrorBoundary>
+        </CustomErrorBoundary>
       </AppProvider>
     </LocalizationProvider>
   );

@@ -16,7 +16,8 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
   const { theme, setTheme, exportData, importData, clearAllData } = useApp();
-  const isRTL = language === 'ar';
+  const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   // Ensure data is available
   const safeTheme = theme || 'light';
@@ -101,8 +102,8 @@ const SettingsPage = () => {
 
   return (
     <PageLayout
-      title={language === 'ar' ? 'الإعدادات' : 'Settings'}
-      subtitle={language === 'ar' ? 'تخصيص تجربتك' : 'Customize your experience'}
+      title={safeLanguage === 'ar' ? 'الإعدادات' : 'Settings'}
+      subtitle={safeLanguage === 'ar' ? 'تخصيص تجربتك' : 'Customize your experience'}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Appearance */}

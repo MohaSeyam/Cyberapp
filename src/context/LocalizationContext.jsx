@@ -47,11 +47,31 @@ const translations = {
 const LocalizationContext = createContext();
 
 export const useLocalization = () => {
-  const context = useContext(LocalizationContext);
-  if (!context) {
-    throw new Error('useLocalization must be used within a LocalizationProvider');
+  try {
+    const context = useContext(LocalizationContext);
+    if (!context) {
+      console.warn('useLocalization called outside of LocalizationProvider, returning default values');
+      // Return default values instead of throwing error
+      return {
+        language: 'ar',
+        direction: 'rtl',
+        isRTL: true,
+        setLanguage: () => {},
+        t: (key) => key
+      };
+    }
+    return context;
+  } catch (error) {
+    console.error('Error in useLocalization:', error);
+    // Return default values on error
+    return {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      setLanguage: () => {},
+      t: (key) => key
+    };
   }
-  return context;
 };
 
 export const LocalizationProvider = ({ children }) => {

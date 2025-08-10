@@ -13,6 +13,8 @@ const Modal = ({
   className = ''
 }) => {
   const { language } = useLocalization();
+  const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   useEffect(() => {
     if (isOpen) {
@@ -76,7 +78,7 @@ const Modal = ({
                 <button
                   onClick={onClose}
                   className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+                  aria-label={safeLanguage === 'ar' ? 'إغلاق' : 'Close'}
                 >
                   <X className="w-5 h-5" />
                 </button>

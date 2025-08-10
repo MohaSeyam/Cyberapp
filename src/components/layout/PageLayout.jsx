@@ -14,7 +14,8 @@ const PageLayout = ({
   ...props
 }) => {
   const { language } = useLocalization();
-  const isRTL = language === 'ar';
+  const safeLanguage = language || 'ar';
+  const isRTL = safeLanguage === 'ar';
 
   return (
     <div 
