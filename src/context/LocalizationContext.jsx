@@ -57,6 +57,7 @@ export const useLocalization = () => {
         direction: 'rtl',
         isRTL: true,
         setLanguage: () => {},
+        toggleLanguage: () => {},
         t: (key) => key
       };
     }
@@ -69,6 +70,7 @@ export const useLocalization = () => {
       direction: 'rtl',
       isRTL: true,
       setLanguage: () => {},
+      toggleLanguage: () => {},
       t: (key) => key
     };
   }
@@ -114,6 +116,11 @@ export const LocalizationProvider = ({ children }) => {
     setLanguage(newLanguage);
   };
 
+  const toggleLanguage = () => {
+    const currentLang = language || 'ar';
+    setLanguage(currentLang === 'ar' ? 'en' : 'ar');
+  };
+
   const isRTL = direction === 'rtl';
 
   const value = {
@@ -121,6 +128,7 @@ export const LocalizationProvider = ({ children }) => {
     direction,
     isRTL,
     setLanguage: changeLanguage,
+    toggleLanguage,
     t
   };
 

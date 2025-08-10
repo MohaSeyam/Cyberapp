@@ -14,13 +14,13 @@ import { useNavigate } from 'react-router-dom';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
+  const { language, setLanguage } = useLocalization();
   const { theme, setTheme, exportData, importData, clearAllData } = useApp();
   const safeLanguage = language || 'ar';
+  const safeTheme = theme || 'light';
   const isRTL = safeLanguage === 'ar';
 
   // Ensure data is available
-  const safeTheme = theme || 'light';
   const [showClearModal, setShowClearModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
@@ -108,15 +108,15 @@ const SettingsPage = () => {
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Appearance */}
         <SettingSection
-          title={language === 'ar' ? 'المظهر' : 'Appearance'}
+          title={safeLanguage === 'ar' ? 'المظهر' : 'Appearance'}
           icon={<Palette className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
         >
           <SettingItem
-            label={language === 'ar' ? 'اللغة' : 'Language'}
-            description={language === 'ar' ? 'اختر لغة التطبيق' : 'Choose application language'}
+            label={safeLanguage === 'ar' ? 'اللغة' : 'Language'}
+            description={safeLanguage === 'ar' ? 'اختر لغة التطبيق' : 'Choose application language'}
           >
             <select
-              value={language}
+                              value={safeLanguage}
               onChange={(e) => handleLanguageChange(e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -126,14 +126,14 @@ const SettingsPage = () => {
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'المظهر' : 'Theme'}
-            description={language === 'ar' ? 'اختر مظهر التطبيق' : 'Choose application theme'}
+            label={safeLanguage === 'ar' ? 'المظهر' : 'Theme'}
+            description={safeLanguage === 'ar' ? 'اختر مظهر التطبيق' : 'Choose application theme'}
           >
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => handleThemeChange('light')}
                 className={`p-2 rounded-lg transition-colors ${
-                  theme === 'light'
+                  safeTheme === 'light'
                     ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
@@ -143,7 +143,7 @@ const SettingsPage = () => {
               <button
                 onClick={() => handleThemeChange('dark')}
                 className={`p-2 rounded-lg transition-colors ${
-                  theme === 'dark'
+                  safeTheme === 'dark'
                     ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
@@ -153,7 +153,7 @@ const SettingsPage = () => {
               <button
                 onClick={() => handleThemeChange('auto')}
                 className={`p-2 rounded-lg transition-colors ${
-                  theme === 'auto'
+                  safeTheme === 'auto'
                     ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
@@ -166,57 +166,57 @@ const SettingsPage = () => {
 
         {/* Data Management */}
         <SettingSection
-          title={language === 'ar' ? 'إدارة البيانات' : 'Data Management'}
+          title={safeLanguage === 'ar' ? 'إدارة البيانات' : 'Data Management'}
           icon={<Database className="w-5 h-5 text-green-600 dark:text-green-400" />}
         >
           <SettingItem
-            label={language === 'ar' ? 'تصدير البيانات' : 'Export Data'}
-            description={language === 'ar' ? 'حفظ نسخة احتياطية من بياناتك' : 'Save a backup of your data'}
+            label={safeLanguage === 'ar' ? 'تصدير البيانات' : 'Export Data'}
+            description={safeLanguage === 'ar' ? 'حفظ نسخة احتياطية من بياناتك' : 'Save a backup of your data'}
           >
             <Button
               variant="outline"
               icon={<Download />}
               onClick={handleExport}
             >
-              {language === 'ar' ? 'تصدير' : 'Export'}
+              {safeLanguage === 'ar' ? 'تصدير' : 'Export'}
             </Button>
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'استيراد البيانات' : 'Import Data'}
-            description={language === 'ar' ? 'استعادة البيانات من ملف' : 'Restore data from file'}
+            label={safeLanguage === 'ar' ? 'استيراد البيانات' : 'Import Data'}
+            description={safeLanguage === 'ar' ? 'استعادة البيانات من ملف' : 'Restore data from file'}
           >
             <Button
               variant="outline"
               icon={<Upload />}
               onClick={() => setShowImportModal(true)}
             >
-              {language === 'ar' ? 'استيراد' : 'Import'}
+              {safeLanguage === 'ar' ? 'استيراد' : 'Import'}
             </Button>
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
-            description={language === 'ar' ? 'حذف جميع البيانات نهائياً' : 'Permanently delete all data'}
+            label={safeLanguage === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
+            description={safeLanguage === 'ar' ? 'حذف جميع البيانات نهائياً' : 'Permanently delete all data'}
           >
             <Button
               variant="danger"
               icon={<Trash2 />}
               onClick={() => setShowClearModal(true)}
             >
-              {language === 'ar' ? 'مسح' : 'Clear'}
+              {safeLanguage === 'ar' ? 'مسح' : 'Clear'}
             </Button>
           </SettingItem>
         </SettingSection>
 
         {/* Notifications */}
         <SettingSection
-          title={language === 'ar' ? 'الإشعارات' : 'Notifications'}
+          title={safeLanguage === 'ar' ? 'الإشعارات' : 'Notifications'}
           icon={<Bell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />}
         >
           <SettingItem
-            label={language === 'ar' ? 'إشعارات المهام' : 'Task Notifications'}
-            description={language === 'ar' ? 'تلقي تذكيرات بالمهام اليومية' : 'Receive daily task reminders'}
+            label={safeLanguage === 'ar' ? 'إشعارات المهام' : 'Task Notifications'}
+            description={safeLanguage === 'ar' ? 'تلقي تذكيرات بالمهام اليومية' : 'Receive daily task reminders'}
           >
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" className="sr-only peer" defaultChecked />
@@ -225,8 +225,8 @@ const SettingsPage = () => {
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'إشعارات التقدم' : 'Progress Notifications'}
-            description={language === 'ar' ? 'تلقي تحديثات عن تقدمك' : 'Receive progress updates'}
+            label={safeLanguage === 'ar' ? 'إشعارات التقدم' : 'Progress Notifications'}
+            description={safeLanguage === 'ar' ? 'تلقي تحديثات عن تقدمك' : 'Receive progress updates'}
           >
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" className="sr-only peer" defaultChecked />
@@ -237,35 +237,35 @@ const SettingsPage = () => {
 
         {/* Privacy & Security */}
         <SettingSection
-          title={language === 'ar' ? 'الخصوصية والأمان' : 'Privacy & Security'}
+          title={safeLanguage === 'ar' ? 'الخصوصية والأمان' : 'Privacy & Security'}
           icon={<Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
         >
           <SettingItem
-            label={language === 'ar' ? 'البيانات المحلية' : 'Local Data'}
-            description={language === 'ar' ? 'جميع البيانات محفوظة محلياً على جهازك' : 'All data is stored locally on your device'}
+            label={safeLanguage === 'ar' ? 'البيانات المحلية' : 'Local Data'}
+            description={safeLanguage === 'ar' ? 'جميع البيانات محفوظة محلياً على جهازك' : 'All data is stored locally on your device'}
           >
             <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-              {language === 'ar' ? 'آمن' : 'Secure'}
+              {safeLanguage === 'ar' ? 'آمن' : 'Secure'}
             </span>
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'التشفير' : 'Encryption'}
-            description={language === 'ar' ? 'البيانات مشفرة تلقائياً' : 'Data is automatically encrypted'}
+            label={safeLanguage === 'ar' ? 'التشفير' : 'Encryption'}
+            description={safeLanguage === 'ar' ? 'البيانات مشفرة تلقائياً' : 'Data is automatically encrypted'}
           >
             <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-              {language === 'ar' ? 'مفعل' : 'Enabled'}
+              {safeLanguage === 'ar' ? 'مفعل' : 'Enabled'}
             </span>
           </SettingItem>
         </SettingSection>
 
         {/* About */}
         <SettingSection
-          title={language === 'ar' ? 'حول التطبيق' : 'About'}
+          title={safeLanguage === 'ar' ? 'حول التطبيق' : 'About'}
           icon={<Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />}
         >
           <SettingItem
-            label={language === 'ar' ? 'الإصدار' : 'Version'}
+            label={safeLanguage === 'ar' ? 'الإصدار' : 'Version'}
             description="1.0.0"
           >
             <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -274,28 +274,28 @@ const SettingsPage = () => {
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'المساعدة' : 'Help'}
-            description={language === 'ar' ? 'دليل الاستخدام والدعم' : 'User guide and support'}
+            label={safeLanguage === 'ar' ? 'المساعدة' : 'Help'}
+            description={safeLanguage === 'ar' ? 'دليل الاستخدام والدعم' : 'User guide and support'}
           >
             <Button
               variant="ghost"
               icon={<HelpCircle />}
               onClick={() => window.open('#', '_blank')}
             >
-              {language === 'ar' ? 'مساعدة' : 'Help'}
+              {safeLanguage === 'ar' ? 'مساعدة' : 'Help'}
             </Button>
           </SettingItem>
 
           <SettingItem
-            label={language === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}
-            description={language === 'ar' ? 'قراءة سياسة الخصوصية' : 'Read privacy policy'}
+            label={safeLanguage === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}
+            description={safeLanguage === 'ar' ? 'قراءة سياسة الخصوصية' : 'Read privacy policy'}
           >
             <Button
               variant="ghost"
               icon={<ExternalLink />}
               onClick={() => window.open('#', '_blank')}
             >
-              {language === 'ar' ? 'عرض' : 'View'}
+              {safeLanguage === 'ar' ? 'عرض' : 'View'}
             </Button>
           </SettingItem>
         </SettingSection>
@@ -304,11 +304,11 @@ const SettingsPage = () => {
         <Modal
           isOpen={showImportModal}
           onClose={() => setShowImportModal(false)}
-          title={language === 'ar' ? 'استيراد البيانات' : 'Import Data'}
+          title={safeLanguage === 'ar' ? 'استيراد البيانات' : 'Import Data'}
         >
           <div className="space-y-4">
             <p className="text-gray-600 dark:text-gray-400">
-              {language === 'ar' 
+              {safeLanguage === 'ar' 
                 ? 'اختر ملف البيانات للاستيراد. سيتم استبدال البيانات الحالية.'
                 : 'Select a data file to import. This will replace your current data.'
               }
@@ -324,14 +324,14 @@ const SettingsPage = () => {
                 variant="ghost"
                 onClick={() => setShowImportModal(false)}
               >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                {safeLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>
               <Button
                 variant="primary"
                 onClick={handleImport}
                 disabled={!importFile}
               >
-                {language === 'ar' ? 'استيراد' : 'Import'}
+                {safeLanguage === 'ar' ? 'استيراد' : 'Import'}
               </Button>
             </div>
           </div>
@@ -341,17 +341,17 @@ const SettingsPage = () => {
         <Modal
           isOpen={showClearModal}
           onClose={() => setShowClearModal(false)}
-          title={language === 'ar' ? 'تأكيد مسح البيانات' : 'Confirm Clear Data'}
+          title={safeLanguage === 'ar' ? 'تأكيد مسح البيانات' : 'Confirm Clear Data'}
         >
           <div className="space-y-4">
             <p className="text-red-600 dark:text-red-400 font-medium">
-              {language === 'ar' 
+              {safeLanguage === 'ar' 
                 ? 'تحذير: هذا الإجراء سيحذف جميع البيانات نهائياً ولا يمكن التراجع عنه.'
                 : 'Warning: This action will permanently delete all data and cannot be undone.'
               }
             </p>
             <p className="text-gray-600 dark:text-gray-400">
-              {language === 'ar' 
+              {safeLanguage === 'ar' 
                 ? 'هل أنت متأكد من أنك تريد المتابعة؟'
                 : 'Are you sure you want to proceed?'
               }
@@ -361,13 +361,13 @@ const SettingsPage = () => {
                 variant="ghost"
                 onClick={() => setShowClearModal(false)}
               >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                {safeLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
               </Button>
               <Button
                 variant="danger"
                 onClick={handleClearAllData}
               >
-                {language === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
+                {safeLanguage === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
               </Button>
             </div>
           </div>

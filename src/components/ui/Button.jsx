@@ -6,9 +6,12 @@ const Button = ({
   variant = 'primary',
   size = 'md',
   icon,
+  iconPosition = 'left',
   onClick,
   disabled = false,
+  loading = false,
   className = '',
+  type = 'button',
   ...props
 }) => {
   const { language } = useLocalization();
@@ -67,11 +70,14 @@ const Button = ({
     );
   };
 
+  // Determine icon position based on RTL
+  const effectiveIconPosition = iconPosition === 'auto' ? (isRTL ? 'right' : 'left') : iconPosition;
+
   const content = (
     <>
-      {iconPosition === 'left' && (renderIcon() || renderLoadingSpinner())}
-      {children && <span className={iconPosition === 'left' ? 'mr-2' : 'ml-2'}>{children}</span>}
-      {iconPosition === 'right' && (renderIcon() || renderLoadingSpinner())}
+      {effectiveIconPosition === 'left' && (renderIcon() || renderLoadingSpinner())}
+      {children && <span className={effectiveIconPosition === 'left' ? 'mr-2' : 'ml-2'}>{children}</span>}
+      {effectiveIconPosition === 'right' && (renderIcon() || renderLoadingSpinner())}
     </>
   );
 
