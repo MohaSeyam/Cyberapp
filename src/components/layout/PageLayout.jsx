@@ -13,14 +13,14 @@ const PageLayout = ({
   className = '',
   ...props
 }) => {
-  const { language } = useLocalization();
+  const { language, direction, isRTL } = useLocalization();
   const safeLanguage = language || 'ar';
-  const isRTL = safeLanguage === 'ar';
 
   return (
     <div 
       className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}
-      dir={isRTL ? 'rtl' : 'ltr'}
+      dir={direction}
+      style={{ direction }}
       {...props}
     >
       {/* Top Bar */}

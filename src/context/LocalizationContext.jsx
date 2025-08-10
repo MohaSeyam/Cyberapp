@@ -108,21 +108,48 @@ export const LocalizationProvider = ({ children }) => {
     localStorage.setItem('language', language);
     
     // Update document direction
-    setDirection(language === 'ar' ? 'rtl' : 'ltr');
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    const newDirection = language === 'ar' ? 'rtl' : 'ltr';
+    setDirection(newDirection);
+    document.documentElement.dir = newDirection;
     document.documentElement.lang = language;
     
     // Update document title based on language
     document.title = language === 'ar' ? 'خطة التعلم الذكية' : 'Smart Learning Plan';
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('languageChanged', { 
+      detail: { 
+        language, 
+        direction: newDirection, 
+        isRTL: newDirection === 'rtl' 
+      } 
+    }));
   }, [language]);
 
   const changeLanguage = (newLanguage) => {
+    // Immediately update direction and document attributes
+    const newDirection = newLanguage === 'ar' ? 'rtl' : 'ltr';
+    setDirection(newDirection);
+    document.documentElement.dir = newDirection;
+    document.documentElement.lang = newLanguage;
+    
+    // Update language state
     setLanguage(newLanguage);
+    
+    // Force a re-render by dispatching event
+    window.dispatchEvent(new CustomEvent('languageChanged', { 
+      detail: { 
+        language: newLanguage, 
+        direction: newDirection, 
+        isRTL: newDirection === 'rtl' 
+      } 
+    }));
   };
 
   const toggleLanguage = () => {
     const currentLang = language || 'ar';
-    setLanguage(currentLang === 'ar' ? 'en' : 'ar');
+    const newLang = currentLang === 'ar' ? 'en' : 'ar';
+    changeLanguage(newLang);
   };
 
   const isRTL = direction === 'rtl';

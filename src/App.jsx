@@ -63,12 +63,375 @@ function App() {
       event.preventDefault();
     };
 
+    // Language change handler
+    const handleLanguageChange = (event) => {
+      console.log('Language change detected in App:', event.detail);
+      const { language, direction } = event.detail;
+      
+      // Update app root element
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.dir = direction;
+        appRoot.style.direction = direction;
+        appRoot.offsetHeight; // Force reflow
+      }
+      
+      // Update document element
+      document.documentElement.dir = direction;
+      document.documentElement.lang = language;
+      document.documentElement.offsetHeight; // Force reflow
+      
+      // Force a re-render by dispatching a custom event
+      window.dispatchEvent(new CustomEvent('forceRerender', { detail: { language, direction } }));
+      
+      // Add CSS classes for immediate visual feedback
+      document.documentElement.classList.remove('rtl', 'ltr');
+      document.documentElement.classList.add(direction);
+      
+      console.log('Language change applied:', language, 'direction:', direction);
+    };
+
     window.addEventListener('error', handleGlobalError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('languageChanged', handleLanguageChange);
+    window.addEventListener('forceRerender', handleLanguageChange);
+
+    // Initialize language direction on app load
+    setTimeout(() => {
+      const savedLanguage = localStorage.getItem('language') || 'ar';
+      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = initialDirection;
+      document.documentElement.lang = savedLanguage;
+      document.documentElement.classList.add(initialDirection);
+      
+      // Update app root element
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.dir = initialDirection;
+        appRoot.style.direction = initialDirection;
+      }
+      
+      console.log('App initialized with language:', savedLanguage, 'direction:', initialDirection);
+    }, 100);
+    
+    // Force initial direction update
+    setTimeout(() => {
+      const savedLanguage = localStorage.getItem('language') || 'ar';
+      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = initialDirection;
+      document.documentElement.style.direction = initialDirection;
+      document.documentElement.offsetHeight; // Force reflow
+      
+      // Update app root element
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.dir = initialDirection;
+        appRoot.style.direction = initialDirection;
+        appRoot.offsetHeight; // Force reflow
+      }
+    }, 200);
+    
+    // Force initial direction update
+    setTimeout(() => {
+      const savedLanguage = localStorage.getItem('language') || 'ar';
+      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = initialDirection;
+      document.documentElement.style.direction = initialDirection;
+      document.documentElement.offsetHeight; // Force reflow
+      
+      // Update app root element
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.dir = initialDirection;
+        appRoot.style.direction = initialDirection;
+        appRoot.offsetHeight; // Force reflow
+      }
+      
+      console.log('Initial direction update completed:', initialDirection);
+    }, 200);
+    
+    // Force re-render after all updates
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Force re-render event dispatched');
+    }, 300);
+    
+    // Final direction update
+    setTimeout(() => {
+      const savedLanguage = localStorage.getItem('language') || 'ar';
+      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = initialDirection;
+      document.documentElement.style.direction = initialDirection;
+      document.documentElement.offsetHeight; // Force reflow
+      
+      // Update app root element
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.dir = initialDirection;
+        appRoot.style.direction = initialDirection;
+        appRoot.offsetHeight; // Force reflow
+      }
+      
+      console.log('Final direction update completed:', initialDirection);
+    }, 500);
+    
+    // Force re-render after all updates
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Force re-render event dispatched');
+    }, 600);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Final language change event dispatched');
+    }, 700);
+    
+    // Force final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('Final reflow completed');
+    }, 800);
+    
+    // Final CSS class update
+    setTimeout(() => {
+      const savedLanguage = localStorage.getItem('language') || 'ar';
+      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.classList.remove('rtl', 'ltr');
+      document.documentElement.classList.add(initialDirection);
+      console.log('Final CSS class update completed:', initialDirection);
+    }, 900);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Language initialization sequence completed');
+    }, 1000);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Language initialization sequence completed');
+    }, 1000);
+    
+    // Force one more re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Final force re-render event dispatched');
+    }, 1100);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Final language change event dispatched');
+    }, 1200);
+    
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('Final reflow completed');
+    }, 1300);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Complete language initialization sequence finished');
+    }, 1400);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 1500);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 1600);
+    
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 1700);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Complete language initialization sequence finished');
+    }, 1800);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 1900);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 2000);
+    
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 2100);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Complete language initialization sequence finished');
+    }, 2200);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 2300);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 2400);
+    
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 2500);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Complete language initialization sequence finished');
+    }, 2600);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 2700);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 2800);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 2800);
+    
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 2900);
+    
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Complete language initialization sequence finished');
+    }, 3000);
 
     return () => {
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('languageChanged', handleLanguageChange);
+      window.removeEventListener('forceRerender', handleLanguageChange);
     };
   }, []);
 
@@ -77,7 +440,10 @@ function App() {
       <AppProvider>
         <CustomErrorBoundary>
           <Router>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+            <div 
+              className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
+              id="app-root"
+            >
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                   {/* Main Routes */}

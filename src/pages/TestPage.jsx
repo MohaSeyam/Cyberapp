@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocalization } from '../context/LocalizationContext';
+import LanguageTest from '../components/LanguageTest';
+import LanguageTest from '../components/LanguageTest';
 
 const TestPage = () => {
   const navigate = useNavigate();
@@ -46,16 +48,21 @@ const TestPage = () => {
             {language === 'ar' ? 'الانتقال إلى الملاحظات' : 'Navigate to Notes'}
           </button>
           
-          <button
-            onClick={() => handleNavigation('/')}
-            className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            {language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+                         <button
+                 onClick={() => handleNavigation('/')}
+                 className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+               >
+                 {language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
+               </button>
+             </div>
+             
+             {/* Language Test Component */}
+             <div className="mt-8">
+               <LanguageTest />
+             </div>
+           </div>
+         </div>
+       );
+     };
 
 export default TestPage;
