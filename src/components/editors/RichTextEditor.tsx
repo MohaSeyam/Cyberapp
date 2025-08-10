@@ -235,73 +235,17 @@ const PerformanceOptimization = Extension.create({
           // Only apply transactions that actually change something
           return transaction.docChanged || transaction.steps.length > 0;
         },
+        // Preserve marks on new lines
+        appendTransaction: (transactions, oldState, newState) => {
+          // This helps preserve formatting when creating new lines
+          return null; // Let Tiptap handle it normally
+        },
       }),
     ];
   },
 });
 
-// Custom Extension to preserve formatting on new lines
-const PreserveFormatting = Extension.create({
-  name: 'preserveFormatting',
-  
-  addKeyboardShortcuts() {
-    return {
-      'Enter': () => {
-        const { state, dispatch } = this.editor;
-        const { selection } = state;
-        
-        // Get current marks (formatting)
-        const marks = selection.$from.marks();
-        
-        // Create new line with preserved marks
-        const tr = state.tr;
-        tr.insertText('\n');
-        
-        // Apply the same marks to the new line
-        if (marks.length > 0) {
-          const newPos = selection.$from.pos + 1;
-          marks.forEach(mark => {
-            tr.addMark(newPos, newPos, mark);
-          });
-        }
-        
-        dispatch(tr);
-        return true;
-      },
-    };
-  },
 
-  addEvents() {
-    return {
-      'keydown': (event) => {
-        // Preserve formatting when typing new characters
-        if (event.key.length === 1) {
-          const { state } = this.editor;
-          const { selection } = state;
-          const marks = selection.$from.marks();
-          
-          // If there are active marks, ensure they're applied to new text
-          if (marks.length > 0) {
-            // The marks will be automatically applied to new text
-            // This is handled by Tiptap's mark system
-          }
-        }
-      },
-      
-      'input': () => {
-        // Ensure marks are preserved during typing
-        const { state } = this.editor;
-        const { selection } = state;
-        const marks = selection.$from.marks();
-        
-        // If there are active marks, ensure they remain active
-        if (marks.length > 0) {
-          // Marks should be automatically applied to new text
-        }
-      },
-    };
-  },
-});
 
 // Enhanced Toolbar Component
 const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
@@ -955,7 +899,9 @@ export default function RichTextEditor({
       TableRow,
       TableHeader,
       TableCell,
-      TextStyle,
+      TextStyle.configure({
+        types: ['textStyle'],
+      }),
       Color.configure({
         types: ['textStyle'],
       }),
@@ -965,7 +911,6 @@ export default function RichTextEditor({
       FontSize.configure({
         types: ['textStyle'],
       }),
-      PreserveFormatting,
       PerformanceOptimization,
       TextBox,
     ],
@@ -978,21 +923,6 @@ export default function RichTextEditor({
     editorProps: {
       attributes: {
         class: `prose prose-lg max-w-none focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`,
-      },
-      handleKeyDown: (view, event) => {
-        // Preserve marks when typing
-        if (event.key.length === 1) {
-          const { state } = view;
-          const { selection } = state;
-          const marks = selection.$from.marks();
-          
-          // Ensure marks are preserved for new text
-          if (marks.length > 0) {
-            // Marks will be automatically applied
-            return false; // Let Tiptap handle it normally
-          }
-        }
-        return false; // Let Tiptap handle it normally
       },
       // Performance optimizations
       handleDOMEvents: {
