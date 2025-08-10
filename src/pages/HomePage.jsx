@@ -10,7 +10,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useApp } from '../context/AppContext';
-import LanguageTest from '../components/LanguageTest';
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -259,60 +259,7 @@ const HomePage = () => {
           </Card>
         </motion.div>
 
-        {/* Start Learning CTA */}
-        <motion.div {...animations.stagger(0.6)} className="text-center">
-          <Card className="p-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            <h3 className="text-2xl font-bold mb-4">
-              {language === 'ar' ? 'هل أنت مستعد للبدء؟' : 'Ready to Start?'}
-            </h3>
-            <p className="text-blue-100 mb-6">
-              {language === 'ar' 
-                ? 'ابدأ رحلتك في عالم الأمن السيبراني اليوم'
-                : 'Start your cybersecurity journey today'
-              }
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  try {
-                    navigate('/phases');
-                  } catch (error) {
-                    console.error('Navigation error:', error);
-                    // Fallback to window.location if navigate fails
-                    window.location.href = '/phases';
-                  }
-                }}
-                className="bg-white text-blue-600 hover:bg-blue-50 border-white"
-              >
-                {language === 'ar' ? 'ابدأ التعلم' : 'Start Learning'}
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  try {
-                    navigate('/test');
-                  } catch (error) {
-                    console.error('Navigation error:', error);
-                    // Fallback to window.location if navigate fails
-                    window.location.href = '/test';
-                  }
-                }}
-                className="bg-white text-green-600 hover:bg-green-50 border-white"
-              >
-                {language === 'ar' ? 'اختبار التنقل' : 'Test Navigation'}
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
 
-        {/* Language Test Component */}
-        <motion.div {...animations.stagger(0.8)}>
-          <LanguageTest />
-        </motion.div>
       </div>
     </PageLayout>
   );
