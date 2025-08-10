@@ -1,186 +1,143 @@
-import { motion } from "framer-motion";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
-  Home, 
-  Search, 
-  ArrowLeft, 
-  AlertTriangle,
-  MapPin,
-  Navigation,
-  BookOpen,
-  Settings
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useApp } from "../context/AppContext";
-import { useLocalization } from "../hooks/useLocalization";
-import Button from "../components/ui/Button";
-import Card from "../components/ui/Card";
+  Home, ArrowLeft, Search, AlertTriangle
+} from 'lucide-react';
+import { useLocalization } from '../hooks/useLocalization';
+import PageLayout from '../components/layout/PageLayout';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
-export default function NotFound() {
-  const { t } = useLocalization();
-  const { lang } = useApp();
+const NotFound = () => {
   const navigate = useNavigate();
+  const { language } = useLocalization();
 
-  const quickLinks = [
-    { name: t('home'), path: "/", icon: Home },
-    { name: t('notes'), path: "/notes", icon: BookOpen },
-    { name: t('journal'), path: "/journal", icon: Search },
-    { name: t('settings'), path: "/settings", icon: Settings }
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5
+  const animations = {
+    fadeIn: {
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.6 }
+    },
+    bounce: {
+      initial: { scale: 0.8, opacity: 0 },
+      animate: { scale: 1, opacity: 1 },
+      transition: { 
+        duration: 0.6,
+        type: "spring",
+        stiffness: 200
       }
     }
   };
 
   return (
-    <motion.div 
-      className="min-h-screen flex items-center justify-center py-8 px-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      dir={lang === "ar" ? "rtl" : "ltr"}
+    <PageLayout
+      title={language === 'ar' ? 'الصفحة غير موجودة' : 'Page Not Found'}
+      showBottomBar={false}
     >
-      <div className="max-w-2xl mx-auto text-center">
-        {/* 404 Animation */}
-        <motion.div 
-          className="mb-8"
-          variants={itemVariants}
-        >
-          <div className="relative">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="text-8xl md:text-9xl font-bold text-red-500 dark:text-red-400 mb-4"
-            >
-              404
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-            >
-              <AlertTriangle className="w-16 h-16 text-yellow-500" />
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Error Message */}
-        <motion.div className="mb-8" variants={itemVariants}>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            {lang === 'ar' ? 'الصفحة غير موجودة' : 'Page Not Found'}
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-            {lang === 'ar' 
-              ? 'عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها إلى مكان آخر'
-              : 'Sorry, the page you are looking for does not exist or has been moved'
-            }
-          </p>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div className="mb-8" variants={itemVariants}>
-          <Card>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => navigate("/")}
-                className="flex items-center gap-2"
-                variant="primary"
-              >
-                <Home className="w-4 h-4" />
-                {t('home')}
-              </Button>
-              <Button
-                onClick={() => navigate(-1)}
-                className="flex items-center gap-2"
-                variant="outline"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                {lang === 'ar' ? 'العودة' : 'Go Back'}
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Quick Links */}
-        <motion.div className="mb-8" variants={itemVariants}>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {lang === 'ar' ? 'روابط سريعة' : 'Quick Links'}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {quickLinks.map((link, index) => (
-              <motion.div
-                key={link.path}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Card
-                  onClick={() => navigate(link.path)}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex items-center gap-3">
-                    <link.icon className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {link.name}
-                    </span>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Help Section */}
-        <motion.div variants={itemVariants}>
-          <Card>
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                {lang === 'ar' ? 'هل تحتاج مساعدة؟' : 'Need Help?'}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                {lang === 'ar' 
-                  ? 'يمكنك العودة إلى الصفحة الرئيسية أو تصفح الأقسام المتاحة'
-                  : 'You can return to the home page or browse available sections'
-                }
-              </p>
-              <div className="flex justify-center gap-2">
-                <Button
-                  onClick={() => navigate("/")}
-                  variant="primary"
-                  size="sm"
-                >
-                  {t('home')}
-                </Button>
-                <Button
-                  onClick={() => navigate("/settings")}
-                  variant="outline"
-                  size="sm"
-                >
-                  {t('settings')}
-                </Button>
+      <motion.div {...animations.fadeIn} className="min-h-[60vh] flex items-center justify-center">
+        <Card className="p-8 max-w-md w-full text-center">
+          {/* 404 Icon */}
+          <motion.div {...animations.bounce} className="mb-6">
+            <div className="relative">
+              <AlertTriangle className="w-24 h-24 text-yellow-500 mx-auto mb-4" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">404</span>
               </div>
             </div>
-          </Card>
-        </motion.div>
-      </div>
-    </motion.div>
+          </motion.div>
+
+          {/* Error Message */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-8"
+          >
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {language === 'ar' ? 'عذراً!' : 'Oops!'}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              {language === 'ar' 
+                ? 'الصفحة التي تبحث عنها غير موجودة أو تم نقلها.'
+                : 'The page you are looking for does not exist or has been moved.'
+              }
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {language === 'ar' 
+                ? 'تحقق من الرابط أو جرب البحث في الموقع.'
+                : 'Check the link or try searching the site.'
+              }
+            </p>
+          </motion.div>
+
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-3"
+          >
+            <Button
+              variant="primary"
+              icon={<Home />}
+              onClick={() => navigate('/')}
+              className="w-full"
+            >
+              {language === 'ar' ? 'العودة للرئيسية' : 'Go to Home'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              icon={<ArrowLeft />}
+              onClick={() => navigate(-1)}
+              className="w-full"
+            >
+              {language === 'ar' ? 'العودة للصفحة السابقة' : 'Go Back'}
+            </Button>
+          </motion.div>
+
+          {/* Helpful Links */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700"
+          >
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              {language === 'ar' ? 'أو جرب هذه الصفحات:' : 'Or try these pages:'}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => navigate('/phases')}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+              >
+                {language === 'ar' ? 'المراحل' : 'Phases'}
+              </button>
+              <button
+                onClick={() => navigate('/progress')}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+              >
+                {language === 'ar' ? 'التقدم' : 'Progress'}
+              </button>
+              <button
+                onClick={() => navigate('/notes')}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+              >
+                {language === 'ar' ? 'الملاحظات' : 'Notes'}
+              </button>
+              <button
+                onClick={() => navigate('/journal')}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+              >
+                {language === 'ar' ? 'المدونات' : 'Journal'}
+              </button>
+            </div>
+          </motion.div>
+        </Card>
+      </motion.div>
+    </PageLayout>
   );
-}
+};
+
+export default NotFound;
