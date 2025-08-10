@@ -539,6 +539,17 @@ function App() {
       console.log('One final language change event dispatched');
     }, 2800);
     
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 2800);
+    
     // Final reflow
     setTimeout(() => {
       document.documentElement.offsetHeight; // Force reflow
