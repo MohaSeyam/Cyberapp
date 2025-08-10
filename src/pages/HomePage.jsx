@@ -10,19 +10,76 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useApp } from '../context/AppContext';
+import LanguageTest from '../components/LanguageTest';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
-  const { plan, progress, notes, journalEntries } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
+  
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      plan: [],
+      progress: [],
+      notes: [],
+      journalEntries: []
+    };
+  }
+  const { plan, progress, notes, journalEntries } = appData;
   
   // Ensure data is available with additional safety
-  const safePlan = plan || [];
-  const safeProgress = progress || [];
-  const safeNotes = notes || [];
-  const safeJournalEntries = journalEntries || [];
+  const safePlan = Array.isArray(plan) ? plan : [];
+  const safeProgress = Array.isArray(progress) ? progress : [];
+  const safeNotes = Array.isArray(notes) ? notes : [];
+  const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
+
+  // Debug logging to help identify React #130 issues
+  console.log('HomePage render data:', {
+    planLength: safePlan.length,
+    progressLength: safeProgress.length,
+    notesLength: safeNotes.length,
+    journalEntriesLength: safeJournalEntries.length,
+    language: safeLanguage,
+    isRTL
+  });
+
+  // Additional safety checks for React #130
+  if (!safePlan || !safeProgress || !safeNotes || !safeJournalEntries) {
+    console.error('HomePage: Invalid data detected, using empty arrays');
+    return (
+      <PageLayout
+        title={safeLanguage === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+        subtitle={safeLanguage === 'ar' ? 'يرجى الانتظار' : 'Please wait'}
+        showBottomBar={true}
+      >
+        <div className="max-w-4xl mx-auto py-10">
+          <div className="text-center">
+            <p>{safeLanguage === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}</p>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   // Quick actions
   const quickActions = [
@@ -123,7 +180,15 @@ const HomePage = () => {
                 >
                   <Card 
                     className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
-                    onClick={() => navigate(action.href)}
+                    onClick={() => {
+                      try {
+                        navigate(action.href);
+                      } catch (error) {
+                        console.error('Navigation error:', error);
+                        // Fallback to window.location if navigate fails
+                        window.location.href = action.href;
+                      }
+                    }}
                     hover={true}
                   >
                     <div className="flex items-start gap-4">
@@ -206,15 +271,47 @@ const HomePage = () => {
                 : 'Start your cybersecurity journey today'
               }
             </p>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => navigate('/phases')}
-              className="bg-white text-blue-600 hover:bg-blue-50 border-white"
-            >
-              {language === 'ar' ? 'ابدأ التعلم' : 'Start Learning'}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  try {
+                    navigate('/phases');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    // Fallback to window.location if navigate fails
+                    window.location.href = '/phases';
+                  }
+                }}
+                className="bg-white text-blue-600 hover:bg-blue-50 border-white"
+              >
+                {language === 'ar' ? 'ابدأ التعلم' : 'Start Learning'}
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  try {
+                    navigate('/test');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    // Fallback to window.location if navigate fails
+                    window.location.href = '/test';
+                  }
+                }}
+                className="bg-white text-green-600 hover:bg-green-50 border-white"
+              >
+                {language === 'ar' ? 'اختبار التنقل' : 'Test Navigation'}
+              </Button>
+            </div>
           </Card>
+        </motion.div>
+
+        {/* Language Test Component */}
+        <motion.div {...animations.stagger(0.8)}>
+          <LanguageTest />
         </motion.div>
       </div>
     </PageLayout>

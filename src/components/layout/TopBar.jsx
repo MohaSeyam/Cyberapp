@@ -7,11 +7,37 @@ import { useApp } from '../../context/AppContext';
 const TopBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { language, toggleLanguage } = useLocalization();
-  const { theme, toggleTheme } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language, direction, isRTL, toggleLanguage } = localizationData;
+  
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      theme: 'light',
+      toggleTheme: () => {}
+    };
+  }
+  const { theme, toggleTheme } = appData;
+  
   const safeLanguage = language || 'ar';
   const safeTheme = theme || 'light';
-  const isRTL = safeLanguage === 'ar';
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -27,7 +53,11 @@ const TopBar = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <header 
+      className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+      dir={direction}
+      style={{ direction }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Title */}
@@ -56,13 +86,24 @@ const TopBar = () => {
           <div className="flex items-center space-x-2">
             {/* Language Toggle */}
             <button
-              onClick={toggleLanguage}
+              onClick={() => {
+                console.log('Language toggle clicked, current language:', safeLanguage);
+                toggleLanguage();
+                
+                // Force immediate direction update
+                setTimeout(() => {
+                  const newDirection = safeLanguage === 'ar' ? 'ltr' : 'rtl';
+                  document.documentElement.dir = newDirection;
+                  document.documentElement.offsetHeight; // Force reflow
+                  console.log('Direction updated to:', newDirection);
+                }, 0);
+              }}
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               title={safeLanguage === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
             >
-                              <span className="text-sm font-medium">
-                  {safeLanguage === 'ar' ? 'EN' : 'عربي'}
-                </span>
+              <span className="text-sm font-medium">
+                {safeLanguage === 'ar' ? 'EN' : 'عربي'}
+              </span>
             </button>
 
             {/* Theme Toggle */}

@@ -6,9 +6,22 @@ import { useLocalization } from '../../context/LocalizationContext';
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { language } = useLocalization();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language, direction, isRTL } = localizationData;
   const safeLanguage = language || 'ar';
-  const isRTL = safeLanguage === 'ar';
 
   const navigationItems = [
     {
@@ -57,7 +70,11 @@ const BottomNavigation = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    <nav 
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
+      dir={direction}
+      style={{ direction }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-around h-16">
           {navigationItems.map((item) => {

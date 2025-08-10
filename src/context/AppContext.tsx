@@ -888,6 +888,34 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   };
 
+  // Safe data extraction with error handling
+  const safeNotes = (() => {
+    try {
+      return Object.values(appState.notes || {}).flat().filter(Boolean);
+    } catch (error) {
+      console.error('Error extracting notes:', error);
+      return [];
+    }
+  })();
+
+  const safeJournalEntries = (() => {
+    try {
+      return Object.values(appState.journal || {}).flat().filter(Boolean);
+    } catch (error) {
+      console.error('Error extracting journal entries:', error);
+      return [];
+    }
+  })();
+
+  const safeResources = (() => {
+    try {
+      return Object.values(appState.resources || {}).flat().filter(Boolean);
+    } catch (error) {
+      console.error('Error extracting resources:', error);
+      return [];
+    }
+  })();
+
   const value: AppContextType = {
     // State
     plan,
@@ -903,9 +931,9 @@ export function AppProvider({ children }: AppProviderProps) {
     weekEvaluations,
     
     // Additional state for direct access
-    notes: Object.values(appState.notes || {}).flat(),
-    journalEntries: Object.values(appState.journal || {}).flat(),
-    resources: Object.values(appState.resources || {}).flat(),
+    notes: safeNotes,
+    journalEntries: safeJournalEntries,
+    resources: safeResources,
     
     // Actions
     setLang: (newLang: Language) => {
@@ -1030,8 +1058,26 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   };
 
+  // Memoize the context value to prevent unnecessary re-renders
+  const memoizedValue = React.useMemo(() => value, [
+    plan,
+    progress,
+    appState,
+    settings,
+    langState,
+    themeState,
+    loading,
+    modal,
+    notifications,
+    taskEvaluations,
+    weekEvaluations,
+    safeNotes,
+    safeJournalEntries,
+    safeResources
+  ]);
+
   return (
-    <AppContext.Provider value={value}>
+    <AppContext.Provider value={memoizedValue}>
       {children}
       
       {/* Notifications */}
@@ -1059,60 +1105,12 @@ export function AppProvider({ children }: AppProviderProps) {
 }
 
 export function useApp() {
-  try {
-    const context = useContext(AppContext);
-    // Since we now have a default value, context should never be undefined
-    // But we'll still add safety checks for the context values
-    
-    // Add safety checks for context values
-    const safeContext = {
-      ...context,
-      plan: context.plan || [],
-      progress: context.progress || [],
-      notes: context.notes || [],
-      journalEntries: context.journalEntries || [],
-      resources: context.resources || [],
-      taskEvaluations: context.taskEvaluations || [],
-      weekEvaluations: context.weekEvaluations || [],
-      notifications: context.notifications || [],
-      appState: context.appState || { notes: {}, journal: {}, resources: {} },
-      settings: context.settings || {},
-      lang: context.lang || 'ar',
-      theme: context.theme || 'light',
-      loading: context.loading || false,
-      modal: context.modal || { isOpen: false, content: null },
-      setLang: context.setLang || (() => {}),
-      setTheme: context.setTheme || (() => {}),
-      toggleTheme: context.toggleTheme || (() => {}),
-      updateSettings: context.updateSettings || (async () => {}),
-      updateProgress: context.updateProgress || (async () => {}),
-      addOrUpdateProgress: context.addOrUpdateProgress || (async () => {}),
-      addNote: context.addNote || (async () => 0),
-      updateNote: context.updateNote || (async () => {}),
-      deleteNote: context.deleteNote || (async () => {}),
-      addJournalEntry: context.addJournalEntry || (async () => 0),
-      updateJournalEntry: context.updateJournalEntry || (async () => {}),
-      deleteJournalEntry: context.deleteJournalEntry || (async () => {}),
-      addResource: context.addResource || (async () => 0),
-      updateResource: context.updateResource || (async () => {}),
-      deleteResource: context.deleteResource || (async () => {}),
-      setModal: context.setModal || (() => {}),
-      addNotification: context.addNotification || (() => {}),
-      removeNotification: context.removeNotification || (() => {}),
-      refreshData: context.refreshData || (async () => {}),
-      forceReloadData: context.forceReloadData || (async () => {}),
-      fixMissingWeeks: context.fixMissingWeeks || (async () => {}),
-      addOrUpdateTaskEvaluation: context.addOrUpdateTaskEvaluation || (() => {}),
-      addOrUpdateWeekEvaluation: context.addOrUpdateWeekEvaluation || (() => {}),
-      exportData: context.exportData || (async () => {}),
-      importData: context.importData || (async () => {}),
-      clearAllData: context.clearAllData || (async () => {})
-    };
-    
-    return safeContext;
-  } catch (error) {
-    console.error('Error in useApp:', error);
-    // Return default values on error
+  const context = useContext(AppContext);
+  
+  // Validate context exists
+  if (!context) {
+    console.error('AppContext is undefined');
+    // Return default values instead of throwing
     return {
       plan: [],
       progress: [],
@@ -1156,4 +1154,63 @@ export function useApp() {
       clearAllData: async () => {}
     };
   }
+  
+  // Add safety checks for context values
+  const safeContext = {
+    ...context,
+    plan: Array.isArray(context.plan) ? context.plan : [],
+    progress: Array.isArray(context.progress) ? context.progress : [],
+    notes: Array.isArray(context.notes) ? context.notes : [],
+    journalEntries: Array.isArray(context.journalEntries) ? context.journalEntries : [],
+    resources: Array.isArray(context.resources) ? context.resources : [],
+    taskEvaluations: Array.isArray(context.taskEvaluations) ? context.taskEvaluations : [],
+    weekEvaluations: Array.isArray(context.weekEvaluations) ? context.weekEvaluations : [],
+    notifications: Array.isArray(context.notifications) ? context.notifications : [],
+    appState: context.appState && typeof context.appState === 'object' ? context.appState : { notes: {}, journal: {}, resources: {} },
+    settings: context.settings && typeof context.settings === 'object' ? context.settings : {},
+    lang: typeof context.lang === 'string' ? context.lang : 'ar',
+    theme: typeof context.theme === 'string' ? context.theme : 'light',
+    loading: typeof context.loading === 'boolean' ? context.loading : false,
+    modal: context.modal && typeof context.modal === 'object' ? context.modal : { isOpen: false, content: null },
+    // Ensure all functions are properly bound
+    setLang: typeof context.setLang === 'function' ? context.setLang : (() => {}),
+    setTheme: typeof context.setTheme === 'function' ? context.setTheme : (() => {}),
+    toggleTheme: typeof context.toggleTheme === 'function' ? context.toggleTheme : (() => {}),
+    updateSettings: typeof context.updateSettings === 'function' ? context.updateSettings : (async () => {}),
+    updateProgress: typeof context.updateProgress === 'function' ? context.updateProgress : (async () => {}),
+    addOrUpdateProgress: typeof context.addOrUpdateProgress === 'function' ? context.addOrUpdateProgress : (async () => {}),
+    addNote: typeof context.addNote === 'function' ? context.addNote : (async () => 0),
+    updateNote: typeof context.updateNote === 'function' ? context.updateNote : (async () => {}),
+    deleteNote: typeof context.deleteNote === 'function' ? context.deleteNote : (async () => {}),
+    addJournalEntry: typeof context.addJournalEntry === 'function' ? context.addJournalEntry : (async () => 0),
+    updateJournalEntry: typeof context.updateJournalEntry === 'function' ? context.updateJournalEntry : (async () => {}),
+    deleteJournalEntry: typeof context.deleteJournalEntry === 'function' ? context.deleteJournalEntry : (async () => {}),
+    addResource: typeof context.addResource === 'function' ? context.addResource : (async () => 0),
+    updateResource: typeof context.updateResource === 'function' ? context.updateResource : (async () => {}),
+    deleteResource: typeof context.deleteResource === 'function' ? context.deleteResource : (async () => {}),
+    setModal: typeof context.setModal === 'function' ? context.setModal : (() => {}),
+    addNotification: typeof context.addNotification === 'function' ? context.addNotification : (() => {}),
+    removeNotification: typeof context.removeNotification === 'function' ? context.removeNotification : (() => {}),
+    refreshData: typeof context.refreshData === 'function' ? context.refreshData : (async () => {}),
+    forceReloadData: typeof context.forceReloadData === 'function' ? context.forceReloadData : (async () => {}),
+    fixMissingWeeks: typeof context.fixMissingWeeks === 'function' ? context.fixMissingWeeks : (async () => {}),
+    addOrUpdateTaskEvaluation: typeof context.addOrUpdateTaskEvaluation === 'function' ? context.addOrUpdateTaskEvaluation : (() => {}),
+    addOrUpdateWeekEvaluation: typeof context.addOrUpdateWeekEvaluation === 'function' ? context.addOrUpdateWeekEvaluation : (() => {}),
+    exportData: typeof context.exportData === 'function' ? context.exportData : (async () => {}),
+    importData: typeof context.importData === 'function' ? context.importData : (async () => {}),
+    clearAllData: typeof context.clearAllData === 'function' ? context.clearAllData : (async () => {})
+  };
+
+  // Debug logging to help identify React #130 issues
+  console.log('AppContext useApp render:', {
+    planLength: safeContext.plan.length,
+    progressLength: safeContext.progress.length,
+    notesLength: safeContext.notes.length,
+    journalEntriesLength: safeContext.journalEntries.length,
+    lang: safeContext.lang,
+    theme: safeContext.theme,
+    loading: safeContext.loading
+  });
+
+  return safeContext;
 }

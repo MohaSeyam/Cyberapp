@@ -33,23 +33,39 @@ const ProgressPage = () => {
 
   // Calculate progress statistics
   const progressStats = useMemo(() => {
-    const completedCount = safeProgress.length;
-    const totalCount = safePlan.length;
+    // Calculate total tasks and completed tasks
+    const allTasks = safePlan.flatMap(week => 
+      week.days.flatMap(day => day.tasks)
+    );
+    const totalCount = allTasks.length;
+    const completedCount = safeProgress.filter(p => p.done).length;
     const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
     
     // Calculate average rating
     const ratings = safeTaskEvaluations.map(evaluation => evaluation.rating).filter(rating => rating > 0);
     const averageRating = ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
     
-    // Calculate phase progress
-    const phaseProgress = safePlan.map(phase => {
-      const phaseTasks = safePlan
-        .filter(week => phase.weeks.includes(week.weekNumber))
+    // Calculate phase progress - group weeks by phase
+    const phaseGroups = safePlan.reduce((acc, week) => {
+      const phaseId = week.phase;
+      if (!acc[phaseId]) {
+        acc[phaseId] = {
+          id: phaseId,
+          title: { ar: `المرحلة ${phaseId}`, en: `Phase ${phaseId}` },
+          weeks: []
+        };
+      }
+      acc[phaseId].weeks.push(week);
+      return acc;
+    }, {});
+    
+    const phaseProgress = Object.values(phaseGroups).map(phase => {
+      const phaseTasks = phase.weeks
         .flatMap(week => week.days)
         .flatMap(day => day.tasks);
       
       const completedPhaseTasks = phaseTasks.filter(task => 
-        safeProgress.some(completed => completed.taskId === task.id)
+        safeProgress.some(completed => completed.taskId === task.id && completed.done)
       );
       
       return {
@@ -60,13 +76,8 @@ const ProgressPage = () => {
       };
     });
 
-    // Calculate streak
-    const today = new Date();
-    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const recentCompletions = safeProgress.filter(task => 
-      new Date(task.completedAt) >= lastWeek
-    );
-    const currentStreak = recentCompletions.length;
+    // Calculate streak - count completed tasks (since we don't have completion dates)
+    const currentStreak = safeProgress.filter(p => p.done).length;
 
     return {
       completionRate,
@@ -228,27 +239,32 @@ const ProgressPage = () => {
           </div>
           
           <div className="space-y-4">
-            {safeProgress.slice(0, 5).map((task, index) => (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-              >
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {task.title}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(task.completedAt).toLocaleDateString(
-                      language === 'ar' ? 'ar-SA' : 'en-US'
-                    )}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+            {safeProgress.filter(p => p.done).slice(0, 5).map((progressItem, index) => {
+              // Find the corresponding task from the plan
+              const week = safePlan.find(w => w.week === progressItem.weekId);
+              const day = week?.days?.find(d => d.key === progressItem.dayKey);
+              const task = day?.tasks?.find(t => t.id === progressItem.taskId);
+              
+              return (
+                <motion.div
+                  key={progressItem.id || `${progressItem.weekId}-${progressItem.dayKey}-${progressItem.taskId}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                >
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {task?.description?.[language] || task?.description?.en || `Task ${progressItem.taskId}`}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {language === 'ar' ? 'مكتمل' : 'Completed'}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
             
             {safeProgress.length === 0 && (
               <div className="text-center py-8">

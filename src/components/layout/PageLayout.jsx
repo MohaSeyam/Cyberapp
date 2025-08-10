@@ -13,14 +13,27 @@ const PageLayout = ({
   className = '',
   ...props
 }) => {
-  const { language } = useLocalization();
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language, direction, isRTL } = localizationData;
   const safeLanguage = language || 'ar';
-  const isRTL = safeLanguage === 'ar';
 
   return (
     <div 
       className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}
-      dir={isRTL ? 'rtl' : 'ltr'}
+      dir={direction}
+      style={{ direction }}
       {...props}
     >
       {/* Top Bar */}
