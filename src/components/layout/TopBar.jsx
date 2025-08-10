@@ -1,7 +1,7 @@
 import React from 'react';
 import { Settings, Sun, Moon } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useLocalization } from '../../hooks/useLocalization';
+import { useLocalization } from '../../context/LocalizationContext';
 import { useApp } from '../../context/AppContext';
 
 const TopBar = () => {

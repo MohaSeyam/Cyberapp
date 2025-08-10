@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, ArrowLeft, Search, AlertTriangle
 } from 'lucide-react';
-import { useLocalization } from '../hooks/useLocalization';
+import { useLocalization } from '../context/LocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

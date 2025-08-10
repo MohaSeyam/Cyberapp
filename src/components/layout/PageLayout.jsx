@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocalization } from '../../hooks/useLocalization';
+import { useLocalization } from '../../context/LocalizationContext';
 import BottomNavigation from './BottomNavigation';
 import TopBar from './TopBar';
 

@@ -25,9 +25,9 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <LocalizationProvider>
-        <AppProvider>
+    <LocalizationProvider>
+      <AppProvider>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Router>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
               <Suspense fallback={<LoadingSpinner />}>
@@ -71,9 +71,9 @@ function App() {
               </Suspense>
             </div>
           </Router>
-        </AppProvider>
-      </LocalizationProvider>
-    </ErrorBoundary>
+        </ErrorBoundary>
+      </AppProvider>
+    </LocalizationProvider>
   );
 }
 

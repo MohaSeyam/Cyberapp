@@ -5,7 +5,7 @@ import {
   FileText, Save, ArrowLeft, X, Tag, Calendar
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { useLocalization } from '../hooks/useLocalization';
+import { useLocalization } from '../context/LocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

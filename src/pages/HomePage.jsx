@@ -5,7 +5,7 @@ import {
   Calendar, FileText, BookOpen, BarChart3, ArrowRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useLocalization } from '../hooks/useLocalization';
+import { useLocalization } from '../context/LocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

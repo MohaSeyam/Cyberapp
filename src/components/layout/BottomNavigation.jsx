@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Target, BarChart3, FileText, BookOpen, Link } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useLocalization } from '../../hooks/useLocalization';
+import { useLocalization } from '../../context/LocalizationContext';
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
