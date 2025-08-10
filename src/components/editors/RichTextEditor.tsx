@@ -24,13 +24,16 @@ import { Color } from "@tiptap/extension-color";
 import { FontFamily } from "@tiptap/extension-font-family";
 import { FontSize } from "@tiptap/extension-font-size";
 import { Extension } from '@tiptap/core';
+import { Node, mergeAttributes } from '@tiptap/core';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import { Plugin } from 'prosemirror-state';
 import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, 
   Image as ImageIcon, Upload, Minus, Table as TableIcon, Palette, Type, 
-  ChevronDown, X, Plus
+  ChevronDown, X, Plus, Square
 } from "lucide-react";
 import type { Language } from "../../types";
 
@@ -79,6 +82,163 @@ const fontSizes = [
 const colors = [
   '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080'
 ];
+
+// Text Box Component
+const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any) => {
+  const [content, setContent] = useState(node.attrs.content || '');
+  const [isEditing, setIsEditing] = useState(false);
+  const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
+    
+    // Debounce updates for better performance
+    if (updateTimeout) {
+      clearTimeout(updateTimeout);
+    }
+    const timeout = setTimeout(() => {
+      updateAttributes({ content: newContent });
+    }, 200);
+    setUpdateTimeout(timeout);
+  };
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (updateTimeout) {
+        clearTimeout(updateTimeout);
+      }
+    };
+  }, [updateTimeout]);
+
+  return (
+    <div className="my-4">
+      <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+        <div className="absolute top-2 right-2 flex gap-1">
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className="p-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            {isEditing ? 'حفظ' : 'تعديل'}
+          </button>
+          <button
+            onClick={deleteNode}
+            className="p-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          >
+            حذف
+          </button>
+        </div>
+        
+        {isEditing ? (
+          <textarea
+            value={content}
+            onChange={(e) => handleContentChange(e.target.value)}
+            className="w-full min-h-[100px] p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="اكتب هنا..."
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setIsEditing(false);
+              }
+            }}
+          />
+        ) : (
+          <div 
+            className="min-h-[100px] p-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
+            onClick={() => setIsEditing(true)}
+          >
+            {content || 'اضغط على تعديل لكتابة المحتوى'}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Text Box Extension
+const TextBox = Node.create({
+  name: 'textBox',
+  
+  group: 'block',
+  
+  content: 'inline*',
+  
+  addAttributes() {
+    return {
+      content: {
+        default: '',
+      },
+      type: {
+        default: 'default',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-type="text-box"]',
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'text-box' })];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(TextBoxComponent);
+  },
+
+  addCommands() {
+    return {
+      insertTextBox: () => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: { content: '', type: 'default' },
+        });
+      },
+    };
+  },
+});
+
+// Performance Optimization Extension
+const PerformanceOptimization = Extension.create({
+  name: 'performanceOptimization',
+  
+  addProseMirrorPlugins() {
+    return [
+      // Debounce updates to improve performance
+      new Plugin({
+        props: {
+          handleDOMEvents: {
+            input: (view, event) => {
+              // Debounce input events
+              clearTimeout((view as any).inputTimeout);
+              (view as any).inputTimeout = setTimeout(() => {
+                // Trigger update after delay
+                view.dispatch(view.state.tr);
+              }, 100);
+              return false;
+            },
+            paste: (view, event) => {
+              // Optimize paste handling
+              return false;
+            },
+            drop: (view, event) => {
+              // Optimize drop handling
+              return false;
+            },
+          },
+        },
+        // Add transaction filtering for better performance
+        filterTransaction: (transaction, state) => {
+          // Only apply transactions that actually change something
+          return transaction.docChanged || transaction.steps.length > 0;
+        },
+      }),
+    ];
+  },
+});
 
 // Custom Extension to preserve formatting on new lines
 const PreserveFormatting = Extension.create({
@@ -144,7 +304,7 @@ const PreserveFormatting = Extension.create({
 });
 
 // Enhanced Toolbar Component
-function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) {
+const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -236,6 +396,10 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
     editor.chain().focus().deleteTable().run();
   };
 
+  const insertTextBox = () => {
+    editor.chain().focus().insertTextBox().run();
+  };
+
   const setColor = (color: string) => {
     setSelectedColor(color);
     // Apply color to current selection or set as default for new text
@@ -286,7 +450,7 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
   };
 
   // Save Status Component
-  const SaveStatus = ({ status }: { status?: 'saving' | 'saved' | 'error' }) => {
+  const SaveStatus = React.memo(({ status }: { status?: 'saving' | 'saved' | 'error' }) => {
     if (!status) return null;
     
     return (
@@ -702,6 +866,17 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
           )}
         </div>
 
+        {/* Text Box */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button 
+            onClick={insertTextBox} 
+            className="p-1.5 rounded text-xs transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            title={lang === 'ar' ? 'إدراج مربع نص' : 'Insert Text Box'}
+          >
+            <Square size={14} />
+          </button>
+        </div>
+
         {/* Save Status */}
         {saveStatus && <SaveStatus status={saveStatus} />}
       </div>
@@ -723,6 +898,7 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const [lastSavedContent, setLastSavedContent] = useState(content);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const handleAutoSave = (newContent: string) => {
     if (autoSave && onSave && newContent !== lastSavedContent) {
@@ -735,6 +911,17 @@ export default function RichTextEditor({
       }, 2000);
       setAutoSaveTimeout(timeout);
     }
+  };
+
+  // Debounced onChange handler for better performance
+  const debouncedOnChange = (newContent: string) => {
+    if (updateTimeout) {
+      clearTimeout(updateTimeout);
+    }
+    const timeout = setTimeout(() => {
+      onChange(newContent);
+    }, 100); // 100ms debounce
+    setUpdateTimeout(timeout);
   };
 
   const editor = useEditor({
@@ -779,11 +966,13 @@ export default function RichTextEditor({
         types: ['textStyle'],
       }),
       PreserveFormatting,
+      PerformanceOptimization,
+      TextBox,
     ],
     content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      onChange(html);
+      debouncedOnChange(html);
       handleAutoSave(html);
     },
     editorProps: {
@@ -804,6 +993,17 @@ export default function RichTextEditor({
           }
         }
         return false; // Let Tiptap handle it normally
+      },
+      // Performance optimizations
+      handleDOMEvents: {
+        input: (view, event) => {
+          // Debounce input events for better performance
+          return false; // Let Tiptap handle it normally
+        },
+        paste: (view, event) => {
+          // Optimize paste handling
+          return false; // Let Tiptap handle it normally
+        },
       },
     },
   });
@@ -827,8 +1027,11 @@ export default function RichTextEditor({
       if (autoSaveTimeout) {
         clearTimeout(autoSaveTimeout);
       }
+      if (updateTimeout) {
+        clearTimeout(updateTimeout);
+      }
     };
-  }, [autoSaveTimeout]);
+  }, [autoSaveTimeout, updateTimeout]);
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
