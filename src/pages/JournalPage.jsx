@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { 
   Plus, Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Smile, Meh, Frown
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -14,12 +14,12 @@ import Modal from '../components/ui/Modal';
 const JournalPage = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
+  // Safe access to useSimpleLocalization
   let localizationData;
   try {
     localizationData = useSimpleLocalization();
   } catch (error) {
-    console.error('Error accessing useLocalization:', error);
+    console.error('Error accessing useSimpleLocalization:', error);
     localizationData = {
       language: 'ar',
       direction: 'rtl',

@@ -5,8 +5,8 @@ import {
   Plus, Search, Filter, BookOpen, ExternalLink, FileText, Video, 
   Link, Download, Star, Calendar, Tag, Edit, Trash2, Eye
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -15,36 +15,10 @@ import Modal from '../components/ui/Modal';
 const ResourcesPage = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useSimpleLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
+  const { language } = useSimpleLocalization();
   const isRTL = language === 'ar';
 
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useSimpleApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      resources: [],
-      addResource: async () => 0,
-      updateResource: async () => {},
-      deleteResource: async () => {}
-    };
-  }
-  const { resources, addResource, updateResource, deleteResource } = appData;
+  const { resources, addResource, updateResource, deleteResource } = useSimpleApp();
 
   // Ensure data is available
   const safeResources = Array.isArray(resources) ? resources : [];

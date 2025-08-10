@@ -53,7 +53,7 @@ const LocalizationContext = createContext({
   t: (key) => key
 });
 
-export const useLocalization = () => {
+export const useSimpleLocalization = () => {
   try {
     const context = useContext(LocalizationContext);
     // Since we now have a default value, context should never be undefined
@@ -67,7 +67,7 @@ export const useLocalization = () => {
       t: context.t || ((key) => key)
     };
   } catch (error) {
-    console.error('Error in useLocalization:', error);
+    console.error('Error in useSimpleLocalization:', error);
     // Return default values on error
     return {
       language: 'ar',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocalization } from '../../context/LocalizationContext';
+import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import BottomNavigation from './BottomNavigation';
 import TopBar from './TopBar';
 
@@ -13,12 +13,12 @@ const PageLayout = ({
   className = '',
   ...props
 }) => {
-  // Safe access to useLocalization
+  // Safe access to useSimpleLocalization
   let localizationData;
   try {
     localizationData = useSimpleLocalization();
   } catch (error) {
-    console.error('Error accessing useLocalization:', error);
+    console.error('Error accessing useSimpleLocalization:', error);
     localizationData = {
       language: 'ar',
       direction: 'rtl',

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
-import { useLocalization } from '../../context/LocalizationContext';
+import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 
 const Modal = ({
   isOpen,

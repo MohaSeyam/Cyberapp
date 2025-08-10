@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, ArrowLeft, Search, AlertTriangle
 } from 'lucide-react';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -12,12 +12,12 @@ import Button from '../components/ui/Button';
 const NotFound = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
+  // Safe access to useSimpleLocalization
   let localizationData;
   try {
     localizationData = useSimpleLocalization();
   } catch (error) {
-    console.error('Error accessing useLocalization:', error);
+    console.error('Error accessing useSimpleLocalization:', error);
     localizationData = {
       language: 'ar',
       direction: 'rtl',

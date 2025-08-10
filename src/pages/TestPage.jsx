@@ -1,24 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 
 const TestPage = () => {
   const navigate = useNavigate();
-  
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useSimpleLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
+  const { language } = useSimpleLocalization();
 
   const handleNavigation = (path) => {
     try {

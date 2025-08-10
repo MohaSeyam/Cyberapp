@@ -1,18 +1,18 @@
 import React from 'react';
 import { Home, Target, BarChart3, FileText, BookOpen, Link } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useLocalization } from '../../context/LocalizationContext';
+import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Safe access to useLocalization
+  // Safe access to useSimpleLocalization
   let localizationData;
   try {
     localizationData = useSimpleLocalization();
   } catch (error) {
-    console.error('Error accessing useLocalization:', error);
+    console.error('Error accessing useSimpleLocalization:', error);
     localizationData = {
       language: 'ar',
       direction: 'rtl',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocalization } from '../../context/LocalizationContext';
+import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 
 const Button = ({
   children,
