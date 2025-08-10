@@ -106,11 +106,10 @@ function Breadcrumbs({ items }: { items: Array<{ label: string; onClick?: () => 
 }
 
 // TaskEvaluationWidget component
-const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false }) => {
+const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false, isTaskCompleted = false }) => {
   const { taskEvaluations, addOrUpdateTaskEvaluation } = useApp();
   const [rating, setRating] = useState(0);
-  const [difficulty, setDifficulty] = useState('');
-  const [note, setNote] = useState('');
+  const [understanding, setUnderstanding] = useState('');
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
@@ -119,17 +118,15 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
   useEffect(() => {
     if (evalObj) {
       setRating(evalObj.rating);
-      setDifficulty(evalObj.difficulty || '');
-      setNote(evalObj.note || '');
+      setUnderstanding(evalObj.difficulty || '');
     } else {
       setRating(0);
-      setDifficulty('');
-      setNote('');
+      setUnderstanding('');
     }
   }, [evalObj, taskId, weekId]);
 
   const handleSave = () => {
-    addOrUpdateTaskEvaluation({ taskId, weekId, rating, difficulty: difficulty || undefined, note: note || undefined });
+    addOrUpdateTaskEvaluation({ taskId, weekId, rating, difficulty: understanding || undefined, note: undefined });
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
@@ -150,14 +147,30 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
       {evalObj.difficulty ? (
         <span className={`rounded px-2 py-0.5 ml-1 text-xs font-semibold ${evalObj.difficulty === 'easy' ? 'bg-green-100 text-green-700' : evalObj.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
           {language === 'ar'
-            ? evalObj.difficulty === 'easy' ? 'سهل' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
-            : evalObj.difficulty.charAt(0).toUpperCase() + evalObj.difficulty.slice(1)}
+            ? evalObj.difficulty === 'easy' ? 'مفهوم' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
+            : evalObj.difficulty === 'easy' ? 'Understood' : evalObj.difficulty === 'medium' ? 'Medium' : 'Hard'}
         </span>
       ) : null}
     </span>
   ) : null;
 
   if (summaryOnly) return summary;
+
+  // لا يمكن تقييم مهمة قبل إنجازها
+  if (!isTaskCompleted) {
+    return (
+      <div className="mt-2 mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <button
+          disabled
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed text-xs font-semibold"
+          title={language === 'ar' ? 'أكمل المهمة أولاً لتتمكن من تقييمها' : 'Complete the task first to evaluate it'}
+        >
+          <Star className="w-4 h-4 text-gray-400 mr-1" />
+          {language === 'ar' ? 'تقييم' : 'Rate'}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2 mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -175,33 +188,23 @@ const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false })
           <div className="flex items-center gap-2 mb-1">
             <Star className="w-5 h-5 text-yellow-400" />
             <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">{language === 'ar' ? 'تقييم المهمة:' : 'Task Rating:'}</span>
-            <span className="flex items-center gap-0.5 ml-2">
+            <div className="flex items-center gap-0.5 ml-2">
               {[1,2,3,4,5].map(star => (
                 <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
                   <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
                 </button>
               ))}
-            </span>
+            </div>
           </div>
           <div className="flex items-center gap-2 mb-1">
             <Activity className="w-5 h-5 text-blue-400" />
-            <span className="text-sm text-gray-600 dark:text-gray-300">{language === 'ar' ? 'الصعوبة:' : 'Difficulty:'}</span>
-            <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="rounded px-2 py-1 text-sm border dark:bg-gray-900">
+            <span className="text-sm text-gray-600 dark:text-gray-300">{language === 'ar' ? 'درجة الفهم:' : 'Understanding Level:'}</span>
+            <select value={understanding} onChange={e => setUnderstanding(e.target.value)} className="rounded px-2 py-1 text-sm border dark:bg-gray-900">
               <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
-              <option value="easy">{language === 'ar' ? 'سهل' : 'Easy'}</option>
+              <option value="easy">{language === 'ar' ? 'مفهوم' : 'Understood'}</option>
               <option value="medium">{language === 'ar' ? 'متوسط' : 'Medium'}</option>
               <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
             </select>
-          </div>
-          <div className="flex items-start gap-2 mb-1">
-            <FileText className="w-5 h-5 text-green-400 mt-1" />
-            <textarea
-              className="w-full rounded border px-2 py-1 text-sm dark:bg-gray-900"
-              rows={2}
-              value={note}
-              onChange={e => setNote(e.target.value)}
-              placeholder={language === 'ar' ? 'ملاحظات إضافية...' : 'Additional notes...'}
-            />
           </div>
           <div className="flex justify-end items-center gap-2 mt-2">
             {saved && (
@@ -639,7 +642,12 @@ export default function DayViewPage() {
                           showNotes={true}
                           onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
                         />
-                        <TaskEvaluationWidget taskId={task.id} weekId={selectedWeek.week} language={language} />
+                        <TaskEvaluationWidget 
+                          taskId={task.id} 
+                          weekId={selectedWeek.week} 
+                          language={language} 
+                          isTaskCompleted={progress.some(p => p.weekId === selectedWeek.week && p.dayKey === selectedDay.key && p.taskId === task.id && p.done)}
+                        />
                       </motion.div>
                     ))}
                   </div>

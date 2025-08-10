@@ -1,41 +1,38 @@
-// Enhanced Rich Text Editor Component
-import React, { useEffect, useState } from 'react';
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TextAlign from "@tiptap/extension-text-align";
-import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import Underline from "@tiptap/extension-underline";
-import Code from "@tiptap/extension-code";
-import CodeBlock from "@tiptap/extension-code-block";
-import Highlight from "@tiptap/extension-highlight";
-import { BulletList } from "@tiptap/extension-bullet-list";
-import { OrderedList } from "@tiptap/extension-ordered-list";
-import { ListItem } from "@tiptap/extension-list-item";
-import Blockquote from "@tiptap/extension-blockquote";
-import Image from "@tiptap/extension-image";
-import HorizontalRule from "@tiptap/extension-horizontal-rule";
-import { Table } from "@tiptap/extension-table";
-import { TableRow } from "@tiptap/extension-table-row";
-import { TableCell } from "@tiptap/extension-table-cell";
-import { TableHeader } from "@tiptap/extension-table-header";
-import { TextStyle } from "@tiptap/extension-text-style";
-import { Color } from "@tiptap/extension-color";
-import { FontFamily } from "@tiptap/extension-font-family";
-import { FontSize } from "@tiptap/extension-font-size";
-import { Extension } from '@tiptap/core';
-import { Node, mergeAttributes } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
+import React, { useState, useEffect } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TextAlign from '@tiptap/extension-text-align';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import Code from '@tiptap/extension-code';
+import CodeBlock from '@tiptap/extension-code-block';
+import Highlight from '@tiptap/extension-highlight';
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+import Blockquote from '@tiptap/extension-blockquote';
+import Image from '@tiptap/extension-image';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import { FontFamily } from '@tiptap/extension-font-family';
+import { FontSize } from '@tiptap/extension-font-size';
+import { Node, mergeAttributes, ReactNodeViewRenderer, Extension } from '@tiptap/react';
 import { Plugin } from 'prosemirror-state';
-import { motion } from "framer-motion";
-import { 
+import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
-  Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, 
-  Image as ImageIcon, Upload, Minus, Table as TableIcon, Palette, Type, 
-  ChevronDown, X, Plus, Square
-} from "lucide-react";
-import type { Language } from "../../types";
+  Heading1, Heading2, AlignLeft, AlignCenter, AlignRight,
+  List, ListOrdered, Quote, Minus, Code as CodeIcon, Highlighter,
+  Link as LinkIcon, Plus, X, Table as TableIcon, Square,
+  Type, ChevronDown, Palette, CheckCircle, AlertCircle
+} from 'lucide-react';
+
+type Language = 'ar' | 'en';
 
 interface RichTextEditorProps {
   content: string;
@@ -50,7 +47,7 @@ interface RichTextEditorProps {
   saveStatus?: 'saving' | 'saved' | 'error';
 }
 
-// Font Families
+// Font families and sizes
 const fontFamilies = [
   { name: 'Arial', value: 'Arial, sans-serif' },
   { name: 'Times New Roman', value: 'Times New Roman, serif' },
@@ -58,29 +55,33 @@ const fontFamilies = [
   { name: 'Georgia', value: 'Georgia, serif' },
   { name: 'Verdana', value: 'Verdana, sans-serif' },
   { name: 'Tahoma', value: 'Tahoma, sans-serif' },
-  { name: 'Cairo', value: 'Cairo, sans-serif' },
-  { name: 'Amiri', value: 'Amiri, serif' },
-  { name: 'Noto Naskh Arabic', value: 'Noto Naskh Arabic, serif' },
-  { name: 'Scheherazade New', value: 'Scheherazade New, serif' },
-  { name: 'Readex Pro', value: 'Readex Pro, sans-serif' },
-  { name: 'IBM Plex Sans Arabic', value: 'IBM Plex Sans Arabic, sans-serif' }
+  { name: 'Trebuchet MS', value: 'Trebuchet MS, sans-serif' },
+  { name: 'Impact', value: 'Impact, sans-serif' },
+  { name: 'Comic Sans MS', value: 'Comic Sans MS, sans-serif' },
+  { name: 'Lucida Console', value: 'Lucida Console, monospace' },
 ];
 
-// Font Sizes
 const fontSizes = [
-  { name: 'صغير جداً', value: '12px' },
-  { name: 'صغير', value: '14px' },
-  { name: 'عادي', value: '16px' },
-  { name: 'متوسط', value: '18px' },
-  { name: 'كبير', value: '20px' },
-  { name: 'كبير جداً', value: '24px' },
-  { name: 'عنوان', value: '28px' },
-  { name: 'عنوان رئيسي', value: '32px' }
+  { name: '8px', value: '8px' },
+  { name: '10px', value: '10px' },
+  { name: '12px', value: '12px' },
+  { name: '14px', value: '14px' },
+  { name: '16px', value: '16px' },
+  { name: '18px', value: '18px' },
+  { name: '20px', value: '20px' },
+  { name: '24px', value: '24px' },
+  { name: '28px', value: '28px' },
+  { name: '32px', value: '32px' },
+  { name: '36px', value: '36px' },
+  { name: '48px', value: '48px' },
 ];
 
-// Colors
 const colors = [
-  '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080'
+  '#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#cccccc', '#d9d9d9', '#efefef', '#f3f3f3', '#ffffff',
+  '#980000', '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#4a86e8', '#0000ff', '#9900ff', '#ff00ff',
+  '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc',
+  '#dd7e6b', '#ea9999', '#f9cb9c', '#ffe599', '#b6d7a8', '#a2c4c9', '#a4c2f4', '#a4c2f4', '#b4a7d6', '#d5a6bd',
+  '#cc4125', '#e06666', '#f6b26b', '#ffd966', '#93c47d', '#76a5af', '#6d9eeb', '#6d9eeb', '#8e7cc3', '#c27ba0',
 ];
 
 // Text Box Component
@@ -92,7 +93,6 @@ const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
     
-    // Debounce updates for better performance
     if (updateTimeout) {
       clearTimeout(updateTimeout);
     }
@@ -102,7 +102,6 @@ const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any
     setUpdateTimeout(timeout);
   };
 
-  // Cleanup timeout on unmount
   React.useEffect(() => {
     return () => {
       if (updateTimeout) {
@@ -157,9 +156,7 @@ const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any
 // Text Box Extension
 const TextBox = Node.create({
   name: 'textBox',
-  
   group: 'block',
-  
   content: 'inline*',
   
   addAttributes() {
@@ -207,45 +204,31 @@ const PerformanceOptimization = Extension.create({
   
   addProseMirrorPlugins() {
     return [
-      // Debounce updates to improve performance
       new Plugin({
         props: {
           handleDOMEvents: {
             input: (view, event) => {
-              // Debounce input events
               clearTimeout((view as any).inputTimeout);
               (view as any).inputTimeout = setTimeout(() => {
-                // Trigger update after delay
                 view.dispatch(view.state.tr);
               }, 100);
               return false;
             },
             paste: (view, event) => {
-              // Optimize paste handling
               return false;
             },
             drop: (view, event) => {
-              // Optimize drop handling
               return false;
             },
           },
         },
-        // Add transaction filtering for better performance
         filterTransaction: (transaction, state) => {
-          // Only apply transactions that actually change something
           return transaction.docChanged || transaction.steps.length > 0;
-        },
-        // Preserve marks on new lines
-        appendTransaction: (transactions, oldState, newState) => {
-          // This helps preserve formatting when creating new lines
-          return null; // Let Tiptap handle it normally
         },
       }),
     ];
   },
 });
-
-
 
 // Enhanced Toolbar Component
 const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
@@ -256,7 +239,6 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
   const [showFontSize, setShowFontSize] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
   
-  // إغلاق القوائم المنسدلة عند النقر خارجها
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -289,7 +271,6 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
   const addLink = () => {
     if (linkUrl.trim()) {
       const url = linkUrl.trim();
-      // إضافة http:// إذا لم يكن موجوداً
       const finalUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
       
       if (editor.isActive('link')) {
@@ -299,7 +280,6 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
       }
       setLinkUrl('');
       setShowLinkInput(false);
-      // Force editor update
       editor.commands.focus();
     }
   };
@@ -346,50 +326,35 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
 
   const setColor = (color: string) => {
     setSelectedColor(color);
-    // Apply color to current selection or set as default for new text
     if (editor.state.selection.empty) {
-      // If no text is selected, set as default mark for future typing
       editor.chain().focus().setColor(color).run();
-      // Ensure the mark is active for future typing
       editor.commands.setMark('textStyle', { color });
     } else {
-      // If text is selected, apply color to selection
       editor.chain().focus().setColor(color).run();
     }
     setShowColorPicker(false);
-    // Force editor update and maintain focus
     editor.commands.focus();
   };
 
   const setFontFamily = (fontFamily: string) => {
-    // Apply font family to current selection or set as default for new text
     if (editor.state.selection.empty) {
-      // If no text is selected, set as default mark for future typing
       editor.chain().focus().setFontFamily(fontFamily).run();
-      // Ensure the mark is active for future typing
       editor.commands.setMark('textStyle', { fontFamily });
     } else {
-      // If text is selected, apply font family to selection
       editor.chain().focus().setFontFamily(fontFamily).run();
     }
     setShowFontFamily(false);
-    // Force editor update and maintain focus
     editor.commands.focus();
   };
 
   const setFontSize = (fontSize: string) => {
-    // Apply font size to current selection or set as default for new text
     if (editor.state.selection.empty) {
-      // If no text is selected, set as default mark for future typing
       editor.chain().focus().setFontSize(fontSize).run();
-      // Ensure the mark is active for future typing
       editor.commands.setMark('textStyle', { fontSize });
     } else {
-      // If text is selected, apply font size to selection
       editor.chain().focus().setFontSize(fontSize).run();
     }
     setShowFontSize(false);
-    // Force editor update and maintain focus
     editor.commands.focus();
   };
 
@@ -826,7 +791,7 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
       </div>
     </div>
   );
-}
+});
 
 export default function RichTextEditor({
   content,
@@ -924,15 +889,12 @@ export default function RichTextEditor({
       attributes: {
         class: `prose prose-lg max-w-none focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`,
       },
-      // Performance optimizations
       handleDOMEvents: {
         input: (view, event) => {
-          // Debounce input events for better performance
-          return false; // Let Tiptap handle it normally
+          return false;
         },
         paste: (view, event) => {
-          // Optimize paste handling
-          return false; // Let Tiptap handle it normally
+          return false;
         },
       },
     },
