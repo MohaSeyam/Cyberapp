@@ -1,54 +1,87 @@
-// BottomNavigation.jsx
-// شريط التنقل السفلي
+import React from 'react';
+import { Home, Target, BarChart3, FileText, BookOpen } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocalization } from '../../hooks/useLocalization';
 
-import { NavLink } from "react-router-dom";
-import { FaBook, FaBookOpen, FaMedal, FaRegStickyNote } from "react-icons/fa";
-import { HiOutlineViewBoards } from "react-icons/hi";
+const BottomNavigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { language } = useLocalization();
 
-const navs = [
-  { to: "/phases", icon: HiOutlineViewBoards, label: "المراحل" },
-  { to: "/notebook", icon: FaRegStickyNote, label: "الملاحظات" },
-  { to: "/journal", icon: FaBookOpen, label: "المدونة" },
-  { to: "/achievements", icon: FaMedal, label: "الإنجازات" },
-];
+  const isRTL = language === 'ar';
 
-export default function BottomNavigation() {
-  console.log("BottomNavigation rendering");
+  const navigationItems = [
+    {
+      path: '/',
+      icon: Home,
+      label: language === 'ar' ? 'الرئيسية' : 'Home',
+      labelShort: language === 'ar' ? 'الرئيسية' : 'Home'
+    },
+    {
+      path: '/phases',
+      icon: Target,
+      label: language === 'ar' ? 'المراحل' : 'Phases',
+      labelShort: language === 'ar' ? 'المراحل' : 'Phases'
+    },
+    {
+      path: '/progress',
+      icon: BarChart3,
+      label: language === 'ar' ? 'التقدم' : 'Progress',
+      labelShort: language === 'ar' ? 'التقدم' : 'Progress'
+    },
+    {
+      path: '/notes',
+      icon: FileText,
+      label: language === 'ar' ? 'الملاحظات' : 'Notes',
+      labelShort: language === 'ar' ? 'الملاحظات' : 'Notes'
+    },
+    {
+      path: '/journal',
+      icon: BookOpen,
+      label: language === 'ar' ? 'المدونة' : 'Journal',
+      labelShort: language === 'ar' ? 'المدونة' : 'Journal'
+    }
+  ];
+
+  const isActive = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
   return (
-    <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg flex justify-around items-center h-16 z-50 md:hidden backdrop-blur-sm bg-white/95 dark:bg-gray-900/95">
-      {navs.map(({ to, icon: Icon, label }) => (
-        <NavLink
-          key={to}
-          to={to}
-          className={({ isActive }) =>
-            `flex flex-col items-center justify-center flex-1 h-full transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
-              isActive 
-                ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" 
-                : "text-gray-600 dark:text-gray-300"
-            }`
-          }
-          aria-label={label}
-        >
-          {({ isActive }) => (
-            <>
-              <div className={`rounded-full p-2 transition-all duration-200 active:scale-95 ${
-                isActive 
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm" 
-                  : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              }`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <span className={`text-xs mt-1 font-semibold transition-colors duration-200 ${
-                isActive 
-                  ? "text-blue-600 dark:text-blue-400" 
-                  : "text-gray-700 dark:text-gray-300"
-              }`}>
-                {label}
-              </span>
-            </>
-          )}
-        </NavLink>
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-around h-16">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${
+                  active
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Icon className={`w-5 h-5 mb-1 ${active ? 'scale-110' : ''}`} />
+                <span className="text-xs font-medium hidden sm:block">
+                  {item.labelShort}
+                </span>
+                {active && (
+                  <div className="absolute bottom-0 w-8 h-1 bg-blue-600 dark:bg-blue-400 rounded-t-full" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </nav>
   );
-}
+};
+
+export default BottomNavigation;

@@ -1,0 +1,315 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  Calendar, Clock, Target, BookOpen, Users, Award,
+  TrendingUp, BarChart3, Activity, Star, Trophy,
+  ArrowLeft, ChevronRight, CheckCircle, Bug, FileText,
+  Shield
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { useLocalization } from '../hooks/useLocalization';
+import PageLayout from '../components/layout/PageLayout';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import phasesData from '../data/phases.json';
+import planData from '../data/PlanData.json';
+
+const PhaseWeeksPage = () => {
+  const { phaseId } = useParams();
+  const navigate = useNavigate();
+  const { language } = useLocalization();
+  const { progress } = useApp();
+  const isRTL = language === 'ar';
+
+  // Find current phase
+  const currentPhase = phasesData.find(phase => phase.id === parseInt(phaseId));
+
+  // Get weeks for this phase
+  const phaseWeeks = planData.filter(week => currentPhase?.weeks.includes(week.week));
+
+  // Calculate week completion
+  const getWeekCompletion = (weekNumber) => {
+    const weekProgress = progress.filter(p => p.weekId === weekNumber);
+    if (weekProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
+    
+    const totalTasks = weekProgress.length;
+    const completedTasks = weekProgress.filter(p => p.done).length;
+    
+    return {
+      percentage: Math.round((completedTasks / totalTasks) * 100),
+      completed: completedTasks,
+      total: totalTasks
+    };
+  };
+
+  // Get day completion for a specific week
+  const getDayCompletion = (weekNumber, dayKey) => {
+    const dayProgress = progress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey);
+    if (dayProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
+    
+    const totalTasks = dayProgress.length;
+    const completedTasks = dayProgress.filter(p => p.done).length;
+    
+    return {
+      percentage: Math.round((completedTasks / totalTasks) * 100),
+      completed: completedTasks,
+      total: totalTasks
+    };
+  };
+
+  // Day icons mapping
+  const dayIcons = {
+    sat: '🌅',
+    sun: '☀️',
+    mon: '☕',
+    tue: '⚡',
+    wed: '❤️',
+    thu: '🧠',
+    fri: '⭐'
+  };
+
+  const animations = {
+    fadeIn: {
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.6 }
+    },
+    stagger: (delay = 0) => ({
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.6, delay }
+    })
+  };
+
+  const goToPhases = () => {
+    navigate('/phases');
+  };
+
+  if (!currentPhase) {
+    return (
+      <PageLayout title="خطأ" subtitle="المرحلة غير موجودة" showHeader={true}>
+        <div className="text-center py-12">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            {language === 'ar' ? 'المرحلة غير موجودة' : 'Phase not found'}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {language === 'ar' 
+              ? 'قد تكون البيانات غير محملة بشكل صحيح. جرب تحديث البيانات.'
+              : 'The data may not be loaded correctly. Try refreshing the data.'
+            }
+          </p>
+          <Button onClick={goToPhases} variant="primary">
+            {language === 'ar' ? 'العودة للمراحل' : 'Back to Phases'}
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout 
+      showBottomBar={true}
+    >
+      <motion.div {...animations.fadeIn} className="space-y-6">
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
+          <Button
+            variant="ghost"
+            icon={<ArrowLeft />}
+            onClick={goToPhases}
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          >
+            {language === 'ar' ? 'العودة للمراحل' : 'Back to Phases'}
+          </Button>
+        </div>
+
+        {/* Phase Header */}
+        <div className="text-center mb-10 mt-2">
+          <div className="flex flex-col items-center justify-center">
+            <div className="p-4 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
+              <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-blue-700 dark:text-blue-300 mb-2">
+              {currentPhase.title[language]}
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-4 max-w-2xl">
+              {currentPhase.focus[language]}
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>{currentPhase.duration}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4" />
+                <span>{currentPhase.difficulty}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span>{currentPhase.weeks.length} {language === 'ar' ? 'أسابيع' : 'weeks'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Weeks Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {phaseWeeks.map((week, index) => {
+            const completion = getWeekCompletion(week.week);
+            const isCompleted = completion.percentage === 100;
+            const isInProgress = completion.percentage > 0 && completion.percentage < 100;
+            
+            return (
+              <motion.div
+                key={week.week}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card 
+                  className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                    isCompleted ? 'ring-2 ring-green-500' : 
+                    isInProgress ? 'ring-2 ring-blue-500' : ''
+                  }`}
+                  onClick={() => navigate(`/week/${week.week}`)}
+                  hover={true}
+                >
+                  {/* Week Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                        {language === 'ar' ? `الأسبوع ${week.week}` : `Week ${week.week}`}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {week.title[language]}
+                      </p>
+                    </div>
+                    {isCompleted && (
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                    )}
+                  </div>
+
+                  {/* Week Description */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                    {week.objective[language]}
+                  </p>
+
+                  {/* Progress Bar */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        {language === 'ar' ? 'التقدم' : 'Progress'}
+                      </span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {completion.percentage}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          isCompleted ? 'bg-green-500' : 
+                          isInProgress ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                        style={{ width: `${completion.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Days Preview */}
+                  <div className="mb-4">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      {language === 'ar' ? 'أيام الأسبوع' : 'Week Days'}
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {week.days?.map((day) => {
+                        const dayCompletion = getDayCompletion(week.week, day.key);
+                        return (
+                          <div
+                            key={day.key}
+                            className={`p-2 rounded-lg text-xs font-medium ${
+                              dayCompletion.percentage === 100
+                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                                : dayCompletion.percentage > 0
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            }`}
+                            title={`${day.day[language]} - ${dayCompletion.percentage}%`}
+                          >
+                            {dayIcons[day.key] || '📅'}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Week Stats */}
+                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center space-x-1">
+                      <Target className="w-4 h-4" />
+                      <span>{completion.completed}/{completion.total} {language === 'ar' ? 'مهام' : 'tasks'}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{week.days?.length || 0} {language === 'ar' ? 'أيام' : 'days'}</span>
+                    </div>
+                  </div>
+
+                  {/* Navigation Arrow */}
+                  <div className="mt-4 flex justify-end">
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Phase Summary */}
+        <motion.div {...animations.stagger(0.4)}>
+          <Card className="p-6">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              {language === 'ar' ? 'ملخص المرحلة' : 'Phase Summary'}
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {phaseWeeks.length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'الأسابيع' : 'Weeks'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {phaseWeeks.filter(week => getWeekCompletion(week.week).percentage === 100).length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'مكتملة' : 'Completed'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {phaseWeeks.reduce((acc, week) => acc + (week.days?.length || 0), 0)}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'الأيام' : 'Days'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {Math.round(phaseWeeks.reduce((acc, week) => acc + getWeekCompletion(week.week).percentage, 0) / phaseWeeks.length)}%
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </motion.div>
+    </PageLayout>
+  );
+};
+
+export default PhaseWeeksPage;

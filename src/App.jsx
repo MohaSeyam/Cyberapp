@@ -1,93 +1,75 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
-import { Toaster } from 'react-hot-toast';
-import LoadingSpinner from './components/ui/LoadingSpinner';
-import LanguageProvider from './components/layout/LanguageProvider';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
-import NotificationSystem from './components/notifications/NotificationSystem';
-import { useNotifications } from './hooks/useNotifications';
-
-function ErrorFallback({ error }) {
-  return (
-    <div className="p-8 text-center text-red-600 dark:text-red-400">
-      <h2 className="text-2xl font-bold mb-4">حدث خطأ غير متوقع</h2>
-      <p>{error?.message || 'يرجى إعادة تحميل الصفحة أو المحاولة لاحقًا.'}</p>
-    </div>
-  );
-}
+import { LocalizationProvider } from './context/LocalizationContext';
+import { AppProvider } from './context/AppContext';
+import LoadingSpinner from './components/ui/LoadingSpinner';
+import ErrorFallback from './components/ui/ErrorFallback';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
 const PhasesPage = lazy(() => import('./pages/PhasesPage'));
-const PhaseWeeksPage = lazy(() => import('./components/phases/PhaseWeeksPage'));
-const DaysPage = lazy(() => import('./components/days/DaysPage'));
-const DayViewPage = lazy(() => import('./components/days/DayViewPage'));
+const PhaseWeeksPage = lazy(() => import('./pages/PhaseWeeksPage'));
+const DaysPage = lazy(() => import('./pages/DaysPage'));
+const DayViewPage = lazy(() => import('./pages/DayViewPage'));
 const ProgressPage = lazy(() => import('./pages/ProgressPage'));
 const NotesPage = lazy(() => import('./pages/NotesPage'));
-const JournalPage = lazy(() => import('./pages/JournalPage'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
-const NoteViewPage = lazy(() => import('./pages/NoteViewPage'));
-const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
 const NoteEditPage = lazy(() => import('./pages/NoteEditPage'));
+const NoteViewPage = lazy(() => import('./pages/NoteViewPage'));
+const JournalPage = lazy(() => import('./pages/JournalPage'));
 const JournalEditPage = lazy(() => import('./pages/JournalEditPage'));
-
-
-function AppContent() {
-  const [key, setKey] = useState(0);
-  const { notifications, dismissNotification } = useNotifications();
-
-  useEffect(() => {
-    const handleLanguageChange = () => {
-      // Force re-render of all components when language changes
-      setKey(prev => prev + 1);
-    };
-
-    window.addEventListener('languageChanged', handleLanguageChange);
-    return () => {
-      window.removeEventListener('languageChanged', handleLanguageChange);
-    };
-  }, []);
-
-  return (
-    <Router>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Suspense fallback={<LoadingSpinner size="xl" text="جاري تحميل التطبيق..." variant="pulse" />}>
-          <Toaster />
-          <NotificationSystem 
-            notifications={notifications}
-            onDismiss={dismissNotification}
-            maxNotifications={5}
-          />
-          <Routes key={key}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/phases" element={<PhasesPage />} />
-            <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
-            <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
-            <Route path="/days/:weekId" element={<DaysPage />} />
-            <Route path="/notes" element={<NotesPage />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/note/:noteId" element={<NoteViewPage />} />
-            <Route path="/note/:noteId/edit" element={<NoteEditPage />} />
-            <Route path="/journal-entry/:entryId" element={<JournalViewPage />} />
-            <Route path="/journal-entry/:entryId/edit" element={<JournalEditPage />} />
-
-          </Routes>
-        </Suspense>
-      </ErrorBoundary>
-    </Router>
-  );
-}
+const JournalViewPage = lazy(() => import('./pages/JournalViewPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   return (
-    <AppProvider>
-      <LanguageProvider>
-        <AppContent />
-      </LanguageProvider>
-    </AppProvider>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <LocalizationProvider>
+        <AppProvider>
+          <Router>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Main Routes */}
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/phases" element={<PhasesPage />} />
+                  <Route path="/phase/:phaseId" element={<PhaseWeeksPage />} />
+                  <Route path="/week/:weekId" element={<DaysPage />} />
+                  <Route path="/day/:weekId/:dayIndex" element={<DayViewPage />} />
+                  
+                  {/* Progress & Analytics */}
+                  <Route path="/progress" element={<ProgressPage />} />
+                  
+                  {/* Notes Management */}
+                  <Route path="/notes" element={<NotesPage />} />
+                  <Route path="/notes/new" element={<NoteEditPage />} />
+                  <Route path="/notes/:noteId" element={<NoteViewPage />} />
+                  <Route path="/notes/:noteId/edit" element={<NoteEditPage />} />
+                  
+                  {/* Journal Management */}
+                  <Route path="/journal" element={<JournalPage />} />
+                  <Route path="/journal/new" element={<JournalEditPage />} />
+                  <Route path="/journal/:entryId" element={<JournalViewPage />} />
+                  <Route path="/journal/:entryId/edit" element={<JournalEditPage />} />
+                  
+                  {/* Settings */}
+                  <Route path="/settings" element={<SettingsPage />} />
+                  
+                  {/* Redirect old routes */}
+                  <Route path="/plan" element={<Navigate to="/phases" replace />} />
+                  <Route path="/weeks" element={<Navigate to="/phases" replace />} />
+                  <Route path="/days" element={<Navigate to="/phases" replace />} />
+                  
+                  {/* 404 Page */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </div>
+          </Router>
+        </AppProvider>
+      </LocalizationProvider>
+    </ErrorBoundary>
   );
 }
 
