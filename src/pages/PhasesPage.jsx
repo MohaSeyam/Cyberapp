@@ -19,10 +19,8 @@ const PhasesPage = () => {
   const { progress } = useApp();
   const isRTL = language === 'ar';
 
-  // Ensure data is available
   const safeProgress = progress || [];
 
-  // Get phases data with safety check
   const safePhasesData = (() => {
     try {
       return phasesData || [];
@@ -32,13 +30,17 @@ const PhasesPage = () => {
     }
   })();
 
-  // Calculate phase completion
   const getPhaseCompletion = (phase) => {
-    const phaseWeeks = phase.weeks || [];
+    if (!phase || !phase.weeks) return { completed: 0, total: 0, percentage: 0 };
+    const phaseWeeks = phase.weeks;
     const completedWeeks = phaseWeeks.filter(week => {
       const weekProgress = safeProgress.filter(p => p.weekId === week);
       return weekProgress.length > 0 && weekProgress.every(p => p.done);
     }).length;
+    
+    if (phaseWeeks.length === 0) {
+      return { completed: 0, total: 0, percentage: 0 };
+    }
     
     return {
       completed: completedWeeks,
@@ -47,7 +49,6 @@ const PhasesPage = () => {
     };
   };
 
-  // Phase type configurations
   const phaseTypeConfig = {
     'Blue Team': {
       icon: Shield,
@@ -99,7 +100,6 @@ const PhasesPage = () => {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        {/* Back Button */}
         <div className="flex items-center mb-4">
           <Button
             variant="ghost"
@@ -111,7 +111,6 @@ const PhasesPage = () => {
           </Button>
         </div>
 
-        {/* Main Title */}
         <div className="mb-4 text-center">
           <h1 className="text-3xl md:text-4xl font-extrabold text-blue-700 dark:text-blue-300 mb-2">
             {language === 'ar' ? 'خطة الأمن السيبراني' : 'Cyber Security Plan'}
@@ -124,12 +123,21 @@ const PhasesPage = () => {
           </p>
         </div>
 
-        {/* Phases Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {safePhasesData.map((phase, index) => {
+          {safePhasesData.map((phase, index) => {
             const completion = getPhaseCompletion(phase);
             const isCompleted = completion.percentage === 100;
             const isInProgress = completion.percentage > 0 && completion.percentage < 100;
+            
+            // --- FIX STARTS HERE ---
+
+            // 1. Get the config for the current phase type, with a fallback.
+            const config = phaseTypeConfig[phase.type] || phaseTypeConfig['Particular'];
+
+            // 2. Assign the icon to a capitalized variable. This is required by JSX.
+            const IconComponent = config.icon;
+
+            // --- FIX ENDS HERE ---
             
             return (
               <motion.div
@@ -146,11 +154,11 @@ const PhasesPage = () => {
                   onClick={() => navigate(`/phase/${phase.id}`)}
                   hover={true}
                 >
-                  {/* Phase Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className={`p-3 rounded-xl ${phaseTypeConfig['Blue Team'].bgColor}`}>
-                        <Target className={`w-6 h-6 ${phaseTypeConfig['Blue Team'].textColor}`} />
+                      {/* 3. Use the dynamic config and IconComponent here */}
+                      <div className={`p-3 rounded-xl ${config.bgColor}`}>
+                        <IconComponent className={`w-6 h-6 ${config.textColor}`} />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -166,12 +174,10 @@ const PhasesPage = () => {
                     )}
                   </div>
 
-                  {/* Phase Description */}
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
                     {phase.focus[language]}
                   </p>
 
-                  {/* Progress Bar */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-gray-600 dark:text-gray-400">
@@ -192,7 +198,6 @@ const PhasesPage = () => {
                     </div>
                   </div>
 
-                  {/* Phase Stats */}
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
@@ -204,7 +209,6 @@ const PhasesPage = () => {
                     </div>
                   </div>
 
-                  {/* Navigation Arrow */}
                   <div className="mt-4 flex justify-end">
                     <ChevronRight className="w-5 h-5 text-gray-400" />
                   </div>
@@ -231,7 +235,7 @@ const PhasesPage = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {safePhasesData.reduce((acc, phase) => acc + phase.weeks.length, 0)}
+                  {safePhasesData.reduce((acc, phase) => acc + (phase.weeks ? phase.weeks.length : 0), 0)}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'الأسابيع' : 'Weeks'}
@@ -247,7 +251,7 @@ const PhasesPage = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {Math.round(safePhasesData.reduce((acc, phase) => acc + getPhaseCompletion(phase).percentage, 0) / safePhasesData.length)}%
+                  {safePhasesData.length > 0 ? Math.round(safePhasesData.reduce((acc, phase) => acc + getPhaseCompletion(phase).percentage, 0) / safePhasesData.length) : 0}%
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}
