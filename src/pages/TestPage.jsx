@@ -2,8 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocalization } from '../context/LocalizationContext';
 import LanguageTest from '../components/LanguageTest';
-import LanguageTest from '../components/LanguageTest';
-import LanguageTest from '../components/LanguageTest';
 
 const TestPage = () => {
   const navigate = useNavigate();

@@ -11,8 +11,6 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useApp } from '../context/AppContext';
 import LanguageTest from '../components/LanguageTest';
-import LanguageTest from '../components/LanguageTest';
-import LanguageTest from '../components/LanguageTest';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -29,6 +27,16 @@ const HomePage = () => {
   const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
+
+  // Debug logging to help identify React #130 issues
+  console.log('HomePage render data:', {
+    planLength: safePlan.length,
+    progressLength: safeProgress.length,
+    notesLength: safeNotes.length,
+    journalEntriesLength: safeJournalEntries.length,
+    language: safeLanguage,
+    isRTL
+  });
 
   // Quick actions
   const quickActions = [
@@ -256,16 +264,6 @@ const HomePage = () => {
               </Button>
             </div>
           </Card>
-        </motion.div>
-
-        {/* Language Test Component */}
-        <motion.div {...animations.stagger(0.8)}>
-          <LanguageTest />
-        </motion.div>
-
-        {/* Language Test Component */}
-        <motion.div {...animations.stagger(0.8)}>
-          <LanguageTest />
         </motion.div>
 
         {/* Language Test Component */}

@@ -5,6 +5,14 @@ const LanguageTest = () => {
   const { language, direction, isRTL, toggleLanguage } = useLocalization();
   const [testCount, setTestCount] = useState(0);
 
+  // Debug logging to help identify React #130 issues
+  console.log('LanguageTest render:', {
+    language: language || 'undefined',
+    direction: direction || 'undefined',
+    isRTL: isRTL || false,
+    testCount
+  });
+
   useEffect(() => {
     // Force immediate direction update
     const updateDirection = () => {

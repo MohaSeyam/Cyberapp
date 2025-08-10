@@ -127,40 +127,57 @@ export const LocalizationProvider = ({ children }) => {
   }, [language]);
 
   const changeLanguage = (newLanguage) => {
-    // Immediately update direction and document attributes
-    const newDirection = newLanguage === 'ar' ? 'rtl' : 'ltr';
-    setDirection(newDirection);
-    document.documentElement.dir = newDirection;
-    document.documentElement.lang = newLanguage;
-    
-    // Update language state
-    setLanguage(newLanguage);
-    
-    // Force a re-render by dispatching event
-    window.dispatchEvent(new CustomEvent('languageChanged', { 
-      detail: { 
-        language: newLanguage, 
-        direction: newDirection, 
-        isRTL: newDirection === 'rtl' 
-      } 
-    }));
+    try {
+      // Immediately update direction and document attributes
+      const newDirection = newLanguage === 'ar' ? 'rtl' : 'ltr';
+      setDirection(newDirection);
+      document.documentElement.dir = newDirection;
+      document.documentElement.lang = newLanguage;
+      
+      // Update language state
+      setLanguage(newLanguage);
+      
+      // Force a re-render by dispatching event
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: newLanguage, 
+          direction: newDirection, 
+          isRTL: newDirection === 'rtl' 
+        } 
+      }));
+
+      console.log('Language changed successfully:', { newLanguage, newDirection });
+    } catch (error) {
+      console.error('Error in changeLanguage:', error);
+    }
   };
 
   const toggleLanguage = () => {
-    const currentLang = language || 'ar';
-    const newLang = currentLang === 'ar' ? 'en' : 'ar';
-    changeLanguage(newLang);
+    try {
+      const currentLang = language || 'ar';
+      const newLang = currentLang === 'ar' ? 'en' : 'ar';
+      changeLanguage(newLang);
+    } catch (error) {
+      console.error('Error in toggleLanguage:', error);
+    }
   };
 
   const isRTL = direction === 'rtl';
 
+  // Debug logging to help identify React #130 issues
+  console.log('LocalizationContext render:', {
+    language: language || 'undefined',
+    direction: direction || 'undefined',
+    isRTL: isRTL || false
+  });
+
   const value = {
-    language,
-    direction,
-    isRTL,
+    language: language || 'ar',
+    direction: direction || 'rtl',
+    isRTL: isRTL || false,
     setLanguage: changeLanguage,
     toggleLanguage,
-    t
+    t: t || ((key) => key)
   };
 
   return (
