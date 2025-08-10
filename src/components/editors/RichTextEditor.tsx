@@ -152,7 +152,7 @@ const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any
       </div>
     </div>
   );
-};
+});
 
 // Text Box Extension
 const TextBox = Node.create({
@@ -419,7 +419,7 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
         )}
       </div>
     );
-  };
+  });
 
   return (
     <div className={`bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-3 ${lang === 'ar' ? 'rtl' : 'ltr'}`}>

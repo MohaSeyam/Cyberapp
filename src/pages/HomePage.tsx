@@ -28,71 +28,157 @@ function HomeErrorFallback({ error }: { error: Error }) {
 
 export default function HomePage() {
   const { t, language } = useLocalization();
-  const { plan, progress, appState } = useHome();
-  // Main stats
-  const allTasks = plan?.flatMap(week => week.days.flatMap(day => day.tasks)) || [];
-  const completedTasks = allTasks.filter(task => progress?.some(p => p.taskId === task.id && p.done));
-  const totalTasks = allTasks.length;
-  const completedTasksCount = completedTasks.length;
-  const totalWeeks = plan?.length || 0;
-  const completedWeeks = plan?.filter(week => {
-    const weekTasks = week.days.reduce((s, d) => s + (d.tasks?.length || 0), 0);
-    const weekProgress = progress?.filter(p => Number(p.weekId) === Number(week.week));
-    const weekDone = weekProgress?.filter(p => p.done).length || 0;
-    return weekTasks > 0 && weekDone === weekTasks;
-  }).length || 0;
-  const notesCount = Object.values(appState?.notes || {}).flat().length;
-  const resourcesCount = (() => {
-    const planResources = plan?.flatMap(week => week.days.flatMap(day => day.resources || [])) || [];
-    const userResources = Object.values(appState?.resources || {}).flat();
-    const allResources = [...planResources, ...userResources];
-    const uniqueResources = Array.from(new Map(allResources.map(r => [r.url + '|' + r.title, r])).values());
-    return uniqueResources.length;
-  })();
-  const completionRate = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
+  const navigate = useNavigate();
+  
+  // Quick actions
+  const quickActions = [
+    {
+      title: language === 'ar' ? 'بدء التعلم اليوم' : 'Start Today\'s Learning',
+      description: language === 'ar' ? 'انتقل إلى مهام اليوم' : 'Go to today\'s tasks',
+      icon: Calendar,
+      color: 'bg-blue-500',
+      href: '/progress'
+    },
+    {
+      title: language === 'ar' ? 'إضافة ملاحظة' : 'Add Note',
+      description: language === 'ar' ? 'اكتب ملاحظات جديدة' : 'Write new notes',
+      icon: FileText,
+      color: 'bg-green-500',
+      href: '/notes'
+    },
+    {
+      title: language === 'ar' ? 'كتابة في المدونة' : 'Write Journal',
+      description: language === 'ar' ? 'اكتب في مدونة التعلم' : 'Write in learning journal',
+      icon: BookOpen,
+      color: 'bg-purple-500',
+      href: '/journal'
+    },
+    {
+      title: language === 'ar' ? 'عرض التقدم' : 'View Progress',
+      description: language === 'ar' ? 'راجع إحصائيات التقدم' : 'Review progress statistics',
+      icon: BarChart3,
+      color: 'bg-orange-500',
+      href: '/progress'
+    }
+  ];
   return (
     <PageLayout
-      title={language === 'ar' ? 'الرئيسية' : 'Home'}
-      subtitle={language === 'ar' ? 'ملخص سريع لأهم تقدمك' : 'Quick summary of your main progress'}
+      title={language === 'ar' ? 'مرحباً بك في خطة الأمن السيبراني' : 'Welcome to Cyber Security Plan'}
+      subtitle={language === 'ar' ? 'ابدأ رحلتك التعليمية اليوم' : 'Start your learning journey today'}
       showBottomBar={true}
     >
-      <div className="max-w-2xl mx-auto py-10 space-y-8">
-        <Card className="p-6 flex flex-col items-center">
-          <h3 className="text-lg font-bold mb-2">{language === 'ar' ? 'نسبة التقدم الكلية' : 'Overall Progress'}</h3>
-          <div className="w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-2">
-            <div
-              className="h-4 rounded-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
-              style={{ width: `${completionRate}%` }}
-            />
-          </div>
-          <div className="text-sm text-gray-700 dark:text-gray-300">
-            {completedTasksCount} / {totalTasks} {language === 'ar' ? 'مهمة مكتملة' : 'Tasks Completed'}
+      <div className="max-w-4xl mx-auto py-10 space-y-8">
+        {/* Welcome Hero */}
+        <Card className="p-8 text-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <Shield className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            {language === 'ar' ? 'رحلة شاملة في عالم الأمن السيبراني' : 'Comprehensive Journey in Cybersecurity'}
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+            {language === 'ar' 
+              ? 'خطة منظمة لمدة 50 أسبوع لتعلم الأمن السيبراني من الأساسيات إلى المستويات المتقدمة'
+              : 'A structured 50-week plan to learn cybersecurity from fundamentals to advanced levels'
+            }
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              <span>{language === 'ar' ? '50 أسبوع منظمة' : '50 Organized Weeks'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Users className="w-4 h-4 text-blue-500" />
+              <span>{language === 'ar' ? 'مهارات عملية' : 'Practical Skills'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Rocket className="w-4 h-4 text-purple-500" />
+              <span>{language === 'ar' ? 'تقدم مستمر' : 'Continuous Progress'}</span>
+            </div>
           </div>
         </Card>
-        <div className="grid grid-cols-2 gap-6">
-          <Card className="flex flex-col items-center p-4">
-            <CheckCircle className="w-7 h-7 text-green-500 mb-2" />
-            <div className="text-2xl font-bold">{completedTasksCount}</div>
-            <div className="text-xs text-gray-500">{language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}</div>
-          </Card>
-          <Card className="flex flex-col items-center p-4">
-            <Calendar className="w-7 h-7 text-blue-500 mb-2" />
-            <div className="text-2xl font-bold">{completedWeeks}</div>
-            <div className="text-xs text-gray-500">{language === 'ar' ? 'الأسابيع المكتملة' : 'Completed Weeks'}</div>
-          </Card>
+
+        {/* Quick Actions */}
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            {language === 'ar' ? 'الإجراءات السريعة' : 'Quick Actions'}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {quickActions.map((action, index) => {
+              const Icon = action.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card 
+                    className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                    onClick={() => navigate(action.href)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-lg ${action.color} text-white group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                          {action.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {action.description}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-6">
-          <Card className="flex flex-col items-center p-4">
-            <FileText className="w-7 h-7 text-purple-500 mb-2" />
-            <div className="text-2xl font-bold">{notesCount}</div>
-            <div className="text-xs text-gray-500">{language === 'ar' ? 'إجمالي الملاحظات' : 'Total Notes'}</div>
-          </Card>
-          <Card className="flex flex-col items-center p-4">
-            <Bookmark className="w-7 h-7 text-blue-600 mb-2" />
-            <div className="text-2xl font-bold">{resourcesCount}</div>
-            <div className="text-xs text-gray-500">{language === 'ar' ? 'إجمالي المراجع' : 'Total Resources'}</div>
-          </Card>
-        </div>
+
+        {/* Features Overview */}
+        <Card className="p-8">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            {language === 'ar' ? 'مميزات التطبيق' : 'App Features'}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <Lightbulb className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                {language === 'ar' ? 'تعلم ذكي' : 'Smart Learning'}
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {language === 'ar' 
+                  ? 'خطة تعليمية منظمة ومتدرجة'
+                  : 'Organized and progressive learning plan'
+                }
+              </p>
+            </div>
+            <div className="text-center">
+              <Globe className="w-12 h-12 text-green-500 mx-auto mb-3" />
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                {language === 'ar' ? 'مراجع شاملة' : 'Comprehensive Resources'}
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {language === 'ar' 
+                  ? 'مكتبة غنية من المراجع والموارد'
+                  : 'Rich library of references and resources'
+                }
+              </p>
+            </div>
+            <div className="text-center">
+              <Heart className="w-12 h-12 text-red-500 mx-auto mb-3" />
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                {language === 'ar' ? 'تتبع التقدم' : 'Progress Tracking'}
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {language === 'ar' 
+                  ? 'إحصائيات مفصلة لتقدمك التعليمي'
+                  : 'Detailed statistics for your learning progress'
+                }
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
     </PageLayout>
   );
