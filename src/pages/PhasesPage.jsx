@@ -6,8 +6,8 @@ import {
   TrendingUp, BarChart3, Activity, Star, Trophy,
   ArrowLeft, ChevronRight, CheckCircle, Bug, FileText, Shield
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -16,33 +16,9 @@ import phasesData from '../data/phases.json';
 const PhasesPage = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
+  const { language } = useSimpleLocalization();
+  const { progress } = useSimpleApp();
   const isRTL = language === 'ar';
-
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      progress: []
-    };
-  }
-  const { progress } = appData;
 
   const safeProgress = Array.isArray(progress) ? progress : [];
 

@@ -18,7 +18,7 @@ const SettingsPage = () => {
   // Safe access to useLocalization
   let localizationData;
   try {
-    localizationData = useLocalization();
+    localizationData = useSimpleLocalization();
   } catch (error) {
     console.error('Error accessing useLocalization:', error);
     localizationData = {
@@ -36,7 +36,7 @@ const SettingsPage = () => {
   // Safe access to useApp
   let appData;
   try {
-    appData = useApp();
+    appData = useSimpleApp();
   } catch (error) {
     console.error('Error accessing useApp:', error);
     appData = {

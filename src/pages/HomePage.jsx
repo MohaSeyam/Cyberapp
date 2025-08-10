@@ -5,45 +5,18 @@ import {
   Calendar, FileText, BookOpen, BarChart3, ArrowRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { useApp } from '../context/AppContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
 
 
 const HomePage = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
-  
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      plan: [],
-      progress: [],
-      notes: [],
-      journalEntries: []
-    };
-  }
-  const { plan, progress, notes, journalEntries } = appData;
+  const { language } = useSimpleLocalization();
+  const { plan, progress, notes, journalEntries } = useSimpleApp();
   
   // Ensure data is available with additional safety
   const safePlan = Array.isArray(plan) ? plan : [];

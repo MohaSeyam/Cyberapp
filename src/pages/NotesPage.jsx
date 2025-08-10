@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { 
   Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -14,34 +14,9 @@ import Modal from '../components/ui/Modal';
 const NotesPage = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
+  const { language } = useSimpleLocalization();
+  const { notes, deleteNote } = useSimpleApp();
   const isRTL = language === 'ar';
-
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      notes: [],
-      deleteNote: async () => {}
-    };
-  }
-  const { notes, deleteNote } = appData;
 
   // Ensure data is available
   const safeNotes = Array.isArray(notes) ? notes : [];

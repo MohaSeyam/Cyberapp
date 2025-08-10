@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { LocalizationProvider } from './context/LocalizationContext';
-import { AppProvider } from './context/AppContext';
+import { SimpleLocalizationProvider } from './context/SimpleLocalizationContext';
+import { SimpleAppProvider } from './context/SimpleAppContext';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorFallback from './components/ui/ErrorFallback';
 
@@ -580,8 +580,8 @@ function App() {
 
   try {
     return (
-      <LocalizationProvider>
-        <AppProvider>
+      <SimpleLocalizationProvider>
+        <SimpleAppProvider>
           <CustomErrorBoundary>
             <Router>
               <div 
@@ -633,8 +633,8 @@ function App() {
               </div>
             </Router>
           </CustomErrorBoundary>
-        </AppProvider>
-      </LocalizationProvider>
+        </SimpleAppProvider>
+      </SimpleLocalizationProvider>
     );
   } catch (error) {
     console.error('Error in App component render:', error);
