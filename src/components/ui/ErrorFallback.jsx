@@ -1,13 +1,9 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
-  const navigate = useNavigate();
-
   const handleGoHome = () => {
-    navigate('/');
-    resetErrorBoundary();
+    window.location.href = '/';
   };
 
   const handleRetry = () => {
