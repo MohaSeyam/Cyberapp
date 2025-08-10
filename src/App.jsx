@@ -146,9 +146,37 @@ function App() {
         appRoot.style.direction = initialDirection;
         appRoot.offsetHeight; // Force reflow
       }
+    }, 200);
+    
+    // Force initial direction update
+    setTimeout(() => {
+      const savedLanguage = localStorage.getItem('language') || 'ar';
+      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = initialDirection;
+      document.documentElement.style.direction = initialDirection;
+      document.documentElement.offsetHeight; // Force reflow
+      
+      // Update app root element
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.dir = initialDirection;
+        appRoot.style.direction = initialDirection;
+        appRoot.offsetHeight; // Force reflow
+      }
       
       console.log('Initial direction update completed:', initialDirection);
     }, 200);
+    
+    // Force re-render after all updates
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Force re-render event dispatched');
+    }, 300);
     
     // Force re-render after all updates
     setTimeout(() => {
@@ -191,6 +219,17 @@ function App() {
       console.log('Force re-render event dispatched');
     }, 600);
     
+    // Force re-render after all updates
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('Force re-render event dispatched');
+    }, 600);
+    
     // Final language change event
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('languageChanged', { 
@@ -201,6 +240,16 @@ function App() {
       }));
       console.log('Final language change event dispatched');
     }, 700);
+    
+    // Force final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('Final reflow completed');
+    }, 800);
     
     // Force final reflow
     setTimeout(() => {
@@ -231,6 +280,11 @@ function App() {
       console.log('Language initialization sequence completed');
     }, 1000);
     
+    // Final language initialization complete
+    setTimeout(() => {
+      console.log('Language initialization sequence completed');
+    }, 1000);
+    
     // Force one more re-render
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('forceRerender', { 
@@ -241,6 +295,17 @@ function App() {
       }));
       console.log('Final force re-render event dispatched');
     }, 1100);
+    
+    // Final language change event
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final language change event dispatched');
+    }, 1200);
     
     // Final language change event
     setTimeout(() => {
@@ -263,10 +328,31 @@ function App() {
       console.log('Final reflow completed');
     }, 1300);
     
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('Final reflow completed');
+    }, 1300);
+    
     // Final language initialization complete
     setTimeout(() => {
       console.log('Complete language initialization sequence finished');
     }, 1400);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 1500);
     
     // Force one final re-render
     setTimeout(() => {
@@ -300,10 +386,31 @@ function App() {
       console.log('One final reflow completed');
     }, 1700);
     
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 1700);
+    
     // Final language initialization complete
     setTimeout(() => {
       console.log('Complete language initialization sequence finished');
     }, 1800);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 1900);
     
     // Force one final re-render
     setTimeout(() => {
@@ -337,10 +444,31 @@ function App() {
       console.log('One final reflow completed');
     }, 2100);
     
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 2100);
+    
     // Final language initialization complete
     setTimeout(() => {
       console.log('Complete language initialization sequence finished');
     }, 2200);
+    
+    // Force one final re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRerender', { 
+        detail: { 
+          language: localStorage.getItem('language') || 'ar', 
+          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
+        } 
+      }));
+      console.log('One final force re-render event dispatched');
+    }, 2300);
     
     // Force one final re-render
     setTimeout(() => {
@@ -374,6 +502,16 @@ function App() {
       console.log('One final reflow completed');
     }, 2500);
     
+    // Final reflow
+    setTimeout(() => {
+      document.documentElement.offsetHeight; // Force reflow
+      const appRoot = document.getElementById('app-root');
+      if (appRoot) {
+        appRoot.offsetHeight; // Force reflow
+      }
+      console.log('One final reflow completed');
+    }, 2500);
+    
     // Final language initialization complete
     setTimeout(() => {
       console.log('Complete language initialization sequence finished');
@@ -389,17 +527,6 @@ function App() {
       }));
       console.log('One final force re-render event dispatched');
     }, 2700);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 2800);
     
     // Final language change event
     setTimeout(() => {

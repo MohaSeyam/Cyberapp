@@ -12,6 +12,7 @@ import Button from '../components/ui/Button';
 import { useApp } from '../context/AppContext';
 import LanguageTest from '../components/LanguageTest';
 import LanguageTest from '../components/LanguageTest';
+import LanguageTest from '../components/LanguageTest';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -267,6 +268,11 @@ const HomePage = () => {
               </Button>
             </div>
           </Card>
+        </motion.div>
+
+        {/* Language Test Component */}
+        <motion.div {...animations.stagger(0.8)}>
+          <LanguageTest />
         </motion.div>
 
         {/* Language Test Component */}
