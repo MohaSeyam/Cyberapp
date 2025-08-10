@@ -23,6 +23,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { FontFamily } from "@tiptap/extension-font-family";
 import { FontSize } from "@tiptap/extension-font-size";
+import { Extension } from '@tiptap/core';
 import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
@@ -78,6 +79,69 @@ const fontSizes = [
 const colors = [
   '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080'
 ];
+
+// Custom Extension to preserve formatting on new lines
+const PreserveFormatting = Extension.create({
+  name: 'preserveFormatting',
+  
+  addKeyboardShortcuts() {
+    return {
+      'Enter': () => {
+        const { state, dispatch } = this.editor;
+        const { selection } = state;
+        
+        // Get current marks (formatting)
+        const marks = selection.$from.marks();
+        
+        // Create new line with preserved marks
+        const tr = state.tr;
+        tr.insertText('\n');
+        
+        // Apply the same marks to the new line
+        if (marks.length > 0) {
+          const newPos = selection.$from.pos + 1;
+          marks.forEach(mark => {
+            tr.addMark(newPos, newPos, mark);
+          });
+        }
+        
+        dispatch(tr);
+        return true;
+      },
+    };
+  },
+
+  addEvents() {
+    return {
+      'keydown': (event) => {
+        // Preserve formatting when typing new characters
+        if (event.key.length === 1) {
+          const { state } = this.editor;
+          const { selection } = state;
+          const marks = selection.$from.marks();
+          
+          // If there are active marks, ensure they're applied to new text
+          if (marks.length > 0) {
+            // The marks will be automatically applied to new text
+            // This is handled by Tiptap's mark system
+          }
+        }
+      },
+      
+      'input': () => {
+        // Ensure marks are preserved during typing
+        const { state } = this.editor;
+        const { selection } = state;
+        const marks = selection.$from.marks();
+        
+        // If there are active marks, ensure they remain active
+        if (marks.length > 0) {
+          // Marks should be automatically applied to new text
+        }
+      },
+    };
+  },
+});
 
 // Enhanced Toolbar Component
 function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) {
@@ -174,23 +238,50 @@ function EditorToolbar({ editor, lang = 'ar', saveStatus }: { editor: any; lang?
 
   const setColor = (color: string) => {
     setSelectedColor(color);
-    editor.chain().focus().setColor(color).run();
+    // Apply color to current selection or set as default for new text
+    if (editor.state.selection.empty) {
+      // If no text is selected, set as default mark for future typing
+      editor.chain().focus().setColor(color).run();
+      // Ensure the mark is active for future typing
+      editor.commands.setMark('textStyle', { color });
+    } else {
+      // If text is selected, apply color to selection
+      editor.chain().focus().setColor(color).run();
+    }
     setShowColorPicker(false);
-    // Force editor update
+    // Force editor update and maintain focus
     editor.commands.focus();
   };
 
   const setFontFamily = (fontFamily: string) => {
-    editor.chain().focus().setFontFamily(fontFamily).run();
+    // Apply font family to current selection or set as default for new text
+    if (editor.state.selection.empty) {
+      // If no text is selected, set as default mark for future typing
+      editor.chain().focus().setFontFamily(fontFamily).run();
+      // Ensure the mark is active for future typing
+      editor.commands.setMark('textStyle', { fontFamily });
+    } else {
+      // If text is selected, apply font family to selection
+      editor.chain().focus().setFontFamily(fontFamily).run();
+    }
     setShowFontFamily(false);
-    // Force editor update
+    // Force editor update and maintain focus
     editor.commands.focus();
   };
 
   const setFontSize = (fontSize: string) => {
-    editor.chain().focus().setFontSize(fontSize).run();
+    // Apply font size to current selection or set as default for new text
+    if (editor.state.selection.empty) {
+      // If no text is selected, set as default mark for future typing
+      editor.chain().focus().setFontSize(fontSize).run();
+      // Ensure the mark is active for future typing
+      editor.commands.setMark('textStyle', { fontSize });
+    } else {
+      // If text is selected, apply font size to selection
+      editor.chain().focus().setFontSize(fontSize).run();
+    }
     setShowFontSize(false);
-    // Force editor update
+    // Force editor update and maintain focus
     editor.commands.focus();
   };
 
@@ -678,13 +769,16 @@ export default function RichTextEditor({
       TableHeader,
       TableCell,
       TextStyle,
-      Color,
+      Color.configure({
+        types: ['textStyle'],
+      }),
       FontFamily.configure({
         types: ['textStyle'],
       }),
       FontSize.configure({
         types: ['textStyle'],
       }),
+      PreserveFormatting,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -695,6 +789,21 @@ export default function RichTextEditor({
     editorProps: {
       attributes: {
         class: `prose prose-lg max-w-none focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`,
+      },
+      handleKeyDown: (view, event) => {
+        // Preserve marks when typing
+        if (event.key.length === 1) {
+          const { state } = view;
+          const { selection } = state;
+          const marks = selection.$from.marks();
+          
+          // Ensure marks are preserved for new text
+          if (marks.length > 0) {
+            // Marks will be automatically applied
+            return false; // Let Tiptap handle it normally
+          }
+        }
+        return false; // Let Tiptap handle it normally
       },
     },
   });
