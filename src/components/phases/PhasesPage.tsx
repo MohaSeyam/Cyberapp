@@ -5,7 +5,8 @@ import {
   Shield, Server, Search, Cloud, 
   Calendar, Clock, Target, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
-  Home, ChevronRight, CheckCircle, Bug, FileText
+  Home, ChevronRight, CheckCircle, Bug, FileText,
+  ArrowLeft
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalization } from '../../hooks/useLocalization';
@@ -152,6 +153,17 @@ export default function PhasesPage() {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>العودة للرئيسية</span>
+          </button>
+        </div>
+
         {/* Main Title */}
         <div className="mb-4 text-center">
           <h1 className="text-3xl md:text-4xl font-extrabold text-blue-700 dark:text-blue-300 mb-2">خطة الأمن السيبراني</h1>

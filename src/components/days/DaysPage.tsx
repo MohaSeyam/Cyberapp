@@ -302,6 +302,17 @@ export default function DaysPage() {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
+          <button
+            onClick={goToWeekView}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>العودة للمراحل</span>
+          </button>
+        </div>
+
         {/* Breadcrumbs */}
         {/* تم إزالة العنوان والشرح من الأعلى */}
         {/* Week Header - اسم الأسبوع صغير، العنوان كبير، لا زر عودة */}

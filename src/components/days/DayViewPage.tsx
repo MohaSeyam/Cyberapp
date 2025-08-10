@@ -538,16 +538,20 @@ export default function DayViewPage() {
       <div dir={pageDirection}>
         <motion.div {...animations.fadeIn} className="space-y-6">
         
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
+          <button
+            onClick={goToDayList}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>العودة لأيام الأسبوع</span>
+          </button>
+        </div>
+
         {/* Day Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<ArrowLeft />}
-              onClick={goToDayList}
-            />
-            
+          <div className="flex items-center justify-center mb-4">
             <div className="flex items-center space-x-2">
               <Button
                 variant="ghost"

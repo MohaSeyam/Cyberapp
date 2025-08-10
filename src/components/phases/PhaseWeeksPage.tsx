@@ -211,6 +211,17 @@ export default function PhaseWeeksPage() {
       showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
+        {/* Back Button */}
+        <div className="flex items-center mb-4">
+          <button
+            onClick={goToPhases}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>العودة للمراحل</span>
+          </button>
+        </div>
+
         {/* Phase Header - تصميم عصري */}
         <div className="text-center mb-10 mt-2">
           <div className="flex flex-col items-center justify-center">
