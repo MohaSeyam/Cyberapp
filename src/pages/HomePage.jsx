@@ -38,6 +38,24 @@ const HomePage = () => {
     isRTL
   });
 
+  // Additional safety checks for React #130
+  if (!safePlan || !safeProgress || !safeNotes || !safeJournalEntries) {
+    console.error('HomePage: Invalid data detected, using empty arrays');
+    return (
+      <PageLayout
+        title={safeLanguage === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+        subtitle={safeLanguage === 'ar' ? 'يرجى الانتظار' : 'Please wait'}
+        showBottomBar={true}
+      >
+        <div className="max-w-4xl mx-auto py-10">
+          <div className="text-center">
+            <p>{safeLanguage === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...'}</p>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
   // Quick actions
   const quickActions = [
     {

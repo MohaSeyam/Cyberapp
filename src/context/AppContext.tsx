@@ -1156,7 +1156,7 @@ export function useApp() {
   }
   
   // Add safety checks for context values
-  return {
+  const safeContext = {
     ...context,
     plan: Array.isArray(context.plan) ? context.plan : [],
     progress: Array.isArray(context.progress) ? context.progress : [],
@@ -1200,4 +1200,17 @@ export function useApp() {
     importData: typeof context.importData === 'function' ? context.importData : (async () => {}),
     clearAllData: typeof context.clearAllData === 'function' ? context.clearAllData : (async () => {})
   };
+
+  // Debug logging to help identify React #130 issues
+  console.log('AppContext useApp render:', {
+    planLength: safeContext.plan.length,
+    progressLength: safeContext.progress.length,
+    notesLength: safeContext.notes.length,
+    journalEntriesLength: safeContext.journalEntries.length,
+    lang: safeContext.lang,
+    theme: safeContext.theme,
+    loading: safeContext.loading
+  });
+
+  return safeContext;
 }

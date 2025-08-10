@@ -13,63 +13,76 @@ const LanguageTest = () => {
     testCount
   });
 
+  // Additional safety checks for React #130
+  const safeLanguage = language || 'ar';
+  const safeDirection = direction || 'rtl';
+  const safeIsRTL = isRTL || false;
+
   useEffect(() => {
-    // Force immediate direction update
-    const updateDirection = () => {
-      const newDirection = language === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.dir = newDirection;
-      document.documentElement.lang = language;
-      
-      // Force reflow
-      document.documentElement.offsetHeight;
-      
-      // Add CSS classes
-      document.documentElement.classList.remove('rtl', 'ltr');
-      document.documentElement.classList.add(newDirection);
-    };
+    try {
+      // Force immediate direction update
+      const updateDirection = () => {
+        const newDirection = safeLanguage === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.dir = newDirection;
+        document.documentElement.lang = safeLanguage;
+        
+        // Force reflow
+        document.documentElement.offsetHeight;
+        
+        // Add CSS classes
+        document.documentElement.classList.remove('rtl', 'ltr');
+        document.documentElement.classList.add(newDirection);
+      };
 
-    updateDirection();
-    
-    // Listen for language changes
-    const handleLanguageChange = (event) => {
-      console.log('Language changed:', event.detail);
       updateDirection();
-      setTestCount(prev => prev + 1);
-    };
+      
+      // Listen for language changes
+      const handleLanguageChange = (event) => {
+        console.log('Language changed:', event.detail);
+        updateDirection();
+        setTestCount(prev => prev + 1);
+      };
 
-    window.addEventListener('languageChanged', handleLanguageChange);
-    
-    return () => {
-      window.removeEventListener('languageChanged', handleLanguageChange);
-    };
-  }, [language]);
+      window.addEventListener('languageChanged', handleLanguageChange);
+      
+      return () => {
+        window.removeEventListener('languageChanged', handleLanguageChange);
+      };
+    } catch (error) {
+      console.error('Error in LanguageTest useEffect:', error);
+    }
+  }, [safeLanguage]);
 
   const handleToggleLanguage = () => {
-    console.log('Toggling language from:', language);
-    toggleLanguage();
-    
-    // Force immediate update
-    setTimeout(() => {
-      const newDirection = language === 'ar' ? 'ltr' : 'rtl';
-      document.documentElement.dir = newDirection;
-      document.documentElement.offsetHeight; // Force reflow
-    }, 0);
+    try {
+      console.log('Toggling language from:', safeLanguage);
+      toggleLanguage();
+      
+      // Force immediate update
+      setTimeout(() => {
+        const newDirection = safeLanguage === 'ar' ? 'ltr' : 'rtl';
+        document.documentElement.dir = newDirection;
+        document.documentElement.offsetHeight; // Force reflow
+      }, 0);
+    } catch (error) {
+      console.error('Error in handleToggleLanguage:', error);
+    }
   };
 
   return (
     <div 
       className="p-4 border rounded-lg"
-      dir={direction}
-      style={{ direction }}
+      dir={safeDirection}
+      style={{ direction: safeDirection }}
     >
       <h3 className="text-lg font-bold mb-4">
         اختبار تغيير اللغة / Language Test
       </h3>
       
       <div className="space-y-2">
-        <p><strong>اللغة الحالية / Current Language:</strong> {language}</p>
-        <p><strong>الاتجاه / Direction:</strong> {direction}</p>
-        <p><strong>RTL:</strong> {isRTL ? 'نعم / Yes' : 'لا / No'}</p>
+        <p><strong>اللغة الحالية / Current Language:</strong> {safeLanguage}</p>
+        <p><strong>الاتجاه / Direction:</strong> {safeDirection}</p>
+        <p><strong>RTL:</strong> {safeIsRTL ? 'نعم / Yes' : 'لا / No'}</p>
         <p><strong>عدد التحديثات / Update Count:</strong> {testCount}</p>
       </div>
       
