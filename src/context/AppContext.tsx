@@ -916,7 +916,10 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   })();
 
-  const value: AppContextType = {
+
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const memoizedValue = React.useMemo(() => ({
     // State
     plan,
     progress,
@@ -1056,10 +1059,7 @@ export function AppProvider({ children }: AppProviderProps) {
         }
       }
     }
-  };
-
-  // Memoize the context value to prevent unnecessary re-renders
-  const memoizedValue = React.useMemo(() => value, [
+  }), [
     plan,
     progress,
     appState,
@@ -1073,7 +1073,28 @@ export function AppProvider({ children }: AppProviderProps) {
     weekEvaluations,
     safeNotes,
     safeJournalEntries,
-    safeResources
+    safeResources,
+    setTheme,
+    toggleTheme,
+    updateSettings,
+    updateProgress,
+    addNote,
+    updateNote,
+    deleteNote,
+    addJournalEntry,
+    updateJournalEntry,
+    deleteJournalEntry,
+    addResource,
+    updateResource,
+    deleteResource,
+    setModal,
+    addNotification,
+    removeNotification,
+    refreshData,
+    forceReloadData,
+    fixMissingWeeks,
+    addOrUpdateTaskEvaluation,
+    addOrUpdateWeekEvaluation
   ]);
 
   return (
@@ -1105,55 +1126,56 @@ export function AppProvider({ children }: AppProviderProps) {
 }
 
 export function useApp() {
-  const context = useContext(AppContext);
-  
-  // Validate context exists
-  if (!context) {
-    console.error('AppContext is undefined');
-    // Return default values instead of throwing
-    return {
-      plan: [],
-      progress: [],
-      appState: { notes: {}, journal: {}, resources: {} },
-      settings: {},
-      lang: 'ar',
-      theme: 'light',
-      loading: false,
-      modal: { isOpen: false, content: null },
-      notifications: [],
-      taskEvaluations: [],
-      weekEvaluations: [],
-      notes: [],
-      journalEntries: [],
-      resources: [],
-      setLang: () => {},
-      setTheme: () => {},
-      toggleTheme: () => {},
-      updateSettings: async () => {},
-      updateProgress: async () => {},
-      addOrUpdateProgress: async () => {},
-      addNote: async () => 0,
-      updateNote: async () => {},
-      deleteNote: async () => {},
-      addJournalEntry: async () => 0,
-      updateJournalEntry: async () => {},
-      deleteJournalEntry: async () => {},
-      addResource: async () => 0,
-      updateResource: async () => {},
-      deleteResource: async () => {},
-      setModal: () => {},
-      addNotification: () => {},
-      removeNotification: () => {},
-      refreshData: async () => {},
-      forceReloadData: async () => {},
-      fixMissingWeeks: async () => {},
-      addOrUpdateTaskEvaluation: () => {},
-      addOrUpdateWeekEvaluation: () => {},
-      exportData: async () => {},
-      importData: async () => {},
-      clearAllData: async () => {}
-    };
-  }
+  try {
+    const context = useContext(AppContext);
+    
+    // Validate context exists
+    if (!context) {
+      console.error('AppContext is undefined');
+      // Return default values instead of throwing
+      return {
+        plan: [],
+        progress: [],
+        appState: { notes: {}, journal: {}, resources: {} },
+        settings: {},
+        lang: 'ar',
+        theme: 'light',
+        loading: false,
+        modal: { isOpen: false, content: null },
+        notifications: [],
+        taskEvaluations: [],
+        weekEvaluations: [],
+        notes: [],
+        journalEntries: [],
+        resources: [],
+        setLang: () => {},
+        setTheme: () => {},
+        toggleTheme: () => {},
+        updateSettings: async () => {},
+        updateProgress: async () => {},
+        addOrUpdateProgress: async () => {},
+        addNote: async () => 0,
+        updateNote: async () => {},
+        deleteNote: async () => {},
+        addJournalEntry: async () => 0,
+        updateJournalEntry: async () => {},
+        deleteJournalEntry: async () => {},
+        addResource: async () => 0,
+        updateResource: async () => {},
+        deleteResource: async () => {},
+        setModal: () => {},
+        addNotification: () => {},
+        removeNotification: () => {},
+        refreshData: async () => {},
+        forceReloadData: async () => {},
+        fixMissingWeeks: async () => {},
+        addOrUpdateTaskEvaluation: () => {},
+        addOrUpdateWeekEvaluation: () => {},
+        exportData: async () => {},
+        importData: async () => {},
+        clearAllData: async () => {}
+      };
+    }
   
   // Add safety checks for context values
   const safeContext = {
@@ -1213,4 +1235,50 @@ export function useApp() {
   });
 
   return safeContext;
+  } catch (error) {
+    console.error('Error in useApp:', error);
+    // Return default values on error
+    return {
+      plan: [],
+      progress: [],
+      appState: { notes: {}, journal: {}, resources: {} },
+      settings: {},
+      lang: 'ar',
+      theme: 'light',
+      loading: false,
+      modal: { isOpen: false, content: null },
+      notifications: [],
+      taskEvaluations: [],
+      weekEvaluations: [],
+      notes: [],
+      journalEntries: [],
+      resources: [],
+      setLang: () => {},
+      setTheme: () => {},
+      toggleTheme: () => {},
+      updateSettings: async () => {},
+      updateProgress: async () => {},
+      addOrUpdateProgress: async () => {},
+      addNote: async () => 0,
+      updateNote: async () => {},
+      deleteNote: async () => {},
+      addJournalEntry: async () => 0,
+      updateJournalEntry: async () => {},
+      deleteJournalEntry: async () => {},
+      addResource: async () => 0,
+      updateResource: async () => {},
+      deleteResource: async () => {},
+      setModal: () => {},
+      addNotification: () => {},
+      removeNotification: () => {},
+      refreshData: async () => {},
+      forceReloadData: async () => {},
+      fixMissingWeeks: async () => {},
+      addOrUpdateTaskEvaluation: () => {},
+      addOrUpdateWeekEvaluation: () => {},
+      exportData: async () => {},
+      importData: async () => {},
+      clearAllData: async () => {}
+    };
+  }
 }
