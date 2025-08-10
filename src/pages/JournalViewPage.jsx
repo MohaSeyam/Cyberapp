@@ -16,10 +16,14 @@ const JournalViewPage = () => {
   const { entryId } = useParams();
   const { language } = useLocalization();
   const { journalEntries, deleteJournalEntry } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safeJournalEntries = journalEntries || [];
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const entry = journalEntries.find(e => e.id === parseInt(entryId));
+  const entry = safeJournalEntries.find(e => e.id === parseInt(entryId));
 
   if (!entry) {
     return (

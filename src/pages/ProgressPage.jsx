@@ -8,38 +8,48 @@ import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
+import { useNavigate } from 'react-router-dom';
 
 const ProgressPage = () => {
+  const navigate = useNavigate();
   const { language } = useLocalization();
   const { 
-    completedTasks, 
-    totalTasks, 
+    plan, 
+    progress, 
     notes, 
     journalEntries,
     taskEvaluations,
-    phasesData,
-    planData
+    weekEvaluations
   } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safePlan = plan || [];
+  const safeProgress = progress || [];
+  const safeNotes = notes || [];
+  const safeJournalEntries = journalEntries || [];
+  const safeTaskEvaluations = taskEvaluations || [];
+  const safeWeekEvaluations = weekEvaluations || [];
 
   // Calculate progress statistics
   const progressStats = useMemo(() => {
-    const completedCount = completedTasks.length;
-    const totalCount = totalTasks.length;
+    const completedCount = safeProgress.length;
+    const totalCount = safePlan.length;
     const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
     
     // Calculate average rating
-    const ratings = taskEvaluations.map(evaluation => evaluation.rating).filter(rating => rating > 0);
+    const ratings = safeTaskEvaluations.map(evaluation => evaluation.rating).filter(rating => rating > 0);
     const averageRating = ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
     
     // Calculate phase progress
-    const phaseProgress = phasesData.map(phase => {
-      const phaseTasks = planData.weeks
+    const phaseProgress = safePlan.map(phase => {
+      const phaseTasks = safePlan
         .filter(week => phase.weeks.includes(week.weekNumber))
         .flatMap(week => week.days)
         .flatMap(day => day.tasks);
       
       const completedPhaseTasks = phaseTasks.filter(task => 
-        completedTasks.some(completed => completed.taskId === task.id)
+        safeProgress.some(completed => completed.taskId === task.id)
       );
       
       return {
@@ -53,7 +63,7 @@ const ProgressPage = () => {
     // Calculate streak
     const today = new Date();
     const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const recentCompletions = completedTasks.filter(task => 
+    const recentCompletions = safeProgress.filter(task => 
       new Date(task.completedAt) >= lastWeek
     );
     const currentStreak = recentCompletions.length;
@@ -65,10 +75,10 @@ const ProgressPage = () => {
       currentStreak,
       completedCount,
       totalCount,
-      notesCount: notes.length,
-      journalCount: journalEntries.length
+      notesCount: safeNotes.length,
+      journalCount: safeJournalEntries.length
     };
-  }, [completedTasks, totalTasks, taskEvaluations, phasesData, planData, notes, journalEntries]);
+  }, [safeProgress, safePlan, safeTaskEvaluations, safeNotes, safeJournalEntries]);
 
   const animations = {
     fadeIn: {
@@ -218,7 +228,7 @@ const ProgressPage = () => {
           </div>
           
           <div className="space-y-4">
-            {completedTasks.slice(0, 5).map((task, index) => (
+            {safeProgress.slice(0, 5).map((task, index) => (
               <motion.div
                 key={task.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -240,7 +250,7 @@ const ProgressPage = () => {
               </motion.div>
             ))}
             
-            {completedTasks.length === 0 && (
+            {safeProgress.length === 0 && (
               <div className="text-center py-8">
                 <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-500 dark:text-gray-400">

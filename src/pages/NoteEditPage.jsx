@@ -18,6 +18,9 @@ const NoteEditPage = () => {
   const { notes, addNote, updateNote } = useApp();
   const isRTL = language === 'ar';
 
+  // Ensure data is available
+  const safeNotes = notes || [];
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -27,7 +30,7 @@ const NoteEditPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Find existing note if editing
-  const existingNote = noteId && noteId !== 'new' ? notes.find(n => n.id === parseInt(noteId)) : null;
+  const existingNote = noteId && noteId !== 'new' ? safeNotes.find(n => n.id === parseInt(noteId)) : null;
 
   useEffect(() => {
     if (existingNote) {

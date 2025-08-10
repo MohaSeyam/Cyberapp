@@ -22,15 +22,18 @@ const PhaseWeeksPage = () => {
   const { progress } = useApp();
   const isRTL = language === 'ar';
 
+  // Ensure data is available
+  const safeProgress = progress || [];
+
   // Find current phase
-  const currentPhase = phasesData.find(phase => phase.id === parseInt(phaseId));
+  const currentPhase = (phasesData || []).find(phase => phase.id === parseInt(phaseId));
 
   // Get weeks for this phase
-  const phaseWeeks = planData.filter(week => currentPhase?.weeks.includes(week.week));
+  const phaseWeeks = (planData || []).filter(week => currentPhase?.weeks.includes(week.week));
 
   // Calculate week completion
   const getWeekCompletion = (weekNumber) => {
-    const weekProgress = progress.filter(p => p.weekId === weekNumber);
+    const weekProgress = safeProgress.filter(p => p.weekId === weekNumber);
     if (weekProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
     
     const totalTasks = weekProgress.length;
@@ -45,7 +48,7 @@ const PhaseWeeksPage = () => {
 
   // Get day completion for a specific week
   const getDayCompletion = (weekNumber, dayKey) => {
-    const dayProgress = progress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey);
+    const dayProgress = safeProgress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey);
     if (dayProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
     
     const totalTasks = dayProgress.length;

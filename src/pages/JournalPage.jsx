@@ -15,19 +15,23 @@ const JournalPage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
   const { journalEntries, deleteJournalEntry } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safeJournalEntries = journalEntries || [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMood, setSelectedMood] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);
 
   // Filter entries based on search and mood
   const filteredEntries = useMemo(() => {
-    return journalEntries.filter(entry => {
+    return safeJournalEntries.filter(entry => {
       const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            entry.content.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesMood = !selectedMood || entry.mood === selectedMood;
       return matchesSearch && matchesMood;
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [journalEntries, searchTerm, selectedMood]);
+  }, [safeJournalEntries, searchTerm, selectedMood]);
 
   const handleDelete = async (entryId) => {
     try {
@@ -96,8 +100,8 @@ const JournalPage = () => {
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               {language === 'ar' 
-                ? `${journalEntries.length} مدونة إجمالاً`
-                : `${journalEntries.length} total entries`
+                ? `${safeJournalEntries.length} مدونة إجمالاً`
+                : `${safeJournalEntries.length} total entries`
               }
             </p>
           </div>

@@ -10,10 +10,16 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import { useNavigate } from 'react-router-dom';
 
 const SettingsPage = () => {
-  const { language, setLanguage } = useLocalization();
+  const navigate = useNavigate();
+  const { language } = useLocalization();
   const { theme, setTheme, exportData, importData, clearAllData } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safeTheme = theme || 'light';
   const [showClearModal, setShowClearModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);

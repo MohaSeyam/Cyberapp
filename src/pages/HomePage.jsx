@@ -9,11 +9,19 @@ import { useLocalization } from '../hooks/useLocalization';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import { useApp } from '../context/AppContext';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
+  const { plan, progress, notes, journalEntries } = useApp();
   const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safePlan = plan || [];
+  const safeProgress = progress || [];
+  const safeNotes = notes || [];
+  const safeJournalEntries = journalEntries || [];
 
   // Quick actions
   const quickActions = [

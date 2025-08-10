@@ -15,6 +15,10 @@ const NotesPage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
   const { notes, deleteNote } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safeNotes = notes || [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);
@@ -22,23 +26,23 @@ const NotesPage = () => {
   // Get all unique tags
   const allTags = useMemo(() => {
     const tags = new Set();
-    notes.forEach(note => {
+    safeNotes.forEach(note => {
       if (note.tags) {
         note.tags.forEach(tag => tags.add(tag));
       }
     });
     return Array.from(tags).sort();
-  }, [notes]);
+  }, [safeNotes]);
 
   // Filter notes based on search and tag
   const filteredNotes = useMemo(() => {
-    return notes.filter(note => {
+    return safeNotes.filter(note => {
       const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            note.content.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
       return matchesSearch && matchesTag;
     }).sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
-  }, [notes, searchTerm, selectedTag]);
+  }, [safeNotes, searchTerm, selectedTag]);
 
   const handleDelete = async (noteId) => {
     try {
@@ -78,8 +82,8 @@ const NotesPage = () => {
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               {language === 'ar' 
-                ? `${notes.length} ملاحظة إجمالاً`
-                : `${notes.length} total notes`
+                ? `${safeNotes.length} ملاحظة إجمالاً`
+                : `${safeNotes.length} total notes`
               }
             </p>
           </div>

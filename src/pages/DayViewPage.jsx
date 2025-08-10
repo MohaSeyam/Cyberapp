@@ -36,6 +36,13 @@ const DayViewPage = () => {
     deleteJournalEntry
   } = useApp();
 
+  // Ensure data is available
+  const safeProgress = progress || [];
+  const safeTaskEvaluations = taskEvaluations || [];
+  const safeNotes = notes || [];
+  const safeResources = resources || [];
+  const safeJournalEntries = journalEntries || [];
+
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [noteModal, setNoteModal] = useState({ isOpen: false, taskId: '' });
@@ -47,7 +54,7 @@ const DayViewPage = () => {
 
   // Find current week and day
   useEffect(() => {
-    const week = planData.find(w => w.week === parseInt(weekId));
+    const week = (planData || []).find(w => w.week === parseInt(weekId));
     setSelectedWeek(week);
     if (week && week.days) {
       setSelectedDay(week.days[parseInt(dayIndex)]);
@@ -56,7 +63,7 @@ const DayViewPage = () => {
 
   // Determine current phase
   const getCurrentPhase = () => {
-    return phasesData.find(phase => phase.weeks.includes(parseInt(weekId)));
+    return (phasesData || []).find(phase => phase.weeks.includes(parseInt(weekId)));
   };
 
   const currentPhase = getCurrentPhase();
@@ -246,7 +253,7 @@ const DayViewPage = () => {
   const TaskCard = ({ task, weekId, dayKey, variant = 'simple', showNotes = false, onNoteClick }) => {
     const typeInfo = taskTypeConfig[task.type] || taskTypeConfig['Blue Team'];
     const TypeIcon = typeInfo.icon;
-    const taskProgress = progress.find(p => p.taskId === task.id && p.weekId === weekId && p.dayKey === dayKey);
+    const taskProgress = safeProgress.find(p => p.taskId === task.id && p.weekId === weekId && p.dayKey === dayKey);
     const isCompleted = taskProgress?.done || false;
 
     const handleToggleTask = () => {
@@ -454,7 +461,7 @@ const DayViewPage = () => {
                             taskId={task.id} 
                             weekId={selectedWeek.week} 
                             language={language} 
-                            isTaskCompleted={progress.some(p => p.weekId === selectedWeek.week && p.dayKey === selectedDay.key && p.taskId === task.id && p.done)}
+                            isTaskCompleted={safeProgress.some(p => p.weekId === selectedWeek.week && p.dayKey === selectedDay.key && p.taskId === task.id && p.done)}
                           />
                         </motion.div>
                       ))}

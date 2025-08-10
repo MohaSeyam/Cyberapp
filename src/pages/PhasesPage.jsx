@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, Clock, Target, BookOpen, Users, Award,
   TrendingUp, BarChart3, Activity, Star, Trophy,
-  ArrowLeft, ChevronRight, CheckCircle, Bug, FileText
+  ArrowLeft, ChevronRight, CheckCircle, Bug, FileText, Shield
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalization } from '../hooks/useLocalization';
@@ -19,11 +19,24 @@ const PhasesPage = () => {
   const { progress } = useApp();
   const isRTL = language === 'ar';
 
+  // Ensure data is available
+  const safeProgress = progress || [];
+
+  // Get phases data with safety check
+  const phasesData = (() => {
+    try {
+      return require('../data/phases.json');
+    } catch (error) {
+      console.error('Error loading phases data:', error);
+      return [];
+    }
+  })();
+
   // Calculate phase completion
   const getPhaseCompletion = (phase) => {
-    const phaseWeeks = phase.weeks;
+    const phaseWeeks = phase.weeks || [];
     const completedWeeks = phaseWeeks.filter(week => {
-      const weekProgress = progress.filter(p => p.weekId === week);
+      const weekProgress = safeProgress.filter(p => p.weekId === week);
       return weekProgress.length > 0 && weekProgress.every(p => p.done);
     }).length;
     

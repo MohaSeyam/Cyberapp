@@ -22,15 +22,19 @@ const DaysPage = () => {
   const { progress, addOrUpdateProgress, weekEvaluations, addOrUpdateWeekEvaluation } = useApp();
   const isRTL = language === 'ar';
 
+  // Ensure data is available
+  const safeProgress = progress || [];
+  const safeWeekEvaluations = weekEvaluations || [];
+
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
   // Find current week data
-  const week = planData.find(w => w.week === parseInt(weekId));
+  const week = (planData || []).find(w => w.week === parseInt(weekId));
   const weekNumber = parseInt(weekId);
 
   // Determine current phase
   const getCurrentPhase = () => {
-    return phasesData.find(phase => phase.weeks.includes(weekNumber));
+    return (phasesData || []).find(phase => phase.weeks.includes(weekNumber));
   };
 
   const currentPhase = getCurrentPhase();
@@ -42,7 +46,7 @@ const DaysPage = () => {
 
   // Get day completion
   const getDayCompletion = (weekNumber, dayKey) => {
-    const dayProgress = progress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey);
+    const dayProgress = safeProgress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey);
     if (dayProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
     
     const totalTasks = dayProgress.length;
@@ -57,7 +61,7 @@ const DaysPage = () => {
 
   // Get week completion
   const getWeekCompletion = (weekNumber) => {
-    const weekProgress = progress.filter(p => p.weekId === weekNumber);
+    const weekProgress = safeProgress.filter(p => p.weekId === weekNumber);
     if (weekProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
     
     const totalTasks = weekProgress.length;
@@ -146,7 +150,7 @@ const DaysPage = () => {
     const [note, setNote] = useState('');
     const [open, setOpen] = useState(false);
     const [saved, setSaved] = useState(false);
-    const evalObj = weekEvaluations.find(e => e.weekId === weekId);
+    const evalObj = safeWeekEvaluations.find(e => e.weekId === weekId);
 
     React.useEffect(() => {
       if (evalObj) {

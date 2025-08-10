@@ -27,12 +27,18 @@ interface AppContextType {
   taskEvaluations: TaskEvaluation[];
   weekEvaluations: WeekEvaluation[];
   
+  // Additional state for direct access
+  notes: Note[];
+  journalEntries: JournalEntry[];
+  resources: Resource[];
+  
   // Actions
   setLang: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
   updateSettings: (settings: Partial<AppSettings>) => Promise<void>;
   updateProgress: (weekId: number, dayKey: string, taskId: string, done: boolean) => Promise<void>;
+  addOrUpdateProgress: (weekId: number, dayKey: string, taskId: string, done: boolean) => Promise<void>;
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Promise<number>;
   updateNote: (id: number, updates: Partial<Note>) => Promise<void>;
   deleteNote: (id: number) => Promise<void>;
@@ -50,6 +56,9 @@ interface AppContextType {
   fixMissingWeeks: () => Promise<void>;
   addOrUpdateTaskEvaluation: (evaluation: TaskEvaluation) => void;
   addOrUpdateWeekEvaluation: (evaluation: WeekEvaluation) => void;
+  exportData: () => Promise<void>;
+  importData: (data: any) => Promise<void>;
+  clearAllData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -230,7 +239,7 @@ export function AppProvider({ children }: AppProviderProps) {
       const organizedNotes: Record<string, Note[]> = {};
       const organizedJournal: Record<string, JournalEntry[]> = {};
       
-      notesData.forEach(note => {
+      (notesData || []).forEach(note => {
         if (note && typeof note.weekId === 'number' && note.dayKey) {
           const key = `${note.weekId}-${note.dayKey}`;
           if (!organizedNotes[key]) organizedNotes[key] = [];
@@ -238,7 +247,7 @@ export function AppProvider({ children }: AppProviderProps) {
         }
       });
       
-      journalData.forEach(entry => {
+      (journalData || []).forEach(entry => {
         if (entry && typeof entry.weekId === 'number' && entry.dayKey) {
           const key = `${entry.weekId}-${entry.dayKey}`;
           if (!organizedJournal[key]) organizedJournal[key] = [];
@@ -248,7 +257,7 @@ export function AppProvider({ children }: AppProviderProps) {
       
       // Organize resources by day
       const organizedResources: { [key: string]: Resource[] } = {};
-      resourcesData.forEach(resource => {
+      (resourcesData || []).forEach(resource => {
         if (resource && typeof resource.weekId === 'number' && resource.dayKey) {
           const key = `${resource.weekId}-${resource.dayKey}`;
           if (!organizedResources[key]) organizedResources[key] = [];
@@ -839,6 +848,11 @@ export function AppProvider({ children }: AppProviderProps) {
     taskEvaluations,
     weekEvaluations,
     
+    // Additional state for direct access
+    notes: Object.values(appState.notes || {}).flat(),
+    journalEntries: Object.values(appState.journal || {}).flat(),
+    resources: Object.values(appState.resources || {}).flat(),
+    
     // Actions
     setLang: (newLang: Language) => {
       setLangState(newLang);
@@ -849,6 +863,7 @@ export function AppProvider({ children }: AppProviderProps) {
     toggleTheme,
     updateSettings,
     updateProgress,
+    addOrUpdateProgress: updateProgress, // Alias for updateProgress
     addNote,
     updateNote,
     deleteNote,
@@ -865,7 +880,100 @@ export function AppProvider({ children }: AppProviderProps) {
     forceReloadData,
     fixMissingWeeks,
     addOrUpdateTaskEvaluation,
-    addOrUpdateWeekEvaluation
+    addOrUpdateWeekEvaluation,
+    exportData: async () => {
+      try {
+        const data = {
+          plan: plan,
+          progress: progress,
+          appState: appState,
+          settings: settings,
+          lang: langState,
+          theme: themeState,
+          taskEvaluations: taskEvaluations,
+          weekEvaluations: weekEvaluations,
+          notes: Object.values(appState.notes).flat(),
+          journalEntries: Object.values(appState.journal).flat(),
+          resources: Object.values(appState.resources).flat(),
+        };
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'app_data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success('تم تصدير البيانات بنجاح');
+      } catch (error) {
+        console.error('Error exporting data:', error);
+        toast.error('فشل في تصدير البيانات');
+      }
+    },
+    importData: async (data: any) => {
+      try {
+        const importedData = JSON.parse(data);
+        setPlan(importedData.plan);
+        setProgress(importedData.progress);
+        setAppState({
+          notes: importedData.notes.reduce((acc: Record<string, Note[]>, note: Note) => {
+            const key = `${note.weekId}-${note.dayKey}`;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(note);
+            return acc;
+          }, {}),
+          journal: importedData.journalEntries.reduce((acc: Record<string, JournalEntry[]>, entry: JournalEntry) => {
+            const key = `${entry.weekId}-${entry.dayKey}`;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(entry);
+            return acc;
+          }, {}),
+          resources: importedData.resources.reduce((acc: { [key: string]: Resource[] }, resource: Resource) => {
+            const key = `${resource.weekId}-${resource.dayKey}`;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(resource);
+            return acc;
+          }, {}),
+        });
+        setTaskEvaluations(importedData.taskEvaluations);
+        setWeekEvaluations(importedData.weekEvaluations);
+        toast.success('تم استيراد البيانات بنجاح');
+      } catch (error) {
+        console.error('Error importing data:', error);
+        toast.error('فشل في استيراد البيانات');
+      }
+    },
+    clearAllData: async () => {
+      if (window.confirm('هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء غير قابل للتراجع.')) {
+        try {
+          await Promise.all([
+            planService.clear(),
+            progressService.clear(),
+            notesService.clear(),
+            journalService.clear(),
+            resourcesService.clear(),
+            settingsService.clear(),
+            taskEvaluations.map(e => notesService.delete(e.taskId)), // Clear task evaluations
+            weekEvaluations.map(e => notesService.delete(e.weekId)), // Clear week evaluations
+          ]);
+          toast.success('تم حذف جميع البيانات بنجاح');
+          setPlan([]);
+          setProgress([]);
+          setAppState({
+            notes: {},
+            journal: {},
+            resources: {}
+          });
+          setTaskEvaluations([]);
+          setWeekEvaluations([]);
+        } catch (error) {
+          console.error('Error clearing all data:', error);
+          toast.error('فشل في حذف البيانات');
+        }
+      }
+    }
   };
 
   return (
@@ -901,5 +1009,25 @@ export function useApp() {
   if (context === undefined) {
     throw new Error('useApp must be used within an AppProvider');
   }
-  return context;
+  
+  // Add safety checks for context values
+  const safeContext = {
+    ...context,
+    plan: context.plan || [],
+    progress: context.progress || [],
+    notes: context.notes || [],
+    journalEntries: context.journalEntries || [],
+    resources: context.resources || [],
+    taskEvaluations: context.taskEvaluations || [],
+    weekEvaluations: context.weekEvaluations || [],
+    notifications: context.notifications || [],
+    appState: context.appState || { notes: {}, journal: {}, resources: {} },
+    settings: context.settings || {},
+    lang: context.lang || 'ar',
+    theme: context.theme || 'light',
+    loading: context.loading || false,
+    modal: context.modal || { isOpen: false, content: null }
+  };
+  
+  return safeContext;
 }

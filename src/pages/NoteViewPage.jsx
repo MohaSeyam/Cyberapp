@@ -16,10 +16,14 @@ const NoteViewPage = () => {
   const { noteId } = useParams();
   const { language } = useLocalization();
   const { notes, deleteNote } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safeNotes = notes || [];
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const note = notes.find(n => n.id === parseInt(noteId));
+  const note = safeNotes.find(n => n.id === parseInt(noteId));
 
   if (!note) {
     return (

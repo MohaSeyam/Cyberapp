@@ -18,6 +18,9 @@ const JournalEditPage = () => {
   const { journalEntries, addJournalEntry, updateJournalEntry } = useApp();
   const isRTL = language === 'ar';
 
+  // Ensure data is available
+  const safeJournalEntries = journalEntries || [];
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -27,7 +30,7 @@ const JournalEditPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Find existing entry if editing
-  const existingEntry = entryId && entryId !== 'new' ? journalEntries.find(e => e.id === parseInt(entryId)) : null;
+  const existingEntry = entryId && entryId !== 'new' ? safeJournalEntries.find(e => e.id === parseInt(entryId)) : null;
 
   useEffect(() => {
     if (existingEntry) {

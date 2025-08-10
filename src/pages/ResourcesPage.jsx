@@ -16,6 +16,10 @@ const ResourcesPage = () => {
   const navigate = useNavigate();
   const { language } = useLocalization();
   const { resources, addResource, updateResource, deleteResource } = useApp();
+  const isRTL = language === 'ar';
+
+  // Ensure data is available
+  const safeResources = resources || [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -36,34 +40,34 @@ const ResourcesPage = () => {
   // Get all unique categories and types
   const allCategories = useMemo(() => {
     const categories = new Set();
-    resources.forEach(resource => {
+    safeResources.forEach(resource => {
       if (resource.category) {
         categories.add(resource.category);
       }
     });
     return Array.from(categories).sort();
-  }, [resources]);
+  }, [safeResources]);
 
   const allTypes = useMemo(() => {
     const types = new Set();
-    resources.forEach(resource => {
+    safeResources.forEach(resource => {
       if (resource.type) {
         types.add(resource.type);
       }
     });
     return Array.from(types).sort();
-  }, [resources]);
+  }, [safeResources]);
 
   // Filter resources based on search, category, and type
   const filteredResources = useMemo(() => {
-    return resources.filter(resource => {
+    return safeResources.filter(resource => {
       const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            resource.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !selectedCategory || resource.category === selectedCategory;
       const matchesType = !selectedType || resource.type === selectedType;
       return matchesSearch && matchesCategory && matchesType;
     }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [resources, searchTerm, selectedCategory, selectedType]);
+  }, [safeResources, searchTerm, selectedCategory, selectedType]);
 
   const handleAddResource = async () => {
     if (!formData.title.trim() || !formData.url.trim()) {
@@ -202,8 +206,8 @@ const ResourcesPage = () => {
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               {language === 'ar' 
-                ? `${resources.length} مرجع إجمالاً`
-                : `${resources.length} total resources`
+                ? `${safeResources.length} مرجع إجمالاً`
+                : `${safeResources.length} total resources`
               }
             </p>
           </div>
