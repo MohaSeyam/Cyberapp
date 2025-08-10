@@ -14,12 +14,39 @@ import RichTextEditor from '../components/editors/RichTextEditor';
 const JournalEditPage = () => {
   const navigate = useNavigate();
   const { entryId } = useParams();
-  const { language } = useLocalization();
-  const { journalEntries, addJournalEntry, updateJournalEntry } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      journalEntries: [],
+      addJournalEntry: async () => 0,
+      updateJournalEntry: async () => {}
+    };
+  }
+  const { journalEntries, addJournalEntry, updateJournalEntry } = appData;
+
   // Ensure data is available
-  const safeJournalEntries = journalEntries || [];
+  const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
 
   const [formData, setFormData] = useState({
     title: '',

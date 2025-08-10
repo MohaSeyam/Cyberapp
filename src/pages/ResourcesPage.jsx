@@ -14,12 +14,40 @@ import Modal from '../components/ui/Modal';
 
 const ResourcesPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
-  const { resources, addResource, updateResource, deleteResource } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      resources: [],
+      addResource: async () => 0,
+      updateResource: async () => {},
+      deleteResource: async () => {}
+    };
+  }
+  const { resources, addResource, updateResource, deleteResource } = appData;
+
   // Ensure data is available
-  const safeResources = resources || [];
+  const safeResources = Array.isArray(resources) ? resources : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');

@@ -19,7 +19,44 @@ import phasesData from '../data/phases.json';
 const DayViewPage = () => {
   const { weekId, dayIndex } = useParams();
   const navigate = useNavigate();
-  const { language } = useLocalization();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
+
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      progress: [],
+      addOrUpdateProgress: async () => {},
+      taskEvaluations: [],
+      addOrUpdateTaskEvaluation: () => {},
+      notes: [],
+      addNote: async () => 0,
+      deleteNote: async () => {},
+      resources: [],
+      addResource: async () => 0,
+      deleteResource: async () => {},
+      journalEntries: [],
+      addJournalEntry: async () => 0,
+      deleteJournalEntry: async () => {}
+    };
+  }
   const { 
     progress, 
     addOrUpdateProgress, 
@@ -34,14 +71,14 @@ const DayViewPage = () => {
     journalEntries,
     addJournalEntry,
     deleteJournalEntry
-  } = useApp();
+  } = appData;
 
   // Ensure data is available
-  const safeProgress = progress || [];
-  const safeTaskEvaluations = taskEvaluations || [];
-  const safeNotes = notes || [];
-  const safeResources = resources || [];
-  const safeJournalEntries = journalEntries || [];
+  const safeProgress = Array.isArray(progress) ? progress : [];
+  const safeTaskEvaluations = Array.isArray(taskEvaluations) ? taskEvaluations : [];
+  const safeNotes = Array.isArray(notes) ? notes : [];
+  const safeResources = Array.isArray(resources) ? resources : [];
+  const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
 
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);

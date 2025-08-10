@@ -12,7 +12,38 @@ import { useNavigate } from 'react-router-dom';
 
 const ProgressPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
+  const isRTL = language === 'ar';
+
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      plan: [],
+      progress: [],
+      notes: [],
+      journalEntries: [],
+      taskEvaluations: [],
+      weekEvaluations: []
+    };
+  }
   const { 
     plan, 
     progress, 
@@ -20,16 +51,15 @@ const ProgressPage = () => {
     journalEntries,
     taskEvaluations,
     weekEvaluations
-  } = useApp();
-  const isRTL = language === 'ar';
+  } = appData;
 
   // Ensure data is available
-  const safePlan = plan || [];
-  const safeProgress = progress || [];
-  const safeNotes = notes || [];
-  const safeJournalEntries = journalEntries || [];
-  const safeTaskEvaluations = taskEvaluations || [];
-  const safeWeekEvaluations = weekEvaluations || [];
+  const safePlan = Array.isArray(plan) ? plan : [];
+  const safeProgress = Array.isArray(progress) ? progress : [];
+  const safeNotes = Array.isArray(notes) ? notes : [];
+  const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
+  const safeTaskEvaluations = Array.isArray(taskEvaluations) ? taskEvaluations : [];
+  const safeWeekEvaluations = Array.isArray(weekEvaluations) ? weekEvaluations : [];
 
   // Calculate progress statistics
   const progressStats = useMemo(() => {

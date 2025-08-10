@@ -13,12 +13,38 @@ import Modal from '../components/ui/Modal';
 
 const JournalPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
-  const { journalEntries, deleteJournalEntry } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      journalEntries: [],
+      deleteJournalEntry: async () => {}
+    };
+  }
+  const { journalEntries, deleteJournalEntry } = appData;
+
   // Ensure data is available
-  const safeJournalEntries = journalEntries || [];
+  const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMood, setSelectedMood] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);

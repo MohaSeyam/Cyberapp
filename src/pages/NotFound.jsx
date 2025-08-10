@@ -11,7 +11,21 @@ import Button from '../components/ui/Button';
 
 const NotFound = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
 

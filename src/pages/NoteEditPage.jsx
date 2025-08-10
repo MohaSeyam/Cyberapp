@@ -14,12 +14,39 @@ import RichTextEditor from '../components/editors/RichTextEditor';
 const NoteEditPage = () => {
   const navigate = useNavigate();
   const { noteId } = useParams();
-  const { language } = useLocalization();
-  const { notes, addNote, updateNote } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      notes: [],
+      addNote: async () => 0,
+      updateNote: async () => {}
+    };
+  }
+  const { notes, addNote, updateNote } = appData;
+
   // Ensure data is available
-  const safeNotes = notes || [];
+  const safeNotes = Array.isArray(notes) ? notes : [];
 
   const [formData, setFormData] = useState({
     title: '',

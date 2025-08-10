@@ -18,12 +18,37 @@ import planData from '../data/PlanData.json';
 const PhaseWeeksPage = () => {
   const { phaseId } = useParams();
   const navigate = useNavigate();
-  const { language } = useLocalization();
-  const { progress } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      progress: []
+    };
+  }
+  const { progress } = appData;
+
   // Ensure data is available
-  const safeProgress = progress || [];
+  const safeProgress = Array.isArray(progress) ? progress : [];
 
   // Find current phase
   const currentPhase = (phasesData || []).find(phase => phase.id === parseInt(phaseId));

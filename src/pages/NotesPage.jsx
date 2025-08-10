@@ -13,12 +13,38 @@ import Modal from '../components/ui/Modal';
 
 const NotesPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
-  const { notes, deleteNote } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      notes: [],
+      deleteNote: async () => {}
+    };
+  }
+  const { notes, deleteNote } = appData;
+
   // Ensure data is available
-  const safeNotes = notes || [];
+  const safeNotes = Array.isArray(notes) ? notes : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);

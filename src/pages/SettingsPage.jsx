@@ -14,11 +14,41 @@ import { useNavigate } from 'react-router-dom';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
-  const { language, setLanguage } = useLocalization();
-  const { theme, setTheme, exportData, importData, clearAllData } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      setLanguage: () => {},
+      toggleLanguage: () => {}
+    };
+  }
+  const { language, setLanguage } = localizationData;
   const safeLanguage = language || 'ar';
-  const safeTheme = theme || 'light';
   const isRTL = safeLanguage === 'ar';
+
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      theme: 'light',
+      setTheme: () => {},
+      exportData: async () => {},
+      importData: async () => {},
+      clearAllData: async () => {}
+    };
+  }
+  const { theme, setTheme, exportData, importData, clearAllData } = appData;
+  const safeTheme = theme || 'light';
 
   // Ensure data is available
   const [showClearModal, setShowClearModal] = useState(false);

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocalization } from '../context/LocalizationContext';
-import LanguageTest from '../components/LanguageTest';
 
 const TestPage = () => {
   const navigate = useNavigate();
@@ -69,10 +68,7 @@ const TestPage = () => {
                </button>
              </div>
              
-             {/* Language Test Component */}
-             <div className="mt-8">
-               <LanguageTest />
-             </div>
+
            </div>
          </div>
        );

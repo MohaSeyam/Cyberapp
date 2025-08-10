@@ -15,11 +15,36 @@ import phasesData from '../data/phases.json';
 
 const PhasesPage = () => {
   const navigate = useNavigate();
-  const { language } = useLocalization();
-  const { progress } = useApp();
+  
+  // Safe access to useLocalization
+  let localizationData;
+  try {
+    localizationData = useLocalization();
+  } catch (error) {
+    console.error('Error accessing useLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
   const isRTL = language === 'ar';
 
-  const safeProgress = progress || [];
+  // Safe access to useApp
+  let appData;
+  try {
+    appData = useApp();
+  } catch (error) {
+    console.error('Error accessing useApp:', error);
+    appData = {
+      progress: []
+    };
+  }
+  const { progress } = appData;
+
+  const safeProgress = Array.isArray(progress) ? progress : [];
 
   const safePhasesData = (() => {
     try {
