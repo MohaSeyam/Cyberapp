@@ -4,8 +4,8 @@ import {
   Settings, Globe, Moon, Sun, Palette, Bell, Shield, Database, 
   Download, Upload, Trash2, User, Info, HelpCircle, ExternalLink
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -15,39 +15,10 @@ import { useNavigate } from 'react-router-dom';
 const SettingsPage = () => {
   const navigate = useNavigate();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useSimpleLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      setLanguage: () => {},
-      toggleLanguage: () => {}
-    };
-  }
-  const { language, setLanguage } = localizationData;
+  const { language, setLanguage } = useSimpleLocalization();
+  const { theme, setTheme, exportData, importData, clearAllData } = useSimpleApp();
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
-
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useSimpleApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      theme: 'light',
-      setTheme: () => {},
-      exportData: async () => {},
-      importData: async () => {},
-      clearAllData: async () => {}
-    };
-  }
-  const { theme, setTheme, exportData, importData, clearAllData } = appData;
   const safeTheme = theme || 'light';
 
   // Ensure data is available

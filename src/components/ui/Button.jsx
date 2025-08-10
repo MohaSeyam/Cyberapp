@@ -14,7 +14,7 @@ const Button = ({
   type = 'button',
   ...props
 }) => {
-  const { language } = useLocalization();
+  const { language } = useSimpleLocalization();
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
 

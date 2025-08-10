@@ -150,9 +150,11 @@ export const SimpleLocalizationProvider = ({ children }) => {
 
 export const useSimpleLocalization = () => {
   const context = useContext(SimpleLocalizationContext);
+  
   if (!context) {
     console.error('useSimpleLocalization must be used within SimpleLocalizationProvider');
     return defaultLocalization;
   }
+  
   return context;
 };

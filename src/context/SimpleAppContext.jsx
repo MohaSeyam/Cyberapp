@@ -398,9 +398,11 @@ export const SimpleAppProvider = ({ children }) => {
 // Hook to use the context
 export const useSimpleApp = () => {
   const context = useContext(SimpleAppContext);
+  
   if (!context) {
     console.error('useSimpleApp must be used within SimpleAppProvider');
     return defaultState;
   }
+  
   return context;
 };

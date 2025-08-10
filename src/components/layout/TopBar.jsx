@@ -1,40 +1,15 @@
 import React from 'react';
 import { Settings, Sun, Moon } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useLocalization } from '../../context/LocalizationContext';
-import { useApp } from '../../context/AppContext';
+import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
+import { useSimpleApp } from '../../context/SimpleAppContext';
 
 const TopBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language, direction, isRTL, toggleLanguage } = localizationData;
-  
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      theme: 'light',
-      toggleTheme: () => {}
-    };
-  }
-  const { theme, toggleTheme } = appData;
+  const { language, direction, isRTL, toggleLanguage } = useSimpleLocalization();
+  const { theme, toggleTheme } = useSimpleApp();
   
   const safeLanguage = language || 'ar';
   const safeTheme = theme || 'light';

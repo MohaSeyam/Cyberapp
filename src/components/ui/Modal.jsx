@@ -12,7 +12,7 @@ const Modal = ({
   closeOnOverlayClick = true,
   className = ''
 }) => {
-  const { language } = useLocalization();
+  const { language } = useSimpleLocalization();
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
 

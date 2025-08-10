@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { 
   BookOpen, Save, ArrowLeft, Calendar, Smile, Meh, Frown
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useLocalization } from '../context/LocalizationContext';
+import { useSimpleApp } from '../context/SimpleAppContext';
+import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -15,35 +15,9 @@ const JournalEditPage = () => {
   const navigate = useNavigate();
   const { entryId } = useParams();
   
-  // Safe access to useLocalization
-  let localizationData;
-  try {
-    localizationData = useSimpleLocalization();
-  } catch (error) {
-    console.error('Error accessing useLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
+  const { language } = useSimpleLocalization();
+  const { journalEntries, addJournalEntry, updateJournalEntry } = useSimpleApp();
   const isRTL = language === 'ar';
-
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useSimpleApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      journalEntries: [],
-      addJournalEntry: async () => 0,
-      updateJournalEntry: async () => {}
-    };
-  }
-  const { journalEntries, addJournalEntry, updateJournalEntry } = appData;
 
   // Ensure data is available
   const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
