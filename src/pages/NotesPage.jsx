@@ -262,7 +262,7 @@ const NotesPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                    <Card className="p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer" onClick={() => handleNavigation(`/notes/${note.id}`)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigation(`/notes/${note.id}`); } }} tabIndex={0} role="button" aria-label={safeLanguage === 'ar' ? `عرض الملاحظة ${safeTitle}` : `View note ${safeTitle}`}>
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           {/* Title */}
@@ -297,14 +297,7 @@ const NotesPage = () => {
 
                             {/* Actions */}
                             <div className="flex items-center space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                icon={<Eye />}
-                                onClick={() => handleNavigation(`/notes/${note.id}`)}
-                              >
-                                {safeLanguage === 'ar' ? 'عرض' : 'View'}
-                              </Button>
+
                               <Button
                                 variant="ghost"
                                 size="sm"

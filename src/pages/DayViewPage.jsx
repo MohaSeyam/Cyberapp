@@ -635,7 +635,7 @@ const DayViewPage = () => {
             <div className="space-y-4">
               {getDayResources().length > 0 ? (
                 getDayResources().map((resource, idx) => (
-                  <Card key={idx} className="p-3 border-blue-200 dark:border-blue-700">
+                  <Card key={idx} className="p-3 border-blue-200 dark:border-blue-700 cursor-pointer" onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank'); } }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1">
                         <ExternalLink className="w-5 h-5 text-blue-500" />
@@ -666,25 +666,20 @@ const DayViewPage = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          icon={<Eye className="w-4 h-4" />}
-                          onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')}
-                        />
+                        
                         {resource.id && ( // فقط الموارد المضافة من قبل المستخدم يمكن تعديلها
                           <>
                             <Button
                               size="sm"
                               variant="ghost"
                               icon={<Edit2 className="w-4 h-4" />}
-                              onClick={() => openEditResource(resource)}
+                              onClick={(e) => { e.stopPropagation(); openEditResource(resource); }}
                             />
                             <Button
                               size="sm"
                               variant="ghost"
                               icon={<Trash2 className="w-4 h-4" />}
-                              onClick={() => handleDeleteResource(resource.id)}
+                              onClick={(e) => { e.stopPropagation(); handleDeleteResource(resource.id); }}
                             />
                           </>
                         )}
