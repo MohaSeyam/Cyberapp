@@ -29,6 +29,10 @@ const PageLayout = ({
   const { language, direction, isRTL } = localizationData;
   const safeLanguage = language || 'ar';
 
+  // Get font size from localStorage
+  const fontSize = localStorage.getItem('fontSize') || 'md';
+  const fontSizeClass = `text-size-${fontSize}`;
+
   return (
     <div 
       className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}
@@ -68,6 +72,7 @@ const PageLayout = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className={fontSizeClass}
           >
             {children}
           </motion.div>

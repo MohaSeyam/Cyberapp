@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ChevronLeft, ChevronRight, ArrowLeft, CheckCircle, Clock,
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, CheckCircle, Clock,
   Shield, Bug, Target, Users, FileText, Star, Activity,
   BookOpen, MessageSquare, Plus, ExternalLink, Edit2, Trash2,
   X, Tag, Calendar, Eye, Download
