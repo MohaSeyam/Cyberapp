@@ -358,10 +358,10 @@ const DayViewPage = () => {
 
     // Summary view
     const summary = evalObj && evalObj.rating ? (
-      <span className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
-        <span className="flex items-center gap-0.5">
-          {[1,2,3,4,5].map(star => (
-            <span key={star} className={star <= evalObj.rating ? 'text-yellow-400' : 'text-gray-300'}>★</span>
+      <span className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+        <span className="flex items-center gap-1">
+          {[1,2,3,4,5].map(idx => (
+            <span key={idx} className={idx <= evalObj.rating ? 'text-blue-500 dark:text-blue-300' : 'text-gray-300 dark:text-gray-600'}>—</span>
           ))}
         </span>
         {evalObj.difficulty ? (
@@ -370,8 +370,8 @@ const DayViewPage = () => {
             evalObj.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
           }`}>
             {language === 'ar'
-              ? evalObj.difficulty === 'easy' ? 'مفهوم' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
-              : evalObj.difficulty === 'easy' ? 'Understood' : evalObj.difficulty === 'medium' ? 'Medium' : 'Hard'}
+              ? evalObj.difficulty === 'easy' ? 'سهل' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
+              : evalObj.difficulty === 'easy' ? 'Easy' : evalObj.difficulty === 'medium' ? 'Medium' : 'Hard'}
           </span>
         ) : null}
       </span>
@@ -388,7 +388,6 @@ const DayViewPage = () => {
             className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed text-xs font-semibold"
             title={language === 'ar' ? 'أكمل المهمة أولاً لتتمكن من تقييمها' : 'Complete the task first to evaluate it'}
           >
-            <Star className="w-4 h-4 text-gray-400" />
             {language === 'ar' ? 'تقييم' : 'Rate'}
           </button>
         </div>
@@ -402,7 +401,6 @@ const DayViewPage = () => {
             onClick={() => setOpen(true)}
             className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-colors"
           >
-            <Star className="w-4 h-4" />
             {language === 'ar' ? 'تقييم المهمة' : 'Rate Task'}
           </button>
           {summary}
@@ -413,14 +411,13 @@ const DayViewPage = () => {
     return (
       <div className="mt-2 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-2 mb-1">
-          <Star className="w-5 h-5 text-yellow-400" />
           <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">
-            {language === 'ar' ? 'تقييم المهمة:' : 'Task Rating:'}
+            {language === 'ar' ? 'درجة الفهم:' : 'Understanding:'}
           </span>
-          <div className="flex items-center gap-0.5">
-            {[1,2,3,4,5].map(star => (
-              <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
-                <span className={star <= rating ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}>★</span>
+          <div className="flex items-center gap-2">
+            {[1,2,3,4,5].map(idx => (
+              <button key={idx} onClick={() => setRating(idx)} className="focus:outline-none">
+                <span className={idx <= rating ? 'text-blue-500 dark:text-blue-300 text-xl' : 'text-gray-300 dark:text-gray-600 text-xl'}>—</span>
               </button>
             ))}
           </div>
@@ -428,7 +425,7 @@ const DayViewPage = () => {
         <div className="flex items-center gap-2 mb-1">
           <Activity className="w-5 h-5 text-blue-400" />
           <span className="text-sm text-gray-600 dark:text-gray-300">
-            {language === 'ar' ? 'درجة الفهم:' : 'Understanding Level:'}
+            {language === 'ar' ? 'درجة الصعوبة:' : 'Difficulty:'}
           </span>
           <select 
             value={understanding} 
@@ -436,7 +433,7 @@ const DayViewPage = () => {
             className="rounded px-2 py-1 text-sm border dark:bg-gray-900"
           >
             <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
-            <option value="easy">{language === 'ar' ? 'مفهوم' : 'Understood'}</option>
+            <option value="easy">{language === 'ar' ? 'سهل' : 'Easy'}</option>
             <option value="medium">{language === 'ar' ? 'متوسط' : 'Medium'}</option>
             <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
           </select>
