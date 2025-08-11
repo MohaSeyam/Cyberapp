@@ -32,6 +32,213 @@ import {
   Type, ChevronDown, Palette, CheckCircle, AlertCircle
 } from 'lucide-react';
 
+// Custom CSS for rich text editor
+const editorStyles = `
+  .rich-text-editor .ProseMirror {
+    outline: none;
+    min-height: 150px;
+    padding: 1rem;
+    line-height: 1.6;
+  }
+
+  .rich-text-editor .ProseMirror h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    color: #1f2937;
+  }
+
+  .rich-text-editor .ProseMirror h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0.75rem 0;
+    color: #1f2937;
+  }
+
+  .rich-text-editor .ProseMirror h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: #1f2937;
+  }
+
+  .rich-text-editor .ProseMirror p {
+    margin: 0.5rem 0;
+    color: #374151;
+  }
+
+  .rich-text-editor .ProseMirror strong {
+    font-weight: bold;
+    color: #1f2937;
+  }
+
+  .rich-text-editor .ProseMirror em {
+    font-style: italic;
+  }
+
+  .rich-text-editor .ProseMirror u {
+    text-decoration: underline;
+  }
+
+  .rich-text-editor .ProseMirror s {
+    text-decoration: line-through;
+  }
+
+  .rich-text-editor .ProseMirror code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: #dc2626;
+  }
+
+  .rich-text-editor .ProseMirror pre {
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .rich-text-editor .ProseMirror pre code {
+    background: none;
+    padding: 0;
+    color: #374151;
+  }
+
+  .rich-text-editor .ProseMirror blockquote {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #6b7280;
+  }
+
+  .rich-text-editor .ProseMirror ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  .rich-text-editor .ProseMirror ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  .rich-text-editor .ProseMirror li {
+    margin: 0.25rem 0;
+  }
+
+  .rich-text-editor .ProseMirror a {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+
+  .rich-text-editor .ProseMirror a:hover {
+    color: #2563eb;
+  }
+
+  .rich-text-editor .ProseMirror mark {
+    background-color: #fef3c7;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  .rich-text-editor .ProseMirror hr {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 1rem 0;
+  }
+
+  .rich-text-editor .ProseMirror table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .rich-text-editor .ProseMirror th,
+  .rich-text-editor .ProseMirror td {
+    border: 1px solid #d1d5db;
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+  .rich-text-editor .ProseMirror th {
+    background-color: #f9fafb;
+    font-weight: bold;
+  }
+
+  /* Dark mode styles */
+  .dark .rich-text-editor .ProseMirror h1,
+  .dark .rich-text-editor .ProseMirror h2,
+  .dark .rich-text-editor .ProseMirror h3 {
+    color: #f9fafb;
+  }
+
+  .dark .rich-text-editor .ProseMirror p {
+    color: #d1d5db;
+  }
+
+  .dark .rich-text-editor .ProseMirror strong {
+    color: #f9fafb;
+  }
+
+  .dark .rich-text-editor .ProseMirror code {
+    background-color: #374151;
+    color: #f87171;
+  }
+
+  .dark .rich-text-editor .ProseMirror pre {
+    background-color: #374151;
+  }
+
+  .dark .rich-text-editor .ProseMirror pre code {
+    color: #d1d5db;
+  }
+
+  .dark .rich-text-editor .ProseMirror blockquote {
+    color: #9ca3af;
+  }
+
+  .dark .rich-text-editor .ProseMirror mark {
+    background-color: #92400e;
+  }
+
+  .dark .rich-text-editor .ProseMirror hr {
+    border-top-color: #4b5563;
+  }
+
+  .dark .rich-text-editor .ProseMirror th,
+  .dark .rich-text-editor .ProseMirror td {
+    border-color: #4b5563;
+  }
+
+  .dark .rich-text-editor .ProseMirror th {
+    background-color: #374151;
+  }
+
+  /* RTL support */
+  .rich-text-editor.rtl .ProseMirror {
+    text-align: right;
+    direction: rtl;
+  }
+
+  .rich-text-editor.rtl .ProseMirror ul,
+  .rich-text-editor.rtl .ProseMirror ol {
+    padding-right: 1.5rem;
+    padding-left: 0;
+  }
+
+  .rich-text-editor.rtl .ProseMirror blockquote {
+    border-right: 4px solid #3b82f6;
+    border-left: none;
+    padding-right: 1rem;
+    padding-left: 0;
+  }
+`;
+
 type Language = 'ar' | 'en';
 
 interface RichTextEditorProps {
@@ -936,20 +1143,23 @@ export default function RichTextEditor({
   }
 
   return (
-    <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
-      {showToolbar && (
-        <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} />
-      )}
-      
-      <div 
-        className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden"
-        style={{ minHeight }}
-      >
-        <EditorContent 
-          editor={editor} 
-          className={`p-4 focus:outline-none prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-blockquote:border-l-blue-500 prose-blockquote:text-gray-700 dark:prose-blockquote:text-white prose-li:text-gray-700 dark:prose-li:text-white prose-ul:text-gray-700 dark:prose-ul:text-white prose-ol:text-gray-700 dark:prose-ol:text-white ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`}
-        />
+    <>
+      <style>{editorStyles}</style>
+      <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+        {showToolbar && (
+          <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} />
+        )}
+        
+        <div 
+          className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden"
+          style={{ minHeight }}
+        >
+          <EditorContent 
+            editor={editor} 
+            className={`focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

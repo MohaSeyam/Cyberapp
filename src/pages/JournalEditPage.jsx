@@ -52,13 +52,11 @@ const JournalEditPage = () => {
     setIsLoading(true);
     try {
       if (existingEntry) {
-        await updateJournalEntry({
-          ...existingEntry,
+        await updateJournalEntry(existingEntry.id, {
           title: formData.title,
           content: formData.content,
           mood: formData.mood,
-          date: formData.date,
-          updatedAt: new Date().toISOString()
+          date: formData.date
         });
       } else {
         await addJournalEntry({

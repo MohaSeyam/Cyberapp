@@ -94,12 +94,10 @@ const NoteEditPage = () => {
     setIsLoading(true);
     try {
       if (existingNote) {
-        await updateNote({
-          ...existingNote,
+        await updateNote(existingNote.id, {
           title: formData.title,
           content: formData.content,
-          tags: formData.tags,
-          updatedAt: new Date().toISOString()
+          tags: formData.tags
         });
       } else {
         await addNote({
