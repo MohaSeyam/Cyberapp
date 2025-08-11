@@ -239,8 +239,9 @@ const DayViewPage = () => {
     
     try {
       await addResource({
-        ...resourceForm,
+        title: resourceForm.title.trim(),
         url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
+        type: resourceForm.type,
         weekId: selectedWeek.week,
         dayKey: selectedDay.key,
         phaseId: selectedWeek.phase,
@@ -248,7 +249,7 @@ const DayViewPage = () => {
         updatedAt: new Date().toISOString(),
       });
       setResourceModal({ isOpen: false, resource: null });
-      setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+      setResourceForm({ title: '', url: '', type: 'article' });
     } catch (error) {
       console.error('Error adding resource:', error);
     }
@@ -260,12 +261,13 @@ const DayViewPage = () => {
     
     try {
       await updateResource(resourceModal.resource.id, {
-        ...resourceForm,
+        title: resourceForm.title.trim(),
         url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
+        type: resourceForm.type,
         updatedAt: new Date().toISOString(),
       });
       setResourceModal({ isOpen: false, resource: null });
-      setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+      setResourceForm({ title: '', url: '', type: 'article' });
     } catch (error) {
       console.error('Error updating resource:', error);
     }
@@ -282,6 +284,12 @@ const DayViewPage = () => {
 
   // فتح نافذة تعديل المورد
   const openEditResource = (resource) => {
+    // إذا كان المورد من الخطة، لا يمكن تعديله
+    if (resource.isPlanResource) {
+      alert(language === 'ar' ? 'لا يمكن تعديل الموارد من الخطة. يمكنك إضافة مورد جديد بدلاً من ذلك.' : 'Cannot edit resources from the plan. You can add a new resource instead.');
+      return;
+    }
+    
     setResourceForm({
       title: resource.title || '',
       url: resource.url || '',
@@ -294,21 +302,29 @@ const DayViewPage = () => {
 
   // فتح نافذة إضافة مورد جديد
   const openAddResource = () => {
-    setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+    setResourceForm({ title: '', url: '', type: 'article' });
     setResourceModal({ isOpen: true, resource: null });
   };
 
   // الحصول على الموارد المرتبطة باليوم
   const getDayResources = () => {
     // الموارد من ملف الخطة
-    const planResources = selectedDay?.resources || [];
+    const planResources = (selectedDay?.resources || []).map(resource => ({
+      ...resource,
+      isPlanResource: true, // علامة لتحديد أنها من الخطة
+      canEdit: false // لا يمكن تعديلها
+    }));
     
     // الموارد المضافة من قبل المستخدم
     const userResources = safeResources.filter(r => 
       r.weekId === selectedWeek?.week && 
       r.dayKey === selectedDay?.key && 
       r.phaseId === selectedWeek?.phase
-    );
+    ).map(resource => ({
+      ...resource,
+      isPlanResource: false, // علامة لتحديد أنها من المستخدم
+      canEdit: true // يمكن تعديلها
+    }));
     
     return [...planResources, ...userResources];
   };
@@ -423,6 +439,7 @@ const DayViewPage = () => {
     const [understanding, setUnderstanding] = useState('');
     const [open, setOpen] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
     const isRTL = language === 'ar';
 
@@ -436,34 +453,57 @@ const DayViewPage = () => {
       }
     }, [evalObj, taskId, weekId]);
 
-    const handleSave = () => {
-      addOrUpdateTaskEvaluation({ taskId, weekId, rating, difficulty: understanding || undefined, note: undefined });
-      setSaved(true);
-      setTimeout(() => {
-        setSaved(false);
-        setOpen(false);
-      }, 1200);
+    const handleSave = async () => {
+      if (rating === 0) {
+        alert(language === 'ar' ? 'يرجى تحديد درجة الفهم' : 'Please select an understanding rating');
+        return;
+      }
+      
+      setIsSubmitting(true);
+      try {
+        await addOrUpdateTaskEvaluation({ 
+          taskId, 
+          weekId, 
+          rating, 
+          difficulty: understanding || undefined, 
+          note: undefined 
+        });
+        setSaved(true);
+        setTimeout(() => {
+          setSaved(false);
+          setOpen(false);
+        }, 1500);
+      } catch (error) {
+        console.error('Error saving evaluation:', error);
+        alert(language === 'ar' ? 'حدث خطأ أثناء حفظ التقييم' : 'Error saving evaluation');
+      } finally {
+        setIsSubmitting(false);
+      }
     };
 
     // Summary view
     const summary = evalObj && evalObj.rating ? (
-      <span className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-        <span className="flex items-center gap-1">
+      <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-1">
+          <span className="text-gray-500 dark:text-gray-400 mr-1">
+            {language === 'ar' ? 'الفهم:' : 'Understanding:'}
+          </span>
           {[1,2,3,4,5].map(idx => (
-            <span key={idx} className={`w-2 h-2 rounded-full ${idx <= evalObj.rating ? 'bg-blue-500 dark:bg-blue-300' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
+            <span key={idx} className={`w-3 h-3 rounded-full transition-colors ${idx <= evalObj.rating ? 'bg-blue-500 dark:bg-blue-300' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
           ))}
-        </span>
-        {evalObj.difficulty ? (
-          <span className={`rounded px-2 py-0.5 text-xs font-semibold ${
-            evalObj.difficulty === 'easy' ? 'bg-green-100 text-green-700' : 
-            evalObj.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+        </div>
+        {evalObj.difficulty && (
+          <span className={`rounded px-2 py-1 text-xs font-semibold ${
+            evalObj.difficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 
+            evalObj.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' : 
+            'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
           }`}>
             {language === 'ar'
               ? evalObj.difficulty === 'easy' ? 'سهل' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
               : evalObj.difficulty === 'easy' ? 'Easy' : evalObj.difficulty === 'medium' ? 'Medium' : 'Hard'}
           </span>
-        ) : null}
-      </span>
+        )}
+      </div>
     ) : null;
 
     if (summaryOnly) return summary;
@@ -499,17 +539,25 @@ const DayViewPage = () => {
 
     return (
       <div className="mt-2 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-3">
           <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">
             {language === 'ar' ? 'درجة الفهم:' : 'Understanding:'}
           </span>
           <div className="flex items-center gap-2">
             {[1,2,3,4,5].map(idx => (
-              <button key={idx} onClick={() => setRating(idx)} className="focus:outline-none">
-                <span className={`w-4 h-4 rounded-full transition-colors ${idx <= rating ? 'bg-blue-500 dark:bg-blue-300' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
+              <button 
+                key={idx} 
+                onClick={() => setRating(idx)} 
+                className="focus:outline-none hover:scale-110 transition-transform"
+                title={language === 'ar' ? `مستوى ${idx}` : `Level ${idx}`}
+              >
+                <span className={`w-5 h-5 rounded-full transition-all duration-200 ${idx <= rating ? 'bg-blue-500 dark:bg-blue-300 shadow-lg' : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'}`}></span>
               </button>
             ))}
           </div>
+          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+            {rating > 0 && (language === 'ar' ? `(${rating}/5)` : `(${rating}/5)`)}
+          </span>
         </div>
         <div className="flex items-center gap-2 mb-1">
           <Activity className="w-5 h-5 text-blue-400" />
@@ -527,17 +575,36 @@ const DayViewPage = () => {
             <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
           </select>
         </div>
-        <div className="flex justify-end items-center gap-2 mt-2">
+        <div className="flex justify-end items-center gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
           {saved && (
-            <span className="text-green-600 text-xs font-semibold transition-all">
-              {language === 'ar' ? 'تم الحفظ بنجاح' : 'Saved!'}
+            <span className="text-green-600 text-sm font-semibold transition-all flex items-center gap-1">
+              <CheckCircle className="w-4 h-4" />
+              {language === 'ar' ? 'تم الحفظ بنجاح!' : 'Saved successfully!'}
             </span>
           )}
-          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setOpen(false)}
+            disabled={isSubmitting}
+          >
             {language === 'ar' ? 'إلغاء' : 'Cancel'}
           </Button>
-          <Button variant="primary" size="sm" onClick={handleSave}>
-            {language === 'ar' ? 'حفظ التقييم' : 'Save Rating'}
+          <Button 
+            variant="primary" 
+            size="sm" 
+            onClick={handleSave}
+            disabled={isSubmitting || rating === 0}
+            className="min-w-[100px]"
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
+              </span>
+            ) : (
+              language === 'ar' ? 'حفظ التقييم' : 'Save Rating'
+            )}
           </Button>
         </div>
       </div>
@@ -734,26 +801,15 @@ const DayViewPage = () => {
                           >
                             {resource.title}
                           </a>
-                          {resource.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {resource.description}
-                            </p>
-                          )}
                           <div className="flex items-center gap-2 mt-2">
                             <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
                               {resource.type}
                             </span>
-                            {resource.category && (
-                              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                                {resource.category}
-                              </span>
-                            )}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        
-                        {resource.id && ( // فقط الموارد المضافة من قبل المستخدم يمكن تعديلها
+                        {resource.canEdit && ( // الموارد القابلة للتعديل
                           <>
                             <Button
                               size="sm"
@@ -768,6 +824,11 @@ const DayViewPage = () => {
                               onClick={(e) => { e.stopPropagation(); handleDeleteResource(resource.id); }}
                             />
                           </>
+                        )}
+                        {resource.isPlanResource && ( // الموارد من الخطة
+                          <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                            {language === 'ar' ? 'من الخطة' : 'From Plan'}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -1200,20 +1261,20 @@ const DayViewPage = () => {
 
 
 
-      {/* Resource Modal */}
+            {/* Resource Modal */}
       <Modal
         isOpen={resourceModal.isOpen}
         onClose={() => {
           setResourceModal({ isOpen: false, resource: null });
-          setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+          setResourceForm({ title: '', url: '', type: 'article' });
         }}
         title={resourceModal.resource ? (language === 'ar' ? 'تعديل المورد' : 'Edit Resource') : (language === 'ar' ? 'إضافة مورد جديد' : 'Add New Resource')}
-        size="xl"
+        size="lg"
       >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'عنوان المورد' : 'Resource Title'}
+              {language === 'ar' ? 'عنوان المورد *' : 'Resource Title *'}
             </label>
             <input
               type="text"
@@ -1226,7 +1287,7 @@ const DayViewPage = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'رابط المورد' : 'Resource URL'}
+              {language === 'ar' ? 'رابط المورد *' : 'Resource URL *'}
             </label>
             <input
               type="url"
@@ -1237,50 +1298,22 @@ const DayViewPage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {language === 'ar' ? 'نوع المورد' : 'Resource Type'}
-              </label>
-              <select
-                value={resourceForm.type}
-                onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
-                <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
-                <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
-                <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
-                <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
-                <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {language === 'ar' ? 'الفئة' : 'Category'}
-              </label>
-              <input
-                type="text"
-                value={resourceForm.category}
-                onChange={(e) => setResourceForm(prev => ({ ...prev, category: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder={language === 'ar' ? 'أدخل الفئة (اختياري)' : 'Enter category (optional)'}
-              />
-            </div>
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'وصف المورد' : 'Resource Description'}
+              {language === 'ar' ? 'نوع المورد *' : 'Resource Type *'}
             </label>
-            <textarea
-              value={resourceForm.description}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, description: e.target.value }))}
+            <select
+              value={resourceForm.type}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={language === 'ar' ? 'أدخل وصف المورد (اختياري)' : 'Enter resource description (optional)'}
-              rows={3}
-            />
+            >
+              <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
+              <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
+              <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
+              <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
+              <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
+              <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
+            </select>
           </div>
 
           <div className="flex justify-end space-x-3">
@@ -1288,7 +1321,7 @@ const DayViewPage = () => {
               variant="outline"
               onClick={() => {
                 setResourceModal({ isOpen: false, resource: null });
-                setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+                setResourceForm({ title: '', url: '', type: 'article' });
               }}
             >
               {language === 'ar' ? 'إلغاء' : 'Cancel'}
