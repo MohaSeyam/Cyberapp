@@ -23,9 +23,44 @@ const DayViewPage = () => {
   const navigate = useNavigate();
   
   // Safe access to useSimpleLocalization
-  const localizationData = useSimpleLocalization();
-  const { language } = localizationData || { language: 'ar' };
+  let localizationData;
+  try {
+    localizationData = useSimpleLocalization();
+  } catch (error) {
+    console.error('Error accessing useSimpleLocalization:', error);
+    localizationData = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
+  const { language } = localizationData;
 
+  // Safe access to useSimpleApp
+  let appData;
+  try {
+    appData = useSimpleApp();
+  } catch (error) {
+    console.error('Error accessing useSimpleApp:', error);
+    appData = {
+      progress: [],
+      addOrUpdateProgress: async () => {},
+      taskEvaluations: [],
+      addOrUpdateTaskEvaluation: async () => {},
+      notes: [],
+      addNote: async () => 0,
+      deleteNote: async () => {},
+      resources: [],
+      addResource: async () => {},
+      deleteResource: async () => {},
+      updateResource: async () => {},
+      journalEntries: [],
+      addJournalEntry: async () => {},
+      deleteJournalEntry: async () => {},
+      updateJournalEntry: async () => {}
+    };
+  }
   const { 
     progress, 
     addOrUpdateProgress, 
@@ -42,7 +77,7 @@ const DayViewPage = () => {
     addJournalEntry,
     deleteJournalEntry,
     updateJournalEntry
-  } = useSimpleApp();
+  } = appData;
 
   // Ensure data is available
   const safeProgress = Array.isArray(progress) ? progress : [];
@@ -87,11 +122,21 @@ const DayViewPage = () => {
   // جلب مدونة اليوم إذا كانت موجودة
   useEffect(() => {
     if (!selectedWeek || !selectedDay) return;
+    
+    console.log('useEffect for journal content triggered:', {
+      selectedWeek: selectedWeek?.week,
+      selectedDay: selectedDay?.key,
+      phaseId: selectedWeek?.phase,
+      safeJournalEntries: safeJournalEntries.length
+    });
+    
     const entry = safeJournalEntries.find(e =>
       e.weekId === selectedWeek.week &&
       e.dayKey === selectedDay.key &&
       e.phaseId === selectedWeek.phase
     );
+    
+    console.log('Found entry in useEffect:', entry);
     setJournalContent(entry ? entry.content : '');
   }, [selectedWeek, selectedDay, safeJournalEntries]);
 
@@ -141,14 +186,38 @@ const DayViewPage = () => {
   const handleDeleteJournal = async () => {
     if (!selectedWeek || !selectedDay) return;
     
+    console.log('handleDeleteJournal called', { selectedWeek, selectedDay });
+    
     const existingEntry = safeJournalEntries.find(e =>
       e.weekId === selectedWeek.week &&
       e.dayKey === selectedDay.key &&
       e.phaseId === selectedWeek.phase
       );
     
+    console.log('existingEntry found:', existingEntry);
+    
     if (existingEntry) {
-      await deleteJournalEntry(existingEntry.id);
+      try {
+        console.log('Deleting journal entry with ID:', existingEntry.id);
+        await deleteJournalEntry(existingEntry.id);
+        console.log('Journal entry deleted successfully');
+        
+        // إغلاق محرر المدونة وإعادة تعيين الحالة
+        setShowJournalEditor(false);
+        setJournalForm({
+          title: '',
+          content: '',
+          tags: []
+        });
+        // تحديث journalContent أيضاً
+        setJournalContent('');
+        
+        console.log('State updated after deletion');
+      } catch (error) {
+        console.error('Error deleting journal:', error);
+      }
+    } else {
+      console.log('No existing entry found to delete');
     }
   };
 
@@ -242,11 +311,23 @@ const DayViewPage = () => {
 
   // الحصول على مدونة اليوم
   const getDayJournal = () => {
-    return safeJournalEntries.find(e =>
-      e.weekId === selectedWeek?.week &&
-      e.dayKey === selectedDay?.key &&
-      e.phaseId === selectedWeek?.phase
+    if (!selectedWeek || !selectedDay) return null;
+    
+    const entry = safeJournalEntries.find(e =>
+      e.weekId === selectedWeek.week &&
+      e.dayKey === selectedDay.key &&
+      e.phaseId === selectedWeek.phase
     );
+    
+    console.log('getDayJournal called:', {
+      selectedWeek: selectedWeek?.week,
+      selectedDay: selectedDay?.key,
+      phaseId: selectedWeek?.phase,
+      safeJournalEntries: safeJournalEntries.length,
+      foundEntry: entry
+    });
+    
+    return entry;
   };
 
   // Determine current phase
