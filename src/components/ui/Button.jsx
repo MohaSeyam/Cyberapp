@@ -1,5 +1,6 @@
 import React from 'react';
-import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
+import { useLocalization } from '../../context/LocalizationContext';
+import LoadingSpinner from './LoadingSpinner';
 
 const Button = ({
   children,
@@ -14,72 +15,97 @@ const Button = ({
   type = 'button',
   ...props
 }) => {
-  const { language } = useSimpleLocalization();
-  const safeLanguage = language || 'ar';
-  const isRTL = safeLanguage === 'ar';
+  const { language } = useLocalization();
+  const isRTL = language === 'ar';
 
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
-  const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
-    outline: 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-gray-500',
-    ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-gray-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
-    warning: 'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500'
+  const sizeClasses = {
+    sm: 'px-3 py-1 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-5 py-3 text-lg'
   };
 
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-    xl: 'px-8 py-4 text-lg'
+  const variantClasses = {
+    primary:
+      'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600',
+    outline:
+      'border border-gray-300 dark:border-gray-600 bg-transparent',
+    ghost: 'bg-transparent'
   };
 
-  const iconSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5',
-    xl: 'w-6 h-6'
-  };
-
-  const classes = [
-    baseClasses,
-    variants[variant],
-    sizes[size],
-    className
-  ].join(' ');
-
-  const IconComponent = icon;
-  const iconClasses = iconSizes[size];
+  // في حال الاتجاه RTL، نعكس المسافات
+  const iconSpacing = isRTL
+    ? iconPosition === 'left'
+      ? 'ml-2'
+      : 'mr-2'
+    : iconPosition === 'left'
+    ? 'mr-2'
+    : 'ml-2';
 
   const renderIcon = () => {
-    if (!IconComponent || loading) return null;
-    
+    if (!icon) return null;
+
+    // إذا أيقونة جاهزة كعنصر JSX
+    if (React.isValidElement(icon)) {
+      return (
+        <span className={`inline-flex items-center ${iconSpacing}`}>
+          {icon}
+        </span>
+      );
+    }
+
+    // إذا مكوّن (دالة أو كائن)
+    if (typeof icon === 'function' || typeof icon === 'object') {
+      const IconComp = icon;
+      try {
+        // إذا الحزمة مصدّرة كـ default
+        if (IconComp && typeof IconComp === 'object' && IconComp.default) {
+          const Actual = IconComp.default;
+          return (
+            <span className={`inline-flex items-center ${iconSpacing}`}>
+              <Actual className="w-4 h-4" />
+            </span>
+          );
+        }
+        return (
+          <span className={`inline-flex items-center ${iconSpacing}`}>
+            <IconComp className="w-4 h-4" />
+          </span>
+        );
+      } catch (e) {
+        console.warn('Button: فشل عرض الأيقونة', e);
+        return null;
+      }
+    }
+
+    // أي نوع آخر (string، رقم...)
     return (
-      <IconComponent className={iconClasses} />
+      <span className={`inline-flex items-center ${iconSpacing}`}>
+        {icon}
+      </span>
     );
   };
 
-  const renderLoadingSpinner = () => {
-    if (!loading) return null;
-    
-    return (
-      <div className={`animate-spin rounded-full border-2 border-current border-t-transparent ${iconClasses}`} />
-    );
-  };
-
-  // Determine icon position based on RTL
-  const effectiveIconPosition = iconPosition === 'auto' ? (isRTL ? 'right' : 'left') : iconPosition;
+  const iconNode = renderIcon();
 
   const content = (
     <>
-      {effectiveIconPosition === 'left' && (renderIcon() || renderLoadingSpinner())}
-      {children && <span className={effectiveIconPosition === 'left' ? 'mr-2' : 'ml-2'}>{children}</span>}
-      {effectiveIconPosition === 'right' && (renderIcon() || renderLoadingSpinner())}
+      {iconPosition === 'left' && iconNode}
+      {loading ? <LoadingSpinner /> : <span>{children}</span>}
+      {iconPosition === 'right' && iconNode}
     </>
   );
+
+  const classes = [
+    'inline-flex',
+    'items-center',
+    'justify-center',
+    'rounded-2xl',
+    sizeClasses[size] || sizeClasses.md,
+    variantClasses[variant] || variantClasses.primary,
+    className
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <button
