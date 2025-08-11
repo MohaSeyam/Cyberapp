@@ -302,7 +302,7 @@ const NotesPage = () => {
                                 variant="ghost"
                                 size="sm"
                                 icon={<Edit />}
-                                onClick={() => handleNavigation(`/notes/${note.id}/edit`)}
+                                onClick={(e) => { e.stopPropagation(); handleNavigation(`/notes/${note.id}/edit`); }}
                               >
                                 {safeLanguage === 'ar' ? 'تعديل' : 'Edit'}
                               </Button>
@@ -310,7 +310,7 @@ const NotesPage = () => {
                                 variant="ghost"
                                 size="sm"
                                 icon={<Trash2 />}
-                                onClick={() => setShowDeleteModal(note.id)}
+                                onClick={(e) => { e.stopPropagation(); setShowDeleteModal(note.id); }}
                                 className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                               >
                                 {safeLanguage === 'ar' ? 'حذف' : 'Delete'}

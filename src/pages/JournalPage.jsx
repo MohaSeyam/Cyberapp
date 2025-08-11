@@ -228,7 +228,7 @@ const JournalPage = () => {
                           variant="ghost"
                           size="sm"
                           icon={<Edit />}
-                          onClick={() => navigate(`/journal/${entry.id}/edit`)}
+                          onClick={(e) => { e.stopPropagation(); navigate(`/journal/${entry.id}/edit`); }}
                         >
                           {language === 'ar' ? 'تعديل' : 'Edit'}
                         </Button>
@@ -236,7 +236,7 @@ const JournalPage = () => {
                           variant="ghost"
                           size="sm"
                           icon={<Trash2 />}
-                          onClick={() => setShowDeleteModal(entry.id)}
+                          onClick={(e) => { e.stopPropagation(); setShowDeleteModal(entry.id); }}
                           className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                         >
                           {language === 'ar' ? 'حذف' : 'Delete'}

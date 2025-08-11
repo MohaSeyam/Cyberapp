@@ -11,7 +11,7 @@ import Modal from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 
 export default function NoteViewPage() {
-  const { noteId } = useParams();
+  const { id: noteId } = useParams();
   const navigate = useNavigate();
   const { notes, deleteNote, plan } = useSimpleApp();
   const { language } = useSimpleLocalization();

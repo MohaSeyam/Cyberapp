@@ -11,7 +11,7 @@ import Modal from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 
 export default function JournalViewPage() {
-  const { entryId } = useParams();
+  const { id: entryId } = useParams();
   const navigate = useNavigate();
   const { journalEntries, deleteJournalEntry, plan } = useSimpleApp();
   const { language } = useSimpleLocalization();
