@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, Save, ArrowLeft, Calendar, Smile, Meh, Frown
+  BookOpen, Save, ArrowLeft, Calendar
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -25,7 +25,6 @@ const JournalEditPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    mood: 'neutral',
     date: new Date().toISOString().split('T')[0]
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +37,6 @@ const JournalEditPage = () => {
       setFormData({
         title: existingEntry.title || '',
         content: existingEntry.content || '',
-        mood: existingEntry.mood || 'neutral',
         date: existingEntry.date || new Date().toISOString().split('T')[0]
       });
     }
@@ -55,14 +53,12 @@ const JournalEditPage = () => {
         await updateJournalEntry(existingEntry.id, {
           title: formData.title,
           content: formData.content,
-          mood: formData.mood,
           date: formData.date
         });
       } else {
         await addJournalEntry({
           title: formData.title,
           content: formData.content,
-          mood: formData.mood,
           date: formData.date,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -75,12 +71,6 @@ const JournalEditPage = () => {
       setIsLoading(false);
     }
   };
-
-  const moodOptions = [
-    { value: 'happy', label: { ar: 'سعيد', en: 'Happy' }, icon: <Smile className="w-5 h-5 text-green-500" /> },
-    { value: 'neutral', label: { ar: 'عادي', en: 'Neutral' }, icon: <Meh className="w-5 h-5 text-yellow-500" /> },
-    { value: 'sad', label: { ar: 'حزين', en: 'Sad' }, icon: <Frown className="w-5 h-5 text-red-500" /> }
-  ];
 
   const animations = {
     fadeIn: {
@@ -133,48 +123,19 @@ const JournalEditPage = () => {
             />
           </div>
 
-          {/* Date and Mood */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {language === 'ar' ? 'التاريخ' : 'Date'}
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-
-            {/* Mood */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {language === 'ar' ? 'المزاج' : 'Mood'}
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {moodOptions.map(mood => (
-                  <button
-                    key={mood.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, mood: mood.value }))}
-                    className={`p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center space-y-1 ${
-                      formData.mood === mood.value
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-                    }`}
-                  >
-                    {mood.icon}
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {mood.label[language]}
-                    </span>
-                  </button>
-                ))}
-              </div>
+          {/* Date فقط */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'التاريخ' : 'Date'}
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              />
             </div>
           </div>
 
