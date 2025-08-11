@@ -78,10 +78,37 @@ export const SimpleAppProvider = ({ children }) => {
         const savedJournal = localStorage.getItem('journalEntries');
         const savedResources = localStorage.getItem('resources');
         
+        // تصحيح الملاحظات القديمة
+        if (savedNotes) {
+          let notesArr = JSON.parse(savedNotes);
+          let changed = false;
+          notesArr = notesArr.map(note => {
+            if (!note.id || isNaN(Number(note.id))) {
+              changed = true;
+              return { ...note, id: Date.now() + Math.floor(Math.random() * 100000) };
+            }
+            return note;
+          });
+          if (changed) localStorage.setItem('notes', JSON.stringify(notesArr));
+          setNotes(notesArr);
+        }
+        // تصحيح المدونات القديمة
+        if (savedJournal) {
+          let journalArr = JSON.parse(savedJournal);
+          let changed = false;
+          journalArr = journalArr.map(entry => {
+            if (!entry.id || isNaN(Number(entry.id))) {
+              changed = true;
+              return { ...entry, id: Date.now() + Math.floor(Math.random() * 100000) };
+            }
+            return entry;
+          });
+          if (changed) localStorage.setItem('journalEntries', JSON.stringify(journalArr));
+          setJournalEntries(journalArr);
+        }
+        
         if (savedPlan) setPlan(JSON.parse(savedPlan));
         if (savedProgress) setProgress(JSON.parse(savedProgress));
-        if (savedNotes) setNotes(JSON.parse(savedNotes));
-        if (savedJournal) setJournalEntries(JSON.parse(savedJournal));
         if (savedResources) setResources(JSON.parse(savedResources));
         
       } catch (error) {
