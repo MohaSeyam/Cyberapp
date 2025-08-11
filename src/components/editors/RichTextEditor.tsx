@@ -1,36 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import TextAlign from '@tiptap/extension-text-align';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
-import Underline from '@tiptap/extension-underline';
-import Code from '@tiptap/extension-code';
-import CodeBlock from '@tiptap/extension-code-block';
-import Highlight from '@tiptap/extension-highlight';
-import BulletList from '@tiptap/extension-bullet-list';
-import OrderedList from '@tiptap/extension-ordered-list';
-import ListItem from '@tiptap/extension-list-item';
-import Blockquote from '@tiptap/extension-blockquote';
-import Image from '@tiptap/extension-image';
-import HorizontalRule from '@tiptap/extension-horizontal-rule';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { TableHeader } from '@tiptap/extension-table-header';
-import { TableCell } from '@tiptap/extension-table-cell';
-import { TextStyle } from '@tiptap/extension-text-style';
-import { Color } from '@tiptap/extension-color';
-import { FontFamily } from '@tiptap/extension-font-family';
-import { FontSize } from '@tiptap/extension-font-size';
-import { Node, mergeAttributes, ReactNodeViewRenderer, Extension } from '@tiptap/react';
-import { Plugin } from 'prosemirror-state';
-import {
+import React, { useEffect, useState } from 'react';
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextAlign from "@tiptap/extension-text-align";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
+import Code from "@tiptap/extension-code";
+import CodeBlock from "@tiptap/extension-code-block";
+import Highlight from "@tiptap/extension-highlight";
+import { BulletList } from "@tiptap/extension-bullet-list";
+import { OrderedList } from "@tiptap/extension-ordered-list";
+import { ListItem } from "@tiptap/extension-list-item";
+import Blockquote from "@tiptap/extension-blockquote";
+import Image from "@tiptap/extension-image";
+import HorizontalRule from "@tiptap/extension-horizontal-rule";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { FontFamily } from "@tiptap/extension-font-family";
+import { FontSize } from "@tiptap/extension-font-size";
+import { motion } from "framer-motion";
+import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  Heading1, Heading2, AlignLeft, AlignCenter, AlignRight,
-  List, ListOrdered, Quote, Minus, Code as CodeIcon, Highlighter,
-  Link as LinkIcon, Plus, X, Table as TableIcon, Square,
-  Type, ChevronDown, Palette, CheckCircle, AlertCircle
-} from 'lucide-react';
+  Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
+  Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, 
+  Image as ImageIcon, Upload, Minus, Table as TableIcon, Palette, Type, 
+  ChevronDown, X, Plus
+} from "lucide-react";
 
 // Custom CSS for rich text editor
 const editorStyles = `
