@@ -71,8 +71,7 @@ export default function NoteViewPage() {
   };
 
   const handleEditNote = () => {
-    // فتح صفحة التعديل في نفس الصفحة
-    navigate(`/note/${noteId}/edit`);
+    navigate(`/notes/${noteId}/edit`);
   };
 
   const handleCopyContent = async () => {

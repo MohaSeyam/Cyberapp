@@ -146,7 +146,7 @@ export const SimpleAppProvider = ({ children }) => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  const updateProgress = async (weekId, dayKey, taskId, done) => {
+  const updateProgress = async (weekId, dayKey, taskId, done, phaseId) => {
     try {
       const newProgress = [...progress];
       const existingIndex = newProgress.findIndex(p => 
@@ -154,9 +154,9 @@ export const SimpleAppProvider = ({ children }) => {
       );
       
       if (existingIndex >= 0) {
-        newProgress[existingIndex] = { ...newProgress[existingIndex], done };
+        newProgress[existingIndex] = { ...newProgress[existingIndex], done, ...(phaseId ? { phaseId } : {}) };
       } else {
-        newProgress.push({ weekId, dayKey, taskId, done });
+        newProgress.push({ weekId, dayKey, taskId, done, ...(phaseId ? { phaseId } : {}) });
       }
       
       setProgress(newProgress);

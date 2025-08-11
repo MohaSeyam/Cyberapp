@@ -63,6 +63,13 @@ const DayViewPage = () => {
   const [isSavingJournal, setIsSavingJournal] = useState(false);
   const [showJournalEditor, setShowJournalEditor] = useState(false);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
+  const noteEditorRef = React.useRef(null);
+
+  useEffect(() => {
+    if (showNoteEditor && noteEditorRef.current) {
+      noteEditorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [showNoteEditor]);
 
   // Find current week and day
   useEffect(() => {
@@ -682,7 +689,7 @@ const DayViewPage = () => {
           </Card>
 
           {/* قسم ملاحظات اليوم */}
-          <Card className="mb-8">
+          <Card className="mb-8" ref={noteEditorRef}>
                           <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -819,7 +826,7 @@ const DayViewPage = () => {
 
 
           {/* قسم المدونة */}
-          <Card className="mb-8 border-purple-400 bg-purple-50 dark:bg-purple-900/30">
+          <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-300" />
