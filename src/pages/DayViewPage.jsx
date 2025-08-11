@@ -15,6 +15,7 @@ import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import planData from '../data/PlanData.json';
 import phasesData from '../data/phases.json';
+import RichTextEditor from '../components/editors/RichTextEditor';
 
 const DayViewPage = () => {
   const { weekId, dayKey, phaseId } = useParams();
@@ -48,7 +49,8 @@ const DayViewPage = () => {
     deleteResource,
     journalEntries,
     addJournalEntry,
-    deleteJournalEntry
+    deleteJournalEntry,
+    updateJournalEntry
   } = useSimpleApp();
 
   // Ensure data is available
@@ -66,6 +68,8 @@ const DayViewPage = () => {
   const [noteForm, setNoteForm] = useState({ title: '', content: '', tags: [] });
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'article' });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] });
+  const [journalContent, setJournalContent] = useState('');
+  const [isSavingJournal, setIsSavingJournal] = useState(false);
 
   // Find current week and day
   useEffect(() => {
@@ -79,6 +83,49 @@ const DayViewPage = () => {
       }
     }
   }, [weekId, dayKey, phaseId]);
+
+  // جلب مدونة اليوم إذا كانت موجودة
+  useEffect(() => {
+    if (!selectedWeek || !selectedDay) return;
+    const entry = safeJournalEntries.find(e =>
+      e.weekId === selectedWeek.week &&
+      e.dayKey === selectedDay.key &&
+      e.phaseId === selectedWeek.phase
+    );
+    setJournalContent(entry ? entry.content : '');
+  }, [selectedWeek, selectedDay, safeJournalEntries]);
+
+  const handleSaveJournal = async () => {
+    if (!selectedWeek || !selectedDay) return;
+    setIsSavingJournal(true);
+    // تحقق إذا كانت المدونة موجودة
+    const existing = safeJournalEntries.find(e =>
+      e.weekId === selectedWeek.week &&
+      e.dayKey === selectedDay.key &&
+      e.phaseId === selectedWeek.phase
+    );
+    if (existing) {
+      await updateJournalEntry(existing.id, {
+        content: journalContent,
+        weekId: selectedWeek.week,
+        dayKey: selectedDay.key,
+        phaseId: selectedWeek.phase,
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      await addJournalEntry({
+        title: selectedDay.day?.[language] || selectedDay.day?.ar || 'مدونة اليوم',
+        content: journalContent,
+        weekId: selectedWeek.week,
+        dayKey: selectedDay.key,
+        phaseId: selectedWeek.phase,
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    setIsSavingJournal(false);
+  };
 
   // Determine current phase
   const getCurrentPhase = () => {
@@ -503,6 +550,66 @@ const DayViewPage = () => {
             })()}
           </motion.div>
 
+          {/* قسم المدونة */}
+          <Card className="mb-8 border-purple-400 bg-purple-50 dark:bg-purple-900/30">
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+              <h2 className="text-xl font-bold text-purple-700 dark:text-purple-200">
+                {language === 'ar' ? 'مدونة اليوم' : 'Day Journal'}
+              </h2>
+            </div>
+            <RichTextEditor
+              content={journalContent}
+              onChange={setJournalContent}
+              placeholder={language === 'ar' ? 'اكتب مدونتك هنا...' : 'Write your journal here...'}
+              lang={language}
+              showToolbar={true}
+              minHeight="180px"
+            />
+            <div className="flex justify-end mt-4">
+              <Button
+                variant="primary"
+                loading={isSavingJournal}
+                onClick={handleSaveJournal}
+                disabled={isSavingJournal || !journalContent.trim()}
+              >
+                {language === 'ar' ? 'حفظ المدونة' : 'Save Journal'}
+              </Button>
+            </div>
+          </Card>
+
+          {/* قسم ملاحظات اليوم */}
+          <Card className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
+                {language === 'ar' ? 'ملاحظات اليوم' : 'Day Notes'}
+              </h2>
+            </div>
+            {/* عرض الملاحظات المرتبطة بمهام هذا اليوم */}
+            <div className="space-y-4">
+              {safeNotes.filter(note =>
+                note.weekId === selectedWeek.week &&
+                note.dayKey === selectedDay.key
+              ).map(note => (
+                <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-gray-800 dark:text-white">{note.title}</span>
+                    <Button size="sm" variant="ghost" onClick={() => deleteNote(note.id)}>
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
+                  </div>
+                  <div className="prose dark:prose-invert" dangerouslySetInnerHTML={{ __html: note.content }} />
+                </Card>
+              ))}
+              {safeNotes.filter(note => note.weekId === selectedWeek.week && note.dayKey === selectedDay.key).length === 0 && (
+                <div className="text-gray-500 text-sm text-center py-4">
+                  {language === 'ar' ? 'لا توجد ملاحظات لهذا اليوم بعد.' : 'No notes for this day yet.'}
+                </div>
+              )}
+            </div>
+          </Card>
+
           {/* Navigation Footer */}
           <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
             <Card>
@@ -558,18 +665,14 @@ const DayViewPage = () => {
               placeholder={language === 'ar' ? 'أدخل عنوان الملاحظة' : 'Enter note title'}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'محتوى الملاحظة' : 'Note Content'}
-            </label>
-            <textarea
-              value={noteForm.content}
-              onChange={(e) => setNoteForm(prev => ({ ...prev, content: e.target.value }))}
-              rows={6}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={language === 'ar' ? 'اكتب ملاحظتك هنا...' : 'Write your note here...'}
-            />
-          </div>
+          <RichTextEditor
+            content={noteForm.content}
+            onChange={val => setNoteForm(prev => ({ ...prev, content: val }))}
+            placeholder={language === 'ar' ? 'اكتب ملاحظتك هنا...' : 'Write your note here...'}
+            lang={language}
+            showToolbar={true}
+            minHeight="120px"
+          />
           <div className="flex justify-end space-x-3">
             <Button
               variant="outline"
