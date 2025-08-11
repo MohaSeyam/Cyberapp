@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowLeft, CheckCircle, Clock,
   Shield, Bug, Target, Users, FileText, Star, Activity,
   BookOpen, MessageSquare, Plus, ExternalLink, Edit2, Trash2,
-  X, Tag, Calendar, Eye, Download
+  X, Tag, Calendar, Eye, Download, HelpCircle
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -100,7 +100,116 @@ const DayViewPage = () => {
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [expandedJournal, setExpandedJournal] = useState(false);
   const [expandedNotes, setExpandedNotes] = useState({});
+  const [resourceSearch, setResourceSearch] = useState('');
+  const [resourceTypeFilter, setResourceTypeFilter] = useState('');
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const noteEditorRef = React.useRef(null);
+
+  // Minimum swipe distance for navigation
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      goToNextDay();
+    } else if (isRightSwipe) {
+      goToPreviousDay();
+    }
+  };
+
+  // Add swipe event listeners
+  useEffect(() => {
+    const container = document.getElementById('day-view-container');
+    if (container) {
+      container.addEventListener('touchstart', onTouchStart, { passive: true });
+      container.addEventListener('touchmove', onTouchMove, { passive: true });
+      container.addEventListener('touchend', onTouchEnd, { passive: true });
+
+      return () => {
+        container.removeEventListener('touchstart', onTouchStart);
+        container.removeEventListener('touchmove', onTouchMove);
+        container.removeEventListener('touchend', onTouchEnd);
+      };
+    }
+  }, [touchStart, touchEnd]);
+
+  // Keyboard navigation support
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only handle keyboard shortcuts when not in input fields
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          if (parseInt(dayKey) > 1) {
+            goToPreviousDay();
+          }
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          if (parseInt(dayKey) < (selectedWeek?.days?.length || 0)) {
+            goToNextDay();
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          // Close any open modals
+          if (resourceModal.isOpen) {
+            setResourceModal({ isOpen: false, resource: null });
+          }
+          if (journalModal.isOpen) {
+            setJournalModal({ isOpen: false, entry: null });
+          }
+          if (showNoteEditor) {
+            setShowNoteEditor(false);
+          }
+          if (showJournalEditor) {
+            setShowJournalEditor(false);
+          }
+          break;
+        case 'n':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setShowNoteEditor(true);
+          }
+          break;
+        case 'j':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setShowJournalEditor(true);
+          }
+          break;
+        case 'r':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            openAddResource();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [dayKey, selectedWeek, resourceModal.isOpen, journalModal.isOpen, showNoteEditor, showJournalEditor]);
 
   useEffect(() => {
     if (showNoteEditor && noteEditorRef.current) {
@@ -359,35 +468,50 @@ const DayViewPage = () => {
 
   // الحصول على الموارد المرتبطة باليوم
   const getDayResources = () => {
-    // الموارد المحذوفة من الخطة
+    if (!selectedWeek || !selectedDay) return [];
+    
+    // Get resources from plan data
+    const planResources = planData.weeks
+      .find(w => w.week === parseInt(weekId))
+      ?.days?.find(d => d.key === parseInt(dayKey))
+      ?.resources || [];
+    
+    // Get user-added resources
+    const userResources = safeResources.filter(r => 
+      r.weekId === selectedWeek.week && 
+      r.dayKey === selectedDay.key
+    );
+    
+    // Get deleted plan resources
     const deletedPlanResources = JSON.parse(localStorage.getItem('deletedPlanResources') || '[]');
     
-    // الموارد من ملف الخطة (مع استبعاد المحذوفة)
-    const planResources = (selectedDay?.resources || [])
-      .filter(resource => {
-        const resourceKey = `${resource.title}-${resource.url}-${selectedWeek?.week}-${selectedDay?.key}-${selectedWeek?.phase}`;
-        return !deletedPlanResources.includes(resourceKey);
-      })
-      .map(resource => ({
-        ...resource,
-        isPlanResource: true, // علامة لتحديد أنها من الخطة
-        canEdit: true, // يمكن تعديلها الآن
-        canDelete: true // يمكن حذفها الآن
-      }));
+    // Filter out deleted plan resources
+    const filteredPlanResources = planResources.filter(r => 
+      !deletedPlanResources.some(deleted => 
+        deleted.weekId === selectedWeek.week && 
+        deleted.dayKey === selectedDay.key && 
+        deleted.title === r.title && 
+        deleted.url === r.url
+      )
+    );
     
-    // الموارد المضافة من قبل المستخدم
-    const userResources = safeResources.filter(r => 
-      r.weekId === selectedWeek?.week && 
-      r.dayKey === selectedDay?.key && 
-      r.phaseId === selectedWeek?.phase
-    ).map(resource => ({
-      ...resource,
-      isPlanResource: false, // علامة لتحديد أنها من المستخدم
-      canEdit: true, // يمكن تعديلها
-      canDelete: true // يمكن حذفها
-    }));
+    // Combine all resources
+    let allResources = [...filteredPlanResources, ...userResources];
     
-    return [...planResources, ...userResources];
+    // Apply search filter
+    if (resourceSearch.trim()) {
+      allResources = allResources.filter(r => 
+        r.title.toLowerCase().includes(resourceSearch.toLowerCase()) ||
+        (r.url && r.url.toLowerCase().includes(resourceSearch.toLowerCase()))
+      );
+    }
+    
+    // Apply type filter
+    if (resourceTypeFilter) {
+      allResources = allResources.filter(r => r.type === resourceTypeFilter);
+    }
+    
+    return allResources;
   };
 
   // الحصول على الملاحظات المرتبطة باليوم
@@ -497,43 +621,101 @@ const DayViewPage = () => {
   // Task Evaluation Widget
   const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false, isTaskCompleted = false }) => {
     const [rating, setRating] = useState(0);
-    const [understanding, setUnderstanding] = useState('');
-    const [open, setOpen] = useState(false);
-    const [saved, setSaved] = useState(false);
+    const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const evalObj = taskEvaluations.find(e => e.taskId === taskId && e.weekId === weekId);
-    const isRTL = language === 'ar';
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showReminder, setShowReminder] = useState(false);
+    const [points, setPoints] = useState(0);
+    const [achievements, setAchievements] = useState([]);
+    const [learningProgress, setLearningProgress] = useState(0);
+
+    // Get existing evaluation
+    const existingEvaluation = safeTaskEvaluations.find(e => 
+      e.taskId === taskId && e.weekId === weekId
+    );
 
     useEffect(() => {
-      if (evalObj) {
-        setRating(evalObj.rating);
-        setUnderstanding(evalObj.difficulty || '');
-      } else {
-        setRating(0);
-        setUnderstanding('');
+      if (existingEvaluation) {
+        setRating(existingEvaluation.rating || 0);
+        setComment(existingEvaluation.comment || '');
+        setPoints(existingEvaluation.points || 0);
+        setAchievements(existingEvaluation.achievements || []);
+        setLearningProgress(existingEvaluation.learningProgress || 0);
       }
-    }, [evalObj, taskId, weekId]);
+    }, [existingEvaluation]);
+
+    // Calculate points based on rating
+    const calculatePoints = (rating) => {
+      const basePoints = rating * 10;
+      const bonusPoints = rating === 5 ? 25 : rating === 4 ? 15 : rating === 3 ? 5 : 0;
+      return basePoints + bonusPoints;
+    };
+
+    // Get achievements based on rating and consistency
+    const getAchievements = (rating, isConsistent) => {
+      const newAchievements = [];
+      
+      if (rating === 5) newAchievements.push({ name: 'ممتاز', icon: '⭐', color: 'text-yellow-500' });
+      if (rating >= 4) newAchievements.push({ name: 'جيد جداً', icon: '🎯', color: 'text-blue-500' });
+      if (rating >= 3) newAchievements.push({ name: 'مقبول', icon: '✅', color: 'text-green-500' });
+      if (isConsistent) newAchievements.push({ name: 'مستمر', icon: '🔥', color: 'text-orange-500' });
+      
+      return newAchievements;
+    };
+
+    // Calculate learning progress
+    const calculateLearningProgress = (rating, previousRatings = []) => {
+      if (previousRatings.length === 0) return rating * 20;
+      
+      const averageRating = previousRatings.reduce((sum, r) => sum + r, 0) / previousRatings.length;
+      const improvement = Math.max(0, rating - averageRating);
+      return Math.min(100, (rating * 20) + (improvement * 10));
+    };
 
     const handleSave = async () => {
-      if (rating === 0) {
-        alert(language === 'ar' ? 'يرجى تحديد درجة الفهم' : 'Please select an understanding rating');
+      if (rating <= 0) {
+        alert(language === 'ar' ? 'يرجى اختيار تقييم للمهمة' : 'Please select a rating for the task');
         return;
       }
-      
+
       setIsSubmitting(true);
+      
       try {
-        await addOrUpdateTaskEvaluation({ 
-          taskId, 
-          weekId, 
-          rating, 
-          difficulty: understanding || undefined, 
-          note: undefined 
-        });
-        setSaved(true);
+        const calculatedPoints = calculatePoints(rating);
+        const previousEvaluations = safeTaskEvaluations.filter(e => e.taskId === taskId);
+        const previousRatings = previousEvaluations.map(e => e.rating);
+        const calculatedProgress = calculateLearningProgress(rating, previousRatings);
+        const newAchievements = getAchievements(rating, previousRatings.length > 0);
+        
+        const evaluationData = {
+          taskId,
+          weekId,
+          rating,
+          comment,
+          points: calculatedPoints,
+          achievements: newAchievements,
+          learningProgress: calculatedProgress,
+          timestamp: new Date().toISOString(),
+          reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+        };
+
+        await addOrUpdateTaskEvaluation(evaluationData);
+        
+        setPoints(calculatedPoints);
+        setAchievements(newAchievements);
+        setLearningProgress(calculatedProgress);
+        setShowSuccess(true);
+        
+        // Show reminder after 3 seconds
         setTimeout(() => {
-          setSaved(false);
-          setOpen(false);
-        }, 1500);
+          setShowReminder(true);
+        }, 3000);
+        
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 2000);
+        
       } catch (error) {
         console.error('Error saving evaluation:', error);
         alert(language === 'ar' ? 'حدث خطأ أثناء حفظ التقييم' : 'Error saving evaluation');
@@ -542,132 +724,233 @@ const DayViewPage = () => {
       }
     };
 
-    // Summary view
-    const summary = evalObj && evalObj.rating ? (
-      <div className="flex items-center gap-3 text-xs">
-        <div className="flex items-center gap-1">
-          <span className="text-gray-500 dark:text-gray-400 mr-1">
-            {language === 'ar' ? 'الفهم:' : 'Understanding:'}
-          </span>
-          {[1,2,3,4,5].map(idx => (
-            <span key={idx} className={`w-3 h-3 rounded-full transition-colors ${idx <= evalObj.rating ? 'bg-blue-500 dark:bg-blue-300' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
-          ))}
-        </div>
-        {evalObj.difficulty && (
-          <span className={`rounded px-2 py-1 text-xs font-semibold ${
-            evalObj.difficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 
-            evalObj.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' : 
-            'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-          }`}>
-            {language === 'ar'
-              ? evalObj.difficulty === 'easy' ? 'سهل' : evalObj.difficulty === 'medium' ? 'متوسط' : 'صعب'
-              : evalObj.difficulty === 'easy' ? 'Easy' : evalObj.difficulty === 'medium' ? 'Medium' : 'Hard'}
-          </span>
-        )}
-      </div>
-    ) : null;
+    const handleCancel = () => {
+      if (existingEvaluation) {
+        setRating(existingEvaluation.rating || 0);
+        setComment(existingEvaluation.comment || '');
+      } else {
+        setRating(0);
+        setComment('');
+      }
+    };
 
-    if (summaryOnly) return summary;
-
-    // Cannot evaluate task before completion
-    if (!isTaskCompleted) {
+    if (summaryOnly) {
       return (
-        <div className="mt-2 mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
-          <button
-            disabled
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed text-xs font-semibold"
-            title={language === 'ar' ? 'أكمل المهمة أولاً لتتمكن من تقييمها' : 'Complete the task first to evaluate it'}
-          >
-            {language === 'ar' ? 'تقييم' : 'Rate'}
-          </button>
-        </div>
-      );
-    }
-
-    if (!open) {
-      return (
-        <div className="mt-2 mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
-          <button
-            onClick={() => setOpen(true)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-colors"
-          >
-            {language === 'ar' ? 'تقييم المهمة' : 'Rate Task'}
-          </button>
-          {summary}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-semibold text-gray-900 dark:text-white">
+              {language === 'ar' ? 'التقييم' : 'Evaluation'}
+            </h4>
+            {existingEvaluation && (
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-4 h-4 ${
+                        star <= (existingEvaluation.rating || 0)
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  ({existingEvaluation.rating || 0}/5)
+                </span>
+              </div>
+            )}
+          </div>
+          
+          {existingEvaluation && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'النقاط:' : 'Points:'}
+                </span>
+                <span className="font-bold text-blue-600 dark:text-blue-400">
+                  {existingEvaluation.points || 0}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'التقدم:' : 'Progress:'}
+                </span>
+                <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
+                    style={{ width: `${existingEvaluation.learningProgress || 0}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500">
+                  {Math.round(existingEvaluation.learningProgress || 0)}%
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
 
     return (
-      <div className="mt-2 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="font-semibold text-sm text-gray-700 dark:text-gray-200">
-            {language === 'ar' ? 'درجة الفهم:' : 'Understanding:'}
-          </span>
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold text-gray-900 dark:text-white">
+            {language === 'ar' ? 'تقييم المهمة' : 'Task Evaluation'}
+          </h4>
+          {showSuccess && (
+            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <CheckCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">
+                {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Rating Section */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {language === 'ar' ? 'التقييم' : 'Rating'}
+          </label>
           <div className="flex items-center gap-2">
-            {[1,2,3,4,5].map(idx => (
-              <button 
-                key={idx} 
-                onClick={() => setRating(idx)} 
-                className="focus:outline-none hover:scale-110 transition-transform"
-                title={language === 'ar' ? `مستوى ${idx}` : `Level ${idx}`}
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => setRating(star)}
+                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg ${
+                  star <= rating
+                    ? 'text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
+                    : 'text-gray-300 hover:text-yellow-300'
+                }`}
               >
-                <span className={`w-5 h-5 rounded-full transition-all duration-200 ${idx <= rating ? 'bg-blue-500 dark:bg-blue-300 shadow-lg' : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'}`}></span>
+                <Star className="w-6 h-6" />
               </button>
             ))}
-          </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-            {rating > 0 && (language === 'ar' ? `(${rating}/5)` : `(${rating}/5)`)}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 mb-1">
-          <Activity className="w-5 h-5 text-blue-400" />
-          <span className="text-sm text-gray-600 dark:text-gray-300">
-            {language === 'ar' ? 'درجة الصعوبة:' : 'Difficulty:'}
-          </span>
-          <select 
-            value={understanding} 
-            onChange={e => setUnderstanding(e.target.value)} 
-            className="rounded px-2 py-1 text-sm border dark:bg-gray-900"
-          >
-            <option value="">{language === 'ar' ? 'اختر' : 'Select'}</option>
-            <option value="easy">{language === 'ar' ? 'سهل' : 'Easy'}</option>
-            <option value="medium">{language === 'ar' ? 'متوسط' : 'Medium'}</option>
-            <option value="hard">{language === 'ar' ? 'صعب' : 'Hard'}</option>
-          </select>
-        </div>
-        <div className="flex justify-end items-center gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
-          {saved && (
-            <span className="text-green-600 text-sm font-semibold transition-all flex items-center gap-1">
-              <CheckCircle className="w-4 h-4" />
-              {language === 'ar' ? 'تم الحفظ بنجاح!' : 'Saved successfully!'}
+            <span className="ml-2 text-sm font-bold text-gray-600 dark:text-gray-400">
+              ({rating}/5)
             </span>
-          )}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setOpen(false)}
+          </div>
+        </div>
+
+        {/* Comment Section */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
+          </label>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+            rows="3"
+            placeholder={language === 'ar' ? 'اكتب تعليقك هنا...' : 'Write your comment here...'}
+          />
+        </div>
+
+        {/* Learning Progress Chart */}
+        {existingEvaluation && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <h5 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+              {language === 'ar' ? 'تقدم التعلم' : 'Learning Progress'}
+            </h5>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-blue-600 dark:text-blue-400">
+                  {language === 'ar' ? 'التقدم الحالي' : 'Current Progress'}
+                </span>
+                <span className="text-sm font-bold text-blue-800 dark:text-blue-200">
+                  {Math.round(learningProgress)}%
+                </span>
+              </div>
+              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${learningProgress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Points and Achievements Preview */}
+        {rating > 0 && (
+          <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <h5 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
+              {language === 'ar' ? 'المكافآت المتوقعة' : 'Expected Rewards'}
+            </h5>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-green-600 dark:text-green-400">
+                  {language === 'ar' ? 'النقاط:' : 'Points:'}
+                </span>
+                <span className="text-lg font-bold text-green-800 dark:text-green-200">
+                  {calculatePoints(rating)}
+                </span>
+              </div>
+              <div className="flex gap-1">
+                {getAchievements(rating, false).map((achievement, index) => (
+                  <div key={index} className={`text-lg ${achievement.color}`} title={achievement.name}>
+                    {achievement.icon}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleSave}
+            disabled={isSubmitting || rating <= 0}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            {isSubmitting ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
+              </div>
+            ) : (
+              language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'
+            )}
+          </Button>
+          
+          <Button
+            onClick={handleCancel}
+            variant="outline"
             disabled={isSubmitting}
+            className="flex-1"
           >
             {language === 'ar' ? 'إلغاء' : 'Cancel'}
           </Button>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={handleSave}
-            disabled={isSubmitting || rating === 0}
-            className="min-w-[100px]"
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
-              </span>
-            ) : (
-              language === 'ar' ? 'حفظ التقييم' : 'Save Rating'
-            )}
-          </Button>
         </div>
+
+        {/* Review Reminder */}
+        {showReminder && (
+          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start gap-2">
+              <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h6 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  {language === 'ar' ? 'تذكير المراجعة' : 'Review Reminder'}
+                </h6>
+                <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                  {language === 'ar' 
+                    ? 'سيتم تذكيرك بمراجعة هذه المهمة خلال 7 أيام لتعزيز التعلم'
+                    : 'You will be reminded to review this task in 7 days to reinforce learning'
+                  }
+                </p>
+              </div>
+              <button
+                onClick={() => setShowReminder(false)}
+                className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -704,31 +987,157 @@ const DayViewPage = () => {
 
   return (
     <PageLayout showBottomBar={true}>
-      <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div 
+        id="day-view-container"
+        dir={language === 'ar' ? 'rtl' : 'ltr'}
+        style={{ touchAction: 'pan-y' }}
+      >
         <motion.div {...animations.fadeIn} className="space-y-6">
-          {/* Back Button */}
-          <div className="flex items-center mb-4">
+          {/* Back Button and Help */}
+          <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"
               icon={<ArrowLeft />}
               onClick={goToDayList}
               className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              aria-label={language === 'ar' ? 'العودة لأيام الأسبوع' : 'Back to Week Days'}
             >
               <span>{language === 'ar' ? 'العودة لأيام الأسبوع' : 'Back to Week Days'}</span>
+            </Button>
+            
+            {/* Keyboard Shortcuts Help */}
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<HelpCircle className="w-4 h-4" />}
+              onClick={() => setShowKeyboardHelp(true)}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              aria-label={language === 'ar' ? 'اختصارات لوحة المفاتيح' : 'Keyboard Shortcuts'}
+            >
+              <span className="hidden sm:inline">{language === 'ar' ? 'اختصارات' : 'Shortcuts'}</span>
+              <span className="sm:hidden">?</span>
             </Button>
           </div>
 
           {/* Day Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8" role="banner" aria-label={language === 'ar' ? 'رأس اليوم' : 'Day Header'}>
             <div className="mb-6">
-              <h1 className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2 drop-shadow-lg">
+              <h1 
+                className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2 drop-shadow-lg"
+                id="day-title"
+                aria-label={language === 'ar' ? `عنوان اليوم: ${selectedDay.day?.[language] || selectedDay.day?.ar}` : `Day Title: ${selectedDay.day?.[language] || selectedDay.day?.ar}`}
+              >
                 {selectedDay.day?.[language] || selectedDay.day?.ar}
               </h1>
               {selectedDay.topic?.[language] && (
-                <p className="text-2xl md:text-3xl text-gray-600 dark:text-gray-400 font-medium mb-2">
+                <p 
+                  className="text-2xl md:text-3xl text-gray-600 dark:text-gray-400 font-medium mb-2"
+                  aria-label={language === 'ar' ? `موضوع اليوم: ${selectedDay.topic[language]}` : `Day Topic: ${selectedDay.topic[language]}`}
+                >
                   {selectedDay.topic[language]}
                 </p>
               )}
+            </div>
+            
+            {/* Progress Bar */}
+            {(() => {
+              const totalTasks = (selectedDay.tasks || []).length;
+              const completedTasks = safeProgress.filter(p => 
+                p.weekId === weekId && 
+                p.dayKey === dayKey && 
+                p.completed
+              ).length;
+              const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+              
+              return totalTasks > 0 ? (
+                <div 
+                  className="max-w-md mx-auto mb-6"
+                  role="progressbar"
+                  aria-label={language === 'ar' ? 'تقدم اليوم' : 'Day Progress'}
+                  aria-valuenow={completedTasks}
+                  aria-valuemin={0}
+                  aria-valuemax={totalTasks}
+                  aria-valuetext={`${completedTasks} من ${totalTasks} مهام مكتملة، ${progressPercentage}%`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {language === 'ar' ? 'تقدم اليوم' : 'Day Progress'}
+                    </span>
+                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                      {completedTasks}/{totalTasks} {language === 'ar' ? 'مكتملة' : 'completed'}
+                    </span>
+                  </div>
+                  <div 
+                    className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3"
+                    aria-hidden="true"
+                  >
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center mt-2">
+                    <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                      {progressPercentage}%
+                    </span>
+                  </div>
+                </div>
+              ) : null;
+            })()}
+            
+            {/* Quick Stats */}
+            <div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-6"
+              role="region"
+              aria-label={language === 'ar' ? 'إحصائيات سريعة' : 'Quick Statistics'}
+            >
+              <div 
+                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
+                role="article"
+                aria-label={language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-2" aria-hidden="true">
+                  <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {safeProgress.filter(p => p.weekId === weekId && p.dayKey === dayKey && p.completed).length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'مهام مكتملة' : 'Tasks Done'}
+                </div>
+              </div>
+              
+              <div 
+                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
+                role="article"
+                aria-label={language === 'ar' ? 'الملاحظات' : 'Notes'}
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full mx-auto mb-2" aria-hidden="true">
+                  <MessageSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {getDayNotes().length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'ملاحظات' : 'Notes'}
+                </div>
+              </div>
+              
+              <div 
+                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
+                role="article"
+                aria-label={language === 'ar' ? 'الموارد' : 'Resources'}
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full mx-auto mb-2" aria-hidden="true">
+                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {getDayResources().length}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {language === 'ar' ? 'موارد' : 'Resources'}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -766,13 +1175,37 @@ const DayViewPage = () => {
                           <TypeIcon className={`w-6 h-6 ${typeInfo.textColor}`} />
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-4">
                         <h3 className={`text-lg font-semibold ${typeInfo.textColor}`}>
                           {type}
                         </h3>
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm rounded-full">
-                          {tasks?.length || 0}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              {safeProgress.filter(p => 
+                                p.weekId === selectedWeek.week && 
+                                p.dayKey === selectedDay.key && 
+                                p.completed && 
+                                tasks.some(t => t.id === p.taskId)
+                              ).length}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              {tasks.length - safeProgress.filter(p => 
+                                p.weekId === selectedWeek.week && 
+                                p.dayKey === selectedDay.key && 
+                                p.completed && 
+                                tasks.some(t => t.id === p.taskId)
+                              ).length}
+                            </span>
+                          </div>
+                          <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm rounded-full">
+                            {tasks?.length || 0}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -826,6 +1259,32 @@ const DayViewPage = () => {
               >
                 {language === 'ar' ? 'إضافة مورد' : 'Add Resource'}
               </Button>
+            </div>
+            
+            {/* Search and Filter */}
+            <div className="mb-4 flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder={language === 'ar' ? 'البحث في الموارد...' : 'Search resources...'}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  value={resourceSearch}
+                  onChange={(e) => setResourceSearch(e.target.value)}
+                />
+              </div>
+              <select
+                value={resourceTypeFilter}
+                onChange={(e) => setResourceTypeFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white min-w-[120px]"
+              >
+                <option value="">{language === 'ar' ? 'جميع الأنواع' : 'All Types'}</option>
+                <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
+                <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
+                <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
+                <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
+                <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
+                <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
+              </select>
             </div>
             <div className="space-y-4">
               {getDayResources().length > 0 ? (
@@ -1240,26 +1699,36 @@ const DayViewPage = () => {
           <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
             <Card>
               <div className="flex items-center justify-center">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-4">
                   <Button
                     variant="outline"
                     size="lg"
                     icon={<ChevronLeft />}
                     onClick={goToPreviousDay}
                     disabled={parseInt(dayKey) <= 1}
-                    className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500"
+                    className="px-4 sm:px-6 py-3 min-h-[48px] min-w-[48px] bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500 touch-manipulation active:scale-95 transition-transform"
                   >
-                    {language === 'ar' ? 'اليوم السابق' : 'Previous Day'}
+                    <span className="hidden sm:inline">{language === 'ar' ? 'اليوم السابق' : 'Previous Day'}</span>
+                    <span className="sm:hidden">{language === 'ar' ? 'السابق' : 'Prev'}</span>
                   </Button>
+                  
+                  {/* Swipe Indicator */}
+                  <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+                    <span>{language === 'ar' ? 'اسحب للتنقل' : 'Swipe to navigate'}</span>
+                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+                  </div>
+                  
                   <Button
                     variant="outline"
                     size="lg"
                     icon={<ChevronRight />}
                     onClick={goToNextDay}
                     disabled={parseInt(dayKey) >= (selectedWeek.days?.length || 0)}
-                    className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500"
+                    className="px-4 sm:px-6 py-3 min-h-[48px] min-w-[48px] bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500 touch-manipulation active:scale-95 transition-transform"
                   >
-                    {language === 'ar' ? 'اليوم التالي' : 'Next Day'}
+                    <span className="hidden sm:inline">{language === 'ar' ? 'اليوم التالي' : 'Next Day'}</span>
+                    <span className="sm:hidden">{language === 'ar' ? 'التالي' : 'Next'}</span>
                   </Button>
                 </div>
               </div>
@@ -1344,6 +1813,76 @@ const DayViewPage = () => {
             >
               {resourceModal.resource ? (language === 'ar' ? 'تحديث المورد' : 'Update Resource') : (language === 'ar' ? 'إضافة المورد' : 'Add Resource')}
             </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <Modal
+        isOpen={showKeyboardHelp}
+        onClose={() => setShowKeyboardHelp(false)}
+        title={language === 'ar' ? 'اختصارات لوحة المفاتيح' : 'Keyboard Shortcuts'}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {language === 'ar' ? 'اليوم السابق' : 'Previous Day'}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
+                ←
+              </kbd>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {language === 'ar' ? 'اليوم التالي' : 'Next Day'}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
+                →
+              </kbd>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {language === 'ar' ? 'إضافة ملاحظة' : 'Add Note'}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
+                Ctrl/Cmd + N
+              </kbd>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {language === 'ar' ? 'إضافة مدونة' : 'Add Journal'}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
+                Ctrl/Cmd + J
+              </kbd>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {language === 'ar' ? 'إضافة مورد' : 'Add Resource'}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
+                Ctrl/Cmd + R
+              </kbd>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {language === 'ar' ? 'إغلاق/إلغاء' : 'Close/Cancel'}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
+                Esc
+              </kbd>
+            </div>
+          </div>
+          
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            {language === 'ar' ? 'استخدم هذه الاختصارات للتنقل السريع في التطبيق' : 'Use these shortcuts for quick navigation in the app'}
           </div>
         </div>
       </Modal>
