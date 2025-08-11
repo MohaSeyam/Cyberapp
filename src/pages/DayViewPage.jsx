@@ -163,6 +163,7 @@ const DayViewPage = () => {
     try {
       await addResource({
         ...resourceForm,
+        url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
         weekId: selectedWeek.week,
         dayKey: selectedDay.key,
         phaseId: selectedWeek.phase,
@@ -183,6 +184,7 @@ const DayViewPage = () => {
     try {
       await updateResource(resourceModal.resource.id, {
         ...resourceForm,
+        url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
         updatedAt: new Date().toISOString(),
       });
       setResourceModal({ isOpen: false, resource: null });
@@ -594,7 +596,7 @@ const DayViewPage = () => {
                             dayKey={selectedDay.key}
                             variant="detailed"
                             showNotes={true}
-                            onNoteClick={() => setNoteModal({ isOpen: true, taskId: task.id })}
+                            onNoteClick={() => setShowNoteEditor(true)}
                             dayTasks={selectedDay.tasks}
                           />
                           <TaskEvaluationWidget 
@@ -639,7 +641,7 @@ const DayViewPage = () => {
                         <ExternalLink className="w-5 h-5 text-blue-500" />
                         <div className="flex-1">
                           <a 
-                            href={resource.url} 
+                            href={resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`} 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             className="text-blue-700 dark:text-blue-300 hover:underline font-semibold block"
@@ -668,7 +670,7 @@ const DayViewPage = () => {
                           size="sm"
                           variant="ghost"
                           icon={<Eye className="w-4 h-4" />}
-                          onClick={() => window.open(resource.url, '_blank')}
+                          onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')}
                         />
                         {resource.id && ( // فقط الموارد المضافة من قبل المستخدم يمكن تعديلها
                           <>
@@ -700,22 +702,14 @@ const DayViewPage = () => {
 
           {/* قسم ملاحظات اليوم */}
           <Card className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
-                  {language === 'ar' ? 'ملاحظات اليوم' : 'Day Notes'}
-                </h2>
+                          <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
+                    {language === 'ar' ? 'ملاحظات اليوم' : 'Day Notes'}
+                  </h2>
+                </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                icon={<Plus className="w-4 h-4" />}
-                onClick={() => setShowNoteEditor(true)}
-              >
-                {language === 'ar' ? 'إضافة ملاحظة' : 'Add Note'}
-              </Button>
-            </div>
             
             {/* عرض الملاحظات المرتبطة بهذا اليوم */}
             {showNoteEditor ? (
@@ -845,26 +839,7 @@ const DayViewPage = () => {
           </Card>
 
           {/* قسم التدوين اليومي من ملف الخطة */}
-          {selectedDay?.notes_prompt && (
-            <Card className="mb-8 border-green-400 bg-green-50 dark:bg-green-900/30">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-6 h-6 text-green-600 dark:text-green-300" />
-                <h2 className="text-xl font-bold text-green-700 dark:text-green-200">
-                  {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
-                </h2>
-              </div>
-              <div className="space-y-3">
-                {selectedDay.notes_prompt.points?.map((point, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {point[language] || point.ar}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
+
 
           {/* قسم المدونة */}
           <Card className="mb-8 border-purple-400 bg-purple-50 dark:bg-purple-900/30">
@@ -884,6 +859,27 @@ const DayViewPage = () => {
                 {language === 'ar' ? 'إضافة مدونة' : 'Add Journal'}
               </Button>
             </div>
+
+            {selectedDay?.notes_prompt && (
+              <div className="mb-4 p-4 rounded-lg border border-green-300 bg-green-50 dark:bg-green-900/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-5 h-5 text-green-600 dark:text-green-300" />
+                  <h3 className="font-semibold text-green-700 dark:text-green-200">
+                    {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  {selectedDay.notes_prompt.points?.map((point, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2"></div>
+                      <p className="text-gray-700 dark:text-gray-300">
+                        {point[language] || point.ar}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* عرض المدونة الموجودة */}
             {showJournalEditor ? (
