@@ -72,7 +72,7 @@ export default function JournalViewPage() {
 
   const handleEditJournalEntry = () => {
     // فتح صفحة التعديل في نفس الصفحة
-    navigate(`/journal-entry/${entryId}/edit`);
+    navigate(`/journal/${entryId}/edit`);
   };
 
   const handleCopyContent = async () => {

@@ -16,8 +16,9 @@ import phasesData from '../data/phases.json';
 const PhasesPage = () => {
   const navigate = useNavigate();
   
-  const { language } = useSimpleLocalization();
+  const localization = useSimpleLocalization();
   const { progress } = useSimpleApp();
+  const language = localization?.language || 'ar';
   const isRTL = language === 'ar';
 
   const safeProgress = Array.isArray(progress) ? progress : [];
