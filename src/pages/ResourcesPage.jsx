@@ -34,10 +34,24 @@ const ResourcesPage = () => {
     phaseId: ''
   });
 
+  // URL helpers
+  const normalizeUrl = (rawUrl) => {
+    if (!rawUrl) return '';
+    return rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+  };
+  const isValidUrl = (rawUrl) => {
+    try {
+      const url = new URL(normalizeUrl(rawUrl));
+      return Boolean(url.protocol && url.hostname && url.hostname.includes('.'));
+    } catch {
+      return false;
+    }
+  };
+
   // الحصول على جميع الموارد (من الخطة + المضافة من قبل المستخدم)
   const allResources = useMemo(() => {
     const planResources = [];
-    const userResources = resources || [];
+    const userResources = (resources || []).map(r => ({ ...r, source: r.source || 'user' }));
 
     // جمع الموارد من ملف الخطة
     planData.forEach(week => {
@@ -117,14 +131,18 @@ const ResourcesPage = () => {
 
   const handleAddResource = async () => {
     if (!resourceForm.title.trim() || !resourceForm.url.trim()) return;
-    
+    if (!isValidUrl(resourceForm.url)) {
+      alert(language === 'ar' ? 'يرجى إدخال رابط صحيح' : 'Please enter a valid URL');
+      return;
+    }
     try {
-             await addResource({
-         ...resourceForm,
-         url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
-         createdAt: new Date().toISOString(),
-         updatedAt: new Date().toISOString(),
-       });
+      await addResource({
+        ...resourceForm,
+        url: normalizeUrl(resourceForm.url),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        source: 'user'
+      });
       setShowAddModal(false);
       setResourceForm({
         title: '', url: '', type: 'article', description: '', category: '',
@@ -137,13 +155,17 @@ const ResourcesPage = () => {
 
   const handleUpdateResource = async () => {
     if (!editingResource || !resourceForm.title.trim() || !resourceForm.url.trim()) return;
-    
+    if (!isValidUrl(resourceForm.url)) {
+      alert(language === 'ar' ? 'يرجى إدخال رابط صحيح' : 'Please enter a valid URL');
+      return;
+    }
     try {
-             await updateResource(editingResource.id, {
-         ...resourceForm,
-         url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
-         updatedAt: new Date().toISOString(),
-       });
+      await updateResource(editingResource.id, {
+        ...resourceForm,
+        url: normalizeUrl(resourceForm.url),
+        updatedAt: new Date().toISOString(),
+        source: editingResource.source || 'user'
+      });
       setEditingResource(null);
       setResourceForm({
         title: '', url: '', type: 'article', description: '', category: '',
@@ -156,6 +178,8 @@ const ResourcesPage = () => {
 
   const handleDeleteResource = async (resourceId) => {
     try {
+      const confirmMsg = language === 'ar' ? 'هل أنت متأكد من حذف هذا المورد؟' : 'Are you sure you want to delete this resource?';
+      if (!window.confirm(confirmMsg)) return;
       await deleteResource(resourceId);
     } catch (error) {
       console.error('Error deleting resource:', error);
@@ -321,22 +345,22 @@ const ResourcesPage = () => {
                     </div>
                     
                                         <div className="flex items-center gap-2">
-                      {resource.source === 'user' && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            icon={<Edit2 className="w-4 h-4" />}
-                            onClick={(e) => { e.stopPropagation(); openEditModal(resource); }}
-                          />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            icon={<Trash2 className="w-4 h-4" />}
-                            onClick={(e) => { e.stopPropagation(); handleDeleteResource(resource.id); }}
-                          />
-                        </>
-                      )}
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Edit2 className="w-4 h-4" />}
+                          onClick={(e) => { e.stopPropagation(); openEditModal(resource); }}
+                          title={language === 'ar' ? 'تعديل المورد' : 'Edit resource'}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Trash2 className="w-4 h-4" />}
+                          onClick={(e) => { e.stopPropagation(); handleDeleteResource(resource.id); }}
+                          title={language === 'ar' ? 'حذف المورد' : 'Delete resource'}
+                        />
+                      </>
                     </div>
                   </div>
 
