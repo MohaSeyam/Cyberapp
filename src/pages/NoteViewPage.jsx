@@ -1,258 +1,366 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, Edit, Trash2, Tag, Calendar, Share2, Copy, Check
-} from 'lucide-react';
-import { useSimpleApp } from '../context/SimpleAppContext';
-import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target, FileText, Copy, Printer } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useApp } from '../context/AppContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import toast from 'react-hot-toast';
 
-const NoteViewPage = () => {
-  const navigate = useNavigate();
+export default function NoteViewPage() {
   const { noteId } = useParams();
-  
-  // Safe access to useSimpleLocalization
-  let localizationData;
-  try {
-    localizationData = useSimpleLocalization();
-  } catch (error) {
-    console.error('Error accessing useSimpleLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
-  const isRTL = language === 'ar';
-
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useSimpleApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      notes: [],
-      deleteNote: async () => {}
-    };
-  }
-  const { notes, deleteNote } = appData;
-
-  // Ensure data is available
-  const safeNotes = Array.isArray(notes) ? notes : [];
+  const navigate = useNavigate();
+  const { appState, deleteNote, plan } = useApp();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [copied, setCopied] = useState(false);
 
-  const note = safeNotes.find(n => n.id === parseInt(noteId));
+  // البحث عن الملاحظة في جميع الأيام
+  const note = React.useMemo(() => {
+    if (!appState?.notes || !noteId) return null;
+    
+    for (const [dayKey, notes] of Object.entries(appState.notes)) {
+      const foundNote = notes.find(n => n.id === parseInt(noteId));
+      if (foundNote) {
+        return { ...foundNote, dayKey };
+      }
+    }
+    return null;
+  }, [appState?.notes, noteId]);
+
+  // البحث عن اليوم المرتبط بالملاحظة
+  const dayInfo = React.useMemo(() => {
+    if (!note?.dayKey || !plan) return null;
+    
+    const [weekId, dayKey] = note.dayKey.split('-');
+    const week = plan.find(w => w.week === parseInt(weekId));
+    if (week) {
+      const day = week.days?.find(d => d.key === dayKey);
+      return { week, day };
+    }
+    return null;
+  }, [note, plan]);
+
+  const handleDeleteNote = async () => {
+    try {
+              await deleteNote(parseInt(noteId));
+      toast.success('✓ تم حذف الملاحظة بنجاح', {
+        icon: '🗑️',
+        style: {
+          background: '#10B981',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+      setShowDeleteModal(false);
+      navigate(-1);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast.error('✕ فشل في حذف الملاحظة', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+    }
+  };
+
+  const handleEditNote = () => {
+    // فتح صفحة التعديل في نفس الصفحة
+    navigate(`/note/${noteId}/edit`);
+  };
+
+  const handleCopyContent = async () => {
+    try {
+      // نسخ العنوان والمحتوى
+      const contentToCopy = `${note.title}\n\n${note.content.replace(/<[^>]*>/g, '')}`;
+      await navigator.clipboard.writeText(contentToCopy);
+      toast.success('✓ تم نسخ المحتوى بنجاح', {
+        icon: '📋',
+        style: {
+          background: '#10B981',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+    } catch (error) {
+      console.error('Error copying content:', error);
+      toast.error('✕ فشل في نسخ المحتوى', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+    }
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const printContent = `
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="UTF-8">
+          <title>${note.title}</title>
+          <style>
+            @media print {
+              body { font-family: 'Arial', sans-serif; margin: 20px; }
+              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+              .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+              .meta { color: #666; font-size: 14px; margin-bottom: 20px; }
+              .content { line-height: 1.6; font-size: 16px; }
+              .tags { margin-top: 20px; }
+              .tag { background: #f0f0f0; padding: 4px 8px; border-radius: 4px; margin-right: 8px; font-size: 12px; }
+              @page { margin: 1in; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="title">${note.title}</div>
+            <div class="meta">
+              التاريخ: ${new Date(note.createdAt).toLocaleDateString('en-US')}<br>
+              الوقت: ${new Date(note.createdAt).toLocaleTimeString('ar-SA')}
+              ${dayInfo && dayInfo.day ? `<br>اليوم: ${dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}` : ''}
+              ${dayInfo && dayInfo.day && dayInfo.day.topic?.ar ? `<br>الموضوع: ${dayInfo.day.topic.ar}` : ''}
+            </div>
+            ${note.tags && note.tags.length > 0 ? `
+              <div class="tags">
+                ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+          <div class="content">
+            ${note.content}
+          </div>
+        </body>
+        </html>
+      `;
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
 
   if (!note) {
     return (
-      <PageLayout title={language === 'ar' ? 'ملاحظة غير موجودة' : 'Note Not Found'}>
+      <PageLayout title="ملاحظة غير موجودة">
         <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {language === 'ar' ? 'الملاحظة المطلوبة غير موجودة' : 'The requested note was not found'}
+          <div className="text-6xl mb-4">📝</div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            الملاحظة غير موجودة
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            قد تكون الملاحظة قد تم حذفها أو الرابط غير صحيح
           </p>
-          <Button
-            variant="primary"
-            onClick={() => navigate('/notes')}
-          >
-            {language === 'ar' ? 'العودة للملاحظات' : 'Back to Notes'}
+          <Button onClick={() => navigate(-1)} variant="primary">
+            العودة للصفحة السابقة
           </Button>
         </div>
       </PageLayout>
     );
   }
 
-  const handleDelete = async () => {
-    try {
-      await deleteNote(note.id);
-      navigate('/notes');
-    } catch (error) {
-      console.error('Error deleting note:', error);
-    }
-  };
-
-  const handleCopyContent = async () => {
-    try {
-      await navigator.clipboard.writeText(note.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Error copying content:', error);
-    }
-  };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: note.title,
-          text: note.content,
-        });
-      } catch (error) {
-        console.error('Error sharing note:', error);
-      }
-    } else {
-      handleCopyContent();
-    }
-  };
-
-  const animations = {
-    fadeIn: {
-      initial: { opacity: 0, y: 20 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.6 }
-    }
-  };
-
   return (
-    <PageLayout
-      title={language === 'ar' ? 'عرض الملاحظة' : 'View Note'}
-      showBottomBar={false}
-    >
-      <motion.div {...animations.fadeIn} className="space-y-6">
+    <PageLayout title={note.title}>
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            icon={<ArrowLeft />}
-            onClick={() => navigate('/notes')}
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          >
-            {language === 'ar' ? 'العودة للملاحظات' : 'Back to Notes'}
-          </Button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="رجوع"
+              aria-label="رجوع"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+            
+          </div>
           
           <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              icon={copied ? <Check /> : <Copy />}
+            <button
+              onClick={handleEditNote}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title="تعديل الملاحظة"
+            >
+              <Edit2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
               onClick={handleCopyContent}
-              className={copied ? 'text-green-600 dark:text-green-400' : ''}
+              className="p-2 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/20 transition-colors"
+              title="نسخ المحتوى"
             >
-              {copied ? (language === 'ar' ? 'تم النسخ' : 'Copied') : (language === 'ar' ? 'نسخ' : 'Copy')}
-            </Button>
-            <Button
-              variant="outline"
-              icon={<Share2 />}
-              onClick={handleShare}
+              <Copy className="w-5 h-5 text-green-600 dark:text-green-400" />
+            </button>
+            <button
+              onClick={handlePrint}
+              className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-colors"
+              title="طباعة الملاحظة"
             >
-              {language === 'ar' ? 'مشاركة' : 'Share'}
-            </Button>
-            <Button
-              variant="outline"
-              icon={<Edit />}
-              onClick={() => navigate(`/notes/${noteId}/edit`)}
-            >
-              {language === 'ar' ? 'تعديل' : 'Edit'}
-            </Button>
-            <Button
-              variant="danger"
-              icon={<Trash2 />}
+              <Printer className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </button>
+            <button
               onClick={() => setShowDeleteModal(true)}
+              className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
+              title="حذف الملاحظة"
             >
-              {language === 'ar' ? 'حذف' : 'Delete'}
-            </Button>
+              <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </button>
           </div>
         </div>
 
         {/* Note Content */}
-        <Card className="p-6">
-          {/* Title */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {note.title}
-            </h1>
-            
-            {/* Meta Information */}
-            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {language === 'ar' ? 'تم الإنشاء:' : 'Created:'} {new Date(note.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                  </span>
-                </div>
-                {note.updatedAt && (
-                  <div className="flex items-center space-x-1">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <Card>
+            <div className="space-y-8">
+              {/* Note Header - Enhanced */}
+              <motion.div 
+                className="text-center border-b border-gray-200 dark:border-gray-700 pb-6"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+              >
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                  {note.title}
+                </h1>
+                
+                {/* Enhanced Day/Subject Info */}
+                {dayInfo && dayInfo.day && (
+                  <motion.div 
+                    className="inline-block bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-xl px-6 py-4 mb-4 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors duration-200"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                    onClick={() => {
+                      if (dayInfo.week && dayInfo.day) {
+                        // البحث عن فهرس اليوم في الأسبوع
+                        const dayIndex = dayInfo.week.days?.findIndex(d => d.key === dayInfo.day.key);
+                        if (dayIndex !== undefined && dayIndex !== -1) {
+                          navigate(`/day/${dayInfo.week.week}/${dayIndex}`);
+                        }
+                      }
+                    }}
+                    title="انقر للانتقال إلى هذا اليوم"
+                  >
+                    <div className="flex items-center justify-center space-x-3 text-blue-700 dark:text-blue-300">
+                      <Target className="w-5 h-5" />
+                      <span className="font-semibold text-lg">
+                        {dayInfo.day.name?.ar || dayInfo.day.name?.en || 'اليوم'}
+                      </span>
+                      {dayInfo.day.topic?.ar && (
+                        <>
+                          <span className="text-blue-500 dark:text-blue-400">-</span>
+                          <span className="text-blue-600 dark:text-blue-400">
+                            {dayInfo.day.topic.ar}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Enhanced Date/Time Info */}
+                <motion.div 
+                  className="flex items-center justify-center space-x-8 text-sm text-gray-500 dark:text-gray-400"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                >
+                  <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4" />
                     <span>
-                      {language === 'ar' ? 'آخر تحديث:' : 'Last updated:'} {new Date(note.updatedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                      {new Date(note.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </span>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {new Date(note.createdAt).toLocaleTimeString('ar-SA', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                </motion.div>
+              </motion.div>
 
-          {/* Tags */}
-          {note.tags && note.tags.length > 0 && (
-            <div className="mb-6">
-              <div className="flex items-center space-x-2 mb-2">
-                <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {language === 'ar' ? 'التاقات:' : 'Tags:'}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {note.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+              {/* Enhanced Tags */}
+              {note.tags && note.tags.length > 0 && (
+                <motion.div 
+                  className="flex items-center justify-center space-x-2"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.4 }}
+                >
+                  <Tag className="w-4 h-4 text-gray-400" />
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {note.tags.map((tag, index) => (
+                      <motion.span
+                        key={index}
+                        className="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full font-medium shadow-sm"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2, delay: 0.5 + index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        #{tag}
+                      </motion.span>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-          {/* Content */}
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <div 
-              className="text-gray-800 dark:text-gray-200 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: note.content }}
-            />
-          </div>
-        </Card>
-
-        {/* Delete Confirmation Modal */}
-        <Modal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          title={language === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete'}
-        >
-          <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
-              {language === 'ar' 
-                ? 'هل أنت متأكد من حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا الإجراء.'
-                : 'Are you sure you want to delete this note? This action cannot be undone.'
-              }
-            </p>
-            <div className="flex items-center justify-end space-x-3">
-              <Button
-                variant="ghost"
-                onClick={() => setShowDeleteModal(false)}
+              {/* Enhanced Note Content */}
+              <motion.div 
+                className="content-display"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
               >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleDelete}
-              >
-                {language === 'ar' ? 'حذف' : 'Delete'}
-              </Button>
+                <div 
+                  className="break-words overflow-wrap-anywhere leading-relaxed"
+                  style={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    hyphens: 'auto'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: note.content }} 
+                />
+              </motion.div>
             </div>
-          </div>
-        </Modal>
-      </motion.div>
+          </Card>
+        </motion.div>
+      </div>
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteNote}
+        title="حذف الملاحظة"
+        message="هل أنت متأكد من حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        isConfirmModal={true}
+      />
     </PageLayout>
   );
-};
-
-export default NoteViewPage;
+}
