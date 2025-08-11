@@ -88,6 +88,7 @@ const DayViewPage = () => {
 
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null });
@@ -219,14 +220,29 @@ const DayViewPage = () => {
 
   // Find current week and day
   useEffect(() => {
-    const week = (planData || []).find(w => w.week === parseInt(weekId) && w.phase === parseInt(phaseId));
-    setSelectedWeek(week);
-    if (week && week.days) {
-      // dayKey هو رقم اليوم في URL (يبدأ من 1)
-      const dayIndexInArray = parseInt(dayKey) - 1;
-      if (dayIndexInArray >= 0 && dayIndexInArray < week.days.length) {
-        setSelectedDay(week.days[dayIndexInArray]);
+    setIsLoading(true);
+    try {
+      const week = (planData || []).find(w => w.week === parseInt(weekId) && w.phase === parseInt(phaseId));
+      setSelectedWeek(week);
+      if (week && week.days && Array.isArray(week.days)) {
+        // dayKey هو رقم اليوم في URL (يبدأ من 1)
+        const dayIndexInArray = parseInt(dayKey) - 1;
+        if (dayIndexInArray >= 0 && dayIndexInArray < week.days.length) {
+          setSelectedDay(week.days[dayIndexInArray]);
+        } else {
+          console.warn(`Day index ${dayIndexInArray} is out of range for week ${weekId}`);
+          setSelectedDay(null);
+        }
+      } else {
+        console.warn(`Week ${weekId} has no valid days array`);
+        setSelectedDay(null);
       }
+    } catch (error) {
+      console.error('Error setting selected week and day:', error);
+      setSelectedWeek(null);
+      setSelectedDay(null);
+    } finally {
+      setIsLoading(false);
     }
   }, [weekId, dayKey, phaseId]);
 
@@ -468,13 +484,10 @@ const DayViewPage = () => {
 
   // الحصول على الموارد المرتبطة باليوم
   const getDayResources = () => {
-    if (!selectedWeek || !selectedDay) return [];
+    if (!selectedWeek || !selectedDay || !selectedDay.key) return [];
     
-    // Get resources from plan data
-    const planResources = planData.weeks
-      .find(w => w.week === parseInt(weekId))
-      ?.days?.find(d => d.key === parseInt(dayKey))
-      ?.resources || [];
+    // Get resources from plan data - selectedDay is already set correctly
+    const planResources = selectedDay?.resources || [];
     
     // Get user-added resources
     const userResources = safeResources.filter(r => 
@@ -516,15 +529,16 @@ const DayViewPage = () => {
 
   // الحصول على الملاحظات المرتبطة باليوم
   const getDayNotes = () => {
+    if (!selectedWeek?.week || !selectedDay?.key) return [];
     return safeNotes.filter(note => 
-      note.weekId === selectedWeek?.week && 
-      note.dayKey === selectedDay?.key
+      note.weekId === selectedWeek.week && 
+      note.dayKey === selectedDay.key
     );
   };
 
   // الحصول على مدونة اليوم
   const getDayJournal = () => {
-    if (!selectedWeek || !selectedDay) return null;
+    if (!selectedWeek || !selectedDay || !selectedDay.key) return null;
     
     const entry = safeJournalEntries.find(e =>
       e.weekId === selectedWeek.week &&
@@ -545,7 +559,14 @@ const DayViewPage = () => {
 
   // Determine current phase
   const getCurrentPhase = () => {
-    return (phasesData || []).find(phase => phase.weeks.includes(parseInt(weekId)));
+    try {
+      return (phasesData || []).find(phase => 
+        phase.weeks && Array.isArray(phase.weeks) && phase.weeks.includes(parseInt(weekId))
+      );
+    } catch (error) {
+      console.error('Error getting current phase:', error);
+      return null;
+    }
   };
 
   const currentPhase = getCurrentPhase();
@@ -970,6 +991,19 @@ const DayViewPage = () => {
     })
   };
 
+  if (isLoading) {
+    return (
+      <PageLayout title="جاري التحميل..." subtitle="Loading..." showHeader={true}>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            {language === 'ar' ? 'جاري تحميل اليوم...' : 'Loading day...'}
+          </h3>
+        </div>
+      </PageLayout>
+    );
+  }
+
   if (!selectedWeek || !selectedDay) {
     return (
       <PageLayout title="خطأ" subtitle="اليوم غير موجود" showHeader={true}>
@@ -1044,7 +1078,7 @@ const DayViewPage = () => {
               const totalTasks = (selectedDay.tasks || []).length;
               const completedTasks = safeProgress.filter(p => 
                 p.weekId === weekId && 
-                p.dayKey === dayKey && 
+                p.dayKey === selectedDay?.key && 
                 p.completed
               ).length;
               const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -1100,7 +1134,7 @@ const DayViewPage = () => {
                   <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {safeProgress.filter(p => p.weekId === weekId && p.dayKey === dayKey && p.completed).length}
+                  {safeProgress.filter(p => p.weekId === weekId && p.dayKey === selectedDay?.key && p.completed).length}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {language === 'ar' ? 'مهام مكتملة' : 'Tasks Done'}
