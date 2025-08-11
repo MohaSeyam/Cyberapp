@@ -86,6 +86,16 @@ const PhaseWeeksPage = () => {
     };
   };
 
+  // Get total tasks for a week from data
+  const getWeekTotalTasks = (weekNumber) => {
+    const week = (planData || []).find(w => w.week === weekNumber);
+    if (!week || !week.days) return 0;
+    
+    return week.days.reduce((total, day) => {
+      return total + (day.tasks ? day.tasks.length : 0);
+    }, 0);
+  };
+
   // Day icons mapping
   const dayIcons = {
     sat: '🌅',
@@ -275,11 +285,7 @@ const PhaseWeeksPage = () => {
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center space-x-1">
                       <Target className="w-4 h-4" />
-                      <span>{completion.completed}/{completion.total} {language === 'ar' ? 'مهام' : 'tasks'}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{week.days?.length || 0} {language === 'ar' ? 'أيام' : 'days'}</span>
+                      <span>{completion.completed}/{getWeekTotalTasks(week.week)} {language === 'ar' ? 'مهام' : 'tasks'}</span>
                     </div>
                   </div>
 

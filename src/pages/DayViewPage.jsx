@@ -72,7 +72,11 @@ const DayViewPage = () => {
     const week = (planData || []).find(w => w.week === parseInt(weekId));
     setSelectedWeek(week);
     if (week && week.days) {
-      setSelectedDay(week.days[parseInt(dayIndex)]);
+      // dayIndex يبدأ من 1 في URL، لكن المصفوفة تبدأ من 0
+      const dayIndexInArray = parseInt(dayIndex) - 1;
+      if (dayIndexInArray >= 0 && dayIndexInArray < week.days.length) {
+        setSelectedDay(week.days[dayIndexInArray]);
+      }
     }
   }, [weekId, dayIndex]);
 
@@ -85,7 +89,7 @@ const DayViewPage = () => {
 
   // Navigation functions
   const goToNextDay = () => {
-    if (selectedWeek && parseInt(dayIndex) < selectedWeek.days.length - 1) {
+    if (selectedWeek && parseInt(dayIndex) < selectedWeek.days.length) {
       if (currentPhase) {
         navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${parseInt(dayIndex) + 1}`);
       } else {
@@ -95,7 +99,7 @@ const DayViewPage = () => {
   };
 
   const goToPreviousDay = () => {
-    if (parseInt(dayIndex) > 0) {
+    if (parseInt(dayIndex) > 1) {
       if (currentPhase) {
         navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${parseInt(dayIndex) - 1}`);
       } else {
@@ -409,7 +413,7 @@ const DayViewPage = () => {
             
             <div className="mb-6">
               <h1 className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2 drop-shadow-lg">
-                {selectedDay.name?.[language] || selectedDay.name?.ar}
+                {selectedDay.day?.[language] || selectedDay.day?.ar}
               </h1>
               {selectedDay.topic?.[language] && (
                 <p className="text-2xl md:text-3xl text-gray-600 dark:text-gray-400 font-medium mb-2">
