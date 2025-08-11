@@ -98,6 +98,8 @@ const DayViewPage = () => {
   const [isSavingJournal, setIsSavingJournal] = useState(false);
   const [showJournalEditor, setShowJournalEditor] = useState(false);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
+  const [expandedJournal, setExpandedJournal] = useState(false);
+  const [expandedNotes, setExpandedNotes] = useState({});
   const noteEditorRef = React.useRef(null);
 
   useEffect(() => {
@@ -800,16 +802,37 @@ const DayViewPage = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
                   </label>
-                  <input
-                    type="text"
-                    value={noteForm.tags.join(', ')}
-                    onChange={(e) => setNoteForm(prev => ({ 
-                      ...prev, 
-                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) 
-                    }))}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بفواصل' : 'Enter tags separated by commas'}
-                  />
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={noteForm.tags.join(' ')}
+                      onChange={(e) => setNoteForm(prev => ({ 
+                        ...prev, 
+                        tags: e.target.value.split(/\s+/).map(tag => tag.trim()).filter(tag => tag) 
+                      }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بمسافات' : 'Enter tags separated by spaces'}
+                    />
+                    {noteForm.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {noteForm.tags.map((tag, index) => (
+                          <span key={index} className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full flex items-center gap-2">
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => setNoteForm(prev => ({
+                                ...prev,
+                                tags: prev.tags.filter((_, i) => i !== index)
+                              }))}
+                              className="text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-100"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <RichTextEditor
@@ -854,9 +877,9 @@ const DayViewPage = () => {
             ) : (
               <div className="space-y-4">
                 {getDayNotes().map(note => (
-                  <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700 cursor-pointer" onClick={() => navigate(`/notes/${note.id}`)} tabIndex={0} role="button" aria-label={language === 'ar' ? `عرض الملاحظة ${note.title}` : `View note ${note.title}`} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/notes/${note.id}`); } }}>
+                  <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
                     <div className="flex items-center justify-between mb-3">
-                      <div>
+                      <div className="flex-1 cursor-pointer" onClick={() => setExpandedNotes(prev => ({ ...prev, [note.id]: !prev[note.id] }))}>
                         <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{note.title}</h3>
                         {note.tags && note.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1">
@@ -867,8 +890,19 @@ const DayViewPage = () => {
                             ))}
                           </div>
                         )}
+                        {!expandedNotes[note.id] && (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
+                            {note.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={expandedNotes[note.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          onClick={(e) => { e.stopPropagation(); setExpandedNotes(prev => ({ ...prev, [note.id]: !prev[note.id] })); }}
+                        />
                         <Button
                           size="sm"
                           variant="ghost"
@@ -890,7 +924,9 @@ const DayViewPage = () => {
                         />
                       </div>
                     </div>
-                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content }} />
+                    {expandedNotes[note.id] && (
+                      <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content }} />
+                    )}
                   </Card>
                 ))}
                 {getDayNotes().length === 0 && (
@@ -966,16 +1002,37 @@ const DayViewPage = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
                   </label>
-                  <input
-                    type="text"
-                    value={journalForm.tags.join(', ')}
-                    onChange={(e) => setJournalForm(prev => ({ 
-                      ...prev, 
-                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) 
-                    }))}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                    placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بفواصل' : 'Enter tags separated by commas'}
-                  />
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={journalForm.tags.join(' ')}
+                      onChange={(e) => setJournalForm(prev => ({ 
+                        ...prev, 
+                        tags: e.target.value.split(/\s+/).map(tag => tag.trim()).filter(tag => tag) 
+                      }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                      placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بمسافات' : 'Enter tags separated by spaces'}
+                    />
+                    {journalForm.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {journalForm.tags.map((tag, index) => (
+                          <span key={index} className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm rounded-full flex items-center gap-2">
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => setJournalForm(prev => ({
+                                ...prev,
+                                tags: prev.tags.filter((_, i) => i !== index)
+                              }))}
+                              className="text-purple-500 hover:text-purple-700 dark:text-purple-300 dark:hover:text-purple-100"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <RichTextEditor
@@ -1010,12 +1067,34 @@ const DayViewPage = () => {
             ) : (
               getDayJournal() ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 cursor-pointer" role="button" tabIndex={0} aria-label={language === 'ar' ? `عرض المدونة ${getDayJournal().title || ''}` : `View journal ${getDayJournal().title || ''}`} onClick={() => navigate(`/journal/${getDayJournal().id}`)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/journal/${getDayJournal().id}`); } }}>
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-purple-700 dark:text-purple-300">
-                        {getDayJournal().title || (language === 'ar' ? 'مدونة اليوم' : 'Day Journal')}
-                      </h3>
+                      <div className="flex-1 cursor-pointer" onClick={() => setExpandedJournal(!expandedJournal)}>
+                        <h3 className="font-semibold text-purple-700 dark:text-purple-300">
+                          {getDayJournal().title || (language === 'ar' ? 'مدونة اليوم' : 'Day Journal')}
+                        </h3>
+                        {getDayJournal().tags && getDayJournal().tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {getDayJournal().tags.map((tag, index) => (
+                              <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {!expandedJournal && (
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
+                            {getDayJournal().content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                          </p>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={expandedJournal ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          onClick={(e) => { e.stopPropagation(); setExpandedJournal(!expandedJournal); }}
+                        />
                         <Button
                           size="sm"
                           variant="ghost"
@@ -1041,15 +1120,19 @@ const DayViewPage = () => {
                         />
                       </div>
                     </div>
-                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getDayJournal().content }} />
-                    {getDayJournal().tags && getDayJournal().tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {getDayJournal().tags.map((tag, index) => (
-                          <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                    {expandedJournal && (
+                      <>
+                        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getDayJournal().content }} />
+                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/journal/${getDayJournal().id}`)}
+                          >
+                            {language === 'ar' ? 'عرض كامل المدونة' : 'View Full Journal'}
+                          </Button>
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>
