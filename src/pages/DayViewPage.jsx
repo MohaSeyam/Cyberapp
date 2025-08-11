@@ -17,7 +17,7 @@ import planData from '../data/PlanData.json';
 import phasesData from '../data/phases.json';
 
 const DayViewPage = () => {
-  const { weekId, dayIndex } = useParams();
+  const { weekId, dayIndex, phaseId } = useParams();
   const navigate = useNavigate();
   
   // Safe access to useSimpleLocalization
@@ -69,7 +69,7 @@ const DayViewPage = () => {
 
   // Find current week and day
   useEffect(() => {
-    const week = (planData || []).find(w => w.week === parseInt(weekId));
+    const week = (planData || []).find(w => w.week === parseInt(weekId) && w.phase === parseInt(phaseId));
     setSelectedWeek(week);
     if (week && week.days) {
       // dayIndex يبدأ من 1 في URL، لكن المصفوفة تبدأ من 0
@@ -78,7 +78,7 @@ const DayViewPage = () => {
         setSelectedDay(week.days[dayIndexInArray]);
       }
     }
-  }, [weekId, dayIndex]);
+  }, [weekId, dayIndex, phaseId]);
 
   // Determine current phase
   const getCurrentPhase = () => {
