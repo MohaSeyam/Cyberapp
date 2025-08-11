@@ -612,28 +612,6 @@ const DayViewPage = () => {
             })()}
           </motion.div>
 
-          {/* قسم التدوين اليومي من ملف الخطة */}
-          {selectedDay?.notes_prompt && (
-            <Card className="mb-8 border-green-400 bg-green-50 dark:bg-green-900/30">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-6 h-6 text-green-600 dark:text-green-300" />
-                <h2 className="text-xl font-bold text-green-700 dark:text-green-200">
-                  {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
-                </h2>
-              </div>
-              <div className="space-y-3">
-                {selectedDay.notes_prompt.points?.map((point, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {point[language] || point.ar}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
           {/* قسم الموارد */}
           <Card className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -720,141 +698,6 @@ const DayViewPage = () => {
             </div>
           </Card>
 
-          {/* قسم المدونة */}
-          <Card className="mb-8 border-purple-400 bg-purple-50 dark:bg-purple-900/30">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-300" />
-                <h2 className="text-xl font-bold text-purple-700 dark:text-purple-200">
-                  {language === 'ar' ? 'مدونة اليوم' : 'Day Journal'}
-                </h2>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                icon={<Plus className="w-4 h-4" />}
-                onClick={() => setShowJournalEditor(true)}
-              >
-                {language === 'ar' ? 'إضافة مدونة' : 'Add Journal'}
-              </Button>
-            </div>
-            
-                         {/* عرض المدونة الموجودة */}
-             {showJournalEditor ? (
-               <div className="space-y-4">
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                     {language === 'ar' ? 'عنوان المدونة' : 'Journal Title'}
-                   </label>
-                   <input
-                     type="text"
-                     value={journalForm.title}
-                     onChange={(e) => setJournalForm(prev => ({ ...prev, title: e.target.value }))}
-                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                     placeholder={language === 'ar' ? 'أدخل عنوان المدونة' : 'Enter journal title'}
-                   />
-                 </div>
-                 
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
-                   </label>
-                   <input
-                     type="text"
-                     value={journalForm.tags.join(', ')}
-                     onChange={(e) => setJournalForm(prev => ({ 
-                       ...prev, 
-                       tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) 
-                     }))}
-                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                     placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بفواصل' : 'Enter tags separated by commas'}
-                   />
-                 </div>
-                 
-                 <RichTextEditor
-                   content={journalForm.content}
-                   onChange={val => setJournalForm(prev => ({ ...prev, content: val }))}
-                   placeholder={language === 'ar' ? 'اكتب مدونتك هنا...' : 'Write your journal here...'}
-                   lang={language}
-                   showToolbar={true}
-                   minHeight="200px"
-                 />
-                 
-                 <div className="flex justify-end space-x-3">
-                   <Button
-                     variant="outline"
-                     onClick={() => {
-                       setShowJournalEditor(false);
-                       setJournalForm({ title: '', content: '', tags: [] });
-                     }}
-                   >
-                     {language === 'ar' ? 'إلغاء' : 'Cancel'}
-                   </Button>
-                   <Button
-                     variant="primary"
-                     loading={isSavingJournal}
-                     onClick={handleSaveJournal}
-                     disabled={isSavingJournal || !journalForm.title.trim() || !journalForm.content.trim()}
-                   >
-                     {language === 'ar' ? 'حفظ المدونة' : 'Save Journal'}
-                   </Button>
-                 </div>
-               </div>
-             ) : (
-               getDayJournal() ? (
-                 <div className="space-y-4">
-                   <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
-                     <div className="flex items-center justify-between mb-3">
-                       <h3 className="font-semibold text-purple-700 dark:text-purple-300">
-                         {getDayJournal().title || (language === 'ar' ? 'مدونة اليوم' : 'Day Journal')}
-                       </h3>
-                       <div className="flex items-center gap-2">
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           icon={<Edit2 className="w-4 h-4" />}
-                           onClick={() => {
-                             setJournalForm({
-                               title: getDayJournal().title || '',
-                               content: getDayJournal().content || '',
-                               tags: getDayJournal().tags || []
-                             });
-                             setShowJournalEditor(true);
-                           }}
-                         />
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           icon={<Trash2 className="w-4 h-4" />}
-                           onClick={() => {
-                             if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه المدونة؟' : 'Are you sure you want to delete this journal?')) {
-                               handleDeleteJournal();
-                             }
-                           }}
-                         />
-                       </div>
-                     </div>
-                     <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getDayJournal().content }} />
-                     {getDayJournal().tags && getDayJournal().tags.length > 0 && (
-                       <div className="flex flex-wrap gap-2 mt-3">
-                         {getDayJournal().tags.map((tag, index) => (
-                           <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
-                             {tag}
-                           </span>
-                         ))}
-                       </div>
-                     )}
-                   </div>
-                 </div>
-               ) : (
-                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                   <BookOpen className="w-12 h-12 mx-auto mb-3 text-purple-300" />
-                   <p>{language === 'ar' ? 'لا توجد مدونة لهذا اليوم. اضغط على "إضافة مدونة" لبدء الكتابة.' : 'No journal entry for this day. Click "Add Journal" to start writing.'}</p>
-                 </div>
-               )
-             )}
-          </Card>
-
           {/* قسم ملاحظات اليوم */}
           <Card className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -874,131 +717,288 @@ const DayViewPage = () => {
               </Button>
             </div>
             
-                         {/* عرض الملاحظات المرتبطة بهذا اليوم */}
-             {showNoteEditor ? (
-               <div className="space-y-4">
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                     {language === 'ar' ? 'عنوان الملاحظة' : 'Note Title'}
-                   </label>
-                   <input
-                     type="text"
-                     value={noteForm.title}
-                     onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
-                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                     placeholder={language === 'ar' ? 'أدخل عنوان الملاحظة' : 'Enter note title'}
-                   />
-                 </div>
-                 
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
-                   </label>
-                   <input
-                     type="text"
-                     value={noteForm.tags.join(', ')}
-                     onChange={(e) => setNoteForm(prev => ({ 
-                       ...prev, 
-                       tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) 
-                     }))}
-                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                     placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بفواصل' : 'Enter tags separated by commas'}
-                   />
-                 </div>
-                 
-                 <RichTextEditor
-                   content={noteForm.content}
-                   onChange={val => setNoteForm(prev => ({ ...prev, content: val }))}
-                   placeholder={language === 'ar' ? 'اكتب ملاحظتك هنا...' : 'Write your note here...'}
-                   lang={language}
-                   showToolbar={true}
-                   minHeight="150px"
-                 />
-                 
-                 <div className="flex justify-end space-x-3">
-                   <Button
-                     variant="outline"
-                     onClick={() => {
-                       setShowNoteEditor(false);
-                       setNoteForm({ title: '', content: '', tags: [] });
-                     }}
-                   >
-                     {language === 'ar' ? 'إلغاء' : 'Cancel'}
-                   </Button>
-                   <Button
-                     variant="primary"
-                     onClick={() => {
-                       addNote({
-                         title: noteForm.title,
-                         content: noteForm.content,
-                         tags: noteForm.tags,
-                         weekId: selectedWeek.week,
-                         dayKey: selectedDay.key,
-                         phaseId: selectedWeek.phase
-                       });
-                       setShowNoteEditor(false);
-                       setNoteForm({ title: '', content: '', tags: [] });
-                     }}
-                     disabled={!noteForm.title.trim() || !noteForm.content.trim()}
-                   >
-                     {language === 'ar' ? 'حفظ الملاحظة' : 'Save Note'}
-                   </Button>
-                 </div>
-               </div>
-             ) : (
-               <div className="space-y-4">
-                 {getDayNotes().map(note => (
-                   <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
-                     <div className="flex items-center justify-between mb-3">
-                       <div>
-                         <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{note.title}</h3>
-                         {note.tags && note.tags.length > 0 && (
-                           <div className="flex flex-wrap gap-1">
-                             {note.tags.map((tag, index) => (
-                               <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
-                                 {tag}
-                               </span>
-                             ))}
-                           </div>
-                         )}
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           icon={<Edit2 className="w-4 h-4" />}
-                           onClick={() => {
-                             setNoteForm({
-                               title: note.title,
-                               content: note.content,
-                               tags: note.tags || []
-                             });
-                             setShowNoteEditor(true);
-                           }}
-                         />
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           icon={<Trash2 className="w-4 h-4" />}
-                           onClick={() => {
-                             if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الملاحظة؟' : 'Are you sure you want to delete this note?')) {
-                               deleteNote(note.id);
-                             }
-                           }}
-                         />
-                       </div>
-                     </div>
-                     <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content }} />
-                   </Card>
-                 ))}
-                 {getDayNotes().length === 0 && (
-                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                     <MessageSquare className="w-12 h-12 mx-auto mb-3 text-blue-300" />
-                     <p>{language === 'ar' ? 'لا توجد ملاحظات لهذا اليوم. اضغط على "إضافة ملاحظة" لبدء الكتابة.' : 'No notes for this day. Click "Add Note" to start writing.'}</p>
-                   </div>
-                 )}
-               </div>
-             )}
+            {/* عرض الملاحظات المرتبطة بهذا اليوم */}
+            {showNoteEditor ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {language === 'ar' ? 'عنوان الملاحظة' : 'Note Title'}
+                  </label>
+                  <input
+                    type="text"
+                    value={noteForm.title}
+                    onChange={(e) => setNoteForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder={language === 'ar' ? 'أدخل عنوان الملاحظة' : 'Enter note title'}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={noteForm.tags.join(', ')}
+                    onChange={(e) => setNoteForm(prev => ({ 
+                      ...prev, 
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) 
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بفواصل' : 'Enter tags separated by commas'}
+                  />
+                </div>
+                
+                <RichTextEditor
+                  content={noteForm.content}
+                  onChange={val => setNoteForm(prev => ({ ...prev, content: val }))}
+                  placeholder={language === 'ar' ? 'اكتب ملاحظتك هنا...' : 'Write your note here...'}
+                  lang={language}
+                  showToolbar={true}
+                  minHeight="150px"
+                />
+                
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowNoteEditor(false);
+                      setNoteForm({ title: '', content: '', tags: [] });
+                    }}
+                  >
+                    {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      addNote({
+                        title: noteForm.title,
+                        content: noteForm.content,
+                        tags: noteForm.tags,
+                        weekId: selectedWeek.week,
+                        dayKey: selectedDay.key,
+                        phaseId: selectedWeek.phase
+                      });
+                      setShowNoteEditor(false);
+                      setNoteForm({ title: '', content: '', tags: [] });
+                    }}
+                    disabled={!noteForm.title.trim() || !noteForm.content.trim()}
+                  >
+                    {language === 'ar' ? 'حفظ الملاحظة' : 'Save Note'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {getDayNotes().map(note => (
+                  <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{note.title}</h3>
+                        {note.tags && note.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {note.tags.map((tag, index) => (
+                              <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Edit2 className="w-4 h-4" />}
+                          onClick={() => {
+                            setNoteForm({
+                              title: note.title,
+                              content: note.content,
+                              tags: note.tags || []
+                            });
+                            setShowNoteEditor(true);
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Trash2 className="w-4 h-4" />}
+                          onClick={() => {
+                            if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الملاحظة؟' : 'Are you sure you want to delete this note?')) {
+                              deleteNote(note.id);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content }} />
+                  </Card>
+                ))}
+                {getDayNotes().length === 0 && (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <MessageSquare className="w-12 h-12 mx-auto mb-3 text-blue-300" />
+                    <p>{language === 'ar' ? 'لا توجد ملاحظات لهذا اليوم. اضغط على "إضافة ملاحظة" لبدء الكتابة.' : 'No notes for this day. Click "Add Note" to start writing.'}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </Card>
+
+          {/* قسم التدوين اليومي من ملف الخطة */}
+          {selectedDay?.notes_prompt && (
+            <Card className="mb-8 border-green-400 bg-green-50 dark:bg-green-900/30">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-6 h-6 text-green-600 dark:text-green-300" />
+                <h2 className="text-xl font-bold text-green-700 dark:text-green-200">
+                  {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
+                </h2>
+              </div>
+              <div className="space-y-3">
+                {selectedDay.notes_prompt.points?.map((point, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {point[language] || point.ar}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* قسم المدونة */}
+          <Card className="mb-8 border-purple-400 bg-purple-50 dark:bg-purple-900/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+                <h2 className="text-xl font-bold text-purple-700 dark:text-purple-200">
+                  {language === 'ar' ? 'مدونة اليوم' : 'Day Journal'}
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={() => setShowJournalEditor(true)}
+              >
+                {language === 'ar' ? 'إضافة مدونة' : 'Add Journal'}
+              </Button>
+            </div>
+            
+            {/* عرض المدونة الموجودة */}
+            {showJournalEditor ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {language === 'ar' ? 'عنوان المدونة' : 'Journal Title'}
+                  </label>
+                  <input
+                    type="text"
+                    value={journalForm.title}
+                    onChange={(e) => setJournalForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                    placeholder={language === 'ar' ? 'أدخل عنوان المدونة' : 'Enter journal title'}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={journalForm.tags.join(', ')}
+                    onChange={(e) => setJournalForm(prev => ({ 
+                      ...prev, 
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) 
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                    placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بفواصل' : 'Enter tags separated by commas'}
+                  />
+                </div>
+                
+                <RichTextEditor
+                  content={journalForm.content}
+                  onChange={val => setJournalForm(prev => ({ ...prev, content: val }))}
+                  placeholder={language === 'ar' ? 'اكتب مدونتك هنا...' : 'Write your journal here...'}
+                  lang={language}
+                  showToolbar={true}
+                  minHeight="200px"
+                />
+                
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowJournalEditor(false);
+                      setJournalForm({ title: '', content: '', tags: [] });
+                    }}
+                  >
+                    {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    loading={isSavingJournal}
+                    onClick={handleSaveJournal}
+                    disabled={isSavingJournal || !journalForm.title.trim() || !journalForm.content.trim()}
+                  >
+                    {language === 'ar' ? 'حفظ المدونة' : 'Save Journal'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              getDayJournal() ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-purple-700 dark:text-purple-300">
+                        {getDayJournal().title || (language === 'ar' ? 'مدونة اليوم' : 'Day Journal')}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Edit2 className="w-4 h-4" />}
+                          onClick={() => {
+                            setJournalForm({
+                              title: getDayJournal().title || '',
+                              content: getDayJournal().content || '',
+                              tags: getDayJournal().tags || []
+                            });
+                            setShowJournalEditor(true);
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Trash2 className="w-4 h-4" />}
+                          onClick={() => {
+                            if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه المدونة؟' : 'Are you sure you want to delete this journal?')) {
+                              handleDeleteJournal();
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getDayJournal().content }} />
+                    {getDayJournal().tags && getDayJournal().tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {getDayJournal().tags.map((tag, index) => (
+                          <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <BookOpen className="w-12 h-12 mx-auto mb-3 text-purple-300" />
+                  <p>{language === 'ar' ? 'لا توجد مدونة لهذا اليوم. اضغط على "إضافة مدونة" لبدء الكتابة.' : 'No journal entry for this day. Click "Add Journal" to start writing.'}</p>
+                </div>
+              )
+            )}
           </Card>
 
           {/* Navigation Footer */}
