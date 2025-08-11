@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Shield, CheckCircle, Users, Rocket, Lightbulb, Globe, Heart,
-  Calendar, FileText, BookOpen, BarChart3, ArrowRight
+  Calendar, FileText, BookOpen, BarChart3, ArrowRight, Target
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -57,6 +57,13 @@ const HomePage = () => {
   // Quick actions
   const quickActions = [
     {
+      title: safeLanguage === 'ar' ? 'استعراض المراحل' : 'Browse Phases',
+      description: safeLanguage === 'ar' ? 'استكشف مراحل التعلم' : 'Explore learning phases',
+      icon: Target,
+      color: 'bg-indigo-500',
+      href: '/phases'
+    },
+    {
       title: safeLanguage === 'ar' ? 'بدء التعلم اليوم' : 'Start Today\'s Learning',
       description: safeLanguage === 'ar' ? 'انتقل إلى مهام اليوم' : 'Go to today\'s tasks',
       icon: Calendar,
@@ -64,25 +71,18 @@ const HomePage = () => {
       href: '/progress'
     },
     {
-              title: safeLanguage === 'ar' ? 'إضافة ملاحظة' : 'Add Note',
-        description: safeLanguage === 'ar' ? 'اكتب ملاحظات جديدة' : 'Write new notes',
+      title: safeLanguage === 'ar' ? 'إضافة ملاحظة' : 'Add Note',
+      description: safeLanguage === 'ar' ? 'اكتب ملاحظات جديدة' : 'Write new notes',
       icon: FileText,
       color: 'bg-green-500',
       href: '/notes'
     },
     {
-              title: safeLanguage === 'ar' ? 'كتابة في المدونة' : 'Write Journal',
-        description: safeLanguage === 'ar' ? 'اكتب في مدونة التعلم' : 'Write in learning journal',
+      title: safeLanguage === 'ar' ? 'كتابة في المدونة' : 'Write Journal',
+      description: safeLanguage === 'ar' ? 'اكتب في مدونة التعلم' : 'Write in learning journal',
       icon: BookOpen,
       color: 'bg-purple-500',
       href: '/journal'
-    },
-    {
-              title: safeLanguage === 'ar' ? 'عرض التقدم' : 'View Progress',
-        description: safeLanguage === 'ar' ? 'راجع إحصائيات التقدم' : 'Review progress statistics',
-      icon: BarChart3,
-      color: 'bg-orange-500',
-      href: '/progress'
     }
   ];
 

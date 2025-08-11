@@ -152,7 +152,7 @@ const PhasesPage = () => {
                     isCompleted ? 'ring-2 ring-green-500' : 
                     isInProgress ? 'ring-2 ring-blue-500' : ''
                   }`}
-                  onClick={() => navigate(`/phase/${phase.id}`)}
+                  onClick={() => navigate(`/phases/${phase.id}`)}
                   hover={true}
                 >
                   <div className="flex items-start justify-between mb-4">

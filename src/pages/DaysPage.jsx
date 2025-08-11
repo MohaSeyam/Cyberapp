@@ -121,7 +121,7 @@ const DaysPage = () => {
 
   const goToWeekView = () => {
     if (currentPhase) {
-      navigate(`/phase/${currentPhase.id}`);
+              navigate(`/phases/${currentPhase.id}`);
     } else {
       navigate('/phases');
     }
