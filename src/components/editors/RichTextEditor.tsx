@@ -38,6 +38,7 @@ const editorStyles = `
     min-height: 150px;
     padding: 1rem;
     line-height: 1.6;
+    font-family: inherit;
   }
 
   .rich-text-editor .ProseMirror h1 {
@@ -45,6 +46,7 @@ const editorStyles = `
     font-weight: bold;
     margin: 1rem 0;
     color: #1f2937;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror h2 {
@@ -52,6 +54,7 @@ const editorStyles = `
     font-weight: bold;
     margin: 0.75rem 0;
     color: #1f2937;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror h3 {
@@ -59,28 +62,34 @@ const editorStyles = `
     font-weight: bold;
     margin: 0.5rem 0;
     color: #1f2937;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror p {
     margin: 0.5rem 0;
     color: #374151;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror strong {
-    font-weight: bold;
+    font-weight: bold !important;
     color: #1f2937;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror em {
-    font-style: italic;
+    font-style: italic !important;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror u {
-    text-decoration: underline;
+    text-decoration: underline !important;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror s {
-    text-decoration: line-through;
+    text-decoration: line-through !important;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror code {
@@ -90,6 +99,7 @@ const editorStyles = `
     font-family: 'Courier New', monospace;
     font-size: 0.875rem;
     color: #dc2626;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror pre {
@@ -98,12 +108,14 @@ const editorStyles = `
     border-radius: 0.5rem;
     overflow-x: auto;
     margin: 1rem 0;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror pre code {
     background: none;
     padding: 0;
     color: #374151;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror blockquote {
@@ -112,27 +124,32 @@ const editorStyles = `
     margin: 1rem 0;
     font-style: italic;
     color: #6b7280;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror ul {
     list-style-type: disc;
     padding-left: 1.5rem;
     margin: 0.5rem 0;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror ol {
     list-style-type: decimal;
     padding-left: 1.5rem;
     margin: 0.5rem 0;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror li {
     margin: 0.25rem 0;
+    display: list-item;
   }
 
   .rich-text-editor .ProseMirror a {
     color: #3b82f6;
     text-decoration: underline;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror a:hover {
@@ -143,25 +160,30 @@ const editorStyles = `
     background-color: #fef3c7;
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
+    display: inline;
   }
 
   /* تحسينات للألوان */
   .rich-text-editor .ProseMirror [style*="color"] {
     transition: color 0.2s ease;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror [style*="font-family"] {
     transition: font-family 0.2s ease;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror [style*="font-size"] {
     transition: font-size 0.2s ease;
+    display: inline;
   }
 
   .rich-text-editor .ProseMirror hr {
     border: none;
     border-top: 2px solid #e5e7eb;
     margin: 1rem 0;
+    display: block;
   }
 
   .rich-text-editor .ProseMirror table {
@@ -169,6 +191,7 @@ const editorStyles = `
     width: 100%;
     margin: 1rem 0;
     border: 2px solid #d1d5db;
+    display: table;
   }
 
   .rich-text-editor .ProseMirror th,
@@ -178,12 +201,14 @@ const editorStyles = `
     text-align: left;
     min-width: 100px;
     position: relative;
+    display: table-cell;
   }
 
   .rich-text-editor .ProseMirror th {
     background-color: #f9fafb;
     font-weight: bold;
     color: #374151;
+    display: table-cell;
   }
 
   .rich-text-editor .ProseMirror td:focus,
@@ -295,6 +320,35 @@ const editorStyles = `
   .rich-text-editor.rtl .ProseMirror td {
     text-align: right;
   }
+
+  /* Ensure editor content is visible and properly styled */
+  .rich-text-editor .ProseMirror * {
+    box-sizing: border-box;
+  }
+
+  .rich-text-editor .ProseMirror:focus {
+    outline: none;
+  }
+
+  /* Make sure formatting is visible */
+  .rich-text-editor .ProseMirror strong,
+  .rich-text-editor .ProseMirror b {
+    font-weight: bold !important;
+  }
+
+  .rich-text-editor .ProseMirror em,
+  .rich-text-editor .ProseMirror i {
+    font-style: italic !important;
+  }
+
+  .rich-text-editor .ProseMirror u {
+    text-decoration: underline !important;
+  }
+
+  .rich-text-editor .ProseMirror s,
+  .rich-text-editor .ProseMirror strike {
+    text-decoration: line-through !important;
+  }
 `;
 
 type Language = 'ar' | 'en';
@@ -349,151 +403,9 @@ const colors = [
   '#cc4125', '#e06666', '#f6b26b', '#ffd966', '#93c47d', '#76a5af', '#6d9eeb', '#6d9eeb', '#8e7cc3', '#c27ba0',
 ];
 
-// Text Box Component
-const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any) => {
-  const [content, setContent] = useState(node.attrs.content || '');
-  const [isEditing, setIsEditing] = useState(false);
-  const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent);
-    
-    if (updateTimeout) {
-      clearTimeout(updateTimeout);
-    }
-    const timeout = setTimeout(() => {
-      updateAttributes({ content: newContent });
-    }, 200);
-    setUpdateTimeout(timeout);
-  };
 
-  React.useEffect(() => {
-    return () => {
-      if (updateTimeout) {
-        clearTimeout(updateTimeout);
-      }
-    };
-  }, [updateTimeout]);
 
-  return (
-    <div className="my-4">
-      <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-        <div className="absolute top-2 right-2 flex gap-1">
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="p-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            {isEditing ? 'حفظ' : 'تعديل'}
-          </button>
-          <button
-            onClick={deleteNode}
-            className="p-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-          >
-            حذف
-          </button>
-        </div>
-        
-        {isEditing ? (
-          <textarea
-            value={content}
-            onChange={(e) => handleContentChange(e.target.value)}
-            className="w-full min-h-[100px] p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="اكتب هنا..."
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setIsEditing(false);
-              }
-            }}
-          />
-        ) : (
-          <div 
-            className="min-h-[100px] p-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded"
-            onClick={() => setIsEditing(true)}
-          >
-            {content || 'اضغط على تعديل لكتابة المحتوى'}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
-
-// Text Box Extension
-const TextBox = Node.create({
-  name: 'textBox',
-  group: 'block',
-  content: 'inline*',
-  
-  addAttributes() {
-    return {
-      content: {
-        default: '',
-      },
-      type: {
-        default: 'default',
-      },
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: 'div[data-type="text-box"]',
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'text-box' })];
-  },
-
-  addNodeView() {
-    return ReactNodeViewRenderer(TextBoxComponent);
-  },
-
-  addCommands() {
-    return {
-      insertTextBox: () => ({ commands }) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: { content: '', type: 'default' },
-        });
-      },
-    };
-  },
-});
-
-// Performance Optimization Extension
-const PerformanceOptimization = Extension.create({
-  name: 'performanceOptimization',
-  
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        props: {
-          handleDOMEvents: {
-            input: (view, event) => {
-              clearTimeout((view as any).inputTimeout);
-              (view as any).inputTimeout = setTimeout(() => {
-                view.dispatch(view.state.tr);
-              }, 100);
-              return false;
-            },
-            paste: (view, event) => {
-              return false;
-            },
-            drop: (view, event) => {
-              return false;
-            },
-          },
-        },
-        filterTransaction: (transaction, state) => {
-          return transaction.docChanged || transaction.steps.length > 0;
-        },
-      }),
-    ];
-  },
-});
 
 // Enhanced Toolbar Component
 const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
@@ -623,10 +535,6 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
     }, 50);
   };
 
-  const insertTextBox = () => {
-    editor.chain().focus().insertTextBox().run();
-  };
-
   const setColor = (color: string) => {
     setSelectedColor(color);
     if (editor.state.selection.empty) {
@@ -698,7 +606,13 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
         {/* Text Formatting */}
         <div className={`flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
           <button 
-            onClick={() => editor.chain().focus().toggleBold().run()} 
+            onClick={() => {
+              console.log('Bold button clicked');
+              console.log('Editor state before:', editor.state);
+              const result = editor.chain().focus().toggleBold().run();
+              console.log('Bold command result:', result);
+              console.log('Editor state after:', editor.state);
+            }} 
             className={`p-1.5 rounded text-xs transition-all duration-200 ${
               editor.isActive('bold') 
                 ? 'bg-blue-500 text-white' 
@@ -709,7 +623,11 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
             <Bold size={14} />
           </button>
           <button 
-            onClick={() => editor.chain().focus().toggleItalic().run()} 
+            onClick={() => {
+              console.log('Italic button clicked');
+              const result = editor.chain().focus().toggleItalic().run();
+              console.log('Italic command result:', result);
+            }} 
             className={`p-1.5 rounded text-xs transition-all duration-200 ${
               editor.isActive('italic') 
                 ? 'bg-blue-500 text-white' 
@@ -720,7 +638,11 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
             <Italic size={14} />
           </button>
           <button 
-            onClick={() => editor.chain().focus().toggleUnderline().run()} 
+            onClick={() => {
+              console.log('Underline button clicked');
+              const result = editor.chain().focus().toggleUnderline().run();
+              console.log('Underline command result:', result);
+            }} 
             className={`p-1.5 rounded text-xs transition-all duration-200 ${
               editor.isActive('underline') 
                 ? 'bg-blue-500 text-white' 
@@ -731,7 +653,11 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
             <UnderlineIcon size={14} />
           </button>
           <button 
-            onClick={() => editor.chain().focus().toggleStrike().run()} 
+            onClick={() => {
+              console.log('Strike button clicked');
+              const result = editor.chain().focus().toggleStrike().run();
+              console.log('Strike command result:', result);
+            }} 
             className={`p-1.5 rounded text-xs transition-all duration-200 ${
               editor.isActive('strike') 
                 ? 'bg-blue-500 text-white' 
@@ -1081,17 +1007,6 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
           )}
         </div>
 
-        {/* Text Box */}
-        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
-          <button 
-            onClick={insertTextBox} 
-            className="p-1.5 rounded text-xs transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-            title={lang === 'ar' ? 'إدراج مربع نص' : 'Insert Text Box'}
-          >
-            <Square size={14} />
-          </button>
-        </div>
-
         {/* Save Status */}
         {saveStatus && <SaveStatus status={saveStatus} />}
       </div>
@@ -1182,12 +1097,12 @@ export default function RichTextEditor({
       FontSize.configure({
         types: ['textStyle'],
       }),
-      PerformanceOptimization,
-      TextBox,
     ],
     content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+      console.log('Editor content updated:', html);
+      console.log('Editor state:', editor.state);
       debouncedOnChange(html);
       handleAutoSave(html);
     },
@@ -1195,16 +1110,25 @@ export default function RichTextEditor({
       attributes: {
         class: `prose prose-lg max-w-none focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`,
       },
-      handleDOMEvents: {
-        input: (view, event) => {
-          return false;
-        },
-        paste: (view, event) => {
-          return false;
-        },
-      },
+    },
+    onCreate: ({ editor }) => {
+      // Debug: Log editor creation
+      console.log('Editor created successfully', editor);
+    },
+    onFocus: ({ editor }) => {
+      // Debug: Log when editor gains focus
+      console.log('Editor focused');
     },
   });
+
+  // Debug: Log editor state
+  useEffect(() => {
+    if (editor) {
+      console.log('Editor instance:', editor);
+      console.log('Editor is editable:', editor.isEditable);
+      console.log('Editor commands:', editor.commands);
+    }
+  }, [editor]);
 
   useEffect(() => {
     if (editor && autoSave) {

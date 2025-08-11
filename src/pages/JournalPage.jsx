@@ -189,7 +189,7 @@ const JournalPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                <Card className="p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer" onClick={() => navigate(`/journal/${entry.id}`)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/journal/${entry.id}`); } }} tabIndex={0} role="button" aria-label={language === 'ar' ? `عرض المدونة ${entry.title}` : `View journal ${entry.title}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       {/* Header */}
@@ -223,19 +223,12 @@ const JournalPage = () => {
 
                       {/* Actions */}
                       <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          icon={<Eye />}
-                          onClick={() => navigate(`/journal/${entry.id}`)}
-                        >
-                          {language === 'ar' ? 'عرض' : 'View'}
-                        </Button>
+
                         <Button
                           variant="ghost"
                           size="sm"
                           icon={<Edit />}
-                          onClick={() => navigate(`/journal/${entry.id}/edit`)}
+                          onClick={(e) => { e.stopPropagation(); navigate(`/journal/${entry.id}/edit`); }}
                         >
                           {language === 'ar' ? 'تعديل' : 'Edit'}
                         </Button>
@@ -243,7 +236,7 @@ const JournalPage = () => {
                           variant="ghost"
                           size="sm"
                           icon={<Trash2 />}
-                          onClick={() => setShowDeleteModal(entry.id)}
+                          onClick={(e) => { e.stopPropagation(); setShowDeleteModal(entry.id); }}
                           className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                         >
                           {language === 'ar' ? 'حذف' : 'Delete'}

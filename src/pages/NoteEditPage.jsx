@@ -13,7 +13,7 @@ import RichTextEditor from '../components/editors/RichTextEditor';
 
 const NoteEditPage = () => {
   const navigate = useNavigate();
-  const { noteId } = useParams();
+  const { id: noteId } = useParams();
   
   // Safe access to useSimpleLocalization
   let localizationData;

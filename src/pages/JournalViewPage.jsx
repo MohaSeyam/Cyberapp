@@ -1,276 +1,334 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, Edit, Trash2, Calendar, Share2, Copy, Check, Smile, Meh, Frown
-} from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target, FileText, Copy, Printer } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import toast from 'react-hot-toast';
 
-const JournalViewPage = () => {
+export default function JournalViewPage() {
+  const { id: entryId } = useParams();
   const navigate = useNavigate();
-  const { entryId } = useParams();
-  
-  // Safe access to useSimpleLocalization
+  const { journalEntries, deleteJournalEntry, plan } = useSimpleApp();
   let localizationData;
   try {
     localizationData = useSimpleLocalization();
   } catch (error) {
-    console.error('Error accessing useSimpleLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
+    localizationData = { language: 'ar', direction: 'rtl', isRTL: true };
   }
-  const { language } = localizationData;
-  const isRTL = language === 'ar';
-
-  // Safe access to useApp
-  let appData;
-  try {
-    appData = useSimpleApp();
-  } catch (error) {
-    console.error('Error accessing useApp:', error);
-    appData = {
-      journalEntries: [],
-      deleteJournalEntry: async () => {}
-    };
-  }
-  const { journalEntries, deleteJournalEntry } = appData;
-
-  // Ensure data is available
-  const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
+  const { language, direction } = localizationData;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [copied, setCopied] = useState(false);
 
-  const entry = safeJournalEntries.find(e => e.id === parseInt(entryId));
+  // البحث عن المدونة في جميع المدونات
+  const journalEntry = React.useMemo(() => {
+    if (!journalEntries || !entryId) return null;
+    
+    // البحث في مصفوفة المدونات
+    const foundEntry = journalEntries.find(e => e.id === parseInt(entryId));
+    if (foundEntry) {
+      return foundEntry;
+    }
+    
+    return null;
+  }, [journalEntries, entryId]);
 
-  if (!entry) {
+  // البحث عن اليوم المرتبط بالمدونة
+  const dayInfo = React.useMemo(() => {
+    if (!journalEntry?.weekId || !journalEntry?.dayKey || !plan) return null;
+    
+    const week = plan.find(w => w.week === journalEntry.weekId);
+    if (week) {
+      const day = week.days?.find(d => d.key === journalEntry.dayKey);
+      return { week, day };
+    }
+    return null;
+  }, [journalEntry, plan]);
+
+  const handleDeleteJournalEntry = async () => {
+    try {
+      await deleteJournalEntry(parseInt(entryId));
+      toast.success('✓ تم حذف المدونة بنجاح', {
+        icon: '🗑️',
+        style: {
+          background: '#10B981',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+      setShowDeleteModal(false);
+      navigate(-1);
+    } catch (error) {
+      console.error('Error deleting journal entry:', error);
+      toast.error('✕ فشل في حذف المدونة', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+    }
+  };
+
+  const handleEditJournalEntry = () => {
+    // فتح صفحة التعديل في نفس الصفحة
+    navigate(`/journal/${entryId}/edit`);
+  };
+
+  const handleCopyContent = async () => {
+    try {
+      // نسخ العنوان والمحتوى
+      const contentToCopy = `${journalEntry.title}\n\n${journalEntry.content.replace(/<[^>]*>/g, '')}`;
+      await navigator.clipboard.writeText(contentToCopy);
+      toast.success('✓ تم نسخ المحتوى بنجاح', {
+        icon: '📋',
+        style: {
+          background: '#10B981',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+    } catch (error) {
+      console.error('Error copying content:', error);
+      toast.error('✕ فشل في نسخ المحتوى', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#ffffff',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }
+      });
+    }
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${journalEntry.title}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .title { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+              .content { line-height: 1.6; }
+              .meta { color: #666; margin-bottom: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="title">${journalEntry.title}</div>
+            <div class="meta">
+              ${dayInfo ? `اليوم: ${dayInfo.day.day?.[language] || dayInfo.day.day?.ar}` : ''}
+              ${journalEntry.createdAt ? `تاريخ الإنشاء: ${new Date(journalEntry.createdAt).toLocaleDateString('ar-SA')}` : ''}
+            </div>
+            <div class="content">${journalEntry.content}</div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  if (!journalEntry) {
     return (
-      <PageLayout title={language === 'ar' ? 'مدونة غير موجودة' : 'Journal Entry Not Found'}>
-        <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {language === 'ar' ? 'المدونة المطلوبة غير موجودة' : 'The requested journal entry was not found'}
-          </p>
-          <Button
-            variant="primary"
-            onClick={() => navigate('/journal')}
-          >
-            {language === 'ar' ? 'العودة للمدونات' : 'Back to Journal'}
-          </Button>
+      <PageLayout>
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="text-center">
+            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {language === 'ar' ? 'المدونة غير موجودة' : 'Journal Entry Not Found'}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {language === 'ar' ? 'المدونة التي تبحث عنها غير موجودة أو تم حذفها.' : 'The journal entry you are looking for does not exist or has been deleted.'}
+            </p>
+            <Button variant="primary" onClick={() => navigate(-1)}>
+              {language === 'ar' ? 'العودة' : 'Go Back'}
+            </Button>
+          </div>
         </div>
       </PageLayout>
     );
   }
 
-  const handleDelete = async () => {
-    try {
-      await deleteJournalEntry(entry.id);
-      navigate('/journal');
-    } catch (error) {
-      console.error('Error deleting journal entry:', error);
-    }
-  };
-
-  const handleCopyContent = async () => {
-    try {
-      await navigator.clipboard.writeText(entry.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Error copying content:', error);
-    }
-  };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: entry.title,
-          text: entry.content,
-        });
-      } catch (error) {
-        console.error('Error sharing journal entry:', error);
-      }
-    } else {
-      handleCopyContent();
-    }
-  };
-
-  const getMoodIcon = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return <Smile className="w-6 h-6 text-green-500" />;
-      case 'sad':
-        return <Frown className="w-6 h-6 text-red-500" />;
-      default:
-        return <Meh className="w-6 h-6 text-yellow-500" />;
-    }
-  };
-
-  const getMoodLabel = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return language === 'ar' ? 'سعيد' : 'Happy';
-      case 'sad':
-        return language === 'ar' ? 'حزين' : 'Sad';
-      default:
-        return language === 'ar' ? 'عادي' : 'Neutral';
-    }
-  };
-
-  const animations = {
-    fadeIn: {
-      initial: { opacity: 0, y: 20 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.6 }
-    }
-  };
-
   return (
-    <PageLayout
-      title={language === 'ar' ? 'عرض المدونة' : 'View Journal Entry'}
-      showBottomBar={false}
-    >
-      <motion.div {...animations.fadeIn} className="space-y-6">
+    <PageLayout>
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            icon={<ArrowLeft />}
-            onClick={() => navigate('/journal')}
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          >
-            {language === 'ar' ? 'العودة للمدونات' : 'Back to Journal'}
-          </Button>
-          
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              icon={copied ? <Check /> : <Copy />}
-              onClick={handleCopyContent}
-              className={copied ? 'text-green-600 dark:text-green-400' : ''}
-            >
-              {copied ? (language === 'ar' ? 'تم النسخ' : 'Copied') : (language === 'ar' ? 'نسخ' : 'Copy')}
-            </Button>
-            <Button
-              variant="outline"
-              icon={<Share2 />}
-              onClick={handleShare}
-            >
-              {language === 'ar' ? 'مشاركة' : 'Share'}
-            </Button>
-            <Button
-              variant="outline"
-              icon={<Edit />}
-              onClick={() => navigate(`/journal/${entryId}/edit`)}
-            >
-              {language === 'ar' ? 'تعديل' : 'Edit'}
-            </Button>
-            <Button
-              variant="danger"
-              icon={<Trash2 />}
-              onClick={() => setShowDeleteModal(true)}
-            >
-              {language === 'ar' ? 'حذف' : 'Delete'}
-            </Button>
-          </div>
-        </div>
-
-        {/* Journal Entry Content */}
-        <Card className="p-6">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {entry.title}
-            </h1>
-            
-            {/* Meta Information */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {language === 'ar' ? 'التاريخ:' : 'Date:'} {new Date(entry.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  {getMoodIcon(entry.mood)}
-                  <span>{getMoodLabel(entry.mood)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <div 
-              className="text-gray-800 dark:text-gray-200 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: entry.content }}
-            />
-          </div>
-
-          {/* Footer Meta */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6">
-            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {language === 'ar' ? 'تم الإنشاء:' : 'Created:'} {new Date(entry.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                  </span>
-                </div>
-                {entry.updatedAt && (
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {language === 'ar' ? 'آخر تحديث:' : 'Last updated:'} {new Date(entry.updatedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Delete Confirmation Modal */}
-        <Modal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          title={language === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete'}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
         >
-          <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
-              {language === 'ar' 
-                ? 'هل أنت متأكد من حذف هذه المدونة؟ لا يمكن التراجع عن هذا الإجراء.'
-                : 'Are you sure you want to delete this journal entry? This action cannot be undone.'
-              }
-            </p>
-            <div className="flex items-center justify-end space-x-3">
+          <div className={`flex items-center justify-between mb-6 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`}>
+            <Button
+              variant="ghost"
+              icon={<ArrowLeft className="w-5 h-5" />}
+              onClick={() => navigate(-1)}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              {language === 'ar' ? 'العودة' : 'Back'}
+            </Button>
+            <div className={`flex items-center gap-2 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
               <Button
-                variant="ghost"
-                onClick={() => setShowDeleteModal(false)}
+                variant="outline"
+                icon={<Copy className="w-4 h-4" />}
+                onClick={handleCopyContent}
               >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                {language === 'ar' ? 'نسخ' : 'Copy'}
               </Button>
               <Button
-                variant="danger"
-                onClick={handleDelete}
+                variant="outline"
+                icon={<Printer className="w-4 h-4" />}
+                onClick={handlePrint}
+              >
+                {language === 'ar' ? 'طباعة' : 'Print'}
+              </Button>
+              <Button
+                variant="outline"
+                icon={<Edit2 className="w-4 h-4" />}
+                onClick={handleEditJournalEntry}
+              >
+                {language === 'ar' ? 'تعديل' : 'Edit'}
+              </Button>
+              <Button
+                variant="outline"
+                icon={<Trash2 className="w-4 h-4" />}
+                onClick={() => setShowDeleteModal(true)}
+                className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
               >
                 {language === 'ar' ? 'حذف' : 'Delete'}
               </Button>
             </div>
           </div>
-        </Modal>
-      </motion.div>
+
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              {journalEntry.title}
+            </h1>
+            
+            {/* Meta Information */}
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
+              {dayInfo && (
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{dayInfo.day.day?.[language] || dayInfo.day.day?.ar}</span>
+                </div>
+              )}
+              {journalEntry.createdAt && (
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4" />
+                  <span>{new Date(journalEntry.createdAt).toLocaleDateString('ar-SA')}</span>
+                </div>
+              )}
+              {journalEntry.tags && journalEntry.tags.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <Tag className="w-4 h-4" />
+                  <span>{journalEntry.tags.join(', ')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <Card className="p-8">
+            <div 
+              className="prose dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: journalEntry.content }}
+            />
+          </Card>
+        </motion.div>
+
+        {/* Related Day Info */}
+        {dayInfo && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <Card className="p-6 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300">
+                    {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
+                  </h3>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
+                  className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
+                >
+                  {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
+                </Button>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-700 dark:text-gray-300">
+                  <span className="font-medium">{language === 'ar' ? 'الأسبوع:' : 'Week:'}</span> {dayInfo.week.week}
+                </p>
+                <p className="text-gray-700 dark:text-gray-300">
+                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                </p>
+                {dayInfo.day.topic && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {dayInfo.day.topic[language] || dayInfo.day.topic.ar}
+                  </p>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title={language === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete'}
+        size="md"
+      >
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            {language === 'ar' ? 'هل أنت متأكد من حذف هذه المدونة؟' : 'Are you sure you want to delete this journal entry?'}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {language === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء.' : 'This action cannot be undone.'}
+          </p>
+          <div className="flex justify-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteJournalEntry}
+            >
+              {language === 'ar' ? 'حذف' : 'Delete'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </PageLayout>
   );
-};
-
-export default JournalViewPage;
+}

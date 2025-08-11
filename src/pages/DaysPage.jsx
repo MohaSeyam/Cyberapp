@@ -131,16 +131,7 @@ const DaysPage = () => {
     }
   };
 
-  // Day icons mapping
-  const dayIcons = {
-    sat: Sun,
-    sun: Sun,
-    mon: Coffee,
-    tue: Zap,
-    wed: Heart,
-    thu: Brain,
-    fri: Star
-  };
+
 
   // Task type configurations
   const taskTypeConfig = {
@@ -325,7 +316,7 @@ const DaysPage = () => {
   const weekCompletion = getWeekCompletion(weekNumber);
 
   // Check if all tasks in the week are completed
-  const allTasksCompleted = week.days?.filter(day => day.key !== 'fri').every(day => 
+  const allTasksCompleted = week.days?.every(day => 
     getDayCompletion(weekNumber, day.key).percentage === 100
   );
 
@@ -418,7 +409,6 @@ const DaysPage = () => {
             {/* Days Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {week.days?.map((day, index) => {
-                const DayIcon = dayIcons[day.key] || Calendar;
                 const completion = getDayCompletion(weekNumber, day.key);
                 const isCompleted = completion.percentage === 100;
                 const isSelected = index === selectedDayIndex;
@@ -443,7 +433,7 @@ const DaysPage = () => {
                           <div className={`p-2 rounded-lg ${
                             isCompleted ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
-                            <DayIcon className={`w-5 h-5 ${
+                            <Calendar className={`w-5 h-5 ${
                               isCompleted ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'
                             }`} />
                           </div>

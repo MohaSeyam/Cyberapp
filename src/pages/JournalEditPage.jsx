@@ -13,7 +13,7 @@ import RichTextEditor from '../components/editors/RichTextEditor';
 
 const JournalEditPage = () => {
   const navigate = useNavigate();
-  const { entryId } = useParams();
+  const { id: entryId } = useParams();
   
   const { language } = useSimpleLocalization();
   const { journalEntries, addJournalEntry, updateJournalEntry } = useSimpleApp();

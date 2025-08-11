@@ -71,6 +71,13 @@ export const SimpleAppProvider = ({ children }) => {
         document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = savedLang;
         
+        // Apply theme to document element
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        
         // Load data from localStorage (simplified)
         const savedPlan = localStorage.getItem('plan');
         const savedProgress = localStorage.getItem('progress');
@@ -137,6 +144,13 @@ export const SimpleAppProvider = ({ children }) => {
     try {
       setThemeState(newTheme);
       localStorage.setItem('theme', newTheme);
+      
+      // Apply theme to document element
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     } catch (error) {
       console.error('Error setting theme:', error);
     }
@@ -146,7 +160,7 @@ export const SimpleAppProvider = ({ children }) => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  const updateProgress = async (weekId, dayKey, taskId, done) => {
+  const updateProgress = async (weekId, dayKey, taskId, done, phaseId) => {
     try {
       const newProgress = [...progress];
       const existingIndex = newProgress.findIndex(p => 
@@ -154,9 +168,9 @@ export const SimpleAppProvider = ({ children }) => {
       );
       
       if (existingIndex >= 0) {
-        newProgress[existingIndex] = { ...newProgress[existingIndex], done };
+        newProgress[existingIndex] = { ...newProgress[existingIndex], done, ...(phaseId ? { phaseId } : {}) };
       } else {
-        newProgress.push({ weekId, dayKey, taskId, done });
+        newProgress.push({ weekId, dayKey, taskId, done, ...(phaseId ? { phaseId } : {}) });
       }
       
       setProgress(newProgress);

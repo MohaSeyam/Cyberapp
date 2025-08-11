@@ -70,7 +70,7 @@ function TaskCard({
 
   const handleToggleComplete = () => {
     if (isLocked) return;
-    updateProgress(weekId, dayKey, task.id, !isCompleted);
+    updateProgress(weekId, dayKey, task.id, !isCompleted, task.phaseId);
     setGlow(true);
     setTimeout(() => setGlow(false), 800);
   };
