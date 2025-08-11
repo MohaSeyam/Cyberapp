@@ -16,10 +16,33 @@ import phasesData from '../data/phases.json';
 const PhasesPage = () => {
   const navigate = useNavigate();
   
-  const localization = useSimpleLocalization();
-  const { progress } = useSimpleApp();
+  // Safe access to useSimpleLocalization
+  let localization;
+  try {
+    localization = useSimpleLocalization();
+  } catch (error) {
+    console.error('Error accessing useSimpleLocalization:', error);
+    localization = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
   const language = localization?.language || 'ar';
   const isRTL = language === 'ar';
+  
+  // Safe access to useSimpleApp
+  let appData;
+  try {
+    appData = useSimpleApp();
+  } catch (error) {
+    console.error('Error accessing useSimpleApp:', error);
+    appData = {
+      progress: []
+    };
+  }
+  const { progress } = appData;
 
   const safeProgress = Array.isArray(progress) ? progress : [];
 

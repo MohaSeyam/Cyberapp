@@ -14,8 +14,34 @@ import Modal from '../components/ui/Modal';
 import planData from '../data/PlanData.json';
 
 const ResourcesPage = () => {
-  const { resources, addResource, deleteResource, updateResource } = useSimpleApp();
-  const localization = useSimpleLocalization();
+  // Safe access to useSimpleApp
+  let appData;
+  try {
+    appData = useSimpleApp();
+  } catch (error) {
+    console.error('Error accessing useSimpleApp:', error);
+    appData = {
+      resources: [],
+      addResource: async () => {},
+      deleteResource: async () => {},
+      updateResource: async () => {}
+    };
+  }
+  const { resources, addResource, deleteResource, updateResource } = appData;
+  
+  // Safe access to useSimpleLocalization
+  let localization;
+  try {
+    localization = useSimpleLocalization();
+  } catch (error) {
+    console.error('Error accessing useSimpleLocalization:', error);
+    localization = {
+      language: 'ar',
+      direction: 'rtl',
+      isRTL: true,
+      toggleLanguage: () => {}
+    };
+  }
   const language = localization?.language || 'ar';
   
   const [searchTerm, setSearchTerm] = useState('');
