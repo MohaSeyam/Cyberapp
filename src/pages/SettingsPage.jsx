@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Settings, Globe, Moon, Sun, Palette, Bell, Shield, Database, 
-  Download, Upload, Trash2, User, Info, HelpCircle, ExternalLink,
-  Zap, HardDrive, Cpu, Wifi, WifiOff
+  Settings, Globe, Moon, Sun, Palette, Bell, Shield, 
+  User, Info, HelpCircle, ExternalLink
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import { useTheme } from '../context/ThemeContext';
-import { usePerformanceMonitor } from '../hooks/usePerformance';
+
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -19,20 +18,15 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   
   const { language, setLanguage } = useSimpleLocalization();
-  const { theme, setTheme, exportData, importData, clearAllData } = useSimpleApp();
+  const { theme, setTheme } = useSimpleApp();
   const { theme: appTheme, setTheme: setAppTheme } = useTheme();
-  const performanceStats = usePerformanceMonitor();
   
   const safeLanguage = language || 'ar';
   const isRTL = safeLanguage === 'ar';
   const currentTheme = appTheme || theme || 'light';
 
   // Ensure data is available
-  const [showClearModal, setShowClearModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importFile, setImportFile] = useState(null);
   const [fontSize, setFontSize] = useState(() => localStorage.getItem('fontSize') || 'md');
-  const [showPerformanceModal, setShowPerformanceModal] = useState(false);
 
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
@@ -46,50 +40,9 @@ const SettingsPage = () => {
     }
   };
 
-  const handleExport = async () => {
-    try {
-      await exportData();
-    } catch (error) {
-      console.error('Error exporting data:', error);
-    }
-  };
-
-  const handleImport = async () => {
-    if (!importFile) return;
-    
-    try {
-      await importData(importFile);
-      setShowImportModal(false);
-      setImportFile(null);
-    } catch (error) {
-      console.error('Error importing data:', error);
-    }
-  };
-
-  const handleClearAllData = async () => {
-    try {
-      await clearAllData();
-      setShowClearModal(false);
-    } catch (error) {
-      console.error('Error clearing data:', error);
-    }
-  };
-
   const handleFontSizeChange = (value) => {
     setFontSize(value);
     localStorage.setItem('fontSize', value);
-  };
-
-  const handleClearCache = () => {
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => {
-          caches.delete(name);
-        });
-      });
-    }
-    localStorage.removeItem('app-cache');
-    window.location.reload();
   };
 
   const animations = {
@@ -210,58 +163,7 @@ const SettingsPage = () => {
           </SettingItem>
         </SettingSection>
 
-        {/* Performance & Cache */}
-        <SettingSection
-          title={safeLanguage === 'ar' ? 'الأداء والذاكرة المؤقتة' : 'Performance & Cache'}
-          icon={<Zap className="w-5 h-5 text-green-600 dark:text-green-400" />}
-        >
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'مراقبة الأداء' : 'Performance Monitor'}
-            description={safeLanguage === 'ar' ? 'عرض إحصائيات الأداء في الوقت الفعلي' : 'View real-time performance statistics'}
-          >
-            <Button
-              variant="ghost"
-              icon={<Cpu />}
-              onClick={() => setShowPerformanceModal(true)}
-            >
-              {safeLanguage === 'ar' ? 'عرض' : 'View'}
-            </Button>
-          </SettingItem>
 
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'مسح الذاكرة المؤقتة' : 'Clear Cache'}
-            description={safeLanguage === 'ar' ? 'تحسين الأداء عبر مسح البيانات المخزنة مؤقتاً' : 'Improve performance by clearing cached data'}
-          >
-            <Button
-              variant="ghost"
-              icon={<HardDrive />}
-              onClick={handleClearCache}
-            >
-              {safeLanguage === 'ar' ? 'مسح' : 'Clear'}
-            </Button>
-          </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'وضع عدم الاتصال' : 'Offline Mode'}
-            description={safeLanguage === 'ar' ? 'استخدام التطبيق بدون اتصال بالإنترنت' : 'Use the app without internet connection'}
-          >
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {navigator.onLine ? (
-                  <>
-                    <Wifi className="w-4 h-4 inline mr-1 text-green-500" />
-                    {safeLanguage === 'ar' ? 'متصل' : 'Online'}
-                  </>
-                ) : (
-                  <>
-                    <WifiOff className="w-4 h-4 inline mr-1 text-red-500" />
-                    {safeLanguage === 'ar' ? 'غير متصل' : 'Offline'}
-                  </>
-                )}
-              </span>
-            </div>
-          </SettingItem>
-        </SettingSection>
 
         {/* Notifications */}
         <SettingSection
@@ -289,51 +191,7 @@ const SettingsPage = () => {
           </SettingItem>
         </SettingSection>
 
-        {/* Data Management */}
-        <SettingSection
-          title={safeLanguage === 'ar' ? 'إدارة البيانات' : 'Data Management'}
-          icon={<Database className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-        >
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'تصدير البيانات' : 'Export Data'}
-            description={safeLanguage === 'ar' ? 'حفظ نسخة احتياطية من بياناتك' : 'Save a backup of your data'}
-          >
-            <Button
-              variant="ghost"
-              icon={<Download />}
-              onClick={handleExport}
-            >
-              {safeLanguage === 'ar' ? 'تصدير' : 'Export'}
-            </Button>
-          </SettingItem>
 
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'استيراد البيانات' : 'Import Data'}
-            description={safeLanguage === 'ar' ? 'استعادة البيانات من نسخة احتياطية' : 'Restore data from backup'}
-          >
-            <Button
-              variant="ghost"
-              icon={<Upload />}
-              onClick={() => setShowImportModal(true)}
-            >
-              {safeLanguage === 'ar' ? 'استيراد' : 'Import'}
-            </Button>
-          </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
-            description={safeLanguage === 'ar' ? 'حذف جميع البيانات المحفوظة (لا يمكن التراجع)' : 'Delete all saved data (cannot be undone)'}
-          >
-            <Button
-              variant="ghost"
-              icon={<Trash2 />}
-              onClick={() => setShowClearModal(true)}
-              className="text-red-600 hover:text-red-700"
-            >
-              {safeLanguage === 'ar' ? 'مسح' : 'Clear'}
-            </Button>
-          </SettingItem>
-        </SettingSection>
 
         {/* About */}
         <SettingSection
@@ -364,99 +222,7 @@ const SettingsPage = () => {
         </SettingSection>
       </motion.div>
 
-      {/* Performance Modal */}
-      <Modal
-        isOpen={showPerformanceModal}
-        onClose={() => setShowPerformanceModal(false)}
-        title={safeLanguage === 'ar' ? 'مراقبة الأداء' : 'Performance Monitor'}
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                {safeLanguage === 'ar' ? 'معدل الإطارات' : 'FPS'}
-              </div>
-              <div className="text-2xl font-bold text-green-600">
-                {performanceStats.fps || '--'}
-              </div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                {safeLanguage === 'ar' ? 'الذاكرة' : 'Memory'}
-              </div>
-              <div className="text-2xl font-bold text-blue-600">
-                {performanceStats.memory ? `${Math.round(performanceStats.memory / 1024 / 1024)}MB` : '--'}
-              </div>
-            </div>
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            {safeLanguage === 'ar' 
-              ? 'هذه الإحصائيات تُحدث في الوقت الفعلي لمراقبة أداء التطبيق'
-              : 'These statistics update in real-time to monitor application performance'
-            }
-          </div>
-        </div>
-      </Modal>
 
-      {/* Clear Data Modal */}
-      <Modal
-        isOpen={showClearModal}
-        onClose={() => setShowClearModal(false)}
-        title={safeLanguage === 'ar' ? 'تأكيد مسح البيانات' : 'Confirm Data Clear'}
-      >
-        <div className="space-y-4">
-          <p className="text-red-600 dark:text-red-400">
-            {safeLanguage === 'ar' 
-              ? 'هل أنت متأكد من رغبتك في مسح جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه.'
-              : 'Are you sure you want to clear all data? This action cannot be undone.'
-            }
-          </p>
-          <div className="flex space-x-3">
-            <Button
-              variant="danger"
-              onClick={handleClearAllData}
-            >
-              {safeLanguage === 'ar' ? 'نعم، امسح' : 'Yes, Clear'}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setShowClearModal(false)}
-            >
-              {safeLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Import Modal */}
-      <Modal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        title={safeLanguage === 'ar' ? 'استيراد البيانات' : 'Import Data'}
-      >
-        <div className="space-y-4">
-          <input
-            type="file"
-            accept=".json"
-            onChange={(e) => setImportFile(e.target.files[0])}
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg"
-          />
-          <div className="flex space-x-3">
-            <Button
-              onClick={handleImport}
-              disabled={!importFile}
-            >
-              {safeLanguage === 'ar' ? 'استيراد' : 'Import'}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setShowImportModal(false)}
-            >
-              {safeLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </PageLayout>
   );
 };
