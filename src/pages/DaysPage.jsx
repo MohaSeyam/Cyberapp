@@ -117,9 +117,9 @@ const DaysPage = () => {
 
   const goToDayView = (dayIndex) => {
     if (currentPhase) {
-      navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${dayIndex}`);
+      navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${dayIndex + 1}`);
     } else {
-      navigate(`/phases/1/weeks/${weekId}/days/${dayIndex}`);
+      navigate(`/phases/1/weeks/${weekId}/days/${dayIndex + 1}`);
     }
   };
 
