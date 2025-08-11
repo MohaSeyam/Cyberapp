@@ -31,7 +31,7 @@ import {
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, 
   Image as ImageIcon, Upload, Minus, Table as TableIcon, Palette, Type, 
-  ChevronDown, X, Plus
+  ChevronDown, X, Plus, Square
 } from "lucide-react";
 
 // Custom CSS for rich text editor
