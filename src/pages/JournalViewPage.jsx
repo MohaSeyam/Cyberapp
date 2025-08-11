@@ -14,7 +14,13 @@ export default function JournalViewPage() {
   const { id: entryId } = useParams();
   const navigate = useNavigate();
   const { journalEntries, deleteJournalEntry, plan } = useSimpleApp();
-  const { language } = useSimpleLocalization();
+  let localizationData;
+  try {
+    localizationData = useSimpleLocalization();
+  } catch (error) {
+    localizationData = { language: 'ar', direction: 'rtl', isRTL: true };
+  }
+  const { language, direction } = localizationData;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // البحث عن المدونة في جميع المدونات
@@ -162,7 +168,7 @@ export default function JournalViewPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className={`flex items-center justify-between mb-6 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`}>
             <Button
               variant="ghost"
               icon={<ArrowLeft className="w-5 h-5" />}
@@ -171,7 +177,7 @@ export default function JournalViewPage() {
             >
               {language === 'ar' ? 'العودة' : 'Back'}
             </Button>
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center gap-2 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
               <Button
                 variant="outline"
                 icon={<Copy className="w-4 h-4" />}

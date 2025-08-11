@@ -720,25 +720,6 @@ const DayViewPage = () => {
 
           {/* Day Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={<ChevronLeft />}
-                  onClick={goToPreviousDay}
-                  disabled={parseInt(dayKey) <= 1}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={<ChevronRight />}
-                  onClick={goToNextDay}
-                  disabled={parseInt(dayKey) >= (selectedWeek.days?.length || 0)}
-                />
-              </div>
-            </div>
-            
             <div className="mb-6">
               <h1 className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2 drop-shadow-lg">
                 {selectedDay.day?.[language] || selectedDay.day?.ar}
@@ -1025,12 +1006,20 @@ const DayViewPage = () => {
             ) : (
               <div className="space-y-4">
                 {getDayNotes().map(note => (
-                  <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex-1 cursor-pointer" onClick={() => setExpandedNotes(prev => ({ ...prev, [note.id]: !prev[note.id] }))}>
-                        <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{note.title}</h3>
+                  <Card
+                    key={note.id}
+                    className="p-4 border-blue-200 dark:border-blue-700 cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => navigate(`/notes/${note.id}`)}
+                    tabIndex={0}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/notes/${note.id}`); } }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-blue-700 dark:text-blue-300">
+                          {note.title}
+                        </h3>
                         {note.tags && note.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-2 mt-2">
                             {note.tags.map((tag, index) => (
                               <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
                                 {tag}
@@ -1038,43 +1027,25 @@ const DayViewPage = () => {
                             ))}
                           </div>
                         )}
-                        {!expandedNotes[note.id] && (
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
-                            {note.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                          </p>
-                        )}
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
+                          {note.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
                           variant="ghost"
-                          icon={expandedNotes[note.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation(); setExpandedNotes(prev => ({ ...prev, [note.id]: !prev[note.id] })); }}
-                        />
-                        <Button
-                          size="sm"
-                          variant="ghost"
                           icon={<Edit2 className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation(); setNoteForm({
-                            title: note.title,
-                            content: note.content,
-                            tags: note.tags || []
-                          });
-                          setShowNoteEditor(true); }}
+                          onClick={e => { e.stopPropagation(); setNoteForm({ title: note.title, content: note.content, tags: note.tags || [] }); setShowNoteEditor(true); }}
                         />
                         <Button
                           size="sm"
                           variant="ghost"
                           icon={<Trash2 className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation(); if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الملاحظة؟' : 'Are you sure you want to delete this note?')) {
-                            deleteNote(note.id);
-                          } }}
+                          onClick={e => { e.stopPropagation(); if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الملاحظة؟' : 'Are you sure you want to delete this note?')) { deleteNote(note.id); } }}
                         />
                       </div>
                     </div>
-                    {expandedNotes[note.id] && (
-                      <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content }} />
-                    )}
                   </Card>
                 ))}
                 {getDayNotes().length === 0 && (
@@ -1215,9 +1186,14 @@ const DayViewPage = () => {
             ) : (
               getDayJournal() ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <div
+                    className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => navigate(`/journal/${getDayJournal().id}`)}
+                    tabIndex={0}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/journal/${getDayJournal().id}`); } }}
+                  >
                     <div className="flex items-center justify-between mb-3">
-                      <div className="flex-1 cursor-pointer" onClick={() => setExpandedJournal(!expandedJournal)}>
+                      <div className="flex-1">
                         <h3 className="font-semibold text-purple-700 dark:text-purple-300">
                           {getDayJournal().title || (language === 'ar' ? 'مدونة اليوم' : 'Day Journal')}
                         </h3>
@@ -1230,58 +1206,25 @@ const DayViewPage = () => {
                             ))}
                           </div>
                         )}
-                        {!expandedJournal && (
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
-                            {getDayJournal().content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                          </p>
-                        )}
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
+                          {getDayJournal().content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
                           variant="ghost"
-                          icon={expandedJournal ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation(); setExpandedJournal(!expandedJournal); }}
-                        />
-                        <Button
-                          size="sm"
-                          variant="ghost"
                           icon={<Edit2 className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation();
-                            setJournalForm({
-                              title: getDayJournal().title || '',
-                              content: getDayJournal().content || '',
-                              tags: getDayJournal().tags || []
-                            });
-                            setShowJournalEditor(true);
-                          }}
+                          onClick={e => { e.stopPropagation(); setJournalForm({ title: getDayJournal().title || '', content: getDayJournal().content || '', tags: getDayJournal().tags || [] }); setShowJournalEditor(true); }}
                         />
                         <Button
                           size="sm"
                           variant="ghost"
                           icon={<Trash2 className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation();
-                            if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه المدونة؟' : 'Are you sure you want to delete this journal?')) {
-                              handleDeleteJournal();
-                            }
-                          }}
+                          onClick={e => { e.stopPropagation(); if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه المدونة؟' : 'Are you sure you want to delete this journal?')) { handleDeleteJournal(); } }}
                         />
                       </div>
                     </div>
-                    {expandedJournal && (
-                      <>
-                        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getDayJournal().content }} />
-                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => navigate(`/journal/${getDayJournal().id}`)}
-                          >
-                            {language === 'ar' ? 'عرض كامل المدونة' : 'View Full Journal'}
-                          </Button>
-                        </div>
-                      </>
-                    )}
                   </div>
                 </div>
               ) : (
