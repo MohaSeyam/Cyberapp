@@ -53,32 +53,8 @@ const LocalizationContext = createContext({
   t: (key) => key
 });
 
-export const useSimpleLocalization = () => {
-  try {
-    const context = useContext(LocalizationContext);
-    // Since we now have a default value, context should never be undefined
-    // But we'll still add safety checks for the context values
-    return {
-      language: context.language || 'ar',
-      direction: context.direction || 'rtl',
-      isRTL: context.isRTL !== undefined ? context.isRTL : true,
-      setLanguage: context.setLanguage || (() => {}),
-      toggleLanguage: context.toggleLanguage || (() => {}),
-      t: context.t || ((key) => key)
-    };
-  } catch (error) {
-    console.error('Error in useSimpleLocalization:', error);
-    // Return default values on error
-    return {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      setLanguage: () => {},
-      toggleLanguage: () => {},
-      t: (key) => key
-    };
-  }
-};
+// This function has been moved to SimpleLocalizationContext.jsx
+// export const useSimpleLocalization = () => { ... };
 
 export const LocalizationProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
