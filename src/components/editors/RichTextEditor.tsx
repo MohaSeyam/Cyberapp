@@ -146,6 +146,19 @@ const editorStyles = `
     border-radius: 0.25rem;
   }
 
+  /* تحسينات للألوان */
+  .rich-text-editor .ProseMirror [style*="color"] {
+    transition: color 0.2s ease;
+  }
+
+  .rich-text-editor .ProseMirror [style*="font-family"] {
+    transition: font-family 0.2s ease;
+  }
+
+  .rich-text-editor .ProseMirror [style*="font-size"] {
+    transition: font-size 0.2s ease;
+  }
+
   .rich-text-editor .ProseMirror hr {
     border: none;
     border-top: 2px solid #e5e7eb;
@@ -156,18 +169,33 @@ const editorStyles = `
     border-collapse: collapse;
     width: 100%;
     margin: 1rem 0;
+    border: 2px solid #d1d5db;
   }
 
   .rich-text-editor .ProseMirror th,
   .rich-text-editor .ProseMirror td {
     border: 1px solid #d1d5db;
-    padding: 0.5rem;
+    padding: 0.75rem;
     text-align: left;
+    min-width: 100px;
+    position: relative;
   }
 
   .rich-text-editor .ProseMirror th {
     background-color: #f9fafb;
     font-weight: bold;
+    color: #374151;
+  }
+
+  .rich-text-editor .ProseMirror td:focus,
+  .rich-text-editor .ProseMirror th:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+  }
+
+  .rich-text-editor .ProseMirror td:hover,
+  .rich-text-editor .ProseMirror th:hover {
+    background-color: #f3f4f6;
   }
 
   /* Dark mode styles */
@@ -206,6 +234,11 @@ const editorStyles = `
     background-color: #92400e;
   }
 
+  /* تحسينات للألوان في الوضع المظلم */
+  .dark .rich-text-editor .ProseMirror [style*="color"] {
+    transition: color 0.2s ease;
+  }
+
   .dark .rich-text-editor .ProseMirror hr {
     border-top-color: #4b5563;
   }
@@ -215,8 +248,28 @@ const editorStyles = `
     border-color: #4b5563;
   }
 
+  .dark .rich-text-editor .ProseMirror table {
+    border-color: #4b5563;
+  }
+
+  .dark .rich-text-editor .ProseMirror th,
+  .dark .rich-text-editor .ProseMirror td {
+    border-color: #4b5563;
+  }
+
   .dark .rich-text-editor .ProseMirror th {
     background-color: #374151;
+    color: #f9fafb;
+  }
+
+  .dark .rich-text-editor .ProseMirror td:focus,
+  .dark .rich-text-editor .ProseMirror th:focus {
+    outline-color: #60a5fa;
+  }
+
+  .dark .rich-text-editor .ProseMirror td:hover,
+  .dark .rich-text-editor .ProseMirror th:hover {
+    background-color: #4b5563;
   }
 
   /* RTL support */
@@ -236,6 +289,12 @@ const editorStyles = `
     border-left: none;
     padding-right: 1rem;
     padding-left: 0;
+  }
+
+  /* تحسينات للجداول في RTL */
+  .rich-text-editor.rtl .ProseMirror th,
+  .rich-text-editor.rtl .ProseMirror td {
+    text-align: right;
   }
 `;
 
@@ -497,34 +556,72 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
 
   const insertTable = () => {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    // إضافة مؤشر النص في الخلية الأولى
+    setTimeout(() => {
+      const table = editor.view.dom.querySelector('table');
+      if (table) {
+        const firstCell = table.querySelector('td, th');
+        if (firstCell) {
+          firstCell.focus();
+        }
+      }
+    }, 100);
   };
 
   const addRowBefore = () => {
     editor.chain().focus().addRowBefore().run();
+    // الحفاظ على المؤشر في نفس العمود
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const addRowAfter = () => {
     editor.chain().focus().addRowAfter().run();
+    // الحفاظ على المؤشر في نفس العمود
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const deleteRow = () => {
     editor.chain().focus().deleteRow().run();
+    // الحفاظ على المؤشر في الجدول
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const addColumnBefore = () => {
     editor.chain().focus().addColumnBefore().run();
+    // الحفاظ على المؤشر في نفس الصف
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const addColumnAfter = () => {
     editor.chain().focus().addColumnAfter().run();
+    // الحفاظ على المؤشر في نفس الصف
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const deleteColumn = () => {
     editor.chain().focus().deleteColumn().run();
+    // الحفاظ على المؤشر في الجدول
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const deleteTable = () => {
     editor.chain().focus().deleteTable().run();
+    // إضافة مؤشر النص بعد حذف الجدول
+    setTimeout(() => {
+      editor.commands.focus();
+    }, 50);
   };
 
   const insertTextBox = () => {
@@ -534,9 +631,10 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
   const setColor = (color: string) => {
     setSelectedColor(color);
     if (editor.state.selection.empty) {
+      // إذا لم يكن هناك نص محدد، تطبق اللون على النص التالي
       editor.chain().focus().setColor(color).run();
-      editor.commands.setMark('textStyle', { color });
     } else {
+      // إذا كان هناك نص محدد، تطبق اللون عليه
       editor.chain().focus().setColor(color).run();
     }
     setShowColorPicker(false);
@@ -545,9 +643,10 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
 
   const setFontFamily = (fontFamily: string) => {
     if (editor.state.selection.empty) {
+      // إذا لم يكن هناك نص محدد، تطبق نوع الخط على النص التالي
       editor.chain().focus().setFontFamily(fontFamily).run();
-      editor.commands.setMark('textStyle', { fontFamily });
     } else {
+      // إذا كان هناك نص محدد، تطبق نوع الخط عليه
       editor.chain().focus().setFontFamily(fontFamily).run();
     }
     setShowFontFamily(false);
@@ -556,9 +655,10 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
 
   const setFontSize = (fontSize: string) => {
     if (editor.state.selection.empty) {
+      // إذا لم يكن هناك نص محدد، تطبق حجم الخط على النص التالي
       editor.chain().focus().setFontSize(fontSize).run();
-      editor.commands.setMark('textStyle', { fontSize });
     } else {
+      // إذا كان هناك نص محدد، تطبق حجم الخط عليه
       editor.chain().focus().setFontSize(fontSize).run();
     }
     setShowFontSize(false);
