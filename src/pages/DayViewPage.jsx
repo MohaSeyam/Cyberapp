@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, ArrowLeft, CheckCircle, Clock,
   Shield, Bug, Target, Users, FileText, Star, Activity,
   BookOpen, MessageSquare, Plus, ExternalLink, Edit2, Trash2,
-  X, Tag
+  X, Tag, Calendar, Eye, Download
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -48,6 +48,7 @@ const DayViewPage = () => {
     resources,
     addResource,
     deleteResource,
+    updateResource,
     journalEntries,
     addJournalEntry,
     deleteJournalEntry,
@@ -67,7 +68,7 @@ const DayViewPage = () => {
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null });
   const [noteForm, setNoteForm] = useState({ title: '', content: '', tags: [] });
-  const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'article' });
+  const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'article', description: '', category: '' });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] });
   const [journalContent, setJournalContent] = useState('');
   const [isSavingJournal, setIsSavingJournal] = useState(false);
@@ -126,6 +127,101 @@ const DayViewPage = () => {
       });
     }
     setIsSavingJournal(false);
+  };
+
+  // إضافة مورد جديد
+  const handleAddResource = async () => {
+    if (!resourceForm.title.trim() || !resourceForm.url.trim()) return;
+    
+    try {
+      await addResource({
+        ...resourceForm,
+        weekId: selectedWeek.week,
+        dayKey: selectedDay.key,
+        phaseId: selectedWeek.phase,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      setResourceModal({ isOpen: false, resource: null });
+      setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+    } catch (error) {
+      console.error('Error adding resource:', error);
+    }
+  };
+
+  // تحديث مورد موجود
+  const handleUpdateResource = async () => {
+    if (!resourceModal.resource || !resourceForm.title.trim() || !resourceForm.url.trim()) return;
+    
+    try {
+      await updateResource(resourceModal.resource.id, {
+        ...resourceForm,
+        updatedAt: new Date().toISOString(),
+      });
+      setResourceModal({ isOpen: false, resource: null });
+      setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+    } catch (error) {
+      console.error('Error updating resource:', error);
+    }
+  };
+
+  // حذف مورد
+  const handleDeleteResource = async (resourceId) => {
+    try {
+      await deleteResource(resourceId);
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+    }
+  };
+
+  // فتح نافذة تعديل المورد
+  const openEditResource = (resource) => {
+    setResourceForm({
+      title: resource.title || '',
+      url: resource.url || '',
+      type: resource.type || 'article',
+      description: resource.description || '',
+      category: resource.category || ''
+    });
+    setResourceModal({ isOpen: true, resource });
+  };
+
+  // فتح نافذة إضافة مورد جديد
+  const openAddResource = () => {
+    setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+    setResourceModal({ isOpen: true, resource: null });
+  };
+
+  // الحصول على الموارد المرتبطة باليوم
+  const getDayResources = () => {
+    // الموارد من ملف الخطة
+    const planResources = selectedDay?.resources || [];
+    
+    // الموارد المضافة من قبل المستخدم
+    const userResources = safeResources.filter(r => 
+      r.weekId === selectedWeek?.week && 
+      r.dayKey === selectedDay?.key && 
+      r.phaseId === selectedWeek?.phase
+    );
+    
+    return [...planResources, ...userResources];
+  };
+
+  // الحصول على الملاحظات المرتبطة باليوم
+  const getDayNotes = () => {
+    return safeNotes.filter(note => 
+      note.weekId === selectedWeek?.week && 
+      note.dayKey === selectedDay?.key
+    );
+  };
+
+  // الحصول على مدونة اليوم
+  const getDayJournal = () => {
+    return safeJournalEntries.find(e =>
+      e.weekId === selectedWeek?.week &&
+      e.dayKey === selectedDay?.key &&
+      e.phaseId === selectedWeek?.phase
+    );
   };
 
   // Determine current phase
@@ -489,28 +585,109 @@ const DayViewPage = () => {
             })()}
           </motion.div>
 
-          {/* قسم المراجع */}
+          {/* قسم التدوين اليومي من ملف الخطة */}
+          {selectedDay?.notes_prompt && (
+            <Card className="mb-8 border-green-400 bg-green-50 dark:bg-green-900/30">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-6 h-6 text-green-600 dark:text-green-300" />
+                <h2 className="text-xl font-bold text-green-700 dark:text-green-200">
+                  {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
+                </h2>
+              </div>
+              <div className="space-y-3">
+                {selectedDay.notes_prompt.points?.map((point, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {point[language] || point.ar}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* قسم الموارد */}
           <Card className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
-                {language === 'ar' ? 'مراجع اليوم' : 'Day References'}
-              </h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
+                  {language === 'ar' ? 'موارد اليوم' : 'Day Resources'}
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={openAddResource}
+              >
+                {language === 'ar' ? 'إضافة مورد' : 'Add Resource'}
+              </Button>
             </div>
             <div className="space-y-4">
-              {(selectedDay.resources || []).length > 0 ? (
-                selectedDay.resources.map((resource, idx) => (
-                  <Card key={idx} className="p-3 border-blue-200 dark:border-blue-700 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <ExternalLink className="w-5 h-5 text-blue-500" />
-                      <a href={resource.url} target="_blank" rel="noopener noreferrer" className="text-blue-700 dark:text-blue-300 hover:underline font-semibold">{resource.title}</a>
-                      <span className="text-xs text-gray-500">[{resource.type}]</span>
+              {getDayResources().length > 0 ? (
+                getDayResources().map((resource, idx) => (
+                  <Card key={idx} className="p-3 border-blue-200 dark:border-blue-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        <ExternalLink className="w-5 h-5 text-blue-500" />
+                        <div className="flex-1">
+                          <a 
+                            href={resource.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-blue-700 dark:text-blue-300 hover:underline font-semibold block"
+                          >
+                            {resource.title}
+                          </a>
+                          {resource.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              {resource.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                              {resource.type}
+                            </span>
+                            {resource.category && (
+                              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-full">
+                                {resource.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Eye className="w-4 h-4" />}
+                          onClick={() => window.open(resource.url, '_blank')}
+                        />
+                        {resource.id && ( // فقط الموارد المضافة من قبل المستخدم يمكن تعديلها
+                          <>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              icon={<Edit2 className="w-4 h-4" />}
+                              onClick={() => openEditResource(resource)}
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              icon={<Trash2 className="w-4 h-4" />}
+                              onClick={() => handleDeleteResource(resource.id)}
+                            />
+                          </>
+                        )}
+                      </div>
                     </div>
                   </Card>
                 ))
               ) : (
                 <div className="text-gray-500 text-sm text-center py-4">
-                  {language === 'ar' ? 'لا توجد مراجع لهذا اليوم.' : 'No references for this day.'}
+                  {language === 'ar' ? 'لا توجد موارد لهذا اليوم.' : 'No resources for this day.'}
                 </div>
               )}
             </div>
@@ -554,10 +731,7 @@ const DayViewPage = () => {
             </div>
             {/* عرض الملاحظات المرتبطة بمهام هذا اليوم */}
             <div className="space-y-4">
-              {safeNotes.filter(note =>
-                note.weekId === selectedWeek.week &&
-                note.dayKey === selectedDay.key
-              ).map(note => (
+              {getDayNotes().map(note => (
                 <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold text-gray-800 dark:text-white">{note.title}</span>
@@ -568,7 +742,7 @@ const DayViewPage = () => {
                   <div className="prose dark:prose-invert" dangerouslySetInnerHTML={{ __html: note.content }} />
                 </Card>
               ))}
-              {safeNotes.filter(note => note.weekId === selectedWeek.week && note.dayKey === selectedDay.key).length === 0 && (
+              {getDayNotes().length === 0 && (
                 <div className="text-gray-500 text-sm text-center py-4">
                   {language === 'ar' ? 'لا توجد ملاحظات لهذا اليوم بعد.' : 'No notes for this day yet.'}
                 </div>
@@ -666,6 +840,110 @@ const DayViewPage = () => {
               disabled={!noteForm.title.trim() || !noteForm.content.trim()}
             >
               {language === 'ar' ? 'حفظ الملاحظة' : 'Save Note'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Resource Modal */}
+      <Modal
+        isOpen={resourceModal.isOpen}
+        onClose={() => {
+          setResourceModal({ isOpen: false, resource: null });
+          setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+        }}
+        title={resourceModal.resource ? (language === 'ar' ? 'تعديل المورد' : 'Edit Resource') : (language === 'ar' ? 'إضافة مورد جديد' : 'Add New Resource')}
+        size="xl"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'عنوان المورد' : 'Resource Title'}
+            </label>
+            <input
+              type="text"
+              value={resourceForm.title}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder={language === 'ar' ? 'أدخل عنوان المورد' : 'Enter resource title'}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'رابط المورد' : 'Resource URL'}
+            </label>
+            <input
+              type="url"
+              value={resourceForm.url}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder={language === 'ar' ? 'أدخل رابط المورد' : 'Enter resource URL'}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {language === 'ar' ? 'نوع المورد' : 'Resource Type'}
+              </label>
+              <select
+                value={resourceForm.type}
+                onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
+                <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
+                <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
+                <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
+                <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
+                <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {language === 'ar' ? 'الفئة' : 'Category'}
+              </label>
+              <input
+                type="text"
+                value={resourceForm.category}
+                onChange={(e) => setResourceForm(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder={language === 'ar' ? 'أدخل الفئة (اختياري)' : 'Enter category (optional)'}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'وصف المورد' : 'Resource Description'}
+            </label>
+            <textarea
+              value={resourceForm.description}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, description: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder={language === 'ar' ? 'أدخل وصف المورد (اختياري)' : 'Enter resource description (optional)'}
+              rows={3}
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setResourceModal({ isOpen: false, resource: null });
+                setResourceForm({ title: '', url: '', type: 'article', description: '', category: '' });
+              }}
+            >
+              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={resourceModal.resource ? handleUpdateResource : handleAddResource}
+              disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
+            >
+              {resourceModal.resource ? (language === 'ar' ? 'تحديث المورد' : 'Update Resource') : (language === 'ar' ? 'إضافة المورد' : 'Add Resource')}
             </Button>
           </div>
         </div>
