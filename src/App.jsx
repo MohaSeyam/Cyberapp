@@ -2,33 +2,12 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SimpleLocalizationProvider } from './context/SimpleLocalizationContext';
 import { SimpleAppProvider, useSimpleApp } from './context/SimpleAppContext';
+import { useTheme } from './context/ThemeContext';
+import { usePerformanceMonitor } from './hooks/usePerformance';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorFallback from './components/ui/ErrorFallback';
-
-// Custom Error Boundary
-class CustomErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('Custom Error Boundary caught error:', error, errorInfo);
-    this.setState({ errorInfo });
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} resetErrorBoundary={() => this.setState({ hasError: false })} />;
-    }
-
-    return this.props.children;
-  }
-}
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { PerformanceMonitor } from './components/ui/PerformanceMonitor';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -49,20 +28,24 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const TestPage = lazy(() => import('./pages/TestPage'));
 
 function App() {
-  // Debug logging to help identify React #130 issues
   console.log('App component rendering...');
   
+  const { theme } = useSimpleApp();
+  const { theme: appTheme } = useTheme();
+  const fontSize = localStorage.getItem('fontSize') || 'md';
+  
+  // Performance monitoring
+  const performanceStats = usePerformanceMonitor();
+
   // Global error handler
   React.useEffect(() => {
     const handleGlobalError = (event) => {
       console.error('Global error caught:', event.error);
-      // Prevent the error from being logged to console
       event.preventDefault();
     };
 
     const handleUnhandledRejection = (event) => {
       console.error('Unhandled promise rejection:', event.reason);
-      // Prevent the error from being logged to console
       event.preventDefault();
     };
 
@@ -100,473 +83,21 @@ function App() {
     window.addEventListener('languageChanged', handleLanguageChange);
 
     // Initialize language direction on app load
-    setTimeout(() => {
-      const savedLanguage = localStorage.getItem('language') || 'ar';
-      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.dir = initialDirection;
-      document.documentElement.lang = savedLanguage;
-      document.documentElement.classList.add(initialDirection);
-      
-      // Update app root element
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.dir = initialDirection;
-        appRoot.style.direction = initialDirection;
-      }
-      
-      console.log('App initialized with language:', savedLanguage, 'direction:', initialDirection);
-    }, 100);
+    const savedLanguage = localStorage.getItem('language') || 'ar';
+    const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
     
-    // Force initial direction update
-    setTimeout(() => {
-      const savedLanguage = localStorage.getItem('language') || 'ar';
-      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.dir = initialDirection;
-      document.documentElement.style.direction = initialDirection;
-      document.documentElement.offsetHeight; // Force reflow
-      
-      // Update app root element
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.dir = initialDirection;
-        appRoot.style.direction = initialDirection;
-        appRoot.offsetHeight; // Force reflow
-      }
-    }, 200);
+    document.documentElement.dir = initialDirection;
+    document.documentElement.lang = savedLanguage;
+    document.documentElement.classList.add(initialDirection);
     
-    // Force initial direction update
-    setTimeout(() => {
-      const savedLanguage = localStorage.getItem('language') || 'ar';
-      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.dir = initialDirection;
-      document.documentElement.style.direction = initialDirection;
-      document.documentElement.offsetHeight; // Force reflow
-      
-      // Update app root element
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.dir = initialDirection;
-        appRoot.style.direction = initialDirection;
-        appRoot.offsetHeight; // Force reflow
-      }
-    }, 200);
+    // Update app root element
+    const appRoot = document.getElementById('app-root');
+    if (appRoot) {
+      appRoot.dir = initialDirection;
+      appRoot.style.direction = initialDirection;
+    }
     
-    // Force initial direction update
-    setTimeout(() => {
-      const savedLanguage = localStorage.getItem('language') || 'ar';
-      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.dir = initialDirection;
-      document.documentElement.style.direction = initialDirection;
-      document.documentElement.offsetHeight; // Force reflow
-      
-      // Update app root element
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.dir = initialDirection;
-        appRoot.style.direction = initialDirection;
-        appRoot.offsetHeight; // Force reflow
-      }
-      
-      console.log('Initial direction update completed:', initialDirection);
-    }, 200);
-    
-    // Force re-render after all updates
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Force re-render event dispatched');
-    }, 300);
-    
-    // Force re-render after all updates
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Force re-render event dispatched');
-    }, 300);
-    
-    // Final direction update
-    setTimeout(() => {
-      const savedLanguage = localStorage.getItem('language') || 'ar';
-      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.dir = initialDirection;
-      document.documentElement.style.direction = initialDirection;
-      document.documentElement.offsetHeight; // Force reflow
-      
-      // Update app root element
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.dir = initialDirection;
-        appRoot.style.direction = initialDirection;
-        appRoot.offsetHeight; // Force reflow
-      }
-      
-      console.log('Final direction update completed:', initialDirection);
-    }, 500);
-    
-    // Force re-render after all updates
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Force re-render event dispatched');
-    }, 600);
-    
-    // Force re-render after all updates
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Force re-render event dispatched');
-    }, 600);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Final language change event dispatched');
-    }, 700);
-    
-    // Force final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('Final reflow completed');
-    }, 800);
-    
-    // Force final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('Final reflow completed');
-    }, 800);
-    
-    // Final CSS class update
-    setTimeout(() => {
-      const savedLanguage = localStorage.getItem('language') || 'ar';
-      const initialDirection = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.classList.remove('rtl', 'ltr');
-      document.documentElement.classList.add(initialDirection);
-      console.log('Final CSS class update completed:', initialDirection);
-    }, 900);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Language initialization sequence completed');
-    }, 1000);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Language initialization sequence completed');
-    }, 1000);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Language initialization sequence completed');
-    }, 1000);
-    
-    // Force one more re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Final force re-render event dispatched');
-    }, 1100);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 1200);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('Final language change event dispatched');
-    }, 1200);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('Final reflow completed');
-    }, 1300);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('Final reflow completed');
-    }, 1300);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Complete language initialization sequence finished');
-    }, 1400);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 1500);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 1500);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 1600);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 1700);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 1700);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Complete language initialization sequence finished');
-    }, 1800);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 1900);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 1900);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 2000);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 2100);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 2100);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Complete language initialization sequence finished');
-    }, 2200);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 2300);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 2300);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 2400);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 2500);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 2500);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Complete language initialization sequence finished');
-    }, 2600);
-    
-    // Force one final re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('forceRerender', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final force re-render event dispatched');
-    }, 2700);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 2800);
-    
-    // Final language change event
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { 
-          language: localStorage.getItem('language') || 'ar', 
-          direction: localStorage.getItem('language') === 'ar' ? 'rtl' : 'ltr' 
-        } 
-      }));
-      console.log('One final language change event dispatched');
-    }, 2800);
-    
-    // Final reflow
-    setTimeout(() => {
-      document.documentElement.offsetHeight; // Force reflow
-      const appRoot = document.getElementById('app-root');
-      if (appRoot) {
-        appRoot.offsetHeight; // Force reflow
-      }
-      console.log('One final reflow completed');
-    }, 2900);
-    
-    // Final language initialization complete
-    setTimeout(() => {
-      console.log('Complete language initialization sequence finished');
-    }, 3000);
+    console.log('App initialized with language:', savedLanguage, 'direction:', initialDirection);
 
     return () => {
       window.removeEventListener('error', handleGlobalError);
@@ -575,38 +106,39 @@ function App() {
     };
   }, []);
 
-  const { theme } = useSimpleApp();
-  // حجم الخط من localStorage أو القيمة الافتراضية
-  const fontSize = localStorage.getItem('fontSize') || 'md';
-
-  // تطبيق كلاس الثيم
+  // Apply theme classes
   React.useEffect(() => {
-    if (theme === 'dark') {
+    const currentTheme = appTheme || theme;
+    if (currentTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [theme]);
+  }, [appTheme, theme]);
 
-  // تطبيق كلاس حجم الخط
+  // Apply font size class
   React.useEffect(() => {
     document.body.classList.remove('font-size-sm', 'font-size-md', 'font-size-lg');
     document.body.classList.add(`font-size-${fontSize}`);
   }, [fontSize]);
 
-  // Debug logging to help identify React #130 issues
   console.log('App component returning JSX...');
 
   try {
     return (
       <SimpleLocalizationProvider>
         <SimpleAppProvider>
-          <CustomErrorBoundary>
+          <ErrorBoundary>
             <Router>
               <div 
                 className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
                 id="app-root"
               >
+                {/* Performance Monitor - Only in development */}
+                {process.env.NODE_ENV === 'development' && (
+                  <PerformanceMonitor stats={performanceStats} />
+                )}
+                
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
                     {/* Main Routes */}
@@ -651,7 +183,7 @@ function App() {
                 </Suspense>
               </div>
             </Router>
-          </CustomErrorBoundary>
+          </ErrorBoundary>
         </SimpleAppProvider>
       </SimpleLocalizationProvider>
     );
@@ -683,7 +215,6 @@ function App() {
   }
 }
 
-// Debug logging to help identify React #130 issues
 console.log('App component exported successfully');
 
 export default App;

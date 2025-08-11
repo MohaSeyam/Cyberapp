@@ -1,15 +1,16 @@
 import React from 'react';
-import { Settings, Sun, Moon, Menu } from 'lucide-react';
+import { Settings, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import { useSimpleApp } from '../../context/SimpleAppContext';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
   const { language, direction, isRTL, toggleLanguage } = useSimpleLocalization();
-  const { theme, toggleTheme } = useSimpleApp();
+  const { theme } = useSimpleApp();
   
   const safeLanguage = language || 'ar';
   const safeTheme = theme || 'light';
@@ -92,18 +93,8 @@ const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
               </span>
             </button>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              title={safeTheme === 'dark' ? (safeLanguage === 'ar' ? 'التبديل للوضع المضيء' : 'Switch to Light Mode') : (safeLanguage === 'ar' ? 'التبديل للوضع المظلم' : 'Switch to Dark Mode')}
-            >
-                              {safeTheme === 'dark' ? (
-                  <Sun className="w-5 h-5" />
-                ) : (
-                  <Moon className="w-5 h-5" />
-                )}
-            </button>
+            {/* Enhanced Theme Toggle */}
+            <ThemeToggle />
 
             {/* Settings */}
             <button

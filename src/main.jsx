@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./styles/main.css";
 import "./styles/rtl.css";
+import { ThemeProvider } from "./context/ThemeContext";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 
 // Apply theme immediately on page load
 const savedTheme = localStorage.getItem('theme') || 'light';
@@ -11,7 +13,6 @@ if (savedTheme === 'dark') {
 } else {
   document.documentElement.classList.remove('dark');
 }
-
 
 console.log("main.jsx loaded");
 
@@ -24,74 +25,30 @@ window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
 });
 
-// Error boundary for the root
-class RootErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
+// Register service worker for offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then((registration) => {
+        console.log('Service Worker registered successfully:', registration);
+      })
+      .catch((error) => {
+        console.log('Service Worker registration failed:', error);
+      });
+  });
+}
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('Root error boundary caught error:', error, errorInfo);
-    this.setState({ errorInfo });
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ 
-          minHeight: '100vh', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          backgroundColor: '#fef2f2',
-          color: '#dc2626',
-          padding: '20px',
-          fontFamily: 'Arial, sans-serif'
-        }}>
-          <div style={{ textAlign: 'center', maxWidth: '600px' }}>
-            <h1 style={{ fontSize: '24px', marginBottom: '16px' }}>
-              Application Error
-            </h1>
-            <p style={{ marginBottom: '16px' }}>
-              Something went wrong. Please check the console for details.
-            </p>
-            <details style={{ marginBottom: '16px', textAlign: 'left' }}>
-              <summary>Error Details</summary>
-              <pre style={{ 
-                backgroundColor: '#f3f4f6', 
-                padding: '12px', 
-                borderRadius: '4px',
-                overflow: 'auto',
-                fontSize: '12px'
-              }}>
-                {this.state.error && this.state.error.toString()}
-                {this.state.errorInfo && this.state.errorInfo.componentStack}
-              </pre>
-            </details>
-            <button 
-              onClick={() => window.location.reload()} 
-              style={{
-                backgroundColor: '#dc2626',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Reload Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
+// Performance monitoring
+if (process.env.NODE_ENV === 'development') {
+  // Monitor Core Web Vitals
+  if ('web-vital' in window) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(console.log);
+      getFID(console.log);
+      getFCP(console.log);
+      getLCP(console.log);
+      getTTFB(console.log);
+    });
   }
 }
 
@@ -100,9 +57,11 @@ try {
   
   root.render(
     <React.StrictMode>
-      <RootErrorBoundary>
-        <App />
-      </RootErrorBoundary>
+      <ErrorBoundary>
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
+      </ErrorBoundary>
     </React.StrictMode>
   );
   console.log("App rendered successfully");

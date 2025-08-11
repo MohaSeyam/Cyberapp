@@ -1,93 +1,124 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-// import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
     react(),
-    // VitePWA({
-    //   registerType: 'autoUpdate',
-    //   manifest: {
-    //     name: 'CyberPlan - تطبيق تعلم الأمن السيبراني',
-    //     short_name: 'CyberPlan',
-    //     description: 'تطبيق تعلم الأمن السيبراني الشخصي مع خطة 50 أسبوع - يعمل بدون إنترنت',
-    //     start_url: '/',
-    //     display: 'standalone',
-    //     background_color: '#1a1a1a',
-    //     theme_color: '#3b82f6',
-    //     orientation: 'portrait-primary',
-    //     scope: '/',
-    //     lang: 'ar',
-    //     dir: 'rtl',
-    //     categories: ['education', 'productivity', 'utilities'],
-    //     icons: [
-    //       {
-    //         src: '/icon-192x192.png',
-    //         sizes: '192x192',
-    //         type: 'image/png',
-    //         purpose: 'maskable any'
-    //       },
-    //       {
-    //         src: '/icon-512x512.png',
-    //         sizes: '512x512',
-    //         type: 'image/png',
-    //         purpose: 'maskable any'
-    //       }
-    //     ],
-    //     shortcuts: [
-    //       {
-    //         name: 'لوحة التحكم',
-    //         short_name: 'Dashboard',
-    //         description: 'عرض لوحة التحكم الرئيسية',
-    //         url: '/dashboard',
-    //         icons: [
-    //           {
-    //             src: '/icon-96x96.png',
-    //             sizes: '96x96'
-    //           }
-    //         ]
-    //       },
-    //       {
-    //         name: 'المراحل',
-    //         short_name: 'Phases',
-    //         description: 'عرض مراحل التعلم',
-    //         url: '/phases',
-    //         icons: [
-    //           {
-    //             src: '/icon-96x96.png',
-    //             sizes: '96x96'
-    //           }
-    //         ]
-    //       }
-    //     ]
-    //   },
-    //   workbox: {
-    //     globPatterns: ['**/*.{js,css,html,png,svg,ico,json}'],
-    //     runtimeCaching: [
-    //       {
-    //         urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*$/,
-    //         handler: 'CacheFirst',
-    //         options: {
-    //           cacheName: 'google-fonts-stylesheets',
-    //         },
-    //       },
-    //       {
-    //         urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*$/,
-    //         handler: 'CacheFirst',
-    //         options: {
-    //           cacheName: 'google-fonts-webfonts',
-    //         },
-    //       },
-    //     ],
-    //     skipWaiting: true,
-    //     clientsClaim: true,
-    //   },
-    //   devOptions: {
-    //     enabled: true,
-    //     type: 'module',
-    //   },
-    //         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-    // }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'CyberPlan - تطبيق تعلم الأمن السيبراني',
+        short_name: 'CyberPlan',
+        description: 'تطبيق تعلم الأمن السيبراني الشخصي مع خطة 50 أسبوع - يعمل بدون إنترنت',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#1a1a1a',
+        theme_color: '#3b82f6',
+        orientation: 'portrait-primary',
+        scope: '/',
+        lang: 'ar',
+        dir: 'rtl',
+        categories: ['education', 'productivity', 'utilities'],
+        icons: [
+          {
+            src: '/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable any'
+          },
+          {
+            src: '/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable any'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'لوحة التحكم',
+            short_name: 'Dashboard',
+            description: 'عرض لوحة التحكم الرئيسية',
+            url: '/dashboard',
+            icons: [
+              {
+                src: '/icon-96x96.png',
+                sizes: '96x96'
+              }
+            ]
+          },
+          {
+            name: 'المراحل',
+            short_name: 'Phases',
+            description: 'عرض مراحل التعلم',
+            url: '/phases',
+            icons: [
+              {
+                src: '/icon-96x96.png',
+                sizes: '96x96'
+              }
+            ]
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,ico,json}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+            },
+          },
+          // Cache API requests
+          {
+            urlPattern: /^https:\/\/.*\/api\/.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 3,
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Cache static assets
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+            },
+          },
+        ],
+        skipWaiting: true,
+        clientsClaim: true,
+        // Background sync support
+        backgroundSync: {
+          name: 'background-sync',
+          options: {
+            maxRetentionTime: 24 * 60, // 24 hours
+          },
+        },
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+    }),
   ],
   publicDir: 'public',
   build: {
@@ -106,6 +137,8 @@ export default defineConfig({
           'db-vendor': ['dexie'],
           // فصل مكتبات الترجمة
           'i18n-vendor': ['i18next', 'react-i18next'],
+          // فصل مكتبات الأداء
+          'performance-vendor': ['web-vitals'],
         },
       },
     },
@@ -119,6 +152,10 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
+    // تحسين التحميل
+    target: 'esnext',
+    // تمكين source maps للإنتاج
+    sourcemap: false,
   },
   // تحسين الأداء في التطوير
   optimizeDeps: {
@@ -131,12 +168,25 @@ export default defineConfig({
       'dexie',
       'chart.js',
       'react-chartjs-2',
+      'web-vitals',
     ],
+    // تحسين التبعيات
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   // تحسين سرعة التطوير
   server: {
     hmr: {
       overlay: false,
     },
+    // تحسين الأداء
+    fs: {
+      strict: false,
+    },
+  },
+  // تحسينات إضافية
+  define: {
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
   },
 });
