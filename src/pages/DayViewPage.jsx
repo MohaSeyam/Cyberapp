@@ -780,7 +780,7 @@ const DayViewPage = () => {
             ) : (
               <div className="space-y-4">
                 {getDayNotes().map(note => (
-                  <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700">
+                  <Card key={note.id} className="p-3 border-blue-200 dark:border-blue-700 cursor-pointer" onClick={() => navigate(`/notes/${note.id}`)} tabIndex={0} role="button" aria-label={language === 'ar' ? `عرض الملاحظة ${note.title}` : `View note ${note.title}`} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/notes/${note.id}`); } }}>
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-gray-800 dark:text-white mb-1">{note.title}</h3>
@@ -799,24 +799,20 @@ const DayViewPage = () => {
                           size="sm"
                           variant="ghost"
                           icon={<Edit2 className="w-4 h-4" />}
-                          onClick={() => {
-                            setNoteForm({
-                              title: note.title,
-                              content: note.content,
-                              tags: note.tags || []
-                            });
-                            setShowNoteEditor(true);
-                          }}
+                          onClick={(e) => { e.stopPropagation(); setNoteForm({
+                            title: note.title,
+                            content: note.content,
+                            tags: note.tags || []
+                          });
+                          setShowNoteEditor(true); }}
                         />
                         <Button
                           size="sm"
                           variant="ghost"
                           icon={<Trash2 className="w-4 h-4" />}
-                          onClick={() => {
-                            if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الملاحظة؟' : 'Are you sure you want to delete this note?')) {
-                              deleteNote(note.id);
-                            }
-                          }}
+                          onClick={(e) => { e.stopPropagation(); if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه الملاحظة؟' : 'Are you sure you want to delete this note?')) {
+                            deleteNote(note.id);
+                          } }}
                         />
                       </div>
                     </div>
@@ -940,7 +936,7 @@ const DayViewPage = () => {
             ) : (
               getDayJournal() ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 cursor-pointer" role="button" tabIndex={0} aria-label={language === 'ar' ? `عرض المدونة ${getDayJournal().title || ''}` : `View journal ${getDayJournal().title || ''}`} onClick={() => navigate(`/journal/${getDayJournal().id}`)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/journal/${getDayJournal().id}`); } }}>
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-purple-700 dark:text-purple-300">
                         {getDayJournal().title || (language === 'ar' ? 'مدونة اليوم' : 'Day Journal')}
@@ -950,7 +946,7 @@ const DayViewPage = () => {
                           size="sm"
                           variant="ghost"
                           icon={<Edit2 className="w-4 h-4" />}
-                          onClick={() => {
+                          onClick={(e) => { e.stopPropagation();
                             setJournalForm({
                               title: getDayJournal().title || '',
                               content: getDayJournal().content || '',
@@ -963,7 +959,7 @@ const DayViewPage = () => {
                           size="sm"
                           variant="ghost"
                           icon={<Trash2 className="w-4 h-4" />}
-                          onClick={() => {
+                          onClick={(e) => { e.stopPropagation();
                             if (window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذه المدونة؟' : 'Are you sure you want to delete this journal?')) {
                               handleDeleteJournal();
                             }
