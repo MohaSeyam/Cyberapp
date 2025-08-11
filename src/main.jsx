@@ -4,7 +4,7 @@ import App from "./App";
 import "./styles/main.css";
 import "./styles/rtl.css";
 import { ThemeProvider } from "./context/ThemeContext";
-import { ErrorBoundary } from "./components/ui/ErrorBoundary";
+import ErrorBoundary from "./components/ui/ErrorBoundary";
 
 // Apply theme immediately on page load
 const savedTheme = localStorage.getItem('theme') || 'light';

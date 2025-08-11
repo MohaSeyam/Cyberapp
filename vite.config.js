@@ -105,13 +105,6 @@ export default defineConfig({
         ],
         skipWaiting: true,
         clientsClaim: true,
-        // Background sync support
-        backgroundSync: {
-          name: 'background-sync',
-          options: {
-            maxRetentionTime: 24 * 60, // 24 hours
-          },
-        },
       },
       devOptions: {
         enabled: true,

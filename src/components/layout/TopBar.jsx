@@ -3,7 +3,7 @@ import { Settings, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import { useSimpleApp } from '../../context/SimpleAppContext';
-import { ThemeToggle } from '../ui/ThemeToggle';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
   const navigate = useNavigate();

@@ -231,14 +231,14 @@ const PerformanceMonitor = ({
 
 // Performance monitoring hook for components
 export const useComponentPerformance = (componentName, options = {}) => {
-  const { measureOperation } = usePerformanceMonitor(componentName);
+  const { measureOperation: baseMeasureOperation } = usePerformanceMonitor(componentName);
   
   const measureRender = (operation) => {
-    return measureOperation('render', operation);
+    return baseMeasureOperation('render', operation);
   };
   
   const measureOperation = (operationName, operation) => {
-    return measureOperation(operationName, operation);
+    return baseMeasureOperation(operationName, operation);
   };
   
   return { measureRender, measureOperation };
