@@ -118,11 +118,12 @@ const ResourcesPage = () => {
     if (!resourceForm.title.trim() || !resourceForm.url.trim()) return;
     
     try {
-      await addResource({
-        ...resourceForm,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+             await addResource({
+         ...resourceForm,
+         url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
+         createdAt: new Date().toISOString(),
+         updatedAt: new Date().toISOString(),
+       });
       setShowAddModal(false);
       setResourceForm({
         title: '', url: '', type: 'article', description: '', category: '',
@@ -137,10 +138,11 @@ const ResourcesPage = () => {
     if (!editingResource || !resourceForm.title.trim() || !resourceForm.url.trim()) return;
     
     try {
-      await updateResource(editingResource.id, {
-        ...resourceForm,
-        updatedAt: new Date().toISOString(),
-      });
+             await updateResource(editingResource.id, {
+         ...resourceForm,
+         url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
+         updatedAt: new Date().toISOString(),
+       });
       setEditingResource(null);
       setResourceForm({
         title: '', url: '', type: 'article', description: '', category: '',
@@ -298,8 +300,8 @@ const ResourcesPage = () => {
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
             >
-              <Card className="h-full hover:shadow-lg transition-all duration-200">
-                <div className="p-6">
+              <Card className="h-full hover:shadow-lg transition-all duration-200 cursor-pointer" hover onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`, '_blank')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`, '_blank'); } }} tabIndex={0}>
+                <div className="p-6" role="button" aria-label={language === 'ar' ? `فتح المورد ${resource.title}` : `Open resource ${resource.title}`}>
                   {/* Resource Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -317,26 +319,20 @@ const ResourcesPage = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        icon={<Eye className="w-4 h-4" />}
-                        onClick={() => window.open(resource.url, '_blank')}
-                      />
+                                        <div className="flex items-center gap-2">
                       {resource.source === 'user' && (
                         <>
                           <Button
                             size="sm"
                             variant="ghost"
                             icon={<Edit2 className="w-4 h-4" />}
-                            onClick={() => openEditModal(resource)}
+                            onClick={(e) => { e.stopPropagation(); openEditModal(resource); }}
                           />
                           <Button
                             size="sm"
                             variant="ghost"
                             icon={<Trash2 className="w-4 h-4" />}
-                            onClick={() => handleDeleteResource(resource.id)}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteResource(resource.id); }}
                           />
                         </>
                       )}
@@ -394,17 +390,7 @@ const ResourcesPage = () => {
                     )}
                   </div>
 
-                  {/* Action Button */}
-                  <div className="mt-4">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      icon={<ExternalLink className="w-4 h-4" />}
-                      onClick={() => window.open(resource.url, '_blank')}
-                    >
-                      {language === 'ar' ? 'فتح المورد' : 'Open Resource'}
-                    </Button>
-                  </div>
+                  {/* Action Button removed: card is clickable */}
                 </div>
               </Card>
             </motion.div>
