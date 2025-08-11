@@ -71,22 +71,7 @@ const PhaseWeeksPage = () => {
     };
   };
 
-  // Get day completion for a specific week
-  const getDayCompletion = (weekNumber, dayKey) => {
-    const week = (planData || []).find(w => w.week === weekNumber && w.phase === parseInt(phaseId));
-    if (!week || !week.days) return { percentage: 0, completed: 0, total: 0 };
-    const day = week.days.find(d => d.key === dayKey);
-    if (!day || !day.tasks) return { percentage: 0, completed: 0, total: 0 };
-    const totalTasks = day.tasks.length;
-    if (totalTasks === 0) return { percentage: 0, completed: 0, total: 0 };
-    const dayProgress = safeProgress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey && p.phaseId === parseInt(phaseId));
-    const completedTasks = dayProgress.filter(p => p.done).length;
-    return {
-      percentage: Math.round((completedTasks / totalTasks) * 100),
-      completed: completedTasks,
-      total: totalTasks
-    };
-  };
+
 
   // Get total tasks for a week from data
   const getWeekTotalTasks = (weekNumber) => {
@@ -98,16 +83,7 @@ const PhaseWeeksPage = () => {
     }, 0);
   };
 
-  // Day icons mapping
-  const dayIcons = {
-    sat: '🌅',
-    sun: '☀️',
-    mon: '☕',
-    tue: '⚡',
-    wed: '❤️',
-    thu: '🧠',
-    fri: '⭐'
-  };
+
 
   const animations = {
     fadeIn: {
@@ -256,32 +232,7 @@ const PhaseWeeksPage = () => {
                     </div>
                   </div>
 
-                  {/* Days Preview */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      {language === 'ar' ? 'أيام الأسبوع' : 'Week Days'}
-                    </h4>
-                    <div className="flex flex-wrap gap-1">
-                      {week.days?.map((day) => {
-                        const dayCompletion = getDayCompletion(week.week, day.key);
-                        return (
-                          <div
-                            key={day.key}
-                            className={`p-2 rounded-lg text-xs font-medium ${
-                              dayCompletion.percentage === 100
-                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                                : dayCompletion.percentage > 0
-                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                            }`}
-                            title={`${day.day[language]} - ${dayCompletion.percentage}%`}
-                          >
-                            {dayIcons[day.key] || '📅'}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+
 
                   {/* Week Stats */}
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
