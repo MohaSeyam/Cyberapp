@@ -22,6 +22,9 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { FontFamily } from "@tiptap/extension-font-family";
 import { FontSize } from "@tiptap/extension-font-size";
+import { Node, mergeAttributes, Extension } from "@tiptap/core";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import { Plugin } from "prosemirror-state";
 import { motion } from "framer-motion";
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
@@ -419,10 +422,12 @@ const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any
 });
 
 // Text Box Extension
-const TextBox = Node.create({
-  name: 'textBox',
-  group: 'block',
-  content: 'inline*',
+class TextBox extends Node {
+  static name = 'textBox';
+  
+  static group = 'block';
+  
+  static content = 'inline*';
   
   addAttributes() {
     return {
@@ -433,7 +438,7 @@ const TextBox = Node.create({
         default: 'default',
       },
     };
-  },
+  }
 
   parseHTML() {
     return [
@@ -441,15 +446,15 @@ const TextBox = Node.create({
         tag: 'div[data-type="text-box"]',
       },
     ];
-  },
+  }
 
   renderHTML({ HTMLAttributes }) {
     return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'text-box' })];
-  },
+  }
 
   addNodeView() {
     return ReactNodeViewRenderer(TextBoxComponent);
-  },
+  }
 
   addCommands() {
     return {
@@ -460,12 +465,12 @@ const TextBox = Node.create({
         });
       },
     };
-  },
-});
+  }
+}
 
 // Performance Optimization Extension
-const PerformanceOptimization = Extension.create({
-  name: 'performanceOptimization',
+class PerformanceOptimization extends Extension {
+  static name = 'performanceOptimization';
   
   addProseMirrorPlugins() {
     return [
@@ -492,8 +497,8 @@ const PerformanceOptimization = Extension.create({
         },
       }),
     ];
-  },
-});
+  }
+}
 
 // Enhanced Toolbar Component
 const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
