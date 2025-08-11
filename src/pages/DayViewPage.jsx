@@ -357,7 +357,7 @@ const DayViewPage = () => {
       <span className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
         <span className="flex items-center gap-1">
           {[1,2,3,4,5].map(idx => (
-            <span key={idx} className={idx <= evalObj.rating ? 'text-blue-500 dark:text-blue-300' : 'text-gray-300 dark:text-gray-600'}>—</span>
+            <span key={idx} className={`w-2 h-2 rounded-full ${idx <= evalObj.rating ? 'bg-blue-500 dark:bg-blue-300' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
           ))}
         </span>
         {evalObj.difficulty ? (
@@ -413,7 +413,7 @@ const DayViewPage = () => {
           <div className="flex items-center gap-2">
             {[1,2,3,4,5].map(idx => (
               <button key={idx} onClick={() => setRating(idx)} className="focus:outline-none">
-                <span className={idx <= rating ? 'text-blue-500 dark:text-blue-300 text-xl' : 'text-gray-300 dark:text-gray-600 text-xl'}>—</span>
+                <span className={`w-4 h-4 rounded-full transition-colors ${idx <= rating ? 'bg-blue-500 dark:bg-blue-300' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
               </button>
             ))}
           </div>
