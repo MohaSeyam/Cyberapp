@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Plus, Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Smile, Meh, Frown
+  Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Smile, Meh, Frown
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -131,13 +131,6 @@ const JournalPage = () => {
               }
             </p>
           </div>
-          <Button
-            variant="primary"
-            icon={<Plus />}
-            onClick={() => navigate('/journal/new')}
-          >
-            {language === 'ar' ? 'مدونة جديدة' : 'New Entry'}
-          </Button>
         </div>
 
         {/* Search and Filter */}
@@ -181,19 +174,12 @@ const JournalPage = () => {
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {language === 'ar' ? 'لا توجد مدونات' : 'No journal entries found'}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-gray-600 dark:text-gray-400">
                 {language === 'ar' 
-                  ? 'ابدأ بكتابة مدونتك الأولى'
-                  : 'Start by writing your first journal entry'
+                  ? 'لا توجد مدونات متاحة حالياً'
+                  : 'No journal entries available at the moment'
                 }
               </p>
-              <Button
-                variant="primary"
-                icon={<Plus />}
-                onClick={() => navigate('/journal/new')}
-              >
-                {language === 'ar' ? 'إنشاء مدونة' : 'Create Entry'}
-              </Button>
             </Card>
           ) : (
             filteredEntries.map(entry => (
