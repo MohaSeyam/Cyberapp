@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SimpleLocalizationProvider } from './context/SimpleLocalizationContext';
-import { SimpleAppProvider } from './context/SimpleAppContext';
+import { SimpleAppProvider, useSimpleApp } from './context/SimpleAppContext';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorFallback from './components/ui/ErrorFallback';
 
@@ -574,6 +574,25 @@ function App() {
       window.removeEventListener('languageChanged', handleLanguageChange);
     };
   }, []);
+
+  const { theme } = useSimpleApp();
+  // حجم الخط من localStorage أو القيمة الافتراضية
+  const fontSize = localStorage.getItem('fontSize') || 'md';
+
+  // تطبيق كلاس الثيم
+  React.useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  // تطبيق كلاس حجم الخط
+  React.useEffect(() => {
+    document.body.classList.remove('font-size-sm', 'font-size-md', 'font-size-lg');
+    document.body.classList.add(`font-size-${fontSize}`);
+  }, [fontSize]);
 
   // Debug logging to help identify React #130 issues
   console.log('App component returning JSX...');

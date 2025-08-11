@@ -65,6 +65,11 @@ const SettingsPage = () => {
     }
   };
 
+  const handleFontSizeChange = (value) => {
+    setFontSize(value);
+    localStorage.setItem('fontSize', value);
+  };
+
   const animations = {
     fadeIn: {
       initial: { opacity: 0, y: 20 },
@@ -174,7 +179,7 @@ const SettingsPage = () => {
           >
             <select
               value={fontSize}
-              onChange={e => setFontSize(e.target.value)}
+              onChange={e => handleFontSizeChange(e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="sm">{safeLanguage === 'ar' ? 'صغير' : 'Small'}</option>
