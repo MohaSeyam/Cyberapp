@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Smile, Meh, Frown
+  Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Smile, Meh, Frown, Target, Clock
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -48,6 +48,48 @@ const JournalPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMood, setSelectedMood] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+
+  // البحث عن معلومات اليوم المرتبط بالمدونة
+  const getDayInfo = (entry) => {
+    if (!entry?.weekId || !entry?.dayKey || !plan) return null;
+    
+    try {
+      const week = plan.find(w => w.week === entry.weekId);
+      if (week) {
+        const day = week.days?.find(d => d.key === entry.dayKey);
+        return { week, day };
+      }
+    } catch (error) {
+      console.error('Error getting day info:', error);
+    }
+    return null;
+  };
+
+  // تنسيق التاريخ باللغة العربية
+  const formatDate = (dateString, language) => {
+    try {
+      const date = new Date(dateString);
+      if (language === 'ar') {
+        return date.toLocaleDateString('ar-SA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } else {
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   // Filter entries based on search and mood
   const filteredEntries = useMemo(() => {
@@ -199,14 +241,40 @@ const JournalPage = () => {
                             {entry.title}
                           </h3>
                           <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>
-                                {new Date(entry.date).toLocaleDateString(
-                                  language === 'ar' ? 'ar-SA' : 'en-US'
-                                )}
-                              </span>
-                            </div>
+                            {/* معلومات اليوم */}
+                            {(() => {
+                              const dayInfo = getDayInfo(entry);
+                              return dayInfo ? (
+                                <div className="flex items-center space-x-1">
+                                  <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                  <span className="text-purple-600 dark:text-purple-400 font-medium">
+                                    {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                                  </span>
+                                </div>
+                              ) : null;
+                            })()}
+                            
+                            {/* تاريخ الإنشاء */}
+                            {entry.createdAt && (
+                              <div className="flex items-center space-x-1">
+                                <Calendar className="w-4 h-4" />
+                                <span>
+                                  {formatDate(entry.createdAt, language)}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* تاريخ التعديل */}
+                            {entry.updatedAt && entry.updatedAt !== entry.createdAt && (
+                              <div className="flex items-center space-x-1">
+                                <Clock className="w-4 h-4" />
+                                <span>
+                                  {language === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatDate(entry.updatedAt, language)}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* المزاج */}
                             <div className="flex items-center space-x-1">
                               {getMoodIcon(entry.mood)}
                               <span>{getMoodLabel(entry.mood)}</span>

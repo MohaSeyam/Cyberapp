@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye
+  Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye, Target, Clock
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -76,6 +76,48 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+
+  // البحث عن معلومات اليوم المرتبط بالملاحظة
+  const getDayInfo = (note) => {
+    if (!note?.weekId || !note?.dayKey || !plan) return null;
+    
+    try {
+      const week = plan.find(w => w.week === note.weekId);
+      if (week) {
+        const day = week.days?.find(d => d.key === note.dayKey);
+        return { week, day };
+      }
+    } catch (error) {
+      console.error('Error getting day info:', error);
+    }
+    return null;
+  };
+
+  // تنسيق التاريخ باللغة العربية
+  const formatDate = (dateString, language) => {
+    try {
+      const date = new Date(dateString);
+      if (language === 'ar') {
+        return date.toLocaleDateString('ar-SA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } else {
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   // Get all unique tags with safety checks
   const allTags = useMemo(() => {
@@ -279,14 +321,40 @@ const NotesPage = () => {
                           {/* Meta Information */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>
-                                  {new Date(safeDate).toLocaleDateString(
-                                    safeLanguage === 'ar' ? 'ar-SA' : 'en-US'
-                                  )}
-                                </span>
-                              </div>
+                              {/* معلومات اليوم */}
+                              {(() => {
+                                const dayInfo = getDayInfo(note);
+                                return dayInfo ? (
+                                  <div className="flex items-center space-x-1">
+                                    <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                    <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                      {dayInfo.day.day?.[safeLanguage] || dayInfo.day.day?.ar}
+                                    </span>
+                                  </div>
+                                ) : null;
+                              })()}
+                              
+                              {/* تاريخ الإنشاء */}
+                              {note.createdAt && (
+                                <div className="flex items-center space-x-1">
+                                  <Calendar className="w-4 h-4" />
+                                  <span>
+                                    {formatDate(note.createdAt, safeLanguage)}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* تاريخ التعديل */}
+                              {note.updatedAt && note.updatedAt !== note.createdAt && (
+                                <div className="flex items-center space-x-1">
+                                  <Clock className="w-4 h-4" />
+                                  <span>
+                                    {safeLanguage === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatDate(note.updatedAt, safeLanguage)}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* عدد التاقات */}
                               {safeTags.length > 0 && (
                                 <div className="flex items-center space-x-1">
                                   <Tag className="w-4 h-4" />

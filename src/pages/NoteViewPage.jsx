@@ -23,6 +23,32 @@ export default function NoteViewPage() {
   const { language, direction } = localizationData;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // تنسيق التاريخ باللغة العربية
+  const formatDate = (dateString, language) => {
+    try {
+      const date = new Date(dateString);
+      if (language === 'ar') {
+        return date.toLocaleDateString('ar-SA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } else {
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   // البحث عن الملاحظة في جميع الملاحظات
   const note = React.useMemo(() => {
     if (!notes || !noteId) return null;
@@ -218,14 +244,26 @@ export default function NoteViewPage() {
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
               {dayInfo && (
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>{dayInfo.day.day?.[language] || dayInfo.day.day?.ar}</span>
+                  <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">
+                    {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                  </span>
                 </div>
               )}
               {note.createdAt && (
                 <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>
+                    {language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'} {formatDate(note.createdAt, language)}
+                  </span>
+                </div>
+              )}
+              {note.updatedAt && note.updatedAt !== note.createdAt && (
+                <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
-                  <span>{new Date(note.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span>
+                    {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatDate(note.updatedAt, language)}
+                  </span>
                 </div>
               )}
               {note.tags && note.tags.length > 0 && (
@@ -287,6 +325,16 @@ export default function NoteViewPage() {
                 {dayInfo.day.topic && (
                   <p className="text-gray-700 dark:text-gray-300">
                     <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {dayInfo.day.topic[language] || dayInfo.day.topic.ar}
+                  </p>
+                )}
+                {note.createdAt && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatDate(note.createdAt, language)}
+                  </p>
+                )}
+                {note.updatedAt && note.updatedAt !== note.createdAt && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatDate(note.updatedAt, language)}
                   </p>
                 )}
               </div>
