@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BookOpen, ExternalLink, Plus, Search, Filter, 
-  Calendar, Target, FileText, Video, ToolCase, 
+  Calendar, Target, FileText, Video, Wrench, 
   Edit2, Trash2, Eye, Download, Tag
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
@@ -15,7 +15,8 @@ import planData from '../data/PlanData.json';
 
 const ResourcesPage = () => {
   const { resources, addResource, deleteResource, updateResource } = useSimpleApp();
-  const { language } = useSimpleLocalization();
+  const localization = useSimpleLocalization();
+  const language = localization?.language || 'ar';
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
@@ -188,7 +189,7 @@ const ResourcesPage = () => {
     switch (type) {
       case 'video': return <Video className="w-5 h-5" />;
       case 'book': return <BookOpen className="w-5 h-5" />;
-      case 'tool': return <ToolCase className="w-5 h-5" />;
+      case 'tool': return <Wrench className="w-5 h-5" />;
       case 'course': return <FileText className="w-5 h-5" />;
       default: return <ExternalLink className="w-5 h-5" />;
     }
