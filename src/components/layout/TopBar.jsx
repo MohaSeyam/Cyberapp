@@ -1,10 +1,10 @@
 import React from 'react';
-import { Settings, Sun, Moon } from 'lucide-react';
+import { Settings, Sun, Moon, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import { useSimpleApp } from '../../context/SimpleAppContext';
 
-const TopBar = () => {
+const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -35,8 +35,19 @@ const TopBar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo/Title */}
-          <div className="flex items-center">
+          {/* Logo/Title and Sidebar Toggle */}
+          <div className="flex items-center space-x-4">
+            {/* Sidebar Toggle - Only on large screens */}
+            {onSidebarToggle && (
+              <button
+                onClick={onSidebarToggle}
+                className="hidden lg:flex p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                aria-label={safeLanguage === 'ar' ? 'إغلاق/فتح القائمة الجانبية' : 'Toggle Sidebar'}
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
+            
             <button
               onClick={() => navigate('/')}
               className="flex items-center space-x-2 text-xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"

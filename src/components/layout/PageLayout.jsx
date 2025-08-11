@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import BottomNavigation from './BottomNavigation';
+import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 
 const PageLayout = ({
@@ -13,6 +15,8 @@ const PageLayout = ({
   className = '',
   ...props
 }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Safe access to useSimpleLocalization
   let localizationData;
   try {
@@ -33,6 +37,25 @@ const PageLayout = ({
   const fontSize = localStorage.getItem('fontSize') || 'md';
   const fontSizeClass = `text-size-${fontSize}`;
 
+  // Close sidebar when screen size changes to large
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        // Don't auto-close on large screens, just ensure it's visible
+        setSidebarOpen(true);
+      } else {
+        // Close on small screens
+        setSidebarOpen(false);
+      }
+    };
+
+    // Set initial state based on screen size
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div 
       className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}
@@ -41,10 +64,18 @@ const PageLayout = ({
       {...props}
     >
       {/* Top Bar */}
-      {showHeader && <TopBar />}
+      {showHeader && (
+        <TopBar 
+          onSidebarToggle={showBottomBar ? () => setSidebarOpen(!sidebarOpen) : undefined}
+          sidebarOpen={sidebarOpen}
+        />
+      )}
+
+      {/* Sidebar */}
+      {showBottomBar && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
 
       {/* Main Content */}
-      <main className={`pb-20 ${showHeader ? 'pt-20' : 'pt-4'}`}>
+      <main className={`${showHeader ? 'pt-20' : 'pt-4'} ${showBottomBar ? 'pb-20 lg:pb-0 lg:pl-64' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Header */}
           {(title || subtitle) && (
@@ -79,8 +110,12 @@ const PageLayout = ({
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      {showBottomBar && <BottomNavigation />}
+      {/* Bottom Navigation - Only on small screens */}
+      {showBottomBar && (
+        <div className="lg:hidden">
+          <BottomNavigation />
+        </div>
+      )}
     </div>
   );
 };
