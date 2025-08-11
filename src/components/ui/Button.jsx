@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocalization } from '../../context/LocalizationContext';
+import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const Button = ({
@@ -15,7 +15,7 @@ const Button = ({
   type = 'button',
   ...props
 }) => {
-  const { language } = useLocalization();
+  const { language } = useSimpleLocalization();
   const isRTL = language === 'ar';
 
   const sizeClasses = {
