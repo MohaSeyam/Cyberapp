@@ -17,7 +17,7 @@ import planData from '../data/PlanData.json';
 import phasesData from '../data/phases.json';
 
 const DayViewPage = () => {
-  const { weekId, dayIndex, phaseId } = useParams();
+  const { weekId, dayKey, phaseId } = useParams();
   const navigate = useNavigate();
   
   // Safe access to useSimpleLocalization
@@ -72,13 +72,13 @@ const DayViewPage = () => {
     const week = (planData || []).find(w => w.week === parseInt(weekId) && w.phase === parseInt(phaseId));
     setSelectedWeek(week);
     if (week && week.days) {
-      // dayIndex يبدأ من 1 في URL، لكن المصفوفة تبدأ من 0
-      const dayIndexInArray = parseInt(dayIndex) - 1;
+      // dayKey هو رقم اليوم في URL (يبدأ من 1)
+      const dayIndexInArray = parseInt(dayKey) - 1;
       if (dayIndexInArray >= 0 && dayIndexInArray < week.days.length) {
         setSelectedDay(week.days[dayIndexInArray]);
       }
     }
-  }, [weekId, dayIndex, phaseId]);
+  }, [weekId, dayKey, phaseId]);
 
   // Determine current phase
   const getCurrentPhase = () => {
@@ -89,21 +89,21 @@ const DayViewPage = () => {
 
   // Navigation functions
   const goToNextDay = () => {
-    if (selectedWeek && parseInt(dayIndex) < selectedWeek.days.length) {
+    if (selectedWeek && parseInt(dayKey) < selectedWeek.days.length) {
       if (currentPhase) {
-        navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${parseInt(dayIndex) + 1}`);
+        navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${parseInt(dayKey) + 1}`);
       } else {
-        navigate(`/phases/1/weeks/${weekId}/days/${parseInt(dayIndex) + 1}`);
+        navigate(`/phases/1/weeks/${weekId}/days/${parseInt(dayKey) + 1}`);
       }
     }
   };
 
   const goToPreviousDay = () => {
-    if (parseInt(dayIndex) > 1) {
+    if (parseInt(dayKey) > 1) {
       if (currentPhase) {
-        navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${parseInt(dayIndex) - 1}`);
+        navigate(`/phases/${currentPhase.id}/weeks/${weekId}/days/${parseInt(dayKey) - 1}`);
       } else {
-        navigate(`/phases/1/weeks/${weekId}/days/${parseInt(dayIndex) - 1}`);
+        navigate(`/phases/1/weeks/${weekId}/days/${parseInt(dayKey) - 1}`);
       }
     }
   };
@@ -399,14 +399,14 @@ const DayViewPage = () => {
                   size="sm"
                   icon={<ChevronLeft />}
                   onClick={goToPreviousDay}
-                  disabled={parseInt(dayIndex) <= 0}
+                  disabled={parseInt(dayKey) <= 0}
                 />
                 <Button
                   variant="ghost"
                   size="sm"
                   icon={<ChevronRight />}
                   onClick={goToNextDay}
-                  disabled={parseInt(dayIndex) >= (selectedWeek.days?.length || 0) - 1}
+                  disabled={parseInt(dayKey) >= (selectedWeek.days?.length || 0) - 1}
                 />
               </div>
             </div>
@@ -513,7 +513,7 @@ const DayViewPage = () => {
                     size="lg"
                     icon={<ChevronLeft />}
                     onClick={goToPreviousDay}
-                    disabled={parseInt(dayIndex) <= 0}
+                    disabled={parseInt(dayKey) <= 0}
                     className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500"
                   >
                     {language === 'ar' ? 'اليوم السابق' : 'Previous Day'}
@@ -523,7 +523,7 @@ const DayViewPage = () => {
                     size="lg"
                     icon={<ChevronRight />}
                     onClick={goToNextDay}
-                    disabled={parseInt(dayIndex) >= (selectedWeek.days?.length || 0) - 1}
+                    disabled={parseInt(dayKey) >= (selectedWeek.days?.length || 0) - 1}
                     className="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500"
                   >
                     {language === 'ar' ? 'اليوم التالي' : 'Next Day'}
