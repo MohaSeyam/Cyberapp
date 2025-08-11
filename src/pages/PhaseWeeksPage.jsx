@@ -200,7 +200,7 @@ const PhaseWeeksPage = () => {
                     isCompleted ? 'ring-2 ring-green-500' : 
                     isInProgress ? 'ring-2 ring-blue-500' : ''
                   }`}
-                  onClick={() => navigate(`/week/${week.week}`)}
+                  onClick={() => navigate(`/phases/${phaseId}/weeks/${week.week}`)}
                   hover={true}
                 >
                   {/* Week Header */}

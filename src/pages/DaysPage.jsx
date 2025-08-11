@@ -116,7 +116,7 @@ const DaysPage = () => {
   };
 
   const goToDayView = (dayIndex) => {
-    navigate(`/day/${weekId}/${dayIndex}`);
+    navigate(`/phases/${phaseId}/weeks/${weekId}/days/${dayIndex}`);
   };
 
   const goToWeekView = () => {

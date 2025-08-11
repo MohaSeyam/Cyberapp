@@ -86,18 +86,18 @@ const DayViewPage = () => {
   // Navigation functions
   const goToNextDay = () => {
     if (selectedWeek && parseInt(dayIndex) < selectedWeek.days.length - 1) {
-      navigate(`/day/${weekId}/${parseInt(dayIndex) + 1}`);
+      navigate(`/phases/${phaseId}/weeks/${weekId}/days/${parseInt(dayIndex) + 1}`);
     }
   };
 
   const goToPreviousDay = () => {
     if (parseInt(dayIndex) > 0) {
-      navigate(`/day/${weekId}/${parseInt(dayIndex) - 1}`);
+      navigate(`/phases/${phaseId}/weeks/${weekId}/days/${parseInt(dayIndex) - 1}`);
     }
   };
 
   const goToDayList = () => {
-    navigate(`/week/${weekId}`);
+    navigate(`/phases/${phaseId}/weeks/${weekId}`);
   };
 
   // Task type configurations
