@@ -26,7 +26,7 @@ const SettingsPage = () => {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
   // 1. إضافة حالة حجم الخط
-  const [fontSize, setFontSize] = useState('md');
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem('fontSize') || 'md');
 
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
