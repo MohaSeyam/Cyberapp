@@ -256,11 +256,20 @@ export default function NoteViewPage() {
             className="mb-8"
           >
             <Card className="p-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
-              <div className="flex items-center space-x-3 mb-4">
-                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-300">
-                  {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
-                </h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                    {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
+                  </h3>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-600 dark:hover:bg-blue-900/20"
+                >
+                  {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
+                </Button>
               </div>
               <div className="space-y-2">
                 <p className="text-gray-700 dark:text-gray-300">

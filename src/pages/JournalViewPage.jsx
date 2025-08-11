@@ -257,11 +257,20 @@ export default function JournalViewPage() {
             className="mb-8"
           >
             <Card className="p-6 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
-              <div className="flex items-center space-x-3 mb-4">
-                <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300">
-                  {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
-                </h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300">
+                    {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
+                  </h3>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
+                  className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
+                >
+                  {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
+                </Button>
               </div>
               <div className="space-y-2">
                 <p className="text-gray-700 dark:text-gray-300">

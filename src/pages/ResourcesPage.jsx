@@ -74,6 +74,26 @@ const ResourcesPage = () => {
     }
   };
 
+  // الحصول على اسم اليوم
+  const getDayName = (weekId, dayKey) => {
+    const week = planData.find(w => w.week === weekId);
+    if (week) {
+      const day = week.days?.find(d => d.key === dayKey);
+      return day?.day?.[language] || day?.day?.ar;
+    }
+    return '';
+  };
+
+  // الحصول على موضوع اليوم
+  const getDayTopic = (weekId, dayKey) => {
+    const week = planData.find(w => w.week === weekId);
+    if (week) {
+      const day = week.days?.find(d => d.key === dayKey);
+      return day?.topic?.[language] || day?.topic?.ar;
+    }
+    return '';
+  };
+
   // الحصول على جميع الموارد (من الخطة + المضافة من قبل المستخدم)
   const allResources = useMemo(() => {
     const planResources = [];
@@ -110,26 +130,6 @@ const ResourcesPage = () => {
 
     return [...planResources, ...enhancedUserResources];
   }, [resources, language]);
-
-  // الحصول على اسم اليوم
-  const getDayName = (weekId, dayKey) => {
-    const week = planData.find(w => w.week === weekId);
-    if (week) {
-      const day = week.days?.find(d => d.key === dayKey);
-      return day?.day?.[language] || day?.day?.ar;
-    }
-    return '';
-  };
-
-  // الحصول على موضوع اليوم
-  const getDayTopic = (weekId, dayKey) => {
-    const week = planData.find(w => w.week === weekId);
-    if (week) {
-      const day = week.days?.find(d => d.key === dayKey);
-      return day?.topic?.[language] || day?.topic?.ar;
-    }
-    return '';
-  };
 
   // تصفية الموارد
   const filteredResources = useMemo(() => {

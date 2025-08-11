@@ -178,6 +178,16 @@ const DayViewPage = () => {
       setJournalForm({ title: '', content: '', tags: [] });
       setShowJournalEditor(false);
       
+      // تحديث journalContent لعرض المدونة المحفوظة
+      const updatedEntry = safeJournalEntries.find(e =>
+        e.weekId === selectedWeek.week &&
+        e.dayKey === selectedDay.key &&
+        e.phaseId === selectedWeek.phase
+      );
+      if (updatedEntry) {
+        setJournalContent(updatedEntry.content);
+      }
+      
     } catch (error) {
       console.error('Error saving journal:', error);
     } finally {
@@ -857,13 +867,22 @@ const DayViewPage = () => {
                   <Button
                     variant="primary"
                     onClick={() => {
+                      // إضافة تاج "ملاحظة عامة" تلقائياً إذا لم يتم تحديد يوم
+                      const tags = [...noteForm.tags];
+                      if (!selectedWeek?.week || !selectedDay?.key) {
+                        const generalTag = language === 'ar' ? 'ملاحظة عامة' : 'General Note';
+                        if (!tags.includes(generalTag)) {
+                          tags.push(generalTag);
+                        }
+                      }
+                      
                       addNote({
                         title: noteForm.title,
                         content: noteForm.content,
-                        tags: noteForm.tags,
-                        weekId: selectedWeek.week,
-                        dayKey: selectedDay.key,
-                        phaseId: selectedWeek.phase
+                        tags: tags,
+                        weekId: selectedWeek?.week || null,
+                        dayKey: selectedDay?.key || null,
+                        phaseId: selectedWeek?.phase || null
                       });
                       setShowNoteEditor(false);
                       setNoteForm({ title: '', content: '', tags: [] });
