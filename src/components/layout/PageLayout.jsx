@@ -9,7 +9,7 @@ const PageLayout = ({
   title,
   subtitle,
   showHeader = true,
-  showBottomBar = false,
+  showBottomBar = true,
   className = '',
   ...props
 }) => {

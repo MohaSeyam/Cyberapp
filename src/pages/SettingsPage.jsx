@@ -25,6 +25,8 @@ const SettingsPage = () => {
   const [showClearModal, setShowClearModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
+  // 1. إضافة حالة حجم الخط
+  const [fontSize, setFontSize] = useState('md');
 
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
@@ -105,6 +107,7 @@ const SettingsPage = () => {
     <PageLayout
       title={safeLanguage === 'ar' ? 'الإعدادات' : 'Settings'}
       subtitle={safeLanguage === 'ar' ? 'تخصيص تجربتك' : 'Customize your experience'}
+      showBottomBar={true}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Appearance */}
@@ -117,7 +120,7 @@ const SettingsPage = () => {
             description={safeLanguage === 'ar' ? 'اختر لغة التطبيق' : 'Choose application language'}
           >
             <select
-                              value={safeLanguage}
+              value={safeLanguage}
               onChange={(e) => handleLanguageChange(e.target.value)}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
@@ -163,50 +166,21 @@ const SettingsPage = () => {
               </button>
             </div>
           </SettingItem>
-        </SettingSection>
 
-        {/* Data Management */}
-        <SettingSection
-          title={safeLanguage === 'ar' ? 'إدارة البيانات' : 'Data Management'}
-          icon={<Database className="w-5 h-5 text-green-600 dark:text-green-400" />}
-        >
+          {/* خيار حجم الخط */}
           <SettingItem
-            label={safeLanguage === 'ar' ? 'تصدير البيانات' : 'Export Data'}
-            description={safeLanguage === 'ar' ? 'حفظ نسخة احتياطية من بياناتك' : 'Save a backup of your data'}
+            label={safeLanguage === 'ar' ? 'حجم الخط' : 'Font Size'}
+            description={safeLanguage === 'ar' ? 'اختر حجم الخط المناسب' : 'Choose your preferred font size'}
           >
-            <Button
-              variant="outline"
-              icon={<Download />}
-              onClick={handleExport}
+            <select
+              value={fontSize}
+              onChange={e => setFontSize(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              {safeLanguage === 'ar' ? 'تصدير' : 'Export'}
-            </Button>
-          </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'استيراد البيانات' : 'Import Data'}
-            description={safeLanguage === 'ar' ? 'استعادة البيانات من ملف' : 'Restore data from file'}
-          >
-            <Button
-              variant="outline"
-              icon={<Upload />}
-              onClick={() => setShowImportModal(true)}
-            >
-              {safeLanguage === 'ar' ? 'استيراد' : 'Import'}
-            </Button>
-          </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
-            description={safeLanguage === 'ar' ? 'حذف جميع البيانات نهائياً' : 'Permanently delete all data'}
-          >
-            <Button
-              variant="danger"
-              icon={<Trash2 />}
-              onClick={() => setShowClearModal(true)}
-            >
-              {safeLanguage === 'ar' ? 'مسح' : 'Clear'}
-            </Button>
+              <option value="sm">{safeLanguage === 'ar' ? 'صغير' : 'Small'}</option>
+              <option value="md">{safeLanguage === 'ar' ? 'متوسط' : 'Medium'}</option>
+              <option value="lg">{safeLanguage === 'ar' ? 'كبير' : 'Large'}</option>
+            </select>
           </SettingItem>
         </SettingSection>
 
@@ -236,30 +210,6 @@ const SettingsPage = () => {
           </SettingItem>
         </SettingSection>
 
-        {/* Privacy & Security */}
-        <SettingSection
-          title={safeLanguage === 'ar' ? 'الخصوصية والأمان' : 'Privacy & Security'}
-          icon={<Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-        >
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'البيانات المحلية' : 'Local Data'}
-            description={safeLanguage === 'ar' ? 'جميع البيانات محفوظة محلياً على جهازك' : 'All data is stored locally on your device'}
-          >
-            <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-              {safeLanguage === 'ar' ? 'آمن' : 'Secure'}
-            </span>
-          </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'التشفير' : 'Encryption'}
-            description={safeLanguage === 'ar' ? 'البيانات مشفرة تلقائياً' : 'Data is automatically encrypted'}
-          >
-            <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-              {safeLanguage === 'ar' ? 'مفعل' : 'Enabled'}
-            </span>
-          </SettingItem>
-        </SettingSection>
-
         {/* About */}
         <SettingSection
           title={safeLanguage === 'ar' ? 'حول التطبيق' : 'About'}
@@ -286,93 +236,7 @@ const SettingsPage = () => {
               {safeLanguage === 'ar' ? 'مساعدة' : 'Help'}
             </Button>
           </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}
-            description={safeLanguage === 'ar' ? 'قراءة سياسة الخصوصية' : 'Read privacy policy'}
-          >
-            <Button
-              variant="ghost"
-              icon={<ExternalLink />}
-              onClick={() => window.open('#', '_blank')}
-            >
-              {safeLanguage === 'ar' ? 'عرض' : 'View'}
-            </Button>
-          </SettingItem>
         </SettingSection>
-
-        {/* Import Modal */}
-        <Modal
-          isOpen={showImportModal}
-          onClose={() => setShowImportModal(false)}
-          title={safeLanguage === 'ar' ? 'استيراد البيانات' : 'Import Data'}
-        >
-          <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
-              {safeLanguage === 'ar' 
-                ? 'اختر ملف البيانات للاستيراد. سيتم استبدال البيانات الحالية.'
-                : 'Select a data file to import. This will replace your current data.'
-              }
-            </p>
-            <input
-              type="file"
-              accept=".json"
-              onChange={(e) => setImportFile(e.target.files[0])}
-              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-            <div className="flex items-center justify-end space-x-3">
-              <Button
-                variant="ghost"
-                onClick={() => setShowImportModal(false)}
-              >
-                {safeLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleImport}
-                disabled={!importFile}
-              >
-                {safeLanguage === 'ar' ? 'استيراد' : 'Import'}
-              </Button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* Clear Data Modal */}
-        <Modal
-          isOpen={showClearModal}
-          onClose={() => setShowClearModal(false)}
-          title={safeLanguage === 'ar' ? 'تأكيد مسح البيانات' : 'Confirm Clear Data'}
-        >
-          <div className="space-y-4">
-            <p className="text-red-600 dark:text-red-400 font-medium">
-              {safeLanguage === 'ar' 
-                ? 'تحذير: هذا الإجراء سيحذف جميع البيانات نهائياً ولا يمكن التراجع عنه.'
-                : 'Warning: This action will permanently delete all data and cannot be undone.'
-              }
-            </p>
-            <p className="text-gray-600 dark:text-gray-400">
-              {safeLanguage === 'ar' 
-                ? 'هل أنت متأكد من أنك تريد المتابعة؟'
-                : 'Are you sure you want to proceed?'
-              }
-            </p>
-            <div className="flex items-center justify-end space-x-3">
-              <Button
-                variant="ghost"
-                onClick={() => setShowClearModal(false)}
-              >
-                {safeLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleClearAllData}
-              >
-                {safeLanguage === 'ar' ? 'مسح جميع البيانات' : 'Clear All Data'}
-              </Button>
-            </div>
-          </div>
-        </Modal>
       </motion.div>
     </PageLayout>
   );
