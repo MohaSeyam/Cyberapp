@@ -23,19 +23,8 @@ const DayViewPage = () => {
   const navigate = useNavigate();
   
   // Safe access to useSimpleLocalization
-  let localizationData;
-  try {
-    localizationData = useSimpleLocalization();
-  } catch (error) {
-    console.error('Error accessing useSimpleLocalization:', error);
-    localizationData = {
-      language: 'ar',
-      direction: 'rtl',
-      isRTL: true,
-      toggleLanguage: () => {}
-    };
-  }
-  const { language } = localizationData;
+  const localizationData = useSimpleLocalization();
+  const { language } = localizationData || { language: 'ar' };
 
   const { 
     progress, 
