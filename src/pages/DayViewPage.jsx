@@ -282,20 +282,71 @@ const DayViewPage = () => {
     }
   };
 
+  // حذف مورد من الخطة (إخفاؤه من العرض)
+  const handleDeletePlanResource = async (resource) => {
+    try {
+      const confirmMsg = language === 'ar' 
+        ? `هل أنت متأكد من حذف المورد "${resource.title}" من الخطة؟\n\nملاحظة: سيتم إخفاؤه من العرض فقط، ويمكن استعادته لاحقاً.`
+        : `Are you sure you want to delete the resource "${resource.title}" from the plan?\n\nNote: It will only be hidden from view and can be restored later.`;
+      
+      if (!window.confirm(confirmMsg)) return;
+      
+      // إضافة المورد إلى قائمة الموارد المحذوفة من الخطة
+      const deletedPlanResources = JSON.parse(localStorage.getItem('deletedPlanResources') || '[]');
+      const resourceKey = `${resource.title}-${resource.url}-${selectedWeek.week}-${selectedDay.key}-${selectedWeek.phase}`;
+      
+      if (!deletedPlanResources.includes(resourceKey)) {
+        deletedPlanResources.push(resourceKey);
+        localStorage.setItem('deletedPlanResources', JSON.stringify(deletedPlanResources));
+      }
+      
+      // رسالة تأكيد
+      alert(language === 'ar' 
+        ? `تم حذف المورد "${resource.title}" من العرض بنجاح.`
+        : `Resource "${resource.title}" has been successfully hidden from view.`
+      );
+      
+      // إعادة تحميل الصفحة لتطبيق التغييرات
+      window.location.reload();
+    } catch (error) {
+      console.error('Error hiding plan resource:', error);
+      alert(language === 'ar' ? 'حدث خطأ أثناء حذف المورد' : 'Error occurred while deleting the resource');
+    }
+  };
+
   // فتح نافذة تعديل المورد
   const openEditResource = (resource) => {
-    // إذا كان المورد من الخطة، لا يمكن تعديله
+    // إذا كان المورد من الخطة، نقوم بنسخه إلى قاعدة البيانات المحلية أولاً
     if (resource.isPlanResource) {
-      alert(language === 'ar' ? 'لا يمكن تعديل الموارد من الخطة. يمكنك إضافة مورد جديد بدلاً من ذلك.' : 'Cannot edit resources from the plan. You can add a new resource instead.');
+      const newResource = {
+        title: resource.title,
+        url: resource.url,
+        type: resource.type,
+        weekId: selectedWeek.week,
+        dayKey: selectedDay.key,
+        phaseId: selectedWeek.phase,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        source: 'plan-copied' // علامة أنه نسخة من الخطة
+      };
+      
+      // إضافة المورد الجديد إلى قاعدة البيانات
+      addResource(newResource).then(() => {
+        // بعد الإضافة، نفتح نافذة التعديل
+        setResourceForm({
+          title: resource.title || '',
+          url: resource.url || '',
+          type: resource.type || 'article'
+        });
+        setResourceModal({ isOpen: true, resource: newResource });
+      });
       return;
     }
     
     setResourceForm({
       title: resource.title || '',
       url: resource.url || '',
-      type: resource.type || 'article',
-      description: resource.description || '',
-      category: resource.category || ''
+      type: resource.type || 'article'
     });
     setResourceModal({ isOpen: true, resource });
   };
@@ -308,12 +359,21 @@ const DayViewPage = () => {
 
   // الحصول على الموارد المرتبطة باليوم
   const getDayResources = () => {
-    // الموارد من ملف الخطة
-    const planResources = (selectedDay?.resources || []).map(resource => ({
-      ...resource,
-      isPlanResource: true, // علامة لتحديد أنها من الخطة
-      canEdit: false // لا يمكن تعديلها
-    }));
+    // الموارد المحذوفة من الخطة
+    const deletedPlanResources = JSON.parse(localStorage.getItem('deletedPlanResources') || '[]');
+    
+    // الموارد من ملف الخطة (مع استبعاد المحذوفة)
+    const planResources = (selectedDay?.resources || [])
+      .filter(resource => {
+        const resourceKey = `${resource.title}-${resource.url}-${selectedWeek?.week}-${selectedDay?.key}-${selectedWeek?.phase}`;
+        return !deletedPlanResources.includes(resourceKey);
+      })
+      .map(resource => ({
+        ...resource,
+        isPlanResource: true, // علامة لتحديد أنها من الخطة
+        canEdit: true, // يمكن تعديلها الآن
+        canDelete: true // يمكن حذفها الآن
+      }));
     
     // الموارد المضافة من قبل المستخدم
     const userResources = safeResources.filter(r => 
@@ -323,7 +383,8 @@ const DayViewPage = () => {
     ).map(resource => ({
       ...resource,
       isPlanResource: false, // علامة لتحديد أنها من المستخدم
-      canEdit: true // يمكن تعديلها
+      canEdit: true, // يمكن تعديلها
+      canDelete: true // يمكن حذفها
     }));
     
     return [...planResources, ...userResources];
@@ -809,23 +870,30 @@ const DayViewPage = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {resource.canEdit && ( // الموارد القابلة للتعديل
-                          <>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              icon={<Edit2 className="w-4 h-4" />}
-                              onClick={(e) => { e.stopPropagation(); openEditResource(resource); }}
-                            />
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              icon={<Trash2 className="w-4 h-4" />}
-                              onClick={(e) => { e.stopPropagation(); handleDeleteResource(resource.id); }}
-                            />
-                          </>
-                        )}
-                        {resource.isPlanResource && ( // الموارد من الخطة
+                        {/* أزرار التعديل والحذف لجميع الموارد */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Edit2 className="w-4 h-4" />}
+                          onClick={(e) => { e.stopPropagation(); openEditResource(resource); }}
+                          title={language === 'ar' ? 'تعديل المورد' : 'Edit Resource'}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={<Trash2 className="w-4 h-4" />}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if (resource.isPlanResource) {
+                              handleDeletePlanResource(resource);
+                            } else {
+                              handleDeleteResource(resource.id);
+                            }
+                          }}
+                          title={language === 'ar' ? 'حذف المورد' : 'Delete Resource'}
+                        />
+                        {/* علامة مصدر المورد */}
+                        {resource.isPlanResource && (
                           <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
                             {language === 'ar' ? 'من الخطة' : 'From Plan'}
                           </span>
