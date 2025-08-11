@@ -422,12 +422,12 @@ const TextBoxComponent = React.memo(({ node, updateAttributes, deleteNode }: any
 });
 
 // Text Box Extension
-class TextBox extends Node {
-  static name = 'textBox';
+const TextBox = Node.create({
+  name: 'textBox',
   
-  static group = 'block';
+  group: 'block',
   
-  static content = 'inline*';
+  content: 'inline*',
   
   addAttributes() {
     return {
@@ -438,7 +438,7 @@ class TextBox extends Node {
         default: 'default',
       },
     };
-  }
+  },
 
   parseHTML() {
     return [
@@ -446,15 +446,15 @@ class TextBox extends Node {
         tag: 'div[data-type="text-box"]',
       },
     ];
-  }
+  },
 
   renderHTML({ HTMLAttributes }) {
     return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'text-box' })];
-  }
+  },
 
   addNodeView() {
     return ReactNodeViewRenderer(TextBoxComponent);
-  }
+  },
 
   addCommands() {
     return {
@@ -465,12 +465,12 @@ class TextBox extends Node {
         });
       },
     };
-  }
-}
+  },
+});
 
 // Performance Optimization Extension
-class PerformanceOptimization extends Extension {
-  static name = 'performanceOptimization';
+const PerformanceOptimization = Extension.create({
+  name: 'performanceOptimization',
   
   addProseMirrorPlugins() {
     return [
@@ -497,8 +497,8 @@ class PerformanceOptimization extends Extension {
         },
       }),
     ];
-  }
-}
+  },
+});
 
 // Enhanced Toolbar Component
 const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
