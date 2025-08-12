@@ -395,6 +395,30 @@ export const SimpleAppProvider = ({ children }) => {
     }
   };
 
+  // Add or update a single task evaluation
+  const addOrUpdateTaskEvaluation = (evaluation) => {
+    try {
+      setTaskEvaluations((prev) => {
+        const index = prev.findIndex(
+          (e) => e.taskId === evaluation.taskId && e.weekId === evaluation.weekId
+        );
+        let next;
+        if (index >= 0) {
+          next = [...prev];
+          next[index] = { ...prev[index], ...evaluation };
+        } else {
+          next = [...prev, evaluation];
+        }
+        try {
+          localStorage.setItem('taskEvaluations', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    } catch (error) {
+      console.error('Error updating task evaluation:', error);
+    }
+  };
+
   // Create context value
   const contextValue = {
     // State
@@ -426,7 +450,8 @@ export const SimpleAppProvider = ({ children }) => {
     refreshData,
     exportData,
     importData,
-    clearAllData
+    clearAllData,
+    addOrUpdateTaskEvaluation,
   };
 
   return (

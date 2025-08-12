@@ -649,6 +649,9 @@ const DayViewPage = () => {
     const [points, setPoints] = useState(0);
     const [achievements, setAchievements] = useState([]);
     const [learningProgress, setLearningProgress] = useState(0);
+    const [showModal, setShowModal] = useState(false);
+    const [luxury, setLuxury] = useState(0);
+    const [difficulty, setDifficulty] = useState(0);
 
     // Get existing evaluation
     const existingEvaluation = safeTaskEvaluations.find(e => 
@@ -694,6 +697,10 @@ const DayViewPage = () => {
     };
 
     const handleSave = async () => {
+      if (!isTaskCompleted) {
+        alert(language === 'ar' ? 'لا يمكن التقييم قبل إنجاز المهمة' : 'You cannot evaluate before completing the task');
+        return;
+      }
       if (rating <= 0) {
         alert(language === 'ar' ? 'يرجى اختيار تقييم للمهمة' : 'Please select a rating for the task');
         return;
@@ -711,33 +718,37 @@ const DayViewPage = () => {
         const evaluationData = {
           taskId,
           weekId,
-          rating,
-          comment,
-          points: calculatedPoints,
-          achievements: newAchievements,
-          learningProgress: calculatedProgress,
-          timestamp: new Date().toISOString(),
-          reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
-        };
+                     rating,
+           comment,
+           points: calculatedPoints,
+           achievements: newAchievements,
+           learningProgress: calculatedProgress,
+           luxury,
+           difficulty,
+           timestamp: new Date().toISOString(),
+           reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+         };
 
         await addOrUpdateTaskEvaluation(evaluationData);
         
         setPoints(calculatedPoints);
         setAchievements(newAchievements);
         setLearningProgress(calculatedProgress);
-        setShowSuccess(true);
-        
-        // Show reminder after 3 seconds
-        setTimeout(() => {
-          setShowReminder(true);
-        }, 3000);
-        
-        // Hide success message after 2 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 2000);
-        
-      } catch (error) {
+                 setShowSuccess(true);
+         // Close modal after save
+         setShowModal(false);
+         
+         // Show reminder after 3 seconds
+         setTimeout(() => {
+           setShowReminder(true);
+         }, 3000);
+         
+         // Hide success message after 2 seconds
+         setTimeout(() => {
+           setShowSuccess(false);
+         }, 2000);
+         
+       } catch (error) {
         console.error('Error saving evaluation:', error);
         alert(language === 'ar' ? 'حدث خطأ أثناء حفظ التقييم' : 'Error saving evaluation');
       } finally {
@@ -832,7 +843,7 @@ const DayViewPage = () => {
 
         {/* Rating Section */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
             {language === 'ar' ? 'التقييم' : 'Rating'}
           </label>
           <div className="flex items-center gap-2">
@@ -840,16 +851,16 @@ const DayViewPage = () => {
               <button
                 key={star}
                 onClick={() => setRating(star)}
-                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg ${
+                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
                   star <= rating
-                    ? 'text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
-                    : 'text-gray-300 hover:text-yellow-300'
+                    ? 'text-yellow-500 bg-yellow-100 border-yellow-300 dark:bg-yellow-900/40 dark:border-yellow-700'
+                    : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-yellow-400'
                 }`}
               >
                 <Star className="w-6 h-6" />
               </button>
             ))}
-            <span className="ml-2 text-sm font-bold text-gray-600 dark:text-gray-400">
+            <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
               ({rating}/5)
             </span>
           </div>
@@ -857,13 +868,13 @@ const DayViewPage = () => {
 
         {/* Comment Section */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
             {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
           </label>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white resize-none"
             rows="3"
             placeholder={language === 'ar' ? 'اكتب تعليقك هنا...' : 'Write your comment here...'}
           />
