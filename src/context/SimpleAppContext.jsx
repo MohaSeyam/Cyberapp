@@ -84,6 +84,8 @@ export const SimpleAppProvider = ({ children }) => {
         const savedNotes = localStorage.getItem('notes');
         const savedJournal = localStorage.getItem('journalEntries');
         const savedResources = localStorage.getItem('resources');
+        const savedTaskEvaluations = localStorage.getItem('taskEvaluations');
+        const savedWeekEvaluations = localStorage.getItem('weekEvaluations');
         
         // تصحيح الملاحظات القديمة
         if (savedNotes) {
@@ -117,6 +119,8 @@ export const SimpleAppProvider = ({ children }) => {
         if (savedPlan) setPlan(JSON.parse(savedPlan));
         if (savedProgress) setProgress(JSON.parse(savedProgress));
         if (savedResources) setResources(JSON.parse(savedResources));
+        if (savedTaskEvaluations) setTaskEvaluations(JSON.parse(savedTaskEvaluations));
+        if (savedWeekEvaluations) setWeekEvaluations(JSON.parse(savedWeekEvaluations));
         
       } catch (error) {
         console.error('Error loading initial data:', error);
@@ -174,7 +178,11 @@ export const SimpleAppProvider = ({ children }) => {
       }
       
       setProgress(newProgress);
-      localStorage.setItem('progress', JSON.stringify(newProgress));
+      try {
+        localStorage.setItem('progress', JSON.stringify(newProgress));
+      } catch (error) {
+        console.error('Error saving progress to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error updating progress:', error);
     }
@@ -190,7 +198,11 @@ export const SimpleAppProvider = ({ children }) => {
       };
       const newNotes = [...notes, newNote];
       setNotes(newNotes);
-      localStorage.setItem('notes', JSON.stringify(newNotes));
+      try {
+        localStorage.setItem('notes', JSON.stringify(newNotes));
+      } catch (error) {
+        console.error('Error saving note to localStorage:', error);
+      }
       return newNote.id;
     } catch (error) {
       console.error('Error adding note:', error);
@@ -204,7 +216,11 @@ export const SimpleAppProvider = ({ children }) => {
         note.id === id ? { ...note, ...updates, updatedAt: new Date().toISOString() } : note
       );
       setNotes(newNotes);
-      localStorage.setItem('notes', JSON.stringify(newNotes));
+      try {
+        localStorage.setItem('notes', JSON.stringify(newNotes));
+      } catch (error) {
+        console.error('Error saving updated note to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error updating note:', error);
     }
@@ -214,7 +230,11 @@ export const SimpleAppProvider = ({ children }) => {
     try {
       const newNotes = notes.filter(note => note.id !== id);
       setNotes(newNotes);
-      localStorage.setItem('notes', JSON.stringify(newNotes));
+      try {
+        localStorage.setItem('notes', JSON.stringify(newNotes));
+      } catch (error) {
+        console.error('Error saving notes after deletion to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error deleting note:', error);
     }
@@ -230,7 +250,11 @@ export const SimpleAppProvider = ({ children }) => {
       };
       const newEntries = [...journalEntries, newEntry];
       setJournalEntries(newEntries);
-      localStorage.setItem('journalEntries', JSON.stringify(newEntries));
+      try {
+        localStorage.setItem('journalEntries', JSON.stringify(newEntries));
+      } catch (error) {
+        console.error('Error saving journal entry to localStorage:', error);
+      }
       return newEntry.id;
     } catch (error) {
       console.error('Error adding journal entry:', error);
@@ -244,7 +268,11 @@ export const SimpleAppProvider = ({ children }) => {
         entry.id === id ? { ...entry, ...updates, updatedAt: new Date().toISOString() } : entry
       );
       setJournalEntries(newEntries);
-      localStorage.setItem('journalEntries', JSON.stringify(newEntries));
+      try {
+        localStorage.setItem('journalEntries', JSON.stringify(newEntries));
+      } catch (error) {
+        console.error('Error saving updated journal entry to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error updating journal entry:', error);
     }
@@ -254,7 +282,11 @@ export const SimpleAppProvider = ({ children }) => {
     try {
       const newEntries = journalEntries.filter(entry => entry.id !== id);
       setJournalEntries(newEntries);
-      localStorage.setItem('journalEntries', JSON.stringify(newEntries));
+      try {
+        localStorage.setItem('journalEntries', JSON.stringify(newEntries));
+      } catch (error) {
+        console.error('Error saving journal entries after deletion to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error deleting journal entry:', error);
     }
@@ -270,7 +302,11 @@ export const SimpleAppProvider = ({ children }) => {
       };
       const newResources = [...resources, newResource];
       setResources(newResources);
-      localStorage.setItem('resources', JSON.stringify(newResources));
+      try {
+        localStorage.setItem('resources', JSON.stringify(newResources));
+      } catch (error) {
+        console.error('Error saving resource to localStorage:', error);
+      }
       return newResource.id;
     } catch (error) {
       console.error('Error adding resource:', error);
@@ -284,7 +320,11 @@ export const SimpleAppProvider = ({ children }) => {
         resource.id === id ? { ...resource, ...updates, updatedAt: new Date().toISOString() } : resource
       );
       setResources(newResources);
-      localStorage.setItem('resources', JSON.stringify(newResources));
+      try {
+        localStorage.setItem('resources', JSON.stringify(newResources));
+      } catch (error) {
+        console.error('Error saving updated resource to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error updating resource:', error);
     }
@@ -294,7 +334,11 @@ export const SimpleAppProvider = ({ children }) => {
     try {
       const newResources = resources.filter(resource => resource.id !== id);
       setResources(newResources);
-      localStorage.setItem('resources', JSON.stringify(newResources));
+      try {
+        localStorage.setItem('resources', JSON.stringify(newResources));
+      } catch (error) {
+        console.error('Error saving resources after deletion to localStorage:', error);
+      }
     } catch (error) {
       console.error('Error deleting resource:', error);
     }
@@ -309,12 +353,16 @@ export const SimpleAppProvider = ({ children }) => {
       const savedNotes = localStorage.getItem('notes');
       const savedJournal = localStorage.getItem('journalEntries');
       const savedResources = localStorage.getItem('resources');
+      const savedTaskEvaluations = localStorage.getItem('taskEvaluations');
+      const savedWeekEvaluations = localStorage.getItem('weekEvaluations');
       
       if (savedPlan) setPlan(JSON.parse(savedPlan));
       if (savedProgress) setProgress(JSON.parse(savedProgress));
       if (savedNotes) setNotes(JSON.parse(savedNotes));
       if (savedJournal) setJournalEntries(JSON.parse(savedJournal));
       if (savedResources) setResources(JSON.parse(savedResources));
+      if (savedTaskEvaluations) setTaskEvaluations(JSON.parse(savedTaskEvaluations));
+      if (savedWeekEvaluations) setWeekEvaluations(JSON.parse(savedWeekEvaluations));
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
@@ -367,6 +415,8 @@ export const SimpleAppProvider = ({ children }) => {
       localStorage.setItem('notes', JSON.stringify(importedData.notes || []));
       localStorage.setItem('journalEntries', JSON.stringify(importedData.journalEntries || []));
       localStorage.setItem('resources', JSON.stringify(importedData.resources || []));
+      localStorage.setItem('taskEvaluations', JSON.stringify(importedData.taskEvaluations || []));
+      localStorage.setItem('weekEvaluations', JSON.stringify(importedData.weekEvaluations || []));
     } catch (error) {
       console.error('Error importing data:', error);
     }
@@ -389,6 +439,8 @@ export const SimpleAppProvider = ({ children }) => {
         localStorage.removeItem('notes');
         localStorage.removeItem('journalEntries');
         localStorage.removeItem('resources');
+        localStorage.removeItem('taskEvaluations');
+        localStorage.removeItem('weekEvaluations');
       }
     } catch (error) {
       console.error('Error clearing data:', error);
@@ -411,11 +463,39 @@ export const SimpleAppProvider = ({ children }) => {
         }
         try {
           localStorage.setItem('taskEvaluations', JSON.stringify(next));
-        } catch {}
+        } catch (error) {
+          console.error('Error saving task evaluation to localStorage:', error);
+        }
         return next;
       });
     } catch (error) {
       console.error('Error updating task evaluation:', error);
+    }
+  };
+
+  // Add or update a single week evaluation
+  const addOrUpdateWeekEvaluation = (evaluation) => {
+    try {
+      setWeekEvaluations((prev) => {
+        const index = prev.findIndex(
+          (e) => e.weekId === evaluation.weekId
+        );
+        let next;
+        if (index >= 0) {
+          next = [...prev];
+          next[index] = { ...prev[index], ...evaluation };
+        } else {
+          next = [...prev, evaluation];
+        }
+        try {
+          localStorage.setItem('weekEvaluations', JSON.stringify(next));
+        } catch (error) {
+          console.error('Error saving week evaluation to localStorage:', error);
+        }
+        return next;
+      });
+    } catch (error) {
+      console.error('Error updating week evaluation:', error);
     }
   };
 
@@ -452,6 +532,7 @@ export const SimpleAppProvider = ({ children }) => {
     importData,
     clearAllData,
     addOrUpdateTaskEvaluation,
+    addOrUpdateWeekEvaluation,
   };
 
   return (

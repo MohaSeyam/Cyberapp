@@ -289,7 +289,7 @@ const DayViewPage = () => {
         });
       } else {
         // إضافة مدونة جديدة
-        await addJournalEntry({
+        const entryId = await addJournalEntry({
           title: journalForm.title,
           content: journalForm.content,
           weekId: selectedWeek.week,
@@ -1323,7 +1323,7 @@ const DayViewPage = () => {
                         }
                       }
                       
-                      addNote({
+                      const noteId = await addNote({
                         title: noteForm.title,
                         content: noteForm.content,
                         tags: tags,

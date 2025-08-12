@@ -40,7 +40,7 @@ export const ThemeProvider = ({ children }) => {
   // Load theme from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
+    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       setTheme(savedTheme);
     } else {
       // Default to system preference
@@ -61,8 +61,10 @@ export const ThemeProvider = ({ children }) => {
     // Update CSS custom properties for smooth transitions
     document.documentElement.style.setProperty('--theme-transition', 'all 0.3s ease');
     
-    // Store theme preference
-    localStorage.setItem('theme', selectedTheme);
+    // Store theme preference in localStorage
+    if (selectedTheme !== 'system') {
+      localStorage.setItem('theme', selectedTheme);
+    }
   };
 
   // Apply theme whenever it changes
