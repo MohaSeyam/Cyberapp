@@ -894,31 +894,7 @@ const DayViewPage = () => {
           </div>
         )}
 
-        {/* Points and Achievements Preview */}
-        {rating > 0 && (
-          <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <h5 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
-              {language === 'ar' ? 'المكافآت المتوقعة' : 'Expected Rewards'}
-            </h5>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-green-600 dark:text-green-400">
-                  {language === 'ar' ? 'النقاط:' : 'Points:'}
-                </span>
-                <span className="text-lg font-bold text-green-800 dark:text-green-200">
-                  {calculatePoints(rating)}
-                </span>
-              </div>
-              <div className="flex gap-1">
-                {getAchievements(rating, false).map((achievement, index) => (
-                  <div key={index} className={`text-lg ${achievement.color}`} title={achievement.name}>
-                    {achievement.icon}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
@@ -1073,106 +1049,9 @@ const DayViewPage = () => {
               )}
             </div>
             
-            {/* Progress Bar */}
-            {(() => {
-              const totalTasks = (selectedDay.tasks || []).length;
-              const completedTasks = safeProgress.filter(p => 
-                p.weekId === weekId && 
-                p.dayKey === selectedDay?.key && 
-                p.completed
-              ).length;
-              const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-              
-              return totalTasks > 0 ? (
-                <div 
-                  className="max-w-md mx-auto mb-6"
-                  role="progressbar"
-                  aria-label={language === 'ar' ? 'تقدم اليوم' : 'Day Progress'}
-                  aria-valuenow={completedTasks}
-                  aria-valuemin={0}
-                  aria-valuemax={totalTasks}
-                  aria-valuetext={`${completedTasks} من ${totalTasks} مهام مكتملة، ${progressPercentage}%`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {language === 'ar' ? 'تقدم اليوم' : 'Day Progress'}
-                    </span>
-                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                      {completedTasks}/{totalTasks} {language === 'ar' ? 'مكتملة' : 'completed'}
-                    </span>
-                  </div>
-                  <div 
-                    className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3"
-                    aria-hidden="true"
-                  >
-                    <div 
-                      className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-center mt-2">
-                    <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
-                      {progressPercentage}%
-                    </span>
-                  </div>
-                </div>
-              ) : null;
-            })()}
+
             
-            {/* Quick Stats */}
-            <div 
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-6"
-              role="region"
-              aria-label={language === 'ar' ? 'إحصائيات سريعة' : 'Quick Statistics'}
-            >
-              <div 
-                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
-                role="article"
-                aria-label={language === 'ar' ? 'المهام المكتملة' : 'Completed Tasks'}
-              >
-                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-2" aria-hidden="true">
-                  <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {safeProgress.filter(p => p.weekId === weekId && p.dayKey === selectedDay?.key && p.completed).length}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {language === 'ar' ? 'مهام مكتملة' : 'Tasks Done'}
-                </div>
-              </div>
-              
-              <div 
-                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
-                role="article"
-                aria-label={language === 'ar' ? 'الملاحظات' : 'Notes'}
-              >
-                <div className="flex items-center justify-center w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full mx-auto mb-2" aria-hidden="true">
-                  <MessageSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {getDayNotes().length}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {language === 'ar' ? 'ملاحظات' : 'Notes'}
-                </div>
-              </div>
-              
-              <div 
-                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-center"
-                role="article"
-                aria-label={language === 'ar' ? 'الموارد' : 'Resources'}
-              >
-                <div className="flex items-center justify-center w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full mx-auto mb-2" aria-hidden="true">
-                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {getDayResources().length}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {language === 'ar' ? 'موارد' : 'Resources'}
-                </div>
-              </div>
-            </div>
+
           </div>
 
           {/* قسم المهام حسب النوع */}
@@ -1213,33 +1092,11 @@ const DayViewPage = () => {
                         <h3 className={`text-lg font-semibold ${typeInfo.textColor}`}>
                           {type}
                         </h3>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {safeProgress.filter(p => 
-                                p.weekId === selectedWeek.week && 
-                                p.dayKey === selectedDay.key && 
-                                p.completed && 
-                                tasks.some(t => t.id === p.taskId)
-                              ).length}
+                                                  <div className="flex items-center gap-3">
+                            <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm rounded-full">
+                              {tasks?.length || 0}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {tasks.length - safeProgress.filter(p => 
-                                p.weekId === selectedWeek.week && 
-                                p.dayKey === selectedDay.key && 
-                                p.completed && 
-                                tasks.some(t => t.id === p.taskId)
-                              ).length}
-                            </span>
-                          </div>
-                          <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm rounded-full">
-                            {tasks?.length || 0}
-                          </span>
-                        </div>
                       </div>
                     </div>
 
@@ -1295,31 +1152,7 @@ const DayViewPage = () => {
               </Button>
             </div>
             
-            {/* Search and Filter */}
-            <div className="mb-4 flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder={language === 'ar' ? 'البحث في الموارد...' : 'Search resources...'}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  value={resourceSearch}
-                  onChange={(e) => setResourceSearch(e.target.value)}
-                />
-              </div>
-              <select
-                value={resourceTypeFilter}
-                onChange={(e) => setResourceTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white min-w-[120px]"
-              >
-                <option value="">{language === 'ar' ? 'جميع الأنواع' : 'All Types'}</option>
-                <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
-                <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
-                <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
-                <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
-                <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
-                <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
-              </select>
-            </div>
+
             <div className="space-y-4">
               {getDayResources().length > 0 ? (
                 getDayResources().map((resource, idx) => (
