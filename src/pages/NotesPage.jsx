@@ -41,7 +41,7 @@ const NotesPage = () => {
   }
   
   const { language } = localizationData;
-  const { notes, deleteNote } = appData;
+  const { notes, deleteNote, plan } = appData;
   
   // Ensure data is available with additional safety
   const safeNotes = Array.isArray(notes) ? notes : [];
@@ -79,13 +79,13 @@ const NotesPage = () => {
 
   // البحث عن معلومات اليوم المرتبط بالملاحظة
   const getDayInfo = (note) => {
-    if (!note?.weekId || !note?.dayKey || !plan) return null;
+    if (!note?.weekId || !note?.dayKey || !Array.isArray(plan)) return null;
     
     try {
-      const week = plan.find(w => w.week === note.weekId);
-      if (week) {
-        const day = week.days?.find(d => d.key === note.dayKey);
-        return { week, day };
+      const week = plan.find(w => String(w.week) === String(note.weekId));
+      if (week && Array.isArray(week.days)) {
+        const day = week.days.find(d => String(d.key) === String(note.dayKey));
+        return day ? { week, day } : null;
       }
     } catch (error) {
       console.error('Error getting day info:', error);
@@ -328,7 +328,7 @@ const NotesPage = () => {
                                   <div className="flex items-center space-x-1">
                                     <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                     <span className="text-blue-600 dark:text-blue-400 font-medium">
-                                      {dayInfo.day.day?.[safeLanguage] || dayInfo.day.day?.ar}
+                                      {dayInfo?.day?.day?.[safeLanguage] || dayInfo?.day?.day?.ar || ''}
                                     </span>
                                   </div>
                                 ) : null;

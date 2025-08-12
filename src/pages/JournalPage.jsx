@@ -41,7 +41,7 @@ const JournalPage = () => {
       deleteJournalEntry: async () => {}
     };
   }
-  const { journalEntries, deleteJournalEntry } = appData;
+  const { journalEntries, deleteJournalEntry, plan } = appData;
 
   // Ensure data is available
   const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
@@ -51,13 +51,13 @@ const JournalPage = () => {
 
   // البحث عن معلومات اليوم المرتبط بالمدونة
   const getDayInfo = (entry) => {
-    if (!entry?.weekId || !entry?.dayKey || !plan) return null;
+    if (!entry?.weekId || !entry?.dayKey || !Array.isArray(plan)) return null;
     
     try {
-      const week = plan.find(w => w.week === entry.weekId);
-      if (week) {
-        const day = week.days?.find(d => d.key === entry.dayKey);
-        return { week, day };
+      const week = plan.find(w => String(w.week) === String(entry.weekId));
+      if (week && Array.isArray(week.days)) {
+        const day = week.days.find(d => String(d.key) === String(entry.dayKey));
+        return day ? { week, day } : null;
       }
     } catch (error) {
       console.error('Error getting day info:', error);
@@ -93,12 +93,24 @@ const JournalPage = () => {
 
   // Filter entries based on search and mood
   const filteredEntries = useMemo(() => {
-    return safeJournalEntries.filter(entry => {
-      const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           entry.content.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesMood = !selectedMood || entry.mood === selectedMood;
-      return matchesSearch && matchesMood;
-    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+    try {
+      return safeJournalEntries.filter(entry => {
+        if (!entry || typeof entry !== 'object') return false;
+        const title = entry.title || '';
+        const content = entry.content || '';
+        const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              content.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesMood = !selectedMood || entry.mood === selectedMood;
+        return matchesSearch && matchesMood;
+      }).sort((a, b) => {
+        const dateA = new Date(b.updatedAt || b.createdAt || b.date || 0);
+        const dateB = new Date(a.updatedAt || a.createdAt || a.date || 0);
+        return dateA - dateB;
+      });
+    } catch (error) {
+      console.error('Error filtering journal entries:', error);
+      return [];
+    }
   }, [safeJournalEntries, searchTerm, selectedMood]);
 
   const handleDelete = async (entryId) => {
@@ -248,7 +260,7 @@ const JournalPage = () => {
                                 <div className="flex items-center space-x-1">
                                   <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                                   <span className="text-purple-600 dark:text-purple-400 font-medium">
-                                    {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                                    {dayInfo?.day?.day?.[language] || dayInfo?.day?.day?.ar || ''}
                                   </span>
                                 </div>
                               ) : null;

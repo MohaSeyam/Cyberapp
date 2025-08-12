@@ -7,7 +7,7 @@ import { usePerformanceMonitor } from './hooks/usePerformance';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorFallback from './components/ui/ErrorFallback';
 import ErrorBoundary from './components/ui/ErrorBoundary';
-import { PerformanceMonitor } from './components/ui/PerformanceMonitor';
+import PerformanceMonitor from './components/ui/PerformanceMonitor';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
