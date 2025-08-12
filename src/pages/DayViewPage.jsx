@@ -1313,7 +1313,7 @@ const DayViewPage = () => {
                   </Button>
                   <Button
                     variant="primary"
-                    onClick={() => {
+                    onClick={async () => {
                       // إضافة تاج "ملاحظة عامة" تلقائياً إذا لم يتم تحديد يوم
                       const tags = [...noteForm.tags];
                       if (!selectedWeek?.week || !selectedDay?.key) {
