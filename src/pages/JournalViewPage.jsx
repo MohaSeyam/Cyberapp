@@ -75,7 +75,7 @@ export default function JournalViewPage() {
     if (!weekId || !dayKey) return null;
     
     // 2. البحث عن الأسبوع المطابق في الخطة
-    const week = plan.find(w => w.week === weekId);
+    const week = plan.find(w => w.week === parseInt(weekId));
     
     if (week) {
       // 3. البحث عن اليوم المطابق داخل الأسبوع
