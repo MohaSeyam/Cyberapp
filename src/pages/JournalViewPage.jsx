@@ -225,16 +225,16 @@ export default function JournalViewPage() {
             </button>
                           <div className={`flex items-center gap-1.5 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
                 <button onClick={handleCopyContent} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'نسخ' : 'Copy'}>
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                 </button>
                 <button onClick={handlePrint} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'طباعة' : 'Print'}>
-                  <Printer className="w-4 h-4" />
+                  <Printer className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                 </button>
                 <button onClick={handleEditJournalEntry} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'تعديل' : 'Edit'}>
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                 </button>
                 <button onClick={() => setShowDeleteModal(true)} className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20" title={language === 'ار' ? 'حذف' : 'Delete'}>
-                  <Trash2 className="w-4 h-4 text-red-600" />
+                  <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                 </button>
               </div>
           </div>
