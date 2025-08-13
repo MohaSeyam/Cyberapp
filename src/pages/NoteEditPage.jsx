@@ -70,10 +70,11 @@ const NoteEditPage = () => {
   }, [existingNote]);
 
   const handleAddTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+    const tag = newTag.trim();
+    if (tag && !formData.tags.includes(tag)) {
       setFormData(prev => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()]
+        tags: [...prev.tags, tag]
       }));
       setNewTag('');
     }
@@ -179,7 +180,7 @@ const NoteEditPage = () => {
                   {formData.tags.map(tag => (
                     <span
                       key={tag}
-                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center space-x-1"
+                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full flex items-center gap-1"
                     >
                       <span>{tag}</span>
                       <button
@@ -194,12 +195,12 @@ const NoteEditPage = () => {
               )}
               
               {/* Add New Tag */}
-              <div className="flex space-x-2">
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }}
                   className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   placeholder={language === 'ar' ? 'أضف تاق جديد...' : 'Add new tag...'}
                 />
@@ -208,7 +209,7 @@ const NoteEditPage = () => {
                   onClick={handleAddTag}
                   disabled={!newTag.trim()}
                 >
-                  <Tag className="w-4 h-4" />
+                  {language === 'ar' ? 'إضافة' : 'Add'}
                 </Button>
               </div>
             </div>
