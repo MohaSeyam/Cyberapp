@@ -215,45 +215,28 @@ export default function JournalViewPage() {
           className="mb-8"
         >
           <div className={`flex items-center justify-between mb-6 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`}>
-            <Button
-              variant="ghost"
-              icon={<ArrowLeft className="w-5 h-5" />}
+            <button
               onClick={() => navigate(-1)}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title={language === 'ar' ? 'العودة' : 'Back'}
+              aria-label={language === 'ar' ? 'العودة' : 'Back'}
             >
-              {language === 'ar' ? 'العودة' : 'Back'}
-            </Button>
-            <div className={`flex items-center gap-2 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
-              <Button
-                variant="outline"
-                icon={<Copy className="w-4 h-4" />}
-                onClick={handleCopyContent}
-              >
-                {language === 'ar' ? 'نسخ' : 'Copy'}
-              </Button>
-              <Button
-                variant="outline"
-                icon={<Printer className="w-4 h-4" />}
-                onClick={handlePrint}
-              >
-                {language === 'ar' ? 'طباعة' : 'Print'}
-              </Button>
-              <Button
-                variant="outline"
-                icon={<Edit2 className="w-4 h-4" />}
-                onClick={handleEditJournalEntry}
-              >
-                {language === 'ar' ? 'تعديل' : 'Edit'}
-              </Button>
-              <Button
-                variant="outline"
-                icon={<Trash2 className="w-4 h-4" />}
-                onClick={() => setShowDeleteModal(true)}
-                className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
-              >
-                {language === 'ar' ? 'حذف' : 'Delete'}
-              </Button>
-            </div>
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+                          <div className={`flex items-center gap-1.5 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
+                <button onClick={handleCopyContent} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'نسخ' : 'Copy'}>
+                  <Copy className="w-4 h-4" />
+                </button>
+                <button onClick={handlePrint} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'طباعة' : 'Print'}>
+                  <Printer className="w-4 h-4" />
+                </button>
+                <button onClick={handleEditJournalEntry} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'تعديل' : 'Edit'}>
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => setShowDeleteModal(true)} className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20" title={language === 'ار' ? 'حذف' : 'Delete'}>
+                  <Trash2 className="w-4 h-4 text-red-600" />
+                </button>
+              </div>
           </div>
 
           <div className="text-center">
@@ -331,7 +314,10 @@ export default function JournalViewPage() {
                 {/* زر الانتقال لصفحة اليوم في الخطة */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
+                  onClick={() => {
+                    const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
+                    navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
+                  }}
                   className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
                 >
                   {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
