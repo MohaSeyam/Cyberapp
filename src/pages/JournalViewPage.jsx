@@ -74,16 +74,43 @@ export default function JournalViewPage() {
 
   // البحث عن المدونة في جميع المدونات
   const journalEntry = React.useMemo(() => {
-    if (!journalEntries || !entryId) return null;
-    
-    // البحث في مصفوفة المدونات
-    const foundEntry = journalEntries.find(e => e.id === parseInt(entryId));
-    if (foundEntry) {
-      return foundEntry;
+    try {
+      if (!journalEntries || !entryId) return null;
+      
+      // البحث في مصفوفة المدونات
+      const foundEntry = journalEntries.find(e => e.id === parseInt(entryId));
+      if (foundEntry) {
+        return foundEntry;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error finding journal entry:', error);
+      return null;
     }
-    
-    return null;
   }, [journalEntries, entryId]);
+
+  // معالجة الأخطاء - إذا لم يتم العثور على المدونة
+  if (!journalEntry) {
+    return (
+      <PageLayout>
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            {language === 'ar' ? 'المدونة غير موجودة' : 'Journal Entry Not Found'}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {language === 'ar' ? 'المدونة التي تبحث عنها غير موجودة أو تم حذفها.' : 'The journal entry you are looking for does not exist or has been deleted.'}
+          </p>
+          <Button onClick={() => navigate('/journal')}>
+            {language === 'ar' ? 'العودة للمدونات' : 'Back to Journals'}
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
 
   // البحث عن اليوم المرتبط بالمدونة
   const dayInfo = React.useMemo(() => {
@@ -235,32 +262,34 @@ export default function JournalViewPage() {
     }
   };
 
-  if (!journalEntry) {
-    return (
-      <PageLayout>
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <div className="text-center">
-            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {language === 'ar' ? 'المدونة غير موجودة' : 'Journal Entry Not Found'}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {language === 'ar' ? 'المدونة التي تبحث عنها غير موجودة أو تم حذفها.' : 'The journal entry you are looking for does not exist or has been deleted.'}
-            </p>
-            <Button variant="primary" onClick={() => navigate(-1)}>
-              {language === 'ar' ? 'العودة' : 'Go Back'}
-            </Button>
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
+
 
   return (
     <PageLayout>
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Header */}
-        <motion.div
+        {/* Error Boundary */}
+        {!journalEntry?.title && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {language === 'ar' ? 'خطأ في تحميل المدونة' : 'Error Loading Journal'}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {language === 'ar' ? 'حدث خطأ أثناء تحميل المدونة. يرجى المحاولة مرة أخرى.' : 'An error occurred while loading the journal. Please try again.'}
+            </p>
+            <Button onClick={() => navigate('/journal')}>
+              {language === 'ar' ? 'العودة للمدونات' : 'Back to Journals'}
+            </Button>
+          </div>
+        )}
+        
+        {/* Main Content */}
+        {journalEntry?.title && (
+          <>
+            {/* Header */}
+            <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
@@ -453,6 +482,8 @@ export default function JournalViewPage() {
               </div>
             </Card>
           </motion.div>
+        )}
+          </>
         )}
       </div>
 
