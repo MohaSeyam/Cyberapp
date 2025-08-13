@@ -21,10 +21,20 @@ const DayCard = ({ day, weekNumber, progress, onClick, language = 'ar', weekObje
   const briefShort = brief.length > 120 ? brief.slice(0, 117) + '...' : brief;
   const isCompleted = percentage === 100;
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
     <div
       className={`p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${isCompleted ? 'ring-2 ring-green-500' : ''}`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
     >
       {/* العنوان وملخص اليوم */}
       <div className="mb-3">

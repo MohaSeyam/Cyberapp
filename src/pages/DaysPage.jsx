@@ -389,7 +389,7 @@ const DaysPage = () => {
                         progress={safeProgress}
                         language={language}
                         weekObjective={week?.objective?.[language]}
-                        onClick={() => setSelectedDayIndex(originalIndex)}
+                        onClick={() => goToDayView(originalIndex)}
                       />
                     </motion.div>
                   );
