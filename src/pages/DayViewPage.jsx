@@ -1145,11 +1145,11 @@ const DayViewPage = () => {
           </motion.div>
 
           {/* قسم الموارد */}
-          <Card className="mb-8">
+          <Card className="mb-8 border-indigo-200 bg-indigo-50/60 dark:bg-indigo-900/20">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
+                <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                <h2 className="text-xl font-bold text-indigo-700 dark:text-indigo-200">
                   {language === 'ar' ? 'موارد اليوم' : 'Day Resources'}
                 </h2>
               </div>
@@ -1167,21 +1167,21 @@ const DayViewPage = () => {
             <div className="space-y-4">
               {getDayResources().length > 0 ? (
                 getDayResources().map((resource, idx) => (
-                  <Card key={idx} className="p-3 border-blue-200 dark:border-blue-700 cursor-pointer" onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank'); } }}>
+                  <Card key={idx} className="p-3 border-indigo-200 dark:border-indigo-700 cursor-pointer" onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank'); } }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1">
-                        <ExternalLink className="w-5 h-5 text-blue-500" />
+                        <ExternalLink className="w-5 h-5 text-indigo-500" />
                         <div className="flex-1">
                           <a 
                             href={resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="text-blue-700 dark:text-blue-300 hover:underline font-semibold block"
+                            className="text-indigo-700 dark:text-indigo-300 hover:underline font-semibold block"
                           >
                             {resource.title}
                           </a>
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                            <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
                               {resource.type}
                             </span>
                           </div>
@@ -1399,7 +1399,7 @@ const DayViewPage = () => {
 
 
           {/* قسم المدونة */}
-          <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+          <Card className="mb-8 border-purple-200 bg-purple-50 dark:bg-purple-900/20">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-300" />
@@ -1417,19 +1417,19 @@ const DayViewPage = () => {
               </Button>
             </div>
 
-            {selectedDay?.notes_prompt && (
-              <div className="mb-4 p-4 rounded-lg border border-green-300 bg-green-50 dark:bg-green-900/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-5 h-5 text-green-600 dark:text-green-300" />
-                  <h3 className="font-semibold text-green-700 dark:text-green-200">
-                    {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
-                  </h3>
+                          {selectedDay?.notes_prompt && (
+                <div className="mb-4 p-4 rounded-lg border border-purple-300 bg-purple-50 dark:bg-purple-900/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-5 h-5 text-purple-600 dark:text-purple-300" />
+                    <h3 className="font-semibold text-purple-700 dark:text-purple-200">
+                      {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
+                    </h3>
                 </div>
                 <div className="space-y-2">
                   {selectedDay.notes_prompt.points?.map((point, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2"></div>
-                      <p className="text-gray-700 dark:text-gray-300">
+                                          <div key={idx} className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2"></div>
+                        <p className="text-gray-700 dark:text-gray-300">
                         {point[language] || point.ar}
                       </p>
                     </div>
