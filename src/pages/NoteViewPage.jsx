@@ -66,22 +66,35 @@ export default function NoteViewPage() {
   // البحث عن اليوم المرتبط بالملاحظة
   const dayInfo = React.useMemo(() => {
     // 1. التأكد من وجود البيانات المطلوبة
-    if (!note?.weekId || !note?.dayKey || !plan) return null;
+    if (!note || !plan) return null;
+    
+    // التحقق من وجود weekId و dayKey
+    const weekId = note.weekId;
+    const dayKey = note.dayKey;
+    
+    if (!weekId || !dayKey) return null;
     
     // 2. البحث عن الأسبوع المطابق في الخطة
-    const week = plan.find(w => w.week === note.weekId);
+    const week = plan.find(w => w.week === weekId);
     
     if (week) {
       // 3. البحث عن اليوم المطابق داخل الأسبوع
-      const day = week.days?.find(d => d.key === note.dayKey);
+      const day = week.days?.find(d => d.key === dayKey);
       // 4. حساب فهرس اليوم داخل الأسبوع
-      const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === note.dayKey) : -1;
+      const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === dayKey) : -1;
       
       // 5. إرجاع كائن يحتوي على معلومات الأسبوع واليوم مع الفهرس
       return { week, day, dayIndex };
     }
     return null;
   }, [note, plan]);
+
+  // دالة مساعدة للكشف عن نوع الملاحظة
+  const getNoteType = () => {
+    if (dayInfo) return 'day';
+    if (note?.tags?.includes('ملاحظة عامة') || note?.tags?.includes('General Note')) return 'general';
+    return 'unknown';
+  };
 
   // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
   const getDayName = (day) => {

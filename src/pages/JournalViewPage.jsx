@@ -66,22 +66,35 @@ export default function JournalViewPage() {
   // البحث عن اليوم المرتبط بالمدونة
   const dayInfo = React.useMemo(() => {
     // 1. التأكد من وجود البيانات المطلوبة
-    if (!journalEntry?.weekId || !journalEntry?.dayKey || !plan) return null;
+    if (!journalEntry || !plan) return null;
+    
+    // التحقق من وجود weekId و dayKey
+    const weekId = journalEntry.weekId;
+    const dayKey = journalEntry.dayKey;
+    
+    if (!weekId || !dayKey) return null;
     
     // 2. البحث عن الأسبوع المطابق في الخطة
-    const week = plan.find(w => w.week === journalEntry.weekId);
+    const week = plan.find(w => w.week === weekId);
     
     if (week) {
       // 3. البحث عن اليوم المطابق داخل الأسبوع
-      const day = week.days?.find(d => d.key === journalEntry.dayKey);
+      const day = week.days?.find(d => d.key === dayKey);
       // 4. حساب فهرس اليوم داخل الأسبوع
-      const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === journalEntry.dayKey) : -1;
+      const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === dayKey) : -1;
       
       // 5. إرجاع كائن يحتوي على معلومات الأسبوع واليوم مع الفهرس
       return { week, day, dayIndex };
     }
     return null;
   }, [journalEntry, plan]);
+
+  // دالة مساعدة للكشف عن نوع المدونة
+  const getJournalType = () => {
+    if (dayInfo) return 'day';
+    if (journalEntry?.tags?.includes('مدونة عامة') || journalEntry?.tags?.includes('General Journal')) return 'general';
+    return 'unknown';
+  };
 
   // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
   const getDayName = (day) => {
