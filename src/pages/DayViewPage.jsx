@@ -93,8 +93,24 @@ const DayViewPage = () => {
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null });
   const [noteForm, setNoteForm] = useState({ title: '', content: '', tags: [] });
+  const [noteNewTag, setNoteNewTag] = useState('');
+  const handleAddNoteTag = () => {
+    const tag = noteNewTag.trim();
+    if (tag && !noteForm.tags.includes(tag)) {
+      setNoteForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+      setNoteNewTag('');
+    }
+  };
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'article', description: '', category: '' });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] });
+  const [journalNewTag, setJournalNewTag] = useState('');
+  const handleAddJournalTag = () => {
+    const tag = journalNewTag.trim();
+    if (tag && !journalForm.tags.includes(tag)) {
+      setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+      setJournalNewTag('');
+    }
+  };
   const [journalContent, setJournalContent] = useState('');
   const [isSavingJournal, setIsSavingJournal] = useState(false);
   const [showJournalEditor, setShowJournalEditor] = useState(false);
@@ -1268,16 +1284,19 @@ const DayViewPage = () => {
                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
                   </label>
                   <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={noteForm.tags.join(' ')}
-                      onChange={(e) => setNoteForm(prev => ({ 
-                        ...prev, 
-                        tags: e.target.value.split(/\s+/).map(tag => tag.trim()).filter(tag => tag) 
-                      }))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بمسافات' : 'Enter tags separated by spaces'}
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={noteNewTag}
+                        onChange={(e) => setNoteNewTag(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddNoteTag(); } }}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder={language === 'ar' ? 'أضف تاق جديد...' : 'Add new tag...'}
+                      />
+                      <Button variant="outline" onClick={handleAddNoteTag} disabled={!noteNewTag.trim()}>
+                        {language === 'ar' ? 'إضافة' : 'Add'}
+                      </Button>
+                    </div>
                     {noteForm.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {noteForm.tags.map((tag, index) => (
@@ -1467,16 +1486,19 @@ const DayViewPage = () => {
                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
                   </label>
                   <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={journalForm.tags.join(' ')}
-                      onChange={(e) => setJournalForm(prev => ({ 
-                        ...prev, 
-                        tags: e.target.value.split(/\s+/).map(tag => tag.trim()).filter(tag => tag) 
-                      }))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بمسافات' : 'Enter tags separated by spaces'}
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={journalNewTag}
+                        onChange={(e) => setJournalNewTag(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddJournalTag(); } }}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                        placeholder={language === 'ar' ? 'أضف تاق جديد...' : 'Add new tag...'}
+                      />
+                      <Button variant="outline" onClick={handleAddJournalTag} disabled={!journalNewTag.trim()}>
+                        {language === 'ar' ? 'إضافة' : 'Add'}
+                      </Button>
+                    </div>
                     {journalForm.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {journalForm.tags.map((tag, index) => (
