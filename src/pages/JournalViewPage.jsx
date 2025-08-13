@@ -24,6 +24,28 @@ export default function JournalViewPage() {
   const { language, direction } = localizationData;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // معالجة الأخطاء
+  if (!journalEntries || !entryId) {
+    return (
+      <PageLayout>
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            {language === 'ar' ? 'المدونة غير موجودة' : 'Journal Entry Not Found'}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {language === 'ar' ? 'المدونة التي تبحث عنها غير موجودة أو تم حذفها.' : 'The journal entry you are looking for does not exist or has been deleted.'}
+          </p>
+          <Button onClick={() => navigate('/journal')}>
+            {language === 'ar' ? 'العودة للمدونات' : 'Back to Journals'}
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
+
   // تنسيق التاريخ باللغة العربية
   const formatDate = (dateString, language) => {
     try {
@@ -65,28 +87,33 @@ export default function JournalViewPage() {
 
   // البحث عن اليوم المرتبط بالمدونة
   const dayInfo = React.useMemo(() => {
-    // 1. التأكد من وجود البيانات المطلوبة
-    if (!journalEntry || !plan) return null;
-    
-    // التحقق من وجود weekId و dayKey
-    const weekId = journalEntry.weekId;
-    const dayKey = journalEntry.dayKey;
-    
-    if (!weekId || !dayKey) return null;
-    
-    // 2. البحث عن الأسبوع المطابق في الخطة
-    const week = plan.find(w => w.week === parseInt(weekId));
-    
-    if (week) {
-      // 3. البحث عن اليوم المطابق داخل الأسبوع
-      const day = week.days?.find(d => d.key === dayKey);
-      // 4. حساب فهرس اليوم داخل الأسبوع
-      const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === dayKey) : -1;
+    try {
+      // 1. التأكد من وجود البيانات المطلوبة
+      if (!journalEntry || !plan) return null;
       
-      // 5. إرجاع كائن يحتوي على معلومات الأسبوع واليوم مع الفهرس
-      return { week, day, dayIndex };
+      // التحقق من وجود weekId و dayKey
+      const weekId = journalEntry.weekId;
+      const dayKey = journalEntry.dayKey;
+      
+      if (!weekId || !dayKey) return null;
+      
+      // 2. البحث عن الأسبوع المطابق في الخطة
+      const week = plan.find(w => w.week === parseInt(weekId));
+      
+      if (week) {
+        // 3. البحث عن اليوم المطابق داخل الأسبوع
+        const day = week.days?.find(d => d.key === dayKey);
+        // 4. حساب فهرس اليوم داخل الأسبوع
+        const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === dayKey) : -1;
+        
+        // 5. إرجاع كائن يحتوي على معلومات الأسبوع واليوم مع الفهرس
+        return { week, day, dayIndex };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error in dayInfo calculation:', error);
+      return null;
     }
-    return null;
   }, [journalEntry, plan]);
 
   // دالة مساعدة للكشف عن نوع المدونة
@@ -98,14 +125,24 @@ export default function JournalViewPage() {
 
   // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
   const getDayName = (day) => {
-    if (!day?.day) return language === 'ar' ? 'اليوم' : 'Day';
-    return day.day[language] || day.day.ar || day.day.en || (language === 'ar' ? 'اليوم' : 'Day');
+    try {
+      if (!day?.day) return language === 'ar' ? 'اليوم' : 'Day';
+      return day.day[language] || day.day.ar || day.day.en || (language === 'ar' ? 'اليوم' : 'Day');
+    } catch (error) {
+      console.error('Error in getDayName:', error);
+      return language === 'ar' ? 'اليوم' : 'Day';
+    }
   };
 
   // دالة مساعدة لعرض موضوع اليوم باللغة المطلوبة
   const getDayTopic = (day) => {
-    if (!day?.topic) return null;
-    return day.topic[language] || day.topic.ar || day.topic.en;
+    try {
+      if (!day?.topic) return null;
+      return day.topic[language] || day.topic.ar || day.topic.en;
+    } catch (error) {
+      console.error('Error in getDayTopic:', error);
+      return null;
+    }
   };
 
   const handleDeleteJournalEntry = async () => {
