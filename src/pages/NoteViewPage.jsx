@@ -277,7 +277,7 @@ export default function NoteViewPage() {
                 <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>
-                    {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatDate(note.updatedAt, language)}
+                    {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(note.updatedAt, language, true)}
                   </span>
                 </div>
               )}
@@ -350,12 +350,12 @@ export default function NoteViewPage() {
                 )}
                 {note.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatDate(note.createdAt, language)}
+                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatGregorianDate(note.createdAt, language, true)}
                   </p>
                 )}
                 {note.updatedAt && note.updatedAt !== note.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatDate(note.updatedAt, language)}
+                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatGregorianDate(note.updatedAt, language, true)}
                   </p>
                 )}
               </div>

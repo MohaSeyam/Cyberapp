@@ -274,23 +274,6 @@ export default function JournalViewPage() {
                     </span>
                   </div>
                 )}
-              </div>
-              {journalEntry.createdAt && (
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'} {formatDate(journalEntry.createdAt, language)}
-                  </span>
-                </div>
-              )}
-              {journalEntry.updatedAt && journalEntry.updatedAt !== journalEntry.createdAt && (
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4" />
-                  <span>
-                    {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatDate(journalEntry.updatedAt, language)}
-                  </span>
-                </div>
-              )}
               {journalEntry.tags && journalEntry.tags.length > 0 && (
                 <div className="flex items-center space-x-2">
                   <Tag className="w-4 h-4" />
@@ -360,12 +343,12 @@ export default function JournalViewPage() {
                 )}
                 {journalEntry.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatDate(journalEntry.createdAt, language)}
+                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatGregorianDate(journalEntry.createdAt, language, true)}
                   </p>
                 )}
                 {journalEntry.updatedAt && journalEntry.updatedAt !== journalEntry.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatDate(journalEntry.updatedAt, language)}
+                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatGregorianDate(journalEntry.updatedAt, language, true)}
                   </p>
                 )}
               </div>
