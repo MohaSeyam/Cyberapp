@@ -73,9 +73,11 @@ export default function NoteViewPage() {
     if (week) {
       // 3. البحث عن اليوم المطابق داخل الأسبوع
       const day = week.days?.find(d => d.key === note.dayKey);
+      // 4. حساب فهرس اليوم داخل الأسبوع
+      const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === note.dayKey) : -1;
       
-      // 4. إرجاع كائن يحتوي على معلومات الأسبوع واليوم
-      return { week, day };
+      // 5. إرجاع كائن يحتوي على معلومات الأسبوع واليوم مع الفهرس
+      return { week, day, dayIndex };
     }
     return null;
   }, [note, plan]);
