@@ -664,9 +664,7 @@ const DayViewPage = () => {
     const [showReminder, setShowReminder] = useState(false);
     const [points, setPoints] = useState(0);
     const [achievements, setAchievements] = useState([]);
-    const [learningProgress, setLearningProgress] = useState(0);
     const [showModal, setShowModal] = useState(false);
-    const [luxury, setLuxury] = useState(0);
     const [difficulty, setDifficulty] = useState(0);
     const [showEvaluationSummary, setShowEvaluationSummary] = useState(false);
 
@@ -681,7 +679,6 @@ const DayViewPage = () => {
         setComment(existingEvaluation.comment || '');
         setPoints(existingEvaluation.points || 0);
         setAchievements(existingEvaluation.achievements || []);
-        setLearningProgress(existingEvaluation.learningProgress || 0);
         setDifficulty(existingEvaluation.difficulty || 0);
       }
     }, [existingEvaluation]);
@@ -705,14 +702,7 @@ const DayViewPage = () => {
       return newAchievements;
     };
 
-    // Calculate learning progress
-    const calculateLearningProgress = (rating, previousRatings = []) => {
-      if (previousRatings.length === 0) return rating * 20;
-      
-      const averageRating = previousRatings.reduce((sum, r) => sum + r, 0) / previousRatings.length;
-      const improvement = Math.max(0, rating - averageRating);
-      return Math.min(100, (rating * 20) + (improvement * 10));
-    };
+
 
     const handleSave = async () => {
       if (!isTaskCompleted) {
@@ -730,28 +720,24 @@ const DayViewPage = () => {
         const calculatedPoints = calculatePoints(rating);
         const previousEvaluations = safeTaskEvaluations.filter(e => e.taskId === taskId);
         const previousRatings = previousEvaluations.map(e => e.rating);
-        const calculatedProgress = calculateLearningProgress(rating, previousRatings);
         const newAchievements = getAchievements(rating, previousRatings.length > 0);
         
         const evaluationData = {
           taskId,
           weekId,
-                     rating,
-           comment,
-           points: calculatedPoints,
-           achievements: newAchievements,
-           learningProgress: calculatedProgress,
-           luxury,
-           difficulty,
-           timestamp: new Date().toISOString(),
-           reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
-         };
+          rating,
+          comment,
+          points: calculatedPoints,
+          achievements: newAchievements,
+          difficulty,
+          timestamp: new Date().toISOString(),
+          reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+        };
 
         await addOrUpdateTaskEvaluation(evaluationData);
         
         setPoints(calculatedPoints);
         setAchievements(newAchievements);
-        setLearningProgress(calculatedProgress);
         setShowSuccess(true);
         setShowModal(false);
         setShowEvaluationSummary(true);
@@ -823,20 +809,7 @@ const DayViewPage = () => {
                 </span>
               </div>
               
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {language === 'ar' ? 'التقدم:' : 'Progress:'}
-                </span>
-                <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
-                    style={{ width: `${existingEvaluation.learningProgress || 0}%` }}
-                  />
-                </div>
-                <span className="text-xs text-gray-500">
-                  {Math.round(existingEvaluation.learningProgress || 0)}%
-                </span>
-              </div>
+
 
               {/* Difficulty Display */}
               {existingEvaluation.difficulty && (
@@ -893,73 +866,64 @@ const DayViewPage = () => {
             {/* Evaluation Summary Modal */}
             {showEvaluationSummary && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 max-w-sm w-full mx-4 shadow-2xl">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                      {language === 'ar' ? 'تم حفظ التقييم بنجاح!' : 'Evaluation Saved Successfully!'}
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3">
+                      {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
                     </h3>
                     
-                    {/* Rating Display */}
-                    <div className="mb-4">
-                      <div className="flex justify-center mb-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-6 h-6 ${
-                              star <= rating
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
+                    {/* Compact Rating and Difficulty Display */}
+                    <div className="flex items-center justify-center gap-4 mb-3">
+                      {/* Rating */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${
+                                star <= rating
+                                  ? 'text-yellow-400 fill-current'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
+                          {rating}/5
+                        </span>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {language === 'ar' ? 'التقييم:' : 'Rating:'} {rating}/5
-                      </p>
+
+                      {/* Difficulty */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={`w-3 h-3 rounded-full ${
+                                level <= difficulty
+                                  ? 'bg-red-500'
+                                  : 'bg-gray-200 dark:bg-gray-700'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
+                          {difficulty}/5
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Difficulty Display */}
-                    <div className="mb-4">
-                      <div className="flex justify-center mb-2">
-                        {[1, 2, 3, 4, 5].map((level) => (
-                          <div
-                            key={level}
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mx-1 ${
-                              level <= difficulty
-                                ? 'bg-red-500 text-white'
-                                : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
-                            }`}
-                          >
-                            {level}
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {language === 'ar' ? 'الصعوبة:' : 'Difficulty:'} {difficulty}/5
+                    {/* Points */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg mb-3">
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        {language === 'ar' ? 'النقاط' : 'Points'}
                       </p>
-                    </div>
-
-                    {/* Points and Progress */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                        <p className="text-xs text-blue-600 dark:text-blue-400">
-                          {language === 'ar' ? 'النقاط' : 'Points'}
-                        </p>
-                        <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
-                          {points}
-                        </p>
-                      </div>
-                      <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                        <p className="text-xs text-green-600 dark:text-green-400">
-                          {language === 'ar' ? 'التقدم' : 'Progress'}
-                        </p>
-                        <p className="text-lg font-bold text-green-800 dark:text-green-200">
-                          {Math.round(learningProgress)}%
-                        </p>
-                      </div>
+                      <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                        {points}
+                      </p>
                     </div>
 
                     {/* Achievements */}
@@ -993,130 +957,103 @@ const DayViewPage = () => {
             )}
 
             <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-            {language === 'ar' ? 'التقييم' : 'Rating'}
-          </label>
-          <div className="flex items-center gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                onClick={() => setRating(star)}
-                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
-                  star <= rating
-                    ? 'text-yellow-500 bg-yellow-100 border-yellow-300 dark:bg-yellow-900/40 dark:border-yellow-700'
-                    : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-yellow-400'
-                }`}
-              >
-                <Star className="w-6 h-6" />
-              </button>
-            ))}
-            <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
-              ({rating}/5)
-            </span>
-          </div>
-        </div>
-
-        {/* Difficulty Rating */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-            {language === 'ar' ? 'درجة الصعوبة' : 'Difficulty Level'}
-          </label>
-          <div className="flex items-center gap-2">
-            {[1, 2, 3, 4, 5].map((level) => (
-              <button
-                key={level}
-                onClick={() => setDifficulty(level)}
-                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
-                  level <= difficulty
-                    ? 'text-red-500 bg-red-100 border-red-300 dark:bg-red-900/40 dark:border-red-700'
-                    : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-red-400'
-                }`}
-              >
-                <div className="w-6 h-6 flex items-center justify-center font-bold text-sm">
-                  {level}
-                </div>
-              </button>
-            ))}
-            <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
-              ({difficulty}/5)
-            </span>
-          </div>
-          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-            {difficulty === 1 && (language === 'ar' ? 'سهل جداً' : 'Very Easy')}
-            {difficulty === 2 && (language === 'ar' ? 'سهل' : 'Easy')}
-            {difficulty === 3 && (language === 'ar' ? 'متوسط' : 'Medium')}
-            {difficulty === 4 && (language === 'ar' ? 'صعب' : 'Hard')}
-            {difficulty === 5 && (language === 'ar' ? 'صعب جداً' : 'Very Hard')}
-          </div>
-        </div>
-
-        {/* Comment Section */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-            {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
-          </label>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white resize-none"
-            rows="3"
-            placeholder={language === 'ar' ? 'اكتب تعليقك هنا...' : 'Write your comment here...'}
-          />
-        </div>
-
-        {/* Learning Progress Chart */}
-        {existingEvaluation && (
-          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <h5 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-              {language === 'ar' ? 'تقدم التعلم' : 'Learning Progress'}
-            </h5>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-blue-600 dark:text-blue-400">
-                  {language === 'ar' ? 'التقدم الحالي' : 'Current Progress'}
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'التقييم' : 'Rating'}
+              </label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
+                      star <= rating
+                        ? 'text-yellow-500 bg-yellow-100 border-yellow-300 dark:bg-yellow-900/40 dark:border-yellow-700'
+                        : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-yellow-400'
+                    }`}
+                  >
+                    <Star className="w-6 h-6" />
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                  ({rating}/5)
                 </span>
-                <span className="text-sm font-bold text-blue-800 dark:text-blue-200">
-                  {Math.round(learningProgress)}%
-                </span>
-              </div>
-              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-out"
-                  style={{ width: `${learningProgress}%` }}
-                />
               </div>
             </div>
-          </div>
-        )}
 
-
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={async () => { await handleSave(); setShowModal(false); }}
-            disabled={isSubmitting || rating <= 0}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            {isSubmitting ? (
+            {/* Difficulty Rating */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'درجة الصعوبة' : 'Difficulty Level'}
+              </label>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setDifficulty(level)}
+                    className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
+                      level <= difficulty
+                        ? 'text-red-500 bg-red-100 border-red-300 dark:bg-red-900/40 dark:border-red-700'
+                        : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-red-400'
+                    }`}
+                  >
+                    <div className="w-6 h-6 flex items-center justify-center font-bold text-sm">
+                      {level}
+                    </div>
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                  ({difficulty}/5)
+                </span>
               </div>
-            ) : (
-              language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'
-            )}
-          </Button>
-          
-          <Button
-            onClick={() => { handleCancel(); setShowModal(false); }}
-            variant="outline"
-            disabled={isSubmitting}
-            className="flex-1"
-          >
-            {language === 'ar' ? 'إلغاء' : 'Cancel'}
-          </Button>
-        </div>
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                {difficulty === 1 && (language === 'ar' ? 'سهل جداً' : 'Very Easy')}
+                {difficulty === 2 && (language === 'ar' ? 'سهل' : 'Easy')}
+                {difficulty === 3 && (language === 'ar' ? 'متوسط' : 'Medium')}
+                {difficulty === 4 && (language === 'ar' ? 'صعب' : 'Hard')}
+                {difficulty === 5 && (language === 'ar' ? 'صعب جداً' : 'Very Hard')}
+              </div>
+            </div>
+
+            {/* Comment Section */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white resize-none"
+                rows="3"
+                placeholder={language === 'ar' ? 'اكتب تعليقك هنا...' : 'Write your comment here...'}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={async () => { await handleSave(); setShowModal(false); }}
+                disabled={isSubmitting || rating <= 0}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
+                  </div>
+                ) : (
+                  language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'
+                )}
+              </Button>
+              
+              <Button
+                onClick={() => { handleCancel(); setShowModal(false); }}
+                variant="outline"
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
 
         {/* Review Reminder */}
         {showReminder && (
