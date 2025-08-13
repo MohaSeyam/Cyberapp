@@ -241,6 +241,21 @@ export default function JournalViewPage() {
           </div>
 
           <div className="text-center">
+            {/* Day Title */}
+            {dayInfo && (
+              <div className="mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-full">
+                  <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <span className="text-lg font-semibold text-purple-700 dark:text-purple-300">
+                    {getDayName(dayInfo.day)}
+                  </span>
+                  <span className="text-sm text-purple-600 dark:text-purple-400">
+                    {language === 'ar' ? `الأسبوع ${dayInfo.week.week}` : `Week ${dayInfo.week.week}`}
+                  </span>
+                </div>
+              </div>
+            )}
+            
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {journalEntry.title}
             </h1>

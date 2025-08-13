@@ -240,6 +240,21 @@ export default function NoteViewPage() {
           </div>
 
           <div className="text-center">
+            {/* Day Title */}
+            {dayInfo && (
+              <div className="mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-full">
+                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                    {getDayName(dayInfo.day)}
+                  </span>
+                  <span className="text-sm text-blue-600 dark:text-blue-400">
+                    {language === 'ar' ? `الأسبوع ${dayInfo.week.week}` : `Week ${dayInfo.week.week}`}
+                  </span>
+                </div>
+              </div>
+            )}
+            
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {note.title}
             </h1>
