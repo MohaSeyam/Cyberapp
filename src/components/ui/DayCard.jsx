@@ -1,5 +1,4 @@
 import React from 'react';
-import { getDayCompletion } from '../../utils/progress';
 
 /**
  * مكون كرت اليوم
@@ -11,7 +10,13 @@ import { getDayCompletion } from '../../utils/progress';
  * @param {string} weekObjective - وصف بديل من هدف الأسبوع (اختياري)
  */
 const DayCard = ({ day, weekNumber, progress, onClick, language = 'ar', weekObjective }) => {
-  const { completed, total, percentage } = getDayCompletion(weekNumber, day.key, progress);
+  // إجمالي المهام من الخطة مباشرة
+  const total = Array.isArray(day?.tasks) ? day.tasks.length : 0;
+  // المهام المنجزة من سجل التقدم
+  const completed = Array.isArray(progress)
+    ? progress.filter(p => Number(p.weekId) === Number(weekNumber) && p.dayKey === day.key && p.done).length
+    : 0;
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   const dayName = day.day?.[language] || day.day?.ar || day.key;
   const dayTopic = day.topic?.[language] || day.topic?.ar || '';

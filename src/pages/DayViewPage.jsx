@@ -827,21 +827,27 @@ const DayViewPage = () => {
 
     return (
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900 dark:text-white">
-            {language === 'ar' ? 'تقييم المهمة' : 'Task Evaluation'}
-          </h4>
-          {showSuccess && (
-            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-              <CheckCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">
-                {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
-              </span>
-            </div>
-          )}
-        </div>
+                  <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setShowModal((o) => !o)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold"
+              aria-expanded={showModal}
+            >
+              <Star className="w-4 h-4 text-yellow-400" />
+              {language === 'ar' ? 'تقييم' : 'Rate'}
+            </button>
+            {showSuccess && (
+              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                <CheckCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">
+                  {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
+                </span>
+              </div>
+            )}
+          </div>
 
-        {/* Rating Section */}
+          {showModal && (
+          <>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
             {language === 'ar' ? 'التقييم' : 'Rating'}
@@ -910,7 +916,7 @@ const DayViewPage = () => {
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
           <Button
-            onClick={handleSave}
+            onClick={async () => { await handleSave(); setShowModal(false); }}
             disabled={isSubmitting || rating <= 0}
             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
           >
@@ -925,7 +931,7 @@ const DayViewPage = () => {
           </Button>
           
           <Button
-            onClick={handleCancel}
+            onClick={() => { handleCancel(); setShowModal(false); }}
             variant="outline"
             disabled={isSubmitting}
             className="flex-1"
@@ -1574,196 +1580,9 @@ const DayViewPage = () => {
           </Card>
 
           {/* Navigation Footer */}
-          <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
-            <Card>
-              <div className="flex items-center justify-center">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    icon={<ChevronLeft />}
-                    onClick={goToPreviousDay}
-                    disabled={parseInt(dayKey) <= 1}
-                    className="px-4 sm:px-6 py-3 min-h-[48px] min-w-[48px] bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <span className="hidden sm:inline">{language === 'ar' ? 'اليوم السابق' : 'Previous Day'}</span>
-                    <span className="sm:hidden">{language === 'ar' ? 'السابق' : 'Prev'}</span>
-                  </Button>
-                  
-                  {/* Swipe Indicator */}
-                  <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
-                    <span>{language === 'ar' ? 'اسحب للتنقل' : 'Swipe to navigate'}</span>
-                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    icon={<ChevronRight />}
-                    onClick={goToNextDay}
-                    disabled={parseInt(dayKey) >= (selectedWeek.days?.length || 0)}
-                    className="px-4 sm:px-6 py-3 min-h-[48px] min-w-[48px] bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <span className="hidden sm:inline">{language === 'ar' ? 'اليوم التالي' : 'Next Day'}</span>
-                    <span className="sm:hidden">{language === 'ar' ? 'التالي' : 'Next'}</span>
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
+          {/* تم إزالة أزرار التنقل حسب الطلب */}
         </motion.div>
-      </div>
-
-      
-
-
-
-            {/* Resource Modal */}
-      <Modal
-        isOpen={resourceModal.isOpen}
-        onClose={() => {
-          setResourceModal({ isOpen: false, resource: null });
-          setResourceForm({ title: '', url: '', type: 'article' });
-        }}
-        title={resourceModal.resource ? (language === 'ar' ? 'تعديل المورد' : 'Edit Resource') : (language === 'ar' ? 'إضافة مورد جديد' : 'Add New Resource')}
-        size="lg"
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'عنوان المورد *' : 'Resource Title *'}
-            </label>
-            <input
-              type="text"
-              value={resourceForm.title}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={language === 'ar' ? 'أدخل عنوان المورد' : 'Enter resource title'}
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'رابط المورد *' : 'Resource URL *'}
-            </label>
-            <input
-              type="url"
-              value={resourceForm.url}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={language === 'ar' ? 'أدخل رابط المورد' : 'Enter resource URL'}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'نوع المورد *' : 'Resource Type *'}
-            </label>
-            <select
-              value={resourceForm.type}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
-              <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
-              <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
-              <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
-              <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
-              <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
-            </select>
-          </div>
-
-          <div className="flex justify-end space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setResourceModal({ isOpen: false, resource: null });
-                setResourceForm({ title: '', url: '', type: 'article' });
-              }}
-            >
-              {language === 'ar' ? 'إلغاء' : 'Cancel'}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={resourceModal.resource ? handleUpdateResource : handleAddResource}
-              disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
-            >
-              {resourceModal.resource ? (language === 'ar' ? 'تحديث المورد' : 'Update Resource') : (language === 'ar' ? 'إضافة المورد' : 'Add Resource')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Keyboard Shortcuts Help Modal */}
-      <Modal
-        isOpen={showKeyboardHelp}
-        onClose={() => setShowKeyboardHelp(false)}
-        title={language === 'ar' ? 'اختصارات لوحة المفاتيح' : 'Keyboard Shortcuts'}
-        size="md"
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-3">
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'اليوم السابق' : 'Previous Day'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                ←
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'اليوم التالي' : 'Next Day'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                →
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إضافة ملاحظة' : 'Add Note'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Ctrl/Cmd + N
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إضافة مدونة' : 'Add Journal'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Ctrl/Cmd + J
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إضافة مورد' : 'Add Resource'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Ctrl/Cmd + R
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إغلاق/إلغاء' : 'Close/Cancel'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Esc
-              </kbd>
-            </div>
-          </div>
-          
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            {language === 'ar' ? 'استخدم هذه الاختصارات للتنقل السريع في التطبيق' : 'Use these shortcuts for quick navigation in the app'}
-          </div>
-        </div>
-      </Modal>
+      </motion.div>
     </PageLayout>
   );
 };
