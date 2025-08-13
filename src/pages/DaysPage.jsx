@@ -14,6 +14,9 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import planData from '../data/PlanData.json';
 import phasesData from '../data/phases.json';
+import DayCard from '../components/ui/DayCard';
+import ProgressBar from '../components/ui/ProgressBar';
+import { getDayCompletion, getWeekCompletion } from '../utils/progress';
 
 const DaysPage = () => {
   const { weekId } = useParams();
@@ -70,36 +73,6 @@ const DaysPage = () => {
   // Safe translation function
   const safeT = (key) => {
     return key || (language === 'ar' ? 'غير محدد' : 'Undefined');
-  };
-
-  // Get day completion
-  const getDayCompletion = (weekNumber, dayKey) => {
-    const dayProgress = safeProgress.filter(p => p.weekId === weekNumber && p.dayKey === dayKey);
-    if (dayProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
-    
-    const totalTasks = dayProgress.length;
-    const completedTasks = dayProgress.filter(p => p.done).length;
-    
-    return {
-      percentage: Math.round((completedTasks / totalTasks) * 100),
-      completed: completedTasks,
-      total: totalTasks
-    };
-  };
-
-  // Get week completion
-  const getWeekCompletion = (weekNumber) => {
-    const weekProgress = safeProgress.filter(p => p.weekId === weekNumber);
-    if (weekProgress.length === 0) return { percentage: 0, completed: 0, total: 0 };
-    
-    const totalTasks = weekProgress.length;
-    const completedTasks = weekProgress.filter(p => p.done).length;
-    
-    return {
-      percentage: Math.round((completedTasks / totalTasks) * 100),
-      completed: completedTasks,
-      total: totalTasks
-    };
   };
 
   // Navigation functions
@@ -313,11 +286,11 @@ const DaysPage = () => {
   }
 
   const currentDay = week.days?.[selectedDayIndex];
-  const weekCompletion = getWeekCompletion(weekNumber);
+  const weekCompletion = getWeekCompletion(weekNumber, planData, safeProgress);
 
   // Check if all tasks in the week are completed
   const allTasksCompleted = week.days?.every(day => 
-    getDayCompletion(weekNumber, day.key).percentage === 100
+    getDayCompletion(weekNumber, day.key, safeProgress).percentage === 100
   );
 
   return (
@@ -369,14 +342,7 @@ const DaysPage = () => {
                 </span>
               </div>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
-              <div 
-                className={`h-3 rounded-full transition-all duration-300 ${
-                  weekCompletion.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'
-                }`}
-                style={{ width: `${weekCompletion.percentage}%` }}
-              />
-            </div>
+            <ProgressBar percentage={weekCompletion.percentage} color={weekCompletion.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'} />
             <div className="text-center">
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
                 {weekCompletion.percentage}%
@@ -409,10 +375,7 @@ const DaysPage = () => {
             {/* Days Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {week.days?.map((day, index) => {
-                const completion = getDayCompletion(weekNumber, day.key);
-                const isCompleted = completion.percentage === 100;
                 const isSelected = index === selectedDayIndex;
-                
                 return (
                   <motion.div
                     key={day.key}
@@ -420,72 +383,13 @@ const DaysPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <Card 
-                      className={`p-4 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                        isSelected ? 'ring-2 ring-blue-500' :
-                        isCompleted ? 'ring-2 ring-green-500' : ''
-                      }`}
+                    <DayCard
+                      day={day}
+                      weekNumber={weekNumber}
+                      progress={safeProgress}
+                      language={language}
                       onClick={() => setSelectedDayIndex(index)}
-                      hover={true}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-lg ${
-                            isCompleted ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'
-                          }`}>
-                            <Calendar className={`w-5 h-5 ${
-                              isCompleted ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'
-                            }`} />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white">
-                              {day.day[language]}
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {day.topic[language]}
-                            </p>
-                          </div>
-                        </div>
-                        {isCompleted && (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                        )}
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="mb-3">
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-gray-600 dark:text-gray-400">
-                            {language === 'ar' ? 'التقدم' : 'Progress'}
-                          </span>
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {completion.percentage}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              isCompleted ? 'bg-green-500' : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${completion.percentage}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Tasks Count */}
-                      <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                        <span>{completion.completed}/{completion.total} {language === 'ar' ? 'مهام' : 'tasks'}</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            goToDayView(index);
-                          }}
-                        >
-                          {language === 'ar' ? 'عرض' : 'View'}
-                        </Button>
-                      </div>
-                    </Card>
+                    />
                   </motion.div>
                 );
               })}
