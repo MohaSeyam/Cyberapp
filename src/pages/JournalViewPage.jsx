@@ -64,15 +64,33 @@ export default function JournalViewPage() {
 
   // البحث عن اليوم المرتبط بالمدونة
   const dayInfo = React.useMemo(() => {
+    // 1. التأكد من وجود البيانات المطلوبة
     if (!journalEntry?.weekId || !journalEntry?.dayKey || !plan) return null;
     
+    // 2. البحث عن الأسبوع المطابق في الخطة
     const week = plan.find(w => w.week === journalEntry.weekId);
+    
     if (week) {
+      // 3. البحث عن اليوم المطابق داخل الأسبوع
       const day = week.days?.find(d => d.key === journalEntry.dayKey);
+      
+      // 4. إرجاع كائن يحتوي على معلومات الأسبوع واليوم
       return { week, day };
     }
     return null;
   }, [journalEntry, plan]);
+
+  // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
+  const getDayName = (day) => {
+    if (!day?.day) return language === 'ar' ? 'اليوم' : 'Day';
+    return day.day[language] || day.day.ar || day.day.en || (language === 'ar' ? 'اليوم' : 'Day');
+  };
+
+  // دالة مساعدة لعرض موضوع اليوم باللغة المطلوبة
+  const getDayTopic = (day) => {
+    if (!day?.topic) return null;
+    return day.topic[language] || day.topic.ar || day.topic.en;
+  };
 
   const handleDeleteJournalEntry = async () => {
     try {
@@ -152,7 +170,7 @@ export default function JournalViewPage() {
           <body>
             <div class="title">${journalEntry.title}</div>
             <div class="meta">
-              ${dayInfo ? `اليوم: ${dayInfo.day.day?.[language] || dayInfo.day.day?.ar}` : ''}
+              ${dayInfo ? `اليوم: ${getDayName(dayInfo.day)}` : ''}
               ${journalEntry.createdAt ? `تاريخ الإنشاء: ${new Date(journalEntry.createdAt).toLocaleDateString('ar-SA')}` : ''}
             </div>
             <div class="content">${journalEntry.content}</div>
@@ -247,7 +265,7 @@ export default function JournalViewPage() {
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <span className="text-purple-600 dark:text-purple-400 font-medium">
-                    {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                    {getDayName(dayInfo.day)}
                   </span>
                 </div>
               )}
@@ -292,7 +310,7 @@ export default function JournalViewPage() {
           </Card>
         </motion.div>
 
-        {/* Related Day Info */}
+        {/* قسم عرض معلومات اليوم المرتبط بالمدونة */}
         {dayInfo && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -308,6 +326,7 @@ export default function JournalViewPage() {
                     {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
                   </h3>
                 </div>
+                {/* زر الانتقال لصفحة اليوم في الخطة */}
                 <Button
                   variant="outline"
                   onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
@@ -316,16 +335,18 @@ export default function JournalViewPage() {
                   {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
                 </Button>
               </div>
+              {/* عرض تفاصيل اليوم والأسبوع */}
               <div className="space-y-2">
                 <p className="text-gray-700 dark:text-gray-300">
                   <span className="font-medium">{language === 'ar' ? 'الأسبوع:' : 'Week:'}</span> {dayInfo.week.week}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {getDayName(dayInfo.day)}
                 </p>
-                {dayInfo.day.topic && (
+                {/* عرض موضوع اليوم إن وجد */}
+                {getDayTopic(dayInfo.day) && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {dayInfo.day.topic[language] || dayInfo.day.topic.ar}
+                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {getDayTopic(dayInfo.day)}
                   </p>
                 )}
                 {journalEntry.createdAt && (

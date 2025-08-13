@@ -64,15 +64,33 @@ export default function NoteViewPage() {
 
   // البحث عن اليوم المرتبط بالملاحظة
   const dayInfo = React.useMemo(() => {
+    // 1. التأكد من وجود البيانات المطلوبة
     if (!note?.weekId || !note?.dayKey || !plan) return null;
     
+    // 2. البحث عن الأسبوع المطابق في الخطة
     const week = plan.find(w => w.week === note.weekId);
+    
     if (week) {
+      // 3. البحث عن اليوم المطابق داخل الأسبوع
       const day = week.days?.find(d => d.key === note.dayKey);
+      
+      // 4. إرجاع كائن يحتوي على معلومات الأسبوع واليوم
       return { week, day };
     }
     return null;
   }, [note, plan]);
+
+  // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
+  const getDayName = (day) => {
+    if (!day?.day) return language === 'ar' ? 'اليوم' : 'Day';
+    return day.day[language] || day.day.ar || day.day.en || (language === 'ar' ? 'اليوم' : 'Day');
+  };
+
+  // دالة مساعدة لعرض موضوع اليوم باللغة المطلوبة
+  const getDayTopic = (day) => {
+    if (!day?.topic) return null;
+    return day.topic[language] || day.topic.ar || day.topic.en;
+  };
 
   const handleDeleteNote = async () => {
     try {
@@ -151,7 +169,7 @@ export default function NoteViewPage() {
           <body>
             <div class="title">${note.title}</div>
             <div class="meta">
-              ${dayInfo ? `اليوم: ${dayInfo.day.day?.[language] || dayInfo.day.day?.ar}` : ''}
+              ${dayInfo ? `اليوم: ${getDayName(dayInfo.day)}` : ''}
               ${note.createdAt ? `تاريخ الإنشاء: ${new Date(note.createdAt).toLocaleDateString('ar-SA')}` : ''}
             </div>
             <div class="content">${note.content}</div>
@@ -246,7 +264,7 @@ export default function NoteViewPage() {
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-blue-600 dark:text-blue-400 font-medium">
-                    {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                    {getDayName(dayInfo.day)}
                   </span>
                 </div>
               )}
@@ -291,7 +309,7 @@ export default function NoteViewPage() {
           </Card>
         </motion.div>
 
-        {/* Related Day Info */}
+        {/* قسم عرض معلومات اليوم المرتبط بالملاحظة */}
         {dayInfo && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -307,6 +325,7 @@ export default function NoteViewPage() {
                     {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
                   </h3>
                 </div>
+                {/* زر الانتقال لصفحة اليوم في الخطة */}
                 <Button
                   variant="outline"
                   onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
@@ -315,16 +334,18 @@ export default function NoteViewPage() {
                   {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
                 </Button>
               </div>
+              {/* عرض تفاصيل اليوم والأسبوع */}
               <div className="space-y-2">
                 <p className="text-gray-700 dark:text-gray-300">
                   <span className="font-medium">{language === 'ar' ? 'الأسبوع:' : 'Week:'}</span> {dayInfo.week.week}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {getDayName(dayInfo.day)}
                 </p>
-                {dayInfo.day.topic && (
+                {/* عرض موضوع اليوم إن وجد */}
+                {getDayTopic(dayInfo.day) && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {dayInfo.day.topic[language] || dayInfo.day.topic.ar}
+                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {getDayTopic(dayInfo.day)}
                   </p>
                 )}
                 {note.createdAt && (
