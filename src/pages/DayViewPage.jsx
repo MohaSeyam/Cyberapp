@@ -1584,7 +1584,7 @@ const DayViewPage = () => {
           {/* Navigation Footer */}
           {/* تم إزالة أزرار التنقل حسب الطلب */}
         </motion.div>
-      </motion.div>
+      </div>
     </PageLayout>
   );
 };
