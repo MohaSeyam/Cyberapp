@@ -249,7 +249,7 @@ export default function NoteViewPage() {
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-blue-600 dark:text-blue-400 font-medium">
-                    {getDayName(dayInfo.day)}
+                    {language === 'ar' ? 'تم الإنشاء لليوم:' : 'Created for:'} {getDayName(dayInfo.day)} {language === 'ar' ? `(الأسبوع ${dayInfo.week.week})` : `(Week ${dayInfo.week.week})`}
                   </span>
                 </div>
               )}
