@@ -383,13 +383,14 @@ const DaysPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <DayCard
-                      day={day}
-                      weekNumber={weekNumber}
-                      progress={safeProgress}
-                      language={language}
-                      onClick={() => setSelectedDayIndex(index)}
-                    />
+                                          <DayCard
+                        day={day}
+                        weekNumber={weekNumber}
+                        progress={safeProgress}
+                        language={language}
+                        weekObjective={week?.objective?.[language]}
+                        onClick={() => setSelectedDayIndex(index)}
+                      />
                   </motion.div>
                 );
               })}
@@ -397,56 +398,7 @@ const DaysPage = () => {
           </Card>
         </motion.div>
 
-        {/* Selected Day Details */}
-        {currentDay && (
-          <motion.div {...animations.stagger(0.3)}>
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {currentDay.day[language]} - {currentDay.topic[language]}
-                </h2>
-                <Button
-                  variant="primary"
-                  onClick={() => goToDayView(selectedDayIndex)}
-                >
-                  {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
-                </Button>
-              </div>
 
-              {/* Tasks Preview */}
-              <div className="space-y-3">
-                {currentDay.tasks?.slice(0, 3).map((task, index) => {
-                  const typeInfo = taskTypeConfig[task.type] || taskTypeConfig['Blue Team'];
-                  const TypeIcon = typeInfo.icon;
-                  
-                  return (
-                    <div key={task.id} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className={`p-2 rounded-lg ${typeInfo.bgColor}`}>
-                        <TypeIcon className={`w-4 h-4 ${typeInfo.textColor}`} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-900 dark:text-white">
-                          {task.description[language]}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          {task.duration} {language === 'ar' ? 'دقيقة' : 'min'}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-                {currentDay.tasks?.length > 3 && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                    {language === 'ar' 
-                      ? `و ${currentDay.tasks.length - 3} مهام أخرى...`
-                      : `And ${currentDay.tasks.length - 3} more tasks...`
-                    }
-                  </p>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-        )}
 
         {/* Week Evaluation */}
         <motion.div {...animations.stagger(0.4)}>
