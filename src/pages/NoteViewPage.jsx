@@ -9,6 +9,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import toast from 'react-hot-toast';
+import { formatGregorianDate } from '../utils/date';
 
 export default function NoteViewPage() {
   const { id: noteId } = useParams();
@@ -244,27 +245,31 @@ export default function NoteViewPage() {
             </h1>
             
             {/* Meta Information */}
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
               {dayInfo && (
-                <div className="flex items-center space-x-2">
-                  <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Target className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                    <span className="text-blue-700 dark:text-blue-200 font-medium">
+                      {language === 'ar' ? 'تم الإنشاء لليوم:' : 'Created for:'} {getDayName(dayInfo.day)} {language === 'ar' ? `(الأسبوع ${dayInfo.week.week})` : `(Week ${dayInfo.week.week})`}
+                    </span>
+                  </div>
                   <button
                     onClick={() => {
                       const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
                       navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
                     }}
-                    className="text-blue-600 dark:text-blue-400 font-medium underline hover:opacity-80"
-                    title={language === 'ar' ? 'الانتقال إلى صفحة اليوم' : 'Go to day page'}
+                    className="px-2 py-1 text-xs rounded border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   >
-                    {language === 'ar' ? 'تم الإنشاء لليوم:' : 'Created for:'} {getDayName(dayInfo.day)} {language === 'ar' ? `(الأسبوع ${dayInfo.week.week})` : `(Week ${dayInfo.week.week})`}
+                    {language === 'ar' ? 'اذهب لليوم' : 'Open Day'}
                   </button>
                 </div>
               )}
               {note.createdAt && (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    {language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'} {formatDate(note.createdAt, language)}
+                    {formatGregorianDate(note.createdAt, language, true)}
                   </span>
                 </div>
               )}
