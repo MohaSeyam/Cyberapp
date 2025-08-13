@@ -300,7 +300,7 @@ export default function JournalViewPage() {
         </motion.div>
 
         {/* قسم عرض معلومات اليوم المرتبط بالمدونة */}
-        {dayInfo && (
+        {dayInfo ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -341,6 +341,40 @@ export default function JournalViewPage() {
                     <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {getDayTopic(dayInfo.day)}
                   </p>
                 )}
+                {journalEntry.createdAt && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatGregorianDate(journalEntry.createdAt, language, true)}
+                  </p>
+                )}
+                {journalEntry.updatedAt && journalEntry.updatedAt !== journalEntry.createdAt && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatGregorianDate(journalEntry.updatedAt, language, true)}
+                  </p>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <Card className="p-6 bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <BookOpen className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                  {language === 'ar' ? 'مدونة عامة' : 'General Journal'}
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-600 dark:text-gray-400">
+                  {language === 'ar' 
+                    ? 'هذه مدونة عامة غير مرتبطة بيوم محدد في الخطة'
+                    : 'This is a general journal entry not associated with any specific day in the plan'
+                  }
+                </p>
                 {journalEntry.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatGregorianDate(journalEntry.createdAt, language, true)}

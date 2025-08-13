@@ -69,22 +69,23 @@ const JournalEditPage = () => {
 
     setIsLoading(true);
     try {
+      // تحديد نوع المدونة تلقائياً
+      const journalData = {
+        title: formData.title,
+        content: formData.content,
+        date: formData.date,
+        tags: formData.tags,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // إذا كانت المدونة من صفحة المدونات (غير مرتبطة بيوم)، لا نضيف weekId و dayKey
+      // إذا كانت من صفحة اليوم، سيتم إضافة weekId و dayKey تلقائياً من السياق
+
       if (existingEntry) {
-        await updateJournalEntry(existingEntry.id, {
-          title: formData.title,
-          content: formData.content,
-          date: formData.date,
-          tags: formData.tags
-        });
+        await updateJournalEntry(existingEntry.id, journalData);
       } else {
-        await addJournalEntry({
-          title: formData.title,
-          content: formData.content,
-          date: formData.date,
-          tags: formData.tags,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
+        await addJournalEntry(journalData);
       }
       navigate('/journal');
     } catch (error) {

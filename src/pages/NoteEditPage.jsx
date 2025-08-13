@@ -94,20 +94,22 @@ const NoteEditPage = () => {
 
     setIsLoading(true);
     try {
+      // تحديد نوع الملاحظة تلقائياً
+      const noteData = {
+        title: formData.title,
+        content: formData.content,
+        tags: formData.tags,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // إذا كانت الملاحظة من صفحة الملاحظات (غير مرتبطة بيوم)، لا نضيف weekId و dayKey
+      // إذا كانت من صفحة اليوم، سيتم إضافة weekId و dayKey تلقائياً من السياق
+
       if (existingNote) {
-        await updateNote(existingNote.id, {
-          title: formData.title,
-          content: formData.content,
-          tags: formData.tags
-        });
+        await updateNote(existingNote.id, noteData);
       } else {
-        await addNote({
-          title: formData.title,
-          content: formData.content,
-          tags: formData.tags,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
+        await addNote(noteData);
       }
       navigate('/notes');
     } catch (error) {
