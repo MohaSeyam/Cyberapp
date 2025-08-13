@@ -248,9 +248,16 @@ export default function NoteViewPage() {
               {dayInfo && (
                 <div className="flex items-center space-x-2">
                   <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">
+                  <button
+                    onClick={() => {
+                      const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
+                      navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
+                    }}
+                    className="text-blue-600 dark:text-blue-400 font-medium underline hover:opacity-80"
+                    title={language === 'ar' ? 'الانتقال إلى صفحة اليوم' : 'Go to day page'}
+                  >
                     {language === 'ar' ? 'تم الإنشاء لليوم:' : 'Created for:'} {getDayName(dayInfo.day)} {language === 'ar' ? `(الأسبوع ${dayInfo.week.week})` : `(Week ${dayInfo.week.week})`}
-                  </span>
+                  </button>
                 </div>
               )}
               {note.createdAt && (
