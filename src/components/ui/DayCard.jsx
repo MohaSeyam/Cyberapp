@@ -19,10 +19,11 @@ const DayCard = ({ day, weekNumber, progress, onClick, language = 'ar', weekObje
   const firstTaskDesc = day.tasks?.[0]?.description?.[language] || day.tasks?.[0]?.description?.ar || '';
   const brief = (firstTaskDesc || weekObjective || '').toString();
   const briefShort = brief.length > 120 ? brief.slice(0, 117) + '...' : brief;
+  const isCompleted = percentage === 100;
 
   return (
     <div
-      className={`p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700`}
+      className={`p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${isCompleted ? 'ring-2 ring-green-500' : ''}`}
       onClick={onClick}
     >
       {/* العنوان وملخص اليوم */}
@@ -42,7 +43,7 @@ const DayCard = ({ day, weekNumber, progress, onClick, language = 'ar', weekObje
           <span className="text-gray-600 dark:text-gray-400">{language === 'ar' ? 'التقدم' : 'Progress'}</span>
           <span className="font-semibold text-gray-900 dark:text-white">{percentage}%</span>
         </div>
-        <ProgressBar percentage={percentage} color={percentage === 100 ? 'bg-green-500' : 'bg-blue-500'} />
+        <ProgressBar percentage={percentage} color={isCompleted ? 'bg-green-500' : 'bg-blue-500'} />
       </div>
 
       {/* عدد المهام */}

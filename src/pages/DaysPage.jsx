@@ -372,29 +372,29 @@ const DaysPage = () => {
               />
             </div>
 
-            {/* Days Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {week.days?.map((day, index) => {
-                const isSelected = index === selectedDayIndex;
-                return (
-                  <motion.div
-                    key={day.key}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                                          <DayCard
+                          {/* Days Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {week.days?.filter(d => d.key !== 'fri').map((day, index) => {
+                  const originalIndex = week.days.findIndex(d => d.key === day.key);
+                  return (
+                    <motion.div
+                      key={day.key}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <DayCard
                         day={day}
                         weekNumber={weekNumber}
                         progress={safeProgress}
                         language={language}
                         weekObjective={week?.objective?.[language]}
-                        onClick={() => setSelectedDayIndex(index)}
+                        onClick={() => setSelectedDayIndex(originalIndex)}
                       />
-                  </motion.div>
-                );
-              })}
-            </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
           </Card>
         </motion.div>
 
