@@ -1,5 +1,4 @@
 import React from 'react';
-import ProgressBar from './ProgressBar';
 import { getDayCompletion } from '../../utils/progress';
 
 /**
@@ -28,9 +27,21 @@ const DayCard = ({ day, weekNumber, progress, onClick, language = 'ar', weekObje
     }
   };
 
+  const containerClasses = [
+    'p-5',
+    'rounded-xl',
+    'border',
+    'cursor-pointer',
+    'transition-all',
+    'hover:shadow-md',
+    'bg-white',
+    'dark:bg-gray-800',
+    isCompleted ? 'border-green-200 dark:border-green-800 bg-green-50/60 dark:bg-green-900/10' : 'border-gray-200 dark:border-gray-700'
+  ].join(' ');
+
   return (
     <div
-      className={`p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${isCompleted ? 'ring-2 ring-green-500' : ''}`}
+      className={containerClasses}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -47,18 +58,12 @@ const DayCard = ({ day, weekNumber, progress, onClick, language = 'ar', weekObje
         )}
       </div>
 
-      {/* شريط التقدم والنِسَب */}
-      <div className="mb-2">
-        <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-gray-600 dark:text-gray-400">{language === 'ar' ? 'التقدم' : 'Progress'}</span>
-          <span className="font-semibold text-gray-900 dark:text-white">{percentage}%</span>
-        </div>
-        <ProgressBar percentage={percentage} color={isCompleted ? 'bg-green-500' : 'bg-blue-500'} />
-      </div>
-
       {/* عدد المهام */}
       <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
         <span>{completed}/{total} {language === 'ar' ? 'مهام' : 'tasks'}</span>
+        {isCompleted && (
+          <span className="text-green-600 dark:text-green-400 font-medium">{language === 'ar' ? 'مكتمل' : 'Done'}</span>
+        )}
       </div>
     </div>
   );
