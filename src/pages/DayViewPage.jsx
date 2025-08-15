@@ -93,8 +93,24 @@ const DayViewPage = () => {
   const [resourceModal, setResourceModal] = useState({ isOpen: false, resource: null });
   const [journalModal, setJournalModal] = useState({ isOpen: false, entry: null });
   const [noteForm, setNoteForm] = useState({ title: '', content: '', tags: [] });
+  const [noteNewTag, setNoteNewTag] = useState('');
+  const handleAddNoteTag = () => {
+    const tag = noteNewTag.trim();
+    if (tag && !noteForm.tags.includes(tag)) {
+      setNoteForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+      setNoteNewTag('');
+    }
+  };
   const [resourceForm, setResourceForm] = useState({ title: '', url: '', type: 'article', description: '', category: '' });
   const [journalForm, setJournalForm] = useState({ title: '', content: '', tags: [] });
+  const [journalNewTag, setJournalNewTag] = useState('');
+  const handleAddJournalTag = () => {
+    const tag = journalNewTag.trim();
+    if (tag && !journalForm.tags.includes(tag)) {
+      setJournalForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+      setJournalNewTag('');
+    }
+  };
   const [journalContent, setJournalContent] = useState('');
   const [isSavingJournal, setIsSavingJournal] = useState(false);
   const [showJournalEditor, setShowJournalEditor] = useState(false);
@@ -648,10 +664,9 @@ const DayViewPage = () => {
     const [showReminder, setShowReminder] = useState(false);
     const [points, setPoints] = useState(0);
     const [achievements, setAchievements] = useState([]);
-    const [learningProgress, setLearningProgress] = useState(0);
     const [showModal, setShowModal] = useState(false);
-    const [luxury, setLuxury] = useState(0);
     const [difficulty, setDifficulty] = useState(0);
+    const [showEvaluationSummary, setShowEvaluationSummary] = useState(false);
 
     // Get existing evaluation
     const existingEvaluation = safeTaskEvaluations.find(e => 
@@ -664,7 +679,7 @@ const DayViewPage = () => {
         setComment(existingEvaluation.comment || '');
         setPoints(existingEvaluation.points || 0);
         setAchievements(existingEvaluation.achievements || []);
-        setLearningProgress(existingEvaluation.learningProgress || 0);
+        setDifficulty(existingEvaluation.difficulty || 0);
       }
     }, [existingEvaluation]);
 
@@ -687,14 +702,7 @@ const DayViewPage = () => {
       return newAchievements;
     };
 
-    // Calculate learning progress
-    const calculateLearningProgress = (rating, previousRatings = []) => {
-      if (previousRatings.length === 0) return rating * 20;
-      
-      const averageRating = previousRatings.reduce((sum, r) => sum + r, 0) / previousRatings.length;
-      const improvement = Math.max(0, rating - averageRating);
-      return Math.min(100, (rating * 20) + (improvement * 10));
-    };
+
 
     const handleSave = async () => {
       if (!isTaskCompleted) {
@@ -712,41 +720,37 @@ const DayViewPage = () => {
         const calculatedPoints = calculatePoints(rating);
         const previousEvaluations = safeTaskEvaluations.filter(e => e.taskId === taskId);
         const previousRatings = previousEvaluations.map(e => e.rating);
-        const calculatedProgress = calculateLearningProgress(rating, previousRatings);
         const newAchievements = getAchievements(rating, previousRatings.length > 0);
         
         const evaluationData = {
           taskId,
           weekId,
-                     rating,
-           comment,
-           points: calculatedPoints,
-           achievements: newAchievements,
-           learningProgress: calculatedProgress,
-           luxury,
-           difficulty,
-           timestamp: new Date().toISOString(),
-           reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
-         };
+          rating,
+          comment,
+          points: calculatedPoints,
+          achievements: newAchievements,
+          difficulty,
+          timestamp: new Date().toISOString(),
+          reviewReminder: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+        };
 
         await addOrUpdateTaskEvaluation(evaluationData);
         
         setPoints(calculatedPoints);
         setAchievements(newAchievements);
-        setLearningProgress(calculatedProgress);
-                 setShowSuccess(true);
-         // Close modal after save
-         setShowModal(false);
-         
-         // Show reminder after 3 seconds
-         setTimeout(() => {
-           setShowReminder(true);
-         }, 3000);
-         
-         // Hide success message after 2 seconds
-         setTimeout(() => {
-           setShowSuccess(false);
-         }, 2000);
+        setShowSuccess(true);
+        setShowModal(false);
+        setShowEvaluationSummary(true);
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
+        
+        // Hide evaluation summary after 5 seconds
+        setTimeout(() => {
+          setShowEvaluationSummary(false);
+        }, 5000);
          
        } catch (error) {
         console.error('Error saving evaluation:', error);
@@ -805,20 +809,31 @@ const DayViewPage = () => {
                 </span>
               </div>
               
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {language === 'ar' ? 'التقدم:' : 'Progress:'}
-                </span>
-                <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
-                    style={{ width: `${existingEvaluation.learningProgress || 0}%` }}
-                  />
+
+
+              {/* Difficulty Display */}
+              {existingEvaluation.difficulty && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'الصعوبة:' : 'Difficulty:'}
+                  </span>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div
+                        key={level}
+                        className={`w-3 h-3 rounded-full ${
+                          level <= (existingEvaluation.difficulty || 0)
+                            ? 'bg-red-500'
+                            : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {existingEvaluation.difficulty}/5
+                  </span>
                 </div>
-                <span className="text-xs text-gray-500">
-                  {Math.round(existingEvaluation.learningProgress || 0)}%
-                </span>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -827,112 +842,218 @@ const DayViewPage = () => {
 
     return (
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900 dark:text-white">
-            {language === 'ar' ? 'تقييم المهمة' : 'Task Evaluation'}
-          </h4>
-          {showSuccess && (
-            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-              <CheckCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">
-                {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Rating Section */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-            {language === 'ar' ? 'التقييم' : 'Rating'}
-          </label>
-          <div className="flex items-center gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                onClick={() => setRating(star)}
-                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
-                  star <= rating
-                    ? 'text-yellow-500 bg-yellow-100 border-yellow-300 dark:bg-yellow-900/40 dark:border-yellow-700'
-                    : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-yellow-400'
-                }`}
-              >
-                <Star className="w-6 h-6" />
-              </button>
-            ))}
-            <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
-              ({rating}/5)
-            </span>
-          </div>
-        </div>
-
-        {/* Comment Section */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-            {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
-          </label>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white resize-none"
-            rows="3"
-            placeholder={language === 'ar' ? 'اكتب تعليقك هنا...' : 'Write your comment here...'}
-          />
-        </div>
-
-        {/* Learning Progress Chart */}
-        {existingEvaluation && (
-          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <h5 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-              {language === 'ar' ? 'تقدم التعلم' : 'Learning Progress'}
-            </h5>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-blue-600 dark:text-blue-400">
-                  {language === 'ar' ? 'التقدم الحالي' : 'Current Progress'}
-                </span>
-                <span className="text-sm font-bold text-blue-800 dark:text-blue-200">
-                  {Math.round(learningProgress)}%
+                  <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setShowModal((o) => !o)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold"
+              aria-expanded={showModal}
+            >
+              <Star className="w-4 h-4 text-yellow-400" />
+              {language === 'ar' ? 'تقييم' : 'Rate'}
+            </button>
+            {showSuccess && (
+              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                <CheckCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">
+                  {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
                 </span>
               </div>
-              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-out"
-                  style={{ width: `${learningProgress}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleSave}
-            disabled={isSubmitting || rating <= 0}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            {isSubmitting ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
-              </div>
-            ) : (
-              language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'
             )}
-          </Button>
-          
-          <Button
-            onClick={handleCancel}
-            variant="outline"
-            disabled={isSubmitting}
-            className="flex-1"
-          >
-            {language === 'ar' ? 'إلغاء' : 'Cancel'}
-          </Button>
-        </div>
+          </div>
+
+          {showModal && (
+          <>
+            {/* Evaluation Summary Modal */}
+            {showEvaluationSummary && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 max-w-sm w-full mx-4 shadow-2xl">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3">
+                      {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
+                    </h3>
+                    
+                    {/* Compact Rating and Difficulty Display */}
+                    <div className="flex items-center justify-center gap-4 mb-3">
+                      {/* Rating */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${
+                                star <= rating
+                                  ? 'text-yellow-400 fill-current'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
+                          {rating}/5
+                        </span>
+                      </div>
+
+                      {/* Difficulty */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={`w-3 h-3 rounded-full ${
+                                level <= difficulty
+                                  ? 'bg-red-500'
+                                  : 'bg-gray-200 dark:bg-gray-700'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
+                          {difficulty}/5
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Points */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg mb-3">
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        {language === 'ar' ? 'النقاط' : 'Points'}
+                      </p>
+                      <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                        {points}
+                      </p>
+                    </div>
+
+                    {/* Achievements */}
+                    {achievements.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          {language === 'ar' ? 'الإنجازات:' : 'Achievements:'}
+                        </p>
+                        <div className="flex justify-center gap-2">
+                          {achievements.map((achievement, index) => (
+                            <span
+                              key={index}
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${achievement.color}`}
+                            >
+                              {achievement.icon} {achievement.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setShowEvaluationSummary(false)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                    >
+                      {language === 'ar' ? 'حسناً' : 'OK'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'التقييم' : 'Rating'}
+              </label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
+                      star <= rating
+                        ? 'text-yellow-500 bg-yellow-100 border-yellow-300 dark:bg-yellow-900/40 dark:border-yellow-700'
+                        : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-yellow-400'
+                    }`}
+                  >
+                    <Star className="w-6 h-6" />
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                  ({rating}/5)
+                </span>
+              </div>
+            </div>
+
+            {/* Difficulty Rating */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'درجة الصعوبة' : 'Difficulty Level'}
+              </label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setDifficulty(level)}
+                    className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
+                      level <= difficulty
+                        ? 'text-red-500 bg-red-100 border-red-300 dark:bg-red-900/40 dark:border-red-700'
+                        : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-red-400'
+                    }`}
+                  >
+                    <div className="w-6 h-6 flex items-center justify-center font-bold text-sm">
+                      {level}
+                    </div>
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                  ({difficulty}/5)
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                {difficulty === 1 && (language === 'ar' ? 'سهل جداً' : 'Very Easy')}
+                {difficulty === 2 && (language === 'ar' ? 'سهل' : 'Easy')}
+                {difficulty === 3 && (language === 'ar' ? 'متوسط' : 'Medium')}
+                {difficulty === 4 && (language === 'ar' ? 'صعب' : 'Hard')}
+                {difficulty === 5 && (language === 'ar' ? 'صعب جداً' : 'Very Hard')}
+              </div>
+            </div>
+
+            {/* Comment Section */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'تعليق (اختياري)' : 'Comment (Optional)'}
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white resize-none"
+                rows="3"
+                placeholder={language === 'ar' ? 'اكتب تعليقك هنا...' : 'Write your comment here...'}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={async () => { await handleSave(); setShowModal(false); }}
+                disabled={isSubmitting || rating <= 0}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {language === 'ar' ? 'جاري الحفظ...' : 'Saving...'}
+                  </div>
+                ) : (
+                  language === 'ar' ? 'حفظ التقييم' : 'Save Evaluation'
+                )}
+              </Button>
+              
+              <Button
+                onClick={() => { handleCancel(); setShowModal(false); }}
+                variant="outline"
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
 
         {/* Review Reminder */}
         {showReminder && (
@@ -959,8 +1080,10 @@ const DayViewPage = () => {
             </div>
           </div>
         )}
-      </div>
-    );
+          </>
+          )}
+        </div>
+      );
   };
 
   // تم استبدال TaskCard بمكون موحد من ui ويدعم منطق القفل
@@ -1145,11 +1268,11 @@ const DayViewPage = () => {
           </motion.div>
 
           {/* قسم الموارد */}
-          <Card className="mb-8">
+          <Card className="mb-8 border-indigo-200 bg-indigo-50/60 dark:bg-indigo-900/20">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h2 className="text-xl font-bold text-blue-700 dark:text-blue-200">
+                <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                <h2 className="text-xl font-bold text-indigo-700 dark:text-indigo-200">
                   {language === 'ar' ? 'موارد اليوم' : 'Day Resources'}
                 </h2>
               </div>
@@ -1167,21 +1290,21 @@ const DayViewPage = () => {
             <div className="space-y-4">
               {getDayResources().length > 0 ? (
                 getDayResources().map((resource, idx) => (
-                  <Card key={idx} className="p-3 border-blue-200 dark:border-blue-700 cursor-pointer" onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank'); } }}>
+                  <Card key={idx} className="p-3 border-indigo-200 dark:border-indigo-700 cursor-pointer" onClick={() => window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank')} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`,'_blank'); } }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1">
-                        <ExternalLink className="w-5 h-5 text-blue-500" />
+                        <ExternalLink className="w-5 h-5 text-indigo-500" />
                         <div className="flex-1">
                           <a 
                             href={resource.url?.startsWith('http') ? resource.url : `https://${resource.url}`} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="text-blue-700 dark:text-blue-300 hover:underline font-semibold block"
+                            className="text-indigo-700 dark:text-indigo-300 hover:underline font-semibold block"
                           >
                             {resource.title}
                           </a>
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                            <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
                               {resource.type}
                             </span>
                           </div>
@@ -1260,16 +1383,19 @@ const DayViewPage = () => {
                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
                   </label>
                   <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={noteForm.tags.join(' ')}
-                      onChange={(e) => setNoteForm(prev => ({ 
-                        ...prev, 
-                        tags: e.target.value.split(/\s+/).map(tag => tag.trim()).filter(tag => tag) 
-                      }))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بمسافات' : 'Enter tags separated by spaces'}
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={noteNewTag}
+                        onChange={(e) => setNoteNewTag(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddNoteTag(); } }}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder={language === 'ar' ? 'أضف تاق جديد...' : 'Add new tag...'}
+                      />
+                      <Button variant="outline" onClick={handleAddNoteTag} disabled={!noteNewTag.trim()}>
+                        {language === 'ar' ? 'إضافة' : 'Add'}
+                      </Button>
+                    </div>
                     {noteForm.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {noteForm.tags.map((tag, index) => (
@@ -1399,7 +1525,7 @@ const DayViewPage = () => {
 
 
           {/* قسم المدونة */}
-          <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+          <Card className="mb-8 border-purple-200 bg-purple-50 dark:bg-purple-900/20">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-300" />
@@ -1417,19 +1543,19 @@ const DayViewPage = () => {
               </Button>
             </div>
 
-            {selectedDay?.notes_prompt && (
-              <div className="mb-4 p-4 rounded-lg border border-green-300 bg-green-50 dark:bg-green-900/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-5 h-5 text-green-600 dark:text-green-300" />
-                  <h3 className="font-semibold text-green-700 dark:text-green-200">
-                    {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
-                  </h3>
+                          {selectedDay?.notes_prompt && (
+                <div className="mb-4 p-4 rounded-lg border border-purple-300 bg-purple-50 dark:bg-purple-900/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-5 h-5 text-purple-600 dark:text-purple-300" />
+                    <h3 className="font-semibold text-purple-700 dark:text-purple-200">
+                      {selectedDay.notes_prompt.title?.[language] || selectedDay.notes_prompt.title?.ar || 'مهمة التدوين المسائية'}
+                    </h3>
                 </div>
                 <div className="space-y-2">
                   {selectedDay.notes_prompt.points?.map((point, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2"></div>
-                      <p className="text-gray-700 dark:text-gray-300">
+                                          <div key={idx} className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2"></div>
+                        <p className="text-gray-700 dark:text-gray-300">
                         {point[language] || point.ar}
                       </p>
                     </div>
@@ -1459,16 +1585,19 @@ const DayViewPage = () => {
                     {language === 'ar' ? 'التاجات (اختياري)' : 'Tags (Optional)'}
                   </label>
                   <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={journalForm.tags.join(' ')}
-                      onChange={(e) => setJournalForm(prev => ({ 
-                        ...prev, 
-                        tags: e.target.value.split(/\s+/).map(tag => tag.trim()).filter(tag => tag) 
-                      }))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-                      placeholder={language === 'ar' ? 'أدخل التاجات مفصولة بمسافات' : 'Enter tags separated by spaces'}
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={journalNewTag}
+                        onChange={(e) => setJournalNewTag(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddJournalTag(); } }}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                        placeholder={language === 'ar' ? 'أضف تاق جديد...' : 'Add new tag...'}
+                      />
+                      <Button variant="outline" onClick={handleAddJournalTag} disabled={!journalNewTag.trim()}>
+                        {language === 'ar' ? 'إضافة' : 'Add'}
+                      </Button>
+                    </div>
                     {journalForm.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {journalForm.tags.map((tag, index) => (
@@ -1574,196 +1703,9 @@ const DayViewPage = () => {
           </Card>
 
           {/* Navigation Footer */}
-          <motion.div {...animations.fadeIn} transition={{ delay: 0.6 }}>
-            <Card>
-              <div className="flex items-center justify-center">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    icon={<ChevronLeft />}
-                    onClick={goToPreviousDay}
-                    disabled={parseInt(dayKey) <= 1}
-                    className="px-4 sm:px-6 py-3 min-h-[48px] min-w-[48px] bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <span className="hidden sm:inline">{language === 'ar' ? 'اليوم السابق' : 'Previous Day'}</span>
-                    <span className="sm:hidden">{language === 'ar' ? 'السابق' : 'Prev'}</span>
-                  </Button>
-                  
-                  {/* Swipe Indicator */}
-                  <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
-                    <span>{language === 'ar' ? 'اسحب للتنقل' : 'Swipe to navigate'}</span>
-                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    icon={<ChevronRight />}
-                    onClick={goToNextDay}
-                    disabled={parseInt(dayKey) >= (selectedWeek.days?.length || 0)}
-                    className="px-4 sm:px-6 py-3 min-h-[48px] min-w-[48px] bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:border-gray-600 disabled:text-gray-400 dark:disabled:text-gray-500 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <span className="hidden sm:inline">{language === 'ar' ? 'اليوم التالي' : 'Next Day'}</span>
-                    <span className="sm:hidden">{language === 'ar' ? 'التالي' : 'Next'}</span>
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
+          {/* تم إزالة أزرار التنقل حسب الطلب */}
         </motion.div>
       </div>
-
-      
-
-
-
-            {/* Resource Modal */}
-      <Modal
-        isOpen={resourceModal.isOpen}
-        onClose={() => {
-          setResourceModal({ isOpen: false, resource: null });
-          setResourceForm({ title: '', url: '', type: 'article' });
-        }}
-        title={resourceModal.resource ? (language === 'ar' ? 'تعديل المورد' : 'Edit Resource') : (language === 'ar' ? 'إضافة مورد جديد' : 'Add New Resource')}
-        size="lg"
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'عنوان المورد *' : 'Resource Title *'}
-            </label>
-            <input
-              type="text"
-              value={resourceForm.title}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={language === 'ar' ? 'أدخل عنوان المورد' : 'Enter resource title'}
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'رابط المورد *' : 'Resource URL *'}
-            </label>
-            <input
-              type="url"
-              value={resourceForm.url}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={language === 'ar' ? 'أدخل رابط المورد' : 'Enter resource URL'}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'نوع المورد *' : 'Resource Type *'}
-            </label>
-            <select
-              value={resourceForm.type}
-              onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
-              <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
-              <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
-              <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
-              <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
-              <option value="link">{language === 'ar' ? 'رابط' : 'Link'}</option>
-            </select>
-          </div>
-
-          <div className="flex justify-end space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setResourceModal({ isOpen: false, resource: null });
-                setResourceForm({ title: '', url: '', type: 'article' });
-              }}
-            >
-              {language === 'ar' ? 'إلغاء' : 'Cancel'}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={resourceModal.resource ? handleUpdateResource : handleAddResource}
-              disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
-            >
-              {resourceModal.resource ? (language === 'ar' ? 'تحديث المورد' : 'Update Resource') : (language === 'ar' ? 'إضافة المورد' : 'Add Resource')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Keyboard Shortcuts Help Modal */}
-      <Modal
-        isOpen={showKeyboardHelp}
-        onClose={() => setShowKeyboardHelp(false)}
-        title={language === 'ar' ? 'اختصارات لوحة المفاتيح' : 'Keyboard Shortcuts'}
-        size="md"
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-3">
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'اليوم السابق' : 'Previous Day'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                ←
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'اليوم التالي' : 'Next Day'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                →
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إضافة ملاحظة' : 'Add Note'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Ctrl/Cmd + N
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إضافة مدونة' : 'Add Journal'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Ctrl/Cmd + J
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إضافة مورد' : 'Add Resource'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Ctrl/Cmd + R
-              </kbd>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {language === 'ar' ? 'إغلاق/إلغاء' : 'Close/Cancel'}
-              </span>
-              <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded">
-                Esc
-              </kbd>
-            </div>
-          </div>
-          
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            {language === 'ar' ? 'استخدم هذه الاختصارات للتنقل السريع في التطبيق' : 'Use these shortcuts for quick navigation in the app'}
-          </div>
-        </div>
-      </Modal>
     </PageLayout>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  BookOpen, Save, ArrowLeft, Calendar
+  BookOpen, Save, ArrowLeft, Calendar, X, Tag
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -25,8 +25,10 @@ const JournalEditPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    tags: []
   });
+  const [newTag, setNewTag] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Find existing entry if editing
@@ -37,10 +39,28 @@ const JournalEditPage = () => {
       setFormData({
         title: existingEntry.title || '',
         content: existingEntry.content || '',
-        date: existingEntry.date || new Date().toISOString().split('T')[0]
+        date: existingEntry.date || new Date().toISOString().split('T')[0],
+        tags: existingEntry.tags || []
       });
     }
   }, [existingEntry]);
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
 
   const handleSave = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
@@ -49,20 +69,23 @@ const JournalEditPage = () => {
 
     setIsLoading(true);
     try {
+      // تحديد نوع المدونة تلقائياً
+      const journalData = {
+        title: formData.title,
+        content: formData.content,
+        date: formData.date,
+        tags: formData.tags,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // إذا كانت المدونة من صفحة المدونات (غير مرتبطة بيوم)، لا نضيف weekId و dayKey
+      // إذا كانت من صفحة اليوم، سيتم إضافة weekId و dayKey تلقائياً من السياق
+
       if (existingEntry) {
-        await updateJournalEntry(existingEntry.id, {
-          title: formData.title,
-          content: formData.content,
-          date: formData.date
-        });
+        await updateJournalEntry(existingEntry.id, journalData);
       } else {
-        await addJournalEntry({
-          title: formData.title,
-          content: formData.content,
-          date: formData.date,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
+        await addJournalEntry(journalData);
       }
       navigate('/journal');
     } catch (error) {
@@ -136,6 +159,53 @@ const JournalEditPage = () => {
                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               />
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'التاقات (اختياري)' : 'Tags (Optional)'}
+            </label>
+            <div className="space-y-3">
+              {/* Existing Tags */}
+              {formData.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.tags.map(tag => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm rounded-full flex items-center space-x-1"
+                    >
+                      <span>{tag}</span>
+                      <button
+                        onClick={() => handleRemoveTag(tag)}
+                        className="hover:text-purple-600 dark:hover:text-purple-400"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {/* Add New Tag */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                  placeholder={language === 'ar' ? 'أضف تاق جديد...' : 'Add new tag...'}
+                />
+                <Button
+                  variant="outline"
+                  onClick={handleAddTag}
+                  disabled={!newTag.trim()}
+                >
+                  {language === 'ar' ? 'إضافة' : 'Add'}
+                </Button>
+              </div>
             </div>
           </div>
 

@@ -9,6 +9,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import toast from 'react-hot-toast';
+import { formatGregorianDate } from '../utils/date';
 
 export default function NoteViewPage() {
   const { id: noteId } = useParams();
@@ -22,6 +23,28 @@ export default function NoteViewPage() {
   }
   const { language, direction } = localizationData;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // معالجة الأخطاء
+  if (!notes || !noteId) {
+    return (
+      <PageLayout>
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            {language === 'ar' ? 'الملاحظة غير موجودة' : 'Note Not Found'}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {language === 'ar' ? 'الملاحظة التي تبحث عنها غير موجودة أو تم حذفها.' : 'The note you are looking for does not exist or has been deleted.'}
+          </p>
+          <Button onClick={() => navigate('/notes')}>
+            {language === 'ar' ? 'العودة للملاحظات' : 'Back to Notes'}
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
 
   // تنسيق التاريخ باللغة العربية
   const formatDate = (dateString, language) => {
@@ -64,15 +87,65 @@ export default function NoteViewPage() {
 
   // البحث عن اليوم المرتبط بالملاحظة
   const dayInfo = React.useMemo(() => {
-    if (!note?.weekId || !note?.dayKey || !plan) return null;
-    
-    const week = plan.find(w => w.week === note.weekId);
-    if (week) {
-      const day = week.days?.find(d => d.key === note.dayKey);
-      return { week, day };
+    try {
+      // 1. التأكد من وجود البيانات المطلوبة
+      if (!note || !plan) return null;
+      
+      // التحقق من وجود weekId و dayKey
+      const weekId = note.weekId;
+      const dayKey = note.dayKey;
+      
+      if (!weekId || !dayKey) {
+        return null;
+      }
+      
+      // 2. البحث عن الأسبوع المطابق في الخطة
+      const week = plan.find(w => w.week === parseInt(weekId));
+      
+      if (week) {
+        // 3. البحث عن اليوم المطابق داخل الأسبوع
+        const day = week.days?.find(d => d.key === dayKey);
+        // 4. حساب فهرس اليوم داخل الأسبوع
+        const dayIndex = Array.isArray(week.days) ? week.days.findIndex(d => d.key === dayKey) : -1;
+        
+        // 5. إرجاع كائن يحتوي على معلومات الأسبوع واليوم مع الفهرس
+        return { week, day, dayIndex };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error in dayInfo calculation:', error);
+      return null;
     }
-    return null;
   }, [note, plan]);
+
+  // دالة مساعدة للكشف عن نوع الملاحظة
+  const getNoteType = () => {
+    if (dayInfo) return 'day';
+    if (note?.tags?.includes('ملاحظة عامة') || note?.tags?.includes('General Note')) return 'general';
+    return 'unknown';
+  };
+
+  // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
+  const getDayName = (day) => {
+    try {
+      if (!day?.day) return language === 'ar' ? 'اليوم' : 'Day';
+      return day.day[language] || day.day.ar || day.day.en || (language === 'ar' ? 'اليوم' : 'Day');
+    } catch (error) {
+      console.error('Error in getDayName:', error);
+      return language === 'ar' ? 'اليوم' : 'Day';
+    }
+  };
+
+  // دالة مساعدة لعرض موضوع اليوم باللغة المطلوبة
+  const getDayTopic = (day) => {
+    try {
+      if (!day?.topic) return null;
+      return day.topic[language] || day.topic.ar || day.topic.en;
+    } catch (error) {
+      console.error('Error in getDayTopic:', error);
+      return null;
+    }
+  };
 
   const handleDeleteNote = async () => {
     try {
@@ -151,7 +224,7 @@ export default function NoteViewPage() {
           <body>
             <div class="title">${note.title}</div>
             <div class="meta">
-              ${dayInfo ? `اليوم: ${dayInfo.day.day?.[language] || dayInfo.day.day?.ar}` : ''}
+              ${dayInfo ? `اليوم: ${getDayName(dayInfo.day)}` : ''}
               ${note.createdAt ? `تاريخ الإنشاء: ${new Date(note.createdAt).toLocaleDateString('ar-SA')}` : ''}
             </div>
             <div class="content">${note.content}</div>
@@ -194,67 +267,76 @@ export default function NoteViewPage() {
           className="mb-8"
         >
           <div className={`flex items-center justify-between mb-6 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`}>
-            <Button
-              variant="ghost"
-              icon={<ArrowLeft className="w-5 h-5" />}
+            <button
               onClick={() => navigate(-1)}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title={language === 'ar' ? 'العودة' : 'Back'}
+              aria-label={language === 'ar' ? 'العودة' : 'Back'}
             >
-              {language === 'ar' ? 'العودة' : 'Back'}
-            </Button>
-            <div className={`flex items-center gap-2 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
-              <Button
-                variant="outline"
-                icon={<Copy className="w-4 h-4" />}
-                onClick={handleCopyContent}
-              >
-                {language === 'ar' ? 'نسخ' : 'Copy'}
-              </Button>
-              <Button
-                variant="outline"
-                icon={<Printer className="w-4 h-4" />}
-                onClick={handlePrint}
-              >
-                {language === 'ar' ? 'طباعة' : 'Print'}
-              </Button>
-              <Button
-                variant="outline"
-                icon={<Edit2 className="w-4 h-4" />}
-                onClick={handleEditNote}
-              >
-                {language === 'ar' ? 'تعديل' : 'Edit'}
-              </Button>
-              <Button
-                variant="outline"
-                icon={<Trash2 className="w-4 h-4" />}
-                onClick={() => setShowDeleteModal(true)}
-                className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
-              >
-                {language === 'ar' ? 'حذف' : 'Delete'}
-              </Button>
-            </div>
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
+                          <div className={`flex items-center gap-1.5 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
+                <button onClick={handleCopyContent} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'نسخ' : 'Copy'}>
+                  <Copy className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                </button>
+                <button onClick={handlePrint} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'طباعة' : 'Print'}>
+                  <Printer className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                </button>
+                <button onClick={handleEditNote} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'تعديل' : 'Edit'}>
+                  <Edit2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                </button>
+                <button onClick={() => setShowDeleteModal(true)} className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20" title={language === 'ar' ? 'حذف' : 'Delete'}>
+                  <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                </button>
+              </div>
           </div>
 
           <div className="text-center">
+            {/* Day Title */}
+            {dayInfo && (
+              <div className="mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-full">
+                  <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                    {getDayName(dayInfo.day)}
+                  </span>
+                  <span className="text-sm text-blue-600 dark:text-blue-400">
+                    {language === 'ar' ? `الأسبوع ${dayInfo.week.week}` : `Week ${dayInfo.week.week}`}
+                  </span>
+                </div>
+              </div>
+            )}
+            
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {note.title}
             </h1>
             
             {/* Meta Information */}
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
               {dayInfo && (
-                <div className="flex items-center space-x-2">
-                  <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">
-                    {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Target className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                    <span className="text-blue-700 dark:text-blue-200 font-medium">
+                      {language === 'ar' ? 'تم الإنشاء لليوم:' : 'Created for:'} {getDayName(dayInfo.day)} {language === 'ar' ? `(الأسبوع ${dayInfo.week.week})` : `(Week ${dayInfo.week.week})`}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
+                      navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
+                    }}
+                    className="px-2 py-1 text-xs rounded border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    {language === 'ar' ? 'اذهب لليوم' : 'Open Day'}
+                  </button>
                 </div>
               )}
               {note.createdAt && (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    {language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'} {formatDate(note.createdAt, language)}
+                    {formatGregorianDate(note.createdAt, language, true)}
                   </span>
                 </div>
               )}
@@ -262,7 +344,7 @@ export default function NoteViewPage() {
                 <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
                   <span>
-                    {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatDate(note.updatedAt, language)}
+                    {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(note.updatedAt, language, true)}
                   </span>
                 </div>
               )}
@@ -291,8 +373,8 @@ export default function NoteViewPage() {
           </Card>
         </motion.div>
 
-        {/* Related Day Info */}
-        {dayInfo && (
+        {/* قسم عرض معلومات اليوم المرتبط بالملاحظة */}
+        {dayInfo ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -307,34 +389,74 @@ export default function NoteViewPage() {
                     {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
                   </h3>
                 </div>
+                {/* زر الانتقال لصفحة اليوم في الخطة */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${dayInfo.day.key}`)}
+                  onClick={() => {
+                    const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
+                    navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
+                  }}
                   className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-600 dark:hover:bg-blue-900/20"
                 >
                   {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
                 </Button>
               </div>
+              {/* عرض تفاصيل اليوم والأسبوع */}
               <div className="space-y-2">
                 <p className="text-gray-700 dark:text-gray-300">
                   <span className="font-medium">{language === 'ar' ? 'الأسبوع:' : 'Week:'}</span> {dayInfo.week.week}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {dayInfo.day.day?.[language] || dayInfo.day.day?.ar}
+                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {getDayName(dayInfo.day)}
                 </p>
-                {dayInfo.day.topic && (
+                {/* عرض موضوع اليوم إن وجد */}
+                {getDayTopic(dayInfo.day) && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {dayInfo.day.topic[language] || dayInfo.day.topic.ar}
+                    <span className="font-medium">{language === 'ar' ? 'الموضوع:' : 'Topic:'}</span> {getDayTopic(dayInfo.day)}
                   </p>
                 )}
                 {note.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatDate(note.createdAt, language)}
+                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatGregorianDate(note.createdAt, language, true)}
                   </p>
                 )}
                 {note.updatedAt && note.updatedAt !== note.createdAt && (
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatDate(note.updatedAt, language)}
+                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatGregorianDate(note.updatedAt, language, true)}
+                  </p>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <Card className="p-6 bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <FileText className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                  {language === 'ar' ? 'ملاحظة عامة' : 'General Note'}
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-600 dark:text-gray-400">
+                  {language === 'ar' 
+                    ? 'هذه ملاحظة عامة غير مرتبطة بيوم محدد في الخطة'
+                    : 'This is a general note not associated with any specific day in the plan'
+                  }
+                </p>
+                {note.createdAt && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}</span> {formatGregorianDate(note.createdAt, language, true)}
+                  </p>
+                )}
+                {note.updatedAt && note.updatedAt !== note.createdAt && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatGregorianDate(note.updatedAt, language, true)}
                   </p>
                 )}
               </div>

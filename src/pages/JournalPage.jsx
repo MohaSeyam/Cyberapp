@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Smile, Meh, Frown, Target, Clock
+  Search, Filter, Calendar, BookOpen, Edit, Trash2, Eye, Target, Clock
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -10,6 +10,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import { formatGregorianDate } from '../utils/date';
 
 const JournalPage = () => {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const JournalPage = () => {
   // Ensure data is available
   const safeJournalEntries = Array.isArray(journalEntries) ? journalEntries : [];
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMood, setSelectedMood] = useState('');
+
   const [showDeleteModal, setShowDeleteModal] = useState(null);
 
   // البحث عن معلومات اليوم المرتبط بالمدونة
@@ -91,17 +92,17 @@ const JournalPage = () => {
     }
   };
 
-  // Filter entries based on search and mood
+  // Filter entries based on search and tags
   const filteredEntries = useMemo(() => {
     try {
       return safeJournalEntries.filter(entry => {
         if (!entry || typeof entry !== 'object') return false;
         const title = entry.title || '';
         const content = entry.content || '';
-        const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              content.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesMood = !selectedMood || entry.mood === selectedMood;
-        return matchesSearch && matchesMood;
+                 const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               (Array.isArray(entry.tags) && entry.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
+         return matchesSearch;
       }).sort((a, b) => {
         const dateA = new Date(b.updatedAt || b.createdAt || b.date || 0);
         const dateB = new Date(a.updatedAt || a.createdAt || a.date || 0);
@@ -111,7 +112,7 @@ const JournalPage = () => {
       console.error('Error filtering journal entries:', error);
       return [];
     }
-  }, [safeJournalEntries, searchTerm, selectedMood]);
+  }, [safeJournalEntries, searchTerm]);
 
   const handleDelete = async (entryId) => {
     try {
@@ -122,34 +123,7 @@ const JournalPage = () => {
     }
   };
 
-  const getMoodIcon = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return <Smile className="w-5 h-5 text-green-500" />;
-      case 'sad':
-        return <Frown className="w-5 h-5 text-red-500" />;
-      default:
-        return <Meh className="w-5 h-5 text-yellow-500" />;
-    }
-  };
 
-  const getMoodLabel = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return language === 'ar' ? 'سعيد' : 'Happy';
-      case 'sad':
-        return language === 'ar' ? 'حزين' : 'Sad';
-      default:
-        return language === 'ar' ? 'عادي' : 'Neutral';
-    }
-  };
-
-  const moodOptions = [
-    { value: '', label: { ar: 'جميع المزاجات', en: 'All Moods' } },
-    { value: 'happy', label: { ar: 'سعيد', en: 'Happy' } },
-    { value: 'neutral', label: { ar: 'عادي', en: 'Neutral' } },
-    { value: 'sad', label: { ar: 'حزين', en: 'Sad' } }
-  ];
 
   const animations = {
     fadeIn: {
@@ -202,20 +176,16 @@ const JournalPage = () => {
               />
             </div>
 
-            {/* Mood Filter */}
+            {/* Tags Filter (replacing moods) */}
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={selectedMood}
-                onChange={(e) => setSelectedMood(e.target.value)}
-                className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
-              >
-                {moodOptions.map(mood => (
-                  <option key={mood.value} value={mood.value}>
-                    {mood.label[language]}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder={language === 'ar' ? 'فلترة بالتاقات (اكتب التاق)...' : 'Filter by tags (type tag)...'}
+              />
             </div>
           </div>
         </Card>
@@ -271,7 +241,7 @@ const JournalPage = () => {
                               <div className="flex items-center space-x-1">
                                 <Calendar className="w-4 h-4" />
                                 <span>
-                                  {formatDate(entry.createdAt, language)}
+                                  {formatGregorianDate(entry.createdAt, language, true)}
                                 </span>
                               </div>
                             )}
@@ -281,16 +251,19 @@ const JournalPage = () => {
                               <div className="flex items-center space-x-1">
                                 <Clock className="w-4 h-4" />
                                 <span>
-                                  {language === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatDate(entry.updatedAt, language)}
+                                  {language === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatGregorianDate(entry.updatedAt, language, true)}
                                 </span>
                               </div>
                             )}
                             
-                            {/* المزاج */}
-                            <div className="flex items-center space-x-1">
-                              {getMoodIcon(entry.mood)}
-                              <span>{getMoodLabel(entry.mood)}</span>
-                            </div>
+                            {/* التاقات */}
+                            {Array.isArray(entry.tags) && entry.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {entry.tags.map((tag, i) => (
+                                  <span key={i} className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-xs">{tag}</span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -29,7 +29,9 @@ const Button = ({
       'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600',
     outline:
       'border border-gray-300 dark:border-gray-600 bg-transparent',
-    ghost: 'bg-transparent'
+    ghost: 'bg-transparent',
+    danger:
+      'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600'
   };
 
   // في حال الاتجاه RTL، نعكس المسافات
