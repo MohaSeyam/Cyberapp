@@ -225,7 +225,7 @@ const ProgressPage = () => {
   }, [safeProgress, safePlan, safeTaskEvaluations, safeNotes, safeJournalEntries]);
 
   // Helper functions for analytics
-  const calculateStreak = (progressData) => {
+  function calculateStreak(progressData) {
     if (!progressData.length) return 0;
     
     const sortedDates = progressData
@@ -257,9 +257,9 @@ const ProgressPage = () => {
     }
     
     return streak;
-  };
+  }
 
-  const calculateTrends = (progressData, evaluationsData) => {
+  function calculateTrends(progressData, evaluationsData) {
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -277,9 +277,9 @@ const ProgressPage = () => {
     }));
 
     return dailyProgress;
-  };
+  }
 
-  const generateInsights = (data) => {
+  function generateInsights(data) {
     const insights = [];
     
     if (data.completionRate >= 80) {
@@ -345,7 +345,7 @@ const ProgressPage = () => {
     }
 
     return insights;
-  };
+  }
 
   const toggleExpanded = (section) => {
     setIsExpanded(prev => ({
