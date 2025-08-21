@@ -1,17 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, Calendar, CheckCircle, Clock, Target, BarChart3, 
-  Award, BookOpen, Users, Star, Activity
+  Award, BookOpen, Users, Star, Activity, BarChart
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
+import AnalyticsDashboard from '../components/ui/AnalyticsDashboard';
 import { useNavigate } from 'react-router-dom';
 
 const ProgressPage = () => {
   const navigate = useNavigate();
+  const [showAnalytics, setShowAnalytics] = useState(false);
   
   // Safe access to useSimpleLocalization
   let localizationData;
@@ -189,6 +191,16 @@ const ProgressPage = () => {
       title={language === 'ar' ? 'التقدم' : 'Progress'}
       subtitle={language === 'ar' ? 'تتبع تقدمك في التعلم' : 'Track your learning progress'}
     >
+      {/* Analytics Dashboard Button */}
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={() => setShowAnalytics(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <BarChart className="w-4 h-4" />
+          {language === 'ar' ? 'لوحة الإحصائيات المتقدمة' : 'Advanced Analytics'}
+        </button>
+      </div>
       <motion.div {...animations.fadeIn} className="space-y-6">
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -390,6 +402,11 @@ const ProgressPage = () => {
           </div>
         </Card>
       </motion.div>
+
+      {/* Analytics Dashboard Modal */}
+      {showAnalytics && (
+        <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
+      )}
     </PageLayout>
   );
 };
