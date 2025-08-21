@@ -18,6 +18,9 @@ const ProgressPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [isExpanded, setIsExpanded] = useState({});
   const [goalEditor, setGoalEditor] = useState(null);
+  const [goalFilter, setGoalFilter] = useState('all'); // all | active | completed
+  const [goalSort, setGoalSort] = useState('recent'); // recent | progress_desc | due_asc
+  const [goalQuery, setGoalQuery] = useState('');
   
   // Safe access to useSimpleLocalization
   let localizationData;
@@ -371,6 +374,44 @@ const ProgressPage = () => {
       }
     }
   };
+
+  // Goals filtered/sorted list
+  const filteredGoals = useMemo(() => {
+    let list = [...safeGoals];
+    // status filter
+    if (goalFilter === 'completed') {
+      list = list.filter(g => (g.progress || 0) >= 100);
+    } else if (goalFilter === 'active') {
+      list = list.filter(g => (g.progress || 0) < 100);
+    }
+    // search
+    if (goalQuery.trim()) {
+      const q = goalQuery.toLowerCase();
+      list = list.filter(g => (g.title || '').toLowerCase().includes(q) || (g.description || '').toLowerCase().includes(q));
+    }
+    // sort
+    if (goalSort === 'progress_desc') {
+      list.sort((a, b) => (b.progress || 0) - (a.progress || 0));
+    } else if (goalSort === 'due_asc') {
+      list.sort((a, b) => {
+        const da = a.targetDate ? new Date(a.targetDate).getTime() : Infinity;
+        const db = b.targetDate ? new Date(b.targetDate).getTime() : Infinity;
+        return da - db;
+      });
+    } else {
+      // recent (updatedAt desc)
+      list.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+    }
+    return list;
+  }, [safeGoals, goalFilter, goalSort, goalQuery]);
+
+  const goalsAnalytics = useMemo(() => {
+    const total = safeGoals.length;
+    const completed = safeGoals.filter(g => (g.progress || 0) >= 100).length;
+    const inProgress = safeGoals.filter(g => (g.progress || 0) > 0 && (g.progress || 0) < 100).length;
+    const avgProgress = total ? Math.round((safeGoals.reduce((s, g) => s + (g.progress || 0), 0) / total) * 10) / 10 : 0;
+    return { total, completed, inProgress, avgProgress };
+  }, [safeGoals]);
 
   const StatCard = ({ icon, title, value, subtitle, color = "blue" }) => (
     <motion.div
@@ -975,6 +1016,26 @@ const ProgressPage = () => {
       {/* Goals Tab */}
       {activeTab === 'goals' && (
         <motion.div {...animations.fadeIn} className="space-y-6">
+          {/* Goals Analytics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'عدد الأهداف' : 'Total Goals'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{goalsAnalytics.total}</div>
+            </div>
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'مكتمل' : 'Completed'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{goalsAnalytics.completed}</div>
+            </div>
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'قيد العمل' : 'In Progress'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{goalsAnalytics.inProgress}</div>
+            </div>
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">{language === 'ar' ? 'متوسط التقدم' : 'Avg Progress'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{goalsAnalytics.avgProgress}%</div>
+            </div>
+          </div>
+
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -989,8 +1050,39 @@ const ProgressPage = () => {
               </button>
             </div>
 
+            {/* Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              <input
+                value={goalQuery}
+                onChange={(e) => setGoalQuery(e.target.value)}
+                placeholder={language === 'ar' ? 'بحث في الأهداف...' : 'Search goals...'}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+              <select
+                value={goalFilter}
+                onChange={(e) => setGoalFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="all">{language === 'ar' ? 'الكل' : 'All'}</option>
+                <option value="active">{language === 'ar' ? 'قيد العمل' : 'Active'}</option>
+                <option value="completed">{language === 'ar' ? 'مكتمل' : 'Completed'}</option>
+              </select>
+              <select
+                value={goalSort}
+                onChange={(e) => setGoalSort(e.target.value)}
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="recent">{language === 'ar' ? 'الأحدث' : 'Recent'}</option>
+                <option value="progress_desc">{language === 'ar' ? 'حسب التقدم (تنازلي)' : 'By Progress (desc)'}</option>
+                <option value="due_asc">{language === 'ar' ? 'حسب التاريخ (تصاعدي)' : 'By Due Date (asc)'}</option>
+              </select>
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                {language === 'ar' ? `${filteredGoals.length} نتيجة` : `${filteredGoals.length} results`}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {safeGoals.map((goal) => (
+              {filteredGoals.map((goal) => (
                 <div key={goal.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
                   <div className="flex items-start justify-between mb-2">
                     <div>
@@ -1057,9 +1149,9 @@ const ProgressPage = () => {
                 </div>
               ))}
 
-              {safeGoals.length === 0 && (
+              {filteredGoals.length === 0 && (
                 <div className="text-center py-10 col-span-full text-gray-500 dark:text-gray-400">
-                  {language === 'ar' ? 'لا توجد أهداف بعد' : 'No goals yet'}
+                  {language === 'ar' ? 'لا توجد نتائج' : 'No results'}
                 </div>
               )}
             </div>
