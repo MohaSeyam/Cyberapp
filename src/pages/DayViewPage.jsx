@@ -659,6 +659,7 @@ const DayViewPage = () => {
   // Task Evaluation Widget
   const TaskEvaluationWidget = ({ taskId, weekId, language, summaryOnly = false, isTaskCompleted = false }) => {
     const [rating, setRating] = useState(0);
+    const [understanding, setUnderstanding] = useState(0);
     const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -677,6 +678,7 @@ const DayViewPage = () => {
     useEffect(() => {
       if (existingEvaluation) {
         setRating(existingEvaluation.rating || 0);
+        setUnderstanding(existingEvaluation.understanding || 0);
         setComment(existingEvaluation.comment || '');
         setPoints(existingEvaluation.points || 0);
         setAchievements(existingEvaluation.achievements || []);
@@ -727,6 +729,7 @@ const DayViewPage = () => {
           taskId,
           weekId,
           rating,
+          understanding,
           comment,
           points: calculatedPoints,
           achievements: newAchievements,
@@ -764,9 +767,11 @@ const DayViewPage = () => {
     const handleCancel = () => {
       if (existingEvaluation) {
         setRating(existingEvaluation.rating || 0);
+        setUnderstanding(existingEvaluation.understanding || 0);
         setComment(existingEvaluation.comment || '');
       } else {
         setRating(0);
+        setUnderstanding(0);
         setComment('');
       }
     };
@@ -811,6 +816,30 @@ const DayViewPage = () => {
               </div>
               
 
+
+              {/* Understanding Display */}
+              {existingEvaluation.understanding && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {language === 'ar' ? 'الفهم:' : 'Understanding:'}
+                  </span>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div
+                        key={level}
+                        className={`w-3 h-3 rounded-full ${
+                          level <= (existingEvaluation.understanding || 0)
+                            ? 'bg-blue-500'
+                            : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {existingEvaluation.understanding}/5
+                  </span>
+                </div>
+              )}
 
               {/* Difficulty Display */}
               {existingEvaluation.difficulty && (
@@ -876,8 +905,8 @@ const DayViewPage = () => {
                       {language === 'ar' ? 'تم الحفظ!' : 'Saved!'}
                     </h3>
                     
-                    {/* Compact Rating and Difficulty Display */}
-                    <div className="flex items-center justify-center gap-4 mb-3">
+                    {/* Compact Rating, Understanding and Difficulty Display */}
+                    <div className="flex items-center justify-center gap-3 mb-3">
                       {/* Rating */}
                       <div className="flex items-center gap-1">
                         <div className="flex">
@@ -894,6 +923,25 @@ const DayViewPage = () => {
                         </div>
                         <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
                           {rating}/5
+                        </span>
+                      </div>
+
+                      {/* Understanding */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={`w-3 h-3 rounded-full ${
+                                level <= understanding
+                                  ? 'bg-blue-500'
+                                  : 'bg-gray-200 dark:bg-gray-700'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
+                          {understanding}/5
                         </span>
                       </div>
 
@@ -978,6 +1026,40 @@ const DayViewPage = () => {
                 <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
                   ({rating}/5)
                 </span>
+              </div>
+            </div>
+
+            {/* Understanding Rating */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
+                {language === 'ar' ? 'درجة الفهم' : 'Understanding Level'}
+              </label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setUnderstanding(level)}
+                    className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-lg border ${
+                      level <= understanding
+                        ? 'text-blue-500 bg-blue-100 border-blue-300 dark:bg-blue-900/40 dark:border-blue-700'
+                        : 'text-gray-400 border-gray-300 dark:text-gray-300 dark:border-gray-600 hover:text-blue-400'
+                    }`}
+                  >
+                    <div className="w-6 h-6 flex items-center justify-center font-bold text-sm">
+                      {level}
+                    </div>
+                  </button>
+                ))}
+                <span className="ml-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                  ({understanding}/5)
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                {understanding === 1 && (language === 'ar' ? 'ضعيف جداً' : 'Very Poor')}
+                {understanding === 2 && (language === 'ar' ? 'ضعيف' : 'Poor')}
+                {understanding === 3 && (language === 'ar' ? 'متوسط' : 'Average')}
+                {understanding === 4 && (language === 'ar' ? 'جيد' : 'Good')}
+                {understanding === 5 && (language === 'ar' ? 'ممتاز' : 'Excellent')}
               </div>
             </div>
 
@@ -1253,15 +1335,21 @@ const DayViewPage = () => {
                             onNoteClick={() => setShowNoteEditor(true)}
                             dayTasks={selectedDay.tasks}
                           />
-                          {/* Compact Rating Chip below the card */}
+                          {/* Compact Rating and Understanding Chips below the card */}
                           {(() => {
                             const ev = safeTaskEvaluations.find(e => e.taskId === task.id && e.weekId === selectedWeek.week);
                             return ev ? (
-                              <div className="mt-2">
+                              <div className="mt-2 flex items-center gap-2">
                                 <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 text-xs text-yellow-800 dark:text-yellow-200">
                                   <Star className="w-3 h-3 text-yellow-500" />
                                   <span className="font-medium">{language === 'ar' ? 'التقييم' : 'Rating'}: {ev.rating}/5</span>
                                 </div>
+                                {ev.understanding && (
+                                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-xs text-blue-800 dark:text-blue-200">
+                                    <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                                    <span className="font-medium">{language === 'ar' ? 'الفهم' : 'Understanding'}: {ev.understanding}/5</span>
+                                  </div>
+                                )}
                               </div>
                             ) : null;
                           })()}
