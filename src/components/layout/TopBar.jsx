@@ -1,9 +1,9 @@
 import React from 'react';
-import { Settings, Menu, Focus } from 'lucide-react';
+import { Settings, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import { useSimpleApp } from '../../context/SimpleAppContext';
-import { useTheme } from '../../context/ThemeContext';
+
 import ThemeToggle from '../ui/ThemeToggle';
 
 const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
@@ -12,7 +12,6 @@ const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
   
   const { language, direction, isRTL, toggleLanguage } = useSimpleLocalization();
   const { theme } = useSimpleApp();
-  const { isFocusMode, toggleFocusMode } = useTheme();
   
   const safeLanguage = language || 'ar';
   const safeTheme = theme || 'light';
@@ -78,18 +77,7 @@ const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
               </span>
             </button>
 
-            {/* Focus Mode Toggle */}
-            <button
-              onClick={toggleFocusMode}
-              className={`p-2 rounded-lg transition-colors ${
-                isFocusMode
-                  ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
-              title={safeLanguage === 'ar' ? 'وضع التركيز' : 'Focus Mode'}
-            >
-              <Focus className="w-5 h-5" />
-            </button>
+
 
             {/* Enhanced Theme Toggle */}
             <ThemeToggle />

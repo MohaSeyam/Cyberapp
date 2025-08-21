@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
-import { useTheme } from '../../context/ThemeContext';
 import BottomNavigation from './BottomNavigation';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
-import FocusTimer from '../ui/FocusTimer';
 
 const PageLayout = ({
   children,
@@ -34,9 +32,6 @@ const PageLayout = ({
   }
   const { language, direction, isRTL } = localizationData;
   const safeLanguage = language || 'ar';
-  
-  // Get focus mode state
-  const { isFocusMode } = useTheme();
 
   // Get font size from localStorage
   const fontSize = localStorage.getItem('fontSize') || 'md';
@@ -103,15 +98,14 @@ const PageLayout = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className={`${fontSizeClass} ${isFocusMode ? 'main-content' : ''}`}
+            className={fontSizeClass}
           >
             {children}
           </motion.div>
         </div>
       </main>
 
-      {/* Focus Timer - Only when focus mode is active */}
-      {isFocusMode && <FocusTimer />}
+
 
       {/* Bottom Navigation - Only on small screens */}
       {showBottomBar && (

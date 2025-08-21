@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target, FileText, Copy, Printer } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Tag, Calendar, Clock, Target, FileText, Copy, Printer, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -8,6 +8,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import SummaryWidget from '../components/ui/SummaryWidget';
 import toast from 'react-hot-toast';
 import { formatGregorianDate } from '../utils/date';
 import planData from '../data/PlanData.json';
@@ -24,6 +25,7 @@ export default function NoteViewPage() {
   }
   const { language, direction } = localizationData;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   // معالجة الأخطاء
   if (!notes || !noteId) {
@@ -197,6 +199,9 @@ export default function NoteViewPage() {
               <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
             <div className={`flex items-center gap-1.5 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`} style={{zIndex:2}}>
+              <button onClick={() => setShowSummary(true)} className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/20" title={language === 'ar' ? 'الملخص الذكي' : 'Smart Summary'}>
+                <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </button>
               <button onClick={handleCopyContent} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title={language === 'ar' ? 'نسخ' : 'Copy'}>
                 <Copy className="w-4 h-4 text-gray-700 dark:text-gray-300" />
               </button>
@@ -304,6 +309,20 @@ export default function NoteViewPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Smart Summary Modal */}
+      <AnimatePresence>
+        {showSummary && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <SummaryWidget
+                content={note.content}
+                onClose={() => setShowSummary(false)}
+              />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
     </PageLayout>
   );
 }
