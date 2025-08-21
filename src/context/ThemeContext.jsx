@@ -12,8 +12,9 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('light');
+  const [focusMode, setFocusMode] = useState(false);
 
-  // Load theme from localStorage on mount
+  // Load theme and focus mode from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
@@ -21,6 +22,11 @@ export const ThemeProvider = ({ children }) => {
     } else {
       // Default to light theme
       setTheme('light');
+    }
+
+    const savedFocusMode = localStorage.getItem('focusMode');
+    if (savedFocusMode !== null) {
+      setFocusMode(JSON.parse(savedFocusMode));
     }
   }, []);
 
@@ -41,14 +47,29 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('theme', actualTheme);
   };
 
-  // Apply theme whenever it changes
+  // Apply theme and focus mode whenever they change
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
 
+  // Apply focus mode to document
+  useEffect(() => {
+    if (focusMode) {
+      document.documentElement.classList.add('focus-mode');
+    } else {
+      document.documentElement.classList.remove('focus-mode');
+    }
+    localStorage.setItem('focusMode', JSON.stringify(focusMode));
+  }, [focusMode]);
+
   // Toggle between light and dark
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  // Toggle focus mode
+  const toggleFocusMode = () => {
+    setFocusMode(prev => !prev);
   };
 
   // Set specific theme
@@ -58,11 +79,19 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
+  // Set specific focus mode
+  const setSpecificFocusMode = (newFocusMode) => {
+    setFocusMode(Boolean(newFocusMode));
+  };
+
   // Get current effective theme
   const currentTheme = useMemo(() => theme, [theme]);
 
   // Check if dark mode is active
   const isDark = useMemo(() => currentTheme === 'dark', [currentTheme]);
+
+  // Check if focus mode is active
+  const isFocusMode = useMemo(() => focusMode, [focusMode]);
 
   // Theme context value
   const value = useMemo(
@@ -70,11 +99,15 @@ export const ThemeProvider = ({ children }) => {
       theme,
       currentTheme,
       isDark,
+      focusMode,
+      isFocusMode,
       toggleTheme,
+      toggleFocusMode,
       setTheme: setSpecificTheme,
+      setFocusMode: setSpecificFocusMode,
       isSystemTheme: false,
     }),
-    [theme, currentTheme, isDark]
+    [theme, currentTheme, isDark, focusMode, isFocusMode]
   );
 
   return (
