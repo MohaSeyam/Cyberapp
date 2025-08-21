@@ -456,9 +456,9 @@ const DayViewPage = () => {
   };
 
   // فتح نافذة تعديل المورد
-  const openEditResource = (resource) => {
+  const openEditResource = async (resource) => {
     // إذا كان المورد من الخطة، نقوم بنسخه إلى قاعدة البيانات المحلية أولاً
-    if (resource.isPlanResource) {
+    if (resource.isPlanResource || resource.source === 'plan') {
       const newResource = {
         title: resource.title,
         url: resource.url,
@@ -468,19 +468,20 @@ const DayViewPage = () => {
         phaseId: selectedWeek.phase,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        source: 'plan-copied' // علامة أنه نسخة من الخطة
+        source: 'plan-copied'
       };
-      
-      // إضافة المورد الجديد إلى قاعدة البيانات
-      addResource(newResource).then(() => {
-        // بعد الإضافة، نفتح نافذة التعديل
+      try {
+        const newId = await addResource(newResource);
+        const newResourceWithId = { ...newResource, id: newId };
         setResourceForm({
-          title: resource.title || '',
-          url: resource.url || '',
-          type: resource.type || 'article'
+          title: newResourceWithId.title || '',
+          url: newResourceWithId.url || '',
+          type: newResourceWithId.type || 'article'
         });
-        setResourceModal({ isOpen: true, resource: newResource });
-      });
+        setResourceModal({ isOpen: true, resource: newResourceWithId });
+      } catch (e) {
+        console.error('Error copying plan resource for edit:', e);
+      }
       return;
     }
     

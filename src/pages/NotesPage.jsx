@@ -184,19 +184,8 @@ const NotesPage = () => {
     >
       <div className="max-w-4xl mx-auto py-10 space-y-6">
         <motion.div {...animations.fadeIn}>
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {safeLanguage === 'ar' ? 'الملاحظات' : 'Notes'}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {safeLanguage === 'ar' 
-                  ? `${safeNotes.length} ملاحظة إجمالاً`
-                  : `${safeNotes.length} total notes`
-                }
-              </p>
-            </div>
+          {/* Header actions only (title handled by PageLayout) */}
+          <div className="flex items-center justify-end">
             <Button
               variant="primary"
               icon={<Plus />}

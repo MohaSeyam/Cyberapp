@@ -118,20 +118,7 @@ const JournalPage = () => {
       subtitle={language === 'ar' ? 'سجل أفكارك ومشاعرك اليومية' : 'Record your daily thoughts and feelings'}
     >
       <motion.div {...animations.fadeIn} className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {language === 'ar' ? 'المدونات' : 'Journal'}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {language === 'ar' 
-                ? `${safeJournalEntries.length} مدونة إجمالاً`
-                : `${safeJournalEntries.length} total entries`
-              }
-            </p>
-          </div>
-        </div>
+        {/* Header removed (title handled by PageLayout) */}
 
         {/* Search and Filter */}
         <Card className="p-4">
