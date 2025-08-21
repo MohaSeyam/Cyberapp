@@ -498,6 +498,53 @@ const ProgressPage = () => {
           />
         </div>
 
+        {/* Goals Summary */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {language === 'ar' ? 'ملخص الأهداف' : 'Goals Summary'}
+            </h2>
+            <button
+              onClick={() => setActiveTab('goals')}
+              className="text-sm px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              {language === 'ar' ? 'إدارة الأهداف' : 'Manage Goals'}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{language === 'ar' ? 'عدد الأهداف' : 'Total Goals'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{safeGoals.length}</div>
+            </div>
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{language === 'ar' ? 'مكتمل' : 'Completed'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{safeGoals.filter(g => (g.progress || 0) >= 100).length}</div>
+            </div>
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{language === 'ar' ? 'قيد العمل' : 'In Progress'}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{safeGoals.filter(g => (g.progress || 0) > 0 && (g.progress || 0) < 100).length}</div>
+            </div>
+          </div>
+
+          {safeGoals.slice(0, 3).map(goal => (
+            <div key={goal.id} className="mt-4">
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{goal.title || (language === 'ar' ? 'هدف بدون عنوان' : 'Untitled Goal')}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{Math.round(goal.progress || 0)}%</div>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${Math.round(goal.progress || 0)}%` }} />
+              </div>
+            </div>
+          ))}
+
+          {safeGoals.length === 0 && (
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+              {language === 'ar' ? 'لا توجد أهداف بعد' : 'No goals yet'}
+            </div>
+          )}
+        </Card>
+
         {/* Phase Progress */}
         <Card className="p-6">
           <div className="flex items-center space-x-2 mb-6">
@@ -998,6 +1045,14 @@ const ProgressPage = () => {
                     >
                       -10%
                     </button>
+                    {goal.linked && (
+                      <button
+                        onClick={() => navigate(`/phases/${goal.linked.phaseId}/weeks/${goal.linked.weekId}/days/${goal.linked.dayKey}`)}
+                        className="ml-auto px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700"
+                      >
+                        {language === 'ar' ? 'اذهب للمهمة' : 'Go to task'}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1015,6 +1070,7 @@ const ProgressPage = () => {
             goalEditor={goalEditor}
             setGoalEditor={setGoalEditor}
             language={language}
+            plan={safePlan}
             onSave={async (payload) => {
               if (!payload.title?.trim()) return;
               if (payload.id) {
