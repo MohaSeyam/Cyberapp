@@ -3,19 +3,21 @@ import { motion } from 'framer-motion';
 import { 
   TrendingUp, Calendar, CheckCircle, Clock, Target, BarChart3, 
   Award, BookOpen, Users, Star, Activity, BarChart, TrendingDown, Zap, AlertCircle, XCircle, Info,
-  FileText, ChevronDown, ChevronUp
+  FileText, ChevronDown, ChevronUp, Plus, SquarePen, Trash, Calendar as CalendarIcon
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import { useNavigate } from 'react-router-dom';
+import GoalEditorModal from '../components/GoalEditorModal';
 
 const ProgressPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [isExpanded, setIsExpanded] = useState({});
+  const [goalEditor, setGoalEditor] = useState(null);
   
   // Safe access to useSimpleLocalization
   let localizationData;
@@ -55,7 +57,12 @@ const ProgressPage = () => {
     journalEntries,
     taskEvaluations,
     weekEvaluations,
-    resources
+    resources,
+    goals,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    setGoalProgress
   } = appData;
 
   // Ensure data is available
@@ -66,6 +73,7 @@ const ProgressPage = () => {
   const safeTaskEvaluations = Array.isArray(taskEvaluations) ? taskEvaluations : [];
   const safeWeekEvaluations = Array.isArray(weekEvaluations) ? weekEvaluations : [];
   const safeResources = Array.isArray(resources) ? resources : [];
+  const safeGoals = Array.isArray(goals) ? goals : [];
 
   // Calculate comprehensive analytics
   const analytics = useMemo(() => {
@@ -414,7 +422,7 @@ const ProgressPage = () => {
 
   return (
     <PageLayout
-      title={language === 'ar' ? 'التقدم' : 'Progress'}
+      title={language === 'ar' ? 'الأهداف والتقدم' : 'Goals & Progress'}
       subtitle={language === 'ar' ? 'تتبع تقدمك في التعلم' : 'Track your learning progress'}
     >
       {/* Tabs */}
@@ -440,6 +448,16 @@ const ProgressPage = () => {
               }`}
             >
               {language === 'ar' ? 'التحليلات المتقدمة' : 'Advanced Analytics'}
+            </button>
+            <button
+              onClick={() => setActiveTab('goals')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'goals'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
+            >
+              {language === 'ar' ? 'الأهداف' : 'Goals'}
             </button>
           </nav>
         </div>
@@ -904,6 +922,109 @@ const ProgressPage = () => {
               </div>
             </div>
           </div>
+        </motion.div>
+      )}
+
+      {/* Goals Tab */}
+      {activeTab === 'goals' && (
+        <motion.div {...animations.fadeIn} className="space-y-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {language === 'ar' ? 'أهدافي' : 'My Goals'}
+              </h2>
+              <button
+                onClick={() => setGoalEditor({ id: 0 })}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <Plus className="w-4 h-4" />
+                {language === 'ar' ? 'إضافة هدف' : 'Add Goal'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {safeGoals.map((goal) => (
+                <div key={goal.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{goal.title || (language === 'ar' ? 'هدف بدون عنوان' : 'Untitled Goal')}</h3>
+                      {goal.targetDate && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-1">
+                          <CalendarIcon className="w-3 h-3" />
+                          {new Date(goal.targetDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setGoalEditor(goal)}
+                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+                        aria-label={language === 'ar' ? 'تعديل' : 'Edit'}
+                      >
+                        <SquarePen className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteGoal(goal.id)}
+                        className="p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400"
+                        aria-label={language === 'ar' ? 'حذف' : 'Delete'}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  {goal.description && (
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-3">{goal.description}</p>
+                  )}
+                  <div className="mb-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">{language === 'ar' ? 'التقدم' : 'Progress'}</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">{Math.round(goal.progress || 0)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${Math.round(goal.progress || 0)}%` }} />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setGoalProgress(goal.id, Math.min(100, (goal.progress || 0) + 10))}
+                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      +10%
+                    </button>
+                    <button
+                      onClick={() => setGoalProgress(goal.id, Math.max(0, (goal.progress || 0) - 10))}
+                      className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                    >
+                      -10%
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {safeGoals.length === 0 && (
+                <div className="text-center py-10 col-span-full text-gray-500 dark:text-gray-400">
+                  {language === 'ar' ? 'لا توجد أهداف بعد' : 'No goals yet'}
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Goal Editor Modal */}
+          <GoalEditorModal
+            goalEditor={goalEditor}
+            setGoalEditor={setGoalEditor}
+            language={language}
+            onSave={async (payload) => {
+              if (!payload.title?.trim()) return;
+              if (payload.id) {
+                await updateGoal(payload.id, payload);
+              } else {
+                await addGoal(payload);
+              }
+              setGoalEditor(null);
+            }}
+          />
         </motion.div>
       )}
     </PageLayout>

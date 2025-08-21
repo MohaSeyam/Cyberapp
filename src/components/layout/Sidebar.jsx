@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       path: '/progress',
       icon: BarChart3,
-      label: safeLanguage === 'ar' ? 'التقدم' : 'Progress'
+      label: safeLanguage === 'ar' ? 'الأهداف والتقدم' : 'Goals & Progress'
     },
     {
       path: '/notes',
