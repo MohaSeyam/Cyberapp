@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye, Target, Clock
+  Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye, Target, Clock, Network
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -10,6 +10,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import MindMap from '../components/ui/MindMap';
 import { formatGregorianDate } from '../utils/date';
 
 const NotesPage = () => {
@@ -77,6 +78,16 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showMindMap, setShowMindMap] = useState(false);
+  const [mindMapData, setMindMapData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mindMapData');
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Error loading mind map data:', error);
+      return null;
+    }
+  });
 
   // البحث عن معلومات اليوم المرتبط بالملاحظة
   const getDayInfo = (note) => {
@@ -185,7 +196,15 @@ const NotesPage = () => {
       <div className="max-w-4xl mx-auto py-10 space-y-6">
         <motion.div {...animations.fadeIn}>
           {/* Header actions only (title handled by PageLayout) */}
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              icon={<Network />}
+              onClick={() => setShowMindMap(true)}
+            >
+              {safeLanguage === 'ar' ? 'خريطة المفاهيم' : 'Mind Map'}
+            </Button>
+            
             <Button
               variant="primary"
               icon={<Plus />}
@@ -394,6 +413,19 @@ const NotesPage = () => {
               </div>
             </div>
           </Modal>
+
+          {/* Mind Map Modal */}
+          {showMindMap && (
+            <MindMap
+              data={mindMapData}
+              onSave={(data) => {
+                setMindMapData(data);
+                localStorage.setItem('mindMapData', JSON.stringify(data));
+                setShowMindMap(false);
+              }}
+              onClose={() => setShowMindMap(false)}
+            />
+          )}
         </motion.div>
       </div>
     </PageLayout>
