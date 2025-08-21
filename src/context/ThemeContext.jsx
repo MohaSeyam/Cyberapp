@@ -12,98 +12,70 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('light');
-  const [systemPreference, setSystemPreference] = useState('light');
-
-  // Detect system preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = (e) => {
-      const newPreference = e.matches ? 'dark' : 'light';
-      setSystemPreference(newPreference);
-      
-      // If theme is set to 'system', update accordingly
-      if (theme === 'system') {
-        applyTheme(newPreference);
-      }
-    };
-
-    // Set initial system preference
-    setSystemPreference(mediaQuery.matches ? 'dark' : 'light');
-    
-    // Listen for changes
-    mediaQuery.addEventListener('change', handleChange);
-    
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
 
   // Load theme from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+    if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
       setTheme(savedTheme);
     } else {
-      // Default to system preference
-      setTheme('system');
+      // Default to light theme
+      setTheme('light');
     }
   }, []);
 
   // Apply theme to document
   const applyTheme = (selectedTheme) => {
-    const actualTheme = selectedTheme === 'system' ? systemPreference : selectedTheme;
-    
+    const actualTheme = ['light', 'dark'].includes(selectedTheme) ? selectedTheme : 'light';
+
     // Remove existing theme classes
     document.documentElement.classList.remove('light', 'dark');
-    
+
     // Add new theme class
     document.documentElement.classList.add(actualTheme);
-    
+
     // Update CSS custom properties for smooth transitions
     document.documentElement.style.setProperty('--theme-transition', 'all 0.3s ease');
-    
+
     // Store theme preference in localStorage
-    if (selectedTheme !== 'system') {
-      localStorage.setItem('theme', selectedTheme);
-    }
+    localStorage.setItem('theme', actualTheme);
   };
 
   // Apply theme whenever it changes
   useEffect(() => {
     applyTheme(theme);
-  }, [theme, systemPreference]);
+  }, [theme]);
 
   // Toggle between light and dark
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
   // Set specific theme
   const setSpecificTheme = (newTheme) => {
-    if (['light', 'dark', 'system'].includes(newTheme)) {
+    if (['light', 'dark'].includes(newTheme)) {
       setTheme(newTheme);
     }
   };
 
   // Get current effective theme
-  const currentTheme = useMemo(() => {
-    return theme === 'system' ? systemPreference : theme;
-  }, [theme, systemPreference]);
+  const currentTheme = useMemo(() => theme, [theme]);
 
   // Check if dark mode is active
-  const isDark = useMemo(() => {
-    return currentTheme === 'dark';
-  }, [currentTheme]);
+  const isDark = useMemo(() => currentTheme === 'dark', [currentTheme]);
 
   // Theme context value
-  const value = useMemo(() => ({
-    theme,
-    currentTheme,
-    isDark,
-    systemPreference,
-    toggleTheme,
-    setTheme: setSpecificTheme,
-    isSystemTheme: theme === 'system'
-  }), [theme, currentTheme, isDark, systemPreference]);
+  const value = useMemo(
+    () => ({
+      theme,
+      currentTheme,
+      isDark,
+      toggleTheme,
+      setTheme: setSpecificTheme,
+      isSystemTheme: false,
+    }),
+    [theme, currentTheme, isDark]
+  );
 
   return (
     <ThemeContext.Provider value={value}>
