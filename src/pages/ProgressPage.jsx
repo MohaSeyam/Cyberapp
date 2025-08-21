@@ -168,7 +168,7 @@ const ProgressPage = () => {
   const progressStats = useMemo(() => {
     // Calculate total tasks and completed tasks
     const allTasks = safePlan.flatMap(week => 
-      week.days.flatMap(day => day.tasks)
+      (week?.days || []).flatMap(day => day.tasks || [])
     );
     const totalCount = allTasks.length;
     const completedCount = safeProgress.filter(p => p.done).length;
@@ -194,8 +194,8 @@ const ProgressPage = () => {
     
     const phaseProgress = Object.values(phaseGroups).map(phase => {
       const phaseTasks = phase.weeks
-        .flatMap(week => week.days)
-        .flatMap(day => day.tasks);
+        .flatMap(week => (week?.days || []))
+        .flatMap(day => (day?.tasks || []));
       
       const completedPhaseTasks = phaseTasks.filter(task => 
         safeProgress.some(completed => completed.taskId === task.id && completed.done)
@@ -635,9 +635,9 @@ const ProgressPage = () => {
           <div className="space-y-4">
             {safeProgress.filter(p => p.done).slice(0, 5).map((progressItem, index) => {
               // Find the corresponding task from the plan
-              const week = safePlan.find(w => w.week === progressItem.weekId);
+              const week = safePlan.find(w => String(w.week) === String(progressItem.weekId));
               const day = week?.days?.find(d => d.key === progressItem.dayKey);
-              const task = day?.tasks?.find(t => t.id === progressItem.taskId);
+              const task = day?.tasks?.find(t => String(t.id) === String(progressItem.taskId));
               
               return (
                 <motion.div
