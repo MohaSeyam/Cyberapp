@@ -31,6 +31,9 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent long words/URLs from breaking layout */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* RTL specific base styles */
