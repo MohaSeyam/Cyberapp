@@ -53,6 +53,7 @@ export const SimpleAppProvider = ({ children }) => {
   const [resources, setResources] = useState([]);
   const [taskEvaluations, setTaskEvaluations] = useState([]);
   const [weekEvaluations, setWeekEvaluations] = useState([]);
+  const [goals, setGoals] = useState([]);
 
   // Load initial data
   useEffect(() => {
@@ -86,6 +87,7 @@ export const SimpleAppProvider = ({ children }) => {
         const savedResources = localStorage.getItem('resources');
         const savedTaskEvaluations = localStorage.getItem('taskEvaluations');
         const savedWeekEvaluations = localStorage.getItem('weekEvaluations');
+        const savedGoals = localStorage.getItem('goals');
         
         // تصحيح الملاحظات القديمة
         if (savedNotes) {
@@ -121,6 +123,7 @@ export const SimpleAppProvider = ({ children }) => {
         if (savedResources) setResources(JSON.parse(savedResources));
         if (savedTaskEvaluations) setTaskEvaluations(JSON.parse(savedTaskEvaluations));
         if (savedWeekEvaluations) setWeekEvaluations(JSON.parse(savedWeekEvaluations));
+        if (savedGoals) setGoals(JSON.parse(savedGoals));
         
       } catch (error) {
         console.error('Error loading initial data:', error);
@@ -344,6 +347,71 @@ export const SimpleAppProvider = ({ children }) => {
     }
   };
 
+  // Goals CRUD
+  const addGoal = async (goalData) => {
+    try {
+      const newGoal = {
+        id: Date.now(),
+        title: goalData.title || '',
+        description: goalData.description || '',
+        targetDate: goalData.targetDate || null,
+        progress: goalData.progress || 0,
+        status: goalData.status || 'active', // active | paused | completed
+        linked: goalData.linked || null, // { weekId, dayKey, taskId }
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      const next = [...goals, newGoal];
+      setGoals(next);
+      try {
+        localStorage.setItem('goals', JSON.stringify(next));
+      } catch (error) {
+        console.error('Error saving goals to localStorage:', error);
+      }
+      return newGoal.id;
+    } catch (error) {
+      console.error('Error adding goal:', error);
+      return 0;
+    }
+  };
+
+  const updateGoal = async (id, updates) => {
+    try {
+      const next = goals.map(g => g.id === id ? { ...g, ...updates, updatedAt: new Date().toISOString() } : g);
+      setGoals(next);
+      try {
+        localStorage.setItem('goals', JSON.stringify(next));
+      } catch (error) {
+        console.error('Error saving updated goals to localStorage:', error);
+      }
+    } catch (error) {
+      console.error('Error updating goal:', error);
+    }
+  };
+
+  const deleteGoal = async (id) => {
+    try {
+      const next = goals.filter(g => g.id !== id);
+      setGoals(next);
+      try {
+        localStorage.setItem('goals', JSON.stringify(next));
+      } catch (error) {
+        console.error('Error saving goals after deletion to localStorage:', error);
+      }
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+    }
+  };
+
+  const setGoalProgress = async (id, progressValue) => {
+    try {
+      const clamped = Math.max(0, Math.min(100, progressValue));
+      await updateGoal(id, { progress: clamped, status: clamped >= 100 ? 'completed' : 'active' });
+    } catch (error) {
+      console.error('Error setting goal progress:', error);
+    }
+  };
+
   const refreshData = async () => {
     try {
       setLoading(true);
@@ -380,6 +448,7 @@ export const SimpleAppProvider = ({ children }) => {
         resources,
         taskEvaluations,
         weekEvaluations,
+        goals,
         language,
         theme
       };
@@ -408,6 +477,7 @@ export const SimpleAppProvider = ({ children }) => {
       if (importedData.resources) setResources(importedData.resources);
       if (importedData.taskEvaluations) setTaskEvaluations(importedData.taskEvaluations);
       if (importedData.weekEvaluations) setWeekEvaluations(importedData.weekEvaluations);
+      if (importedData.goals) setGoals(importedData.goals);
       
       // Save to localStorage
       localStorage.setItem('plan', JSON.stringify(importedData.plan || []));
@@ -417,6 +487,7 @@ export const SimpleAppProvider = ({ children }) => {
       localStorage.setItem('resources', JSON.stringify(importedData.resources || []));
       localStorage.setItem('taskEvaluations', JSON.stringify(importedData.taskEvaluations || []));
       localStorage.setItem('weekEvaluations', JSON.stringify(importedData.weekEvaluations || []));
+      localStorage.setItem('goals', JSON.stringify(importedData.goals || []));
     } catch (error) {
       console.error('Error importing data:', error);
     }
@@ -432,6 +503,7 @@ export const SimpleAppProvider = ({ children }) => {
         setResources([]);
         setTaskEvaluations([]);
         setWeekEvaluations([]);
+        setGoals([]);
         
         // Clear localStorage
         localStorage.removeItem('plan');
@@ -441,6 +513,7 @@ export const SimpleAppProvider = ({ children }) => {
         localStorage.removeItem('resources');
         localStorage.removeItem('taskEvaluations');
         localStorage.removeItem('weekEvaluations');
+        localStorage.removeItem('goals');
       }
     } catch (error) {
       console.error('Error clearing data:', error);
@@ -512,6 +585,7 @@ export const SimpleAppProvider = ({ children }) => {
     resources,
     taskEvaluations,
     weekEvaluations,
+    goals,
     
     // Functions
     setLanguage,
@@ -533,6 +607,10 @@ export const SimpleAppProvider = ({ children }) => {
     clearAllData,
     addOrUpdateTaskEvaluation,
     addOrUpdateWeekEvaluation,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    setGoalProgress,
   };
 
   return (
