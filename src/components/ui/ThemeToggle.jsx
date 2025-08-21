@@ -3,7 +3,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 
 const ThemeToggle = ({ className = '', size = 'md' }) => {
-  const { theme, toggleTheme, setTheme, isSystemTheme } = useTheme();
+  const { theme, toggleTheme, setTheme } = useTheme();
   const { language } = useSimpleLocalization();
 
   const isArabic = language === 'ar';
@@ -21,14 +21,6 @@ const ThemeToggle = ({ className = '', size = 'md' }) => {
   };
 
   const getThemeIcon = () => {
-    if (isSystemTheme) {
-      return (
-        <svg className={`${iconSizes[size]} transition-transform duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      );
-    }
-    
     if (theme === 'dark') {
       return (
         <svg className={`${iconSizes[size]} transition-transform duration-300 rotate-90`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,7 +28,6 @@ const ThemeToggle = ({ className = '', size = 'md' }) => {
         </svg>
       );
     }
-    
     return (
       <svg className={`${iconSizes[size]} transition-transform duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -44,22 +35,8 @@ const ThemeToggle = ({ className = '', size = 'md' }) => {
     );
   };
 
-  const getThemeLabel = () => {
-    if (isSystemTheme) {
-      return isArabic ? 'النظام' : 'System';
-    }
-    return theme === 'dark' 
-      ? (isArabic ? 'فاتح' : 'Light') 
-      : (isArabic ? 'داكن' : 'Dark');
-  };
-
   const handleClick = () => {
     toggleTheme();
-  };
-
-  const handleSystemClick = (e) => {
-    e.stopPropagation();
-    setTheme('system');
   };
 
   return (
@@ -99,7 +76,7 @@ const ThemeToggle = ({ className = '', size = 'md' }) => {
             onClick={() => setTheme('light')}
             className={`
               w-full px-3 py-2 text-left text-sm rounded-md transition-colors duration-200
-              ${theme === 'light' && !isSystemTheme 
+              ${theme === 'light' 
                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' 
                 : 'hover:bg-gray-100 dark:hover:bg-gray-700'
               }
@@ -117,7 +94,7 @@ const ThemeToggle = ({ className = '', size = 'md' }) => {
             onClick={() => setTheme('dark')}
             className={`
               w-full px-3 py-2 text-left text-sm rounded-md transition-colors duration-200
-              ${theme === 'dark' && !isSystemTheme 
+              ${theme === 'dark' 
                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' 
                 : 'hover:bg-gray-100 dark:hover:bg-gray-700'
               }
@@ -128,27 +105,6 @@ const ThemeToggle = ({ className = '', size = 'md' }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
             </svg>
             <span>{isArabic ? 'داكن' : 'Dark'}</span>
-          </button>
-
-          {/* Divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
-
-          {/* System theme option */}
-          <button
-            onClick={handleSystemClick}
-            className={`
-              w-full px-3 py-2 text-left text-sm rounded-md transition-colors duration-200
-              ${isSystemTheme 
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' 
-                : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-              }
-              flex items-center space-x-2 ${isArabic ? 'space-x-reverse' : ''}
-            `}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span>{isArabic ? 'النظام' : 'System'}</span>
           </button>
         </div>
       </div>

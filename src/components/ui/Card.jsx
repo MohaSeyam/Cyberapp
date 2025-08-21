@@ -35,6 +35,7 @@ const Card = ({
 
   const classes = [
     'bg-white dark:bg-gray-800 rounded-xl',
+    'text-gray-900 dark:text-gray-100',
     paddingClasses[padding],
     shadowClasses[shadow],
     borderClasses[border],

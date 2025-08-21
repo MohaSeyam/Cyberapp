@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 export interface UserSettings {
   // المظهر والتصميم
-  theme: 'light' | 'dark' | 'auto';
+  theme: 'light' | 'dark';
   primaryColor: string;
   accentColor: string;
   fontSize: 'small' | 'medium' | 'large';
@@ -108,7 +108,7 @@ class SettingsService {
   private getDefaultSettings(): UserSettings {
     return {
       // المظهر والتصميم
-      theme: 'auto',
+      theme: 'light',
       primaryColor: '#3B82F6',
       accentColor: '#10B981',
       fontSize: 'medium',
@@ -275,10 +275,9 @@ class SettingsService {
             description: { ar: 'اختر مظهر التطبيق', en: 'Choose app theme' },
             options: [
               { value: 'light', label: { ar: 'فاتح', en: 'Light' } },
-              { value: 'dark', label: { ar: 'داكن', en: 'Dark' } },
-              { value: 'auto', label: { ar: 'تلقائي', en: 'Auto' } }
+              { value: 'dark', label: { ar: 'داكن', en: 'Dark' } }
             ],
-            defaultValue: 'auto'
+            defaultValue: 'light'
           },
           {
             key: 'primaryColor',
@@ -358,7 +357,7 @@ class SettingsService {
             defaultValue: true
           },
           {
-        
+            
             type: 'boolean',
             label: { ar: 'النسخ الاحتياطي التلقائي', en: 'Auto Backup' },
             defaultValue: true
@@ -607,8 +606,7 @@ class SettingsService {
     const root = document.documentElement;
     
     // تطبيق المظهر
-    if (this.settings.theme === 'dark' || 
-        (this.settings.theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (this.settings.theme === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
