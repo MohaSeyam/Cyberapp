@@ -211,17 +211,19 @@ export default function JournalViewPage() {
           </div>
 
           <div className="text-center">
+            {/* From Plan: Day Title as button */}
             {dayInfo && (
-              <div className="mb-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-full">
-                  <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  <span className="text-lg font-semibold text-purple-700 dark:text-purple-300">
-                    {getDayName(dayInfo.day)}
-                  </span>
-                  <span className="text-sm text-purple-600 dark:text-purple-400">
-                    {language === 'ar' ? `الأسبوع ${dayInfo.week.week}` : `Week ${dayInfo.week.week}`}
-                  </span>
-                </div>
+              <div className="mb-4 flex items-center justify-center gap-2 text-sm">
+                <span className="text-gray-600 dark:text-gray-300">{language === 'ar' ? 'من الخطة:' : 'From Plan:'}</span>
+                <button
+                  onClick={() => {
+                    const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
+                    navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
+                  }}
+                  className="px-3 py-1 rounded border border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                >
+                  {getDayName(dayInfo.day)}
+                </button>
               </div>
             )}
             
@@ -229,26 +231,8 @@ export default function JournalViewPage() {
               {journalEntry.title}
             </h1>
             
+            {/* Meta Information: only Last Modified and Tags */}
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
-              {dayInfo && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <Target className="w-4 h-4 text-purple-600 dark:text-purple-300" />
-                    <span className="text-purple-700 dark:text-purple-200 font-medium">
-                      {language === 'ar' ? 'تم الإنشاء لليوم:' : 'Created for:'} {getDayName(dayInfo.day)} {language === 'ar' ? `(الأسبوع ${dayInfo.week.week})` : `(Week ${dayInfo.week.week})`}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
-                      navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
-                    }}
-                    className="px-2 py-1 text-xs rounded border border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                  >
-                    {language === 'ar' ? 'اذهب لليوم' : 'Open Day'}
-                  </button>
-                </div>
-              )}
               {lastModified && (
                 <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4" />
@@ -282,48 +266,7 @@ export default function JournalViewPage() {
           </Card>
         </motion.div>
 
-        {dayInfo ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8"
-          >
-            <Card className="p-6 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                  <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300">
-                    {language === 'ar' ? 'معلومات اليوم' : 'Day Information'}
-                  </h3>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const idx = typeof dayInfo.dayIndex === 'number' && dayInfo.dayIndex >= 0 ? dayInfo.dayIndex + 1 : 1;
-                    navigate(`/phases/${dayInfo.week.phase}/weeks/${dayInfo.week.week}/days/${idx}`);
-                  }}
-                  className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900/20"
-                >
-                  {language === 'ar' ? 'العودة لصفحة اليوم' : 'Go to Day Page'}
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <p className="text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">{language === 'ar' ? 'الأسبوع:' : 'Week:'}</span> {dayInfo.week.week}
-                </p>
-                <p className="text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">{language === 'ar' ? 'اليوم:' : 'Day:'}</span> {getDayName(dayInfo.day)}
-                </p>
-                {lastModified && (
-                  <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">{language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'}</span> {formatGregorianDate(lastModified, language, true)}
-                  </p>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-        ) : null}
+        {/* Removed Day Information card */}
       </div>
 
       {/* Delete Confirmation Modal */}
