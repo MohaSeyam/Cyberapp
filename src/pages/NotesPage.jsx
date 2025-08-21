@@ -10,6 +10,7 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import { formatGregorianDate } from '../utils/date';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -91,32 +92,6 @@ const NotesPage = () => {
       console.error('Error getting day info:', error);
     }
     return null;
-  };
-
-  // تنسيق التاريخ باللغة العربية
-  const formatDate = (dateString, language) => {
-    try {
-      const date = new Date(dateString);
-      if (language === 'ar') {
-        return date.toLocaleDateString('ar-SA', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } else {
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      }
-    } catch (error) {
-      return dateString;
-    }
   };
 
   // Get all unique tags with safety checks
@@ -289,13 +264,12 @@ const NotesPage = () => {
               </Card>
             ) : (
               filteredNotes.map(note => {
-                // Additional safety check for each note
                 if (!note || typeof note !== 'object') return null;
                 
                 const safeTitle = note.title || '';
                 const safeContent = note.content || '';
                 const safeTags = Array.isArray(note.tags) ? note.tags : [];
-                const safeDate = note.updatedAt || note.createdAt || new Date().toISOString();
+                const lastModified = note.updatedAt || note.createdAt;
                 
                 return (
                   <motion.div
@@ -305,7 +279,7 @@ const NotesPage = () => {
                     transition={{ duration: 0.3 }}
                   >
                     <Card className="p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer" onClick={() => handleNavigation(`/notes/${note.id}`)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigation(`/notes/${note.id}`); } }} tabIndex={0} role="button" aria-label={safeLanguage === 'ar' ? `عرض الملاحظة ${safeTitle}` : `View note ${safeTitle}`}>
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify_between">
                         <div className="flex-1 min-w-0">
                           {/* Title */}
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 truncate">
@@ -334,22 +308,12 @@ const NotesPage = () => {
                                 ) : null;
                               })()}
                               
-                              {/* تاريخ الإنشاء */}
-                              {note.createdAt && (
-                                <div className="flex items-center space-x-1">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>
-                                    {formatDate(note.createdAt, safeLanguage)}
-                                  </span>
-                                </div>
-                              )}
-                              
-                              {/* تاريخ التعديل */}
-                              {note.updatedAt && note.updatedAt !== note.createdAt && (
+                              {/* آخر تعديل فقط */}
+                              {lastModified && (
                                 <div className="flex items-center space-x-1">
                                   <Clock className="w-4 h-4" />
                                   <span>
-                                    {safeLanguage === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatDate(note.updatedAt, safeLanguage)}
+                                    {safeLanguage === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(lastModified, safeLanguage, true)}
                                   </span>
                                 </div>
                               )}
@@ -365,7 +329,6 @@ const NotesPage = () => {
 
                             {/* Actions */}
                             <div className="flex items-center space-x-2">
-
                               <Button
                                 variant="ghost"
                                 size="sm"

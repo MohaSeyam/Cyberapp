@@ -66,32 +66,6 @@ const JournalPage = () => {
     return null;
   };
 
-  // تنسيق التاريخ باللغة العربية
-  const formatDate = (dateString, language) => {
-    try {
-      const date = new Date(dateString);
-      if (language === 'ar') {
-        return date.toLocaleDateString('ar-SA', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } else {
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      }
-    } catch (error) {
-      return dateString;
-    }
-  };
-
   // Filter entries based on search and tags
   const filteredEntries = useMemo(() => {
     try {
@@ -99,10 +73,10 @@ const JournalPage = () => {
         if (!entry || typeof entry !== 'object') return false;
         const title = entry.title || '';
         const content = entry.content || '';
-                 const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                               content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                               (Array.isArray(entry.tags) && entry.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
-         return matchesSearch;
+        const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (Array.isArray(entry.tags) && entry.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
+        return matchesSearch;
       }).sort((a, b) => {
         const dateA = new Date(b.updatedAt || b.createdAt || b.date || 0);
         const dateB = new Date(a.updatedAt || a.createdAt || a.date || 0);
@@ -122,8 +96,6 @@ const JournalPage = () => {
       console.error('Error deleting journal entry:', error);
     }
   };
-
-
 
   const animations = {
     fadeIn: {
@@ -236,34 +208,14 @@ const JournalPage = () => {
                               ) : null;
                             })()}
                             
-                            {/* تاريخ الإنشاء */}
-                            {entry.createdAt && (
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>
-                                  {formatGregorianDate(entry.createdAt, language, true)}
-                                </span>
-                              </div>
-                            )}
+                            {/* آخر تعديل فقط */}
+                            <div className="flex items-center space-x-1">
+                              <Clock className="w-4 h-4" />
+                              <span>
+                                {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(entry.updatedAt || entry.createdAt, language, true)}
+                              </span>
+                            </div>
                             
-                            {/* تاريخ التعديل */}
-                            {entry.updatedAt && entry.updatedAt !== entry.createdAt && (
-                              <div className="flex items-center space-x-1">
-                                <Clock className="w-4 h-4" />
-                                <span>
-                                  {language === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatGregorianDate(entry.updatedAt, language, true)}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {/* التاقات */}
-                            {Array.isArray(entry.tags) && entry.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-2">
-                                {entry.tags.map((tag, i) => (
-                                  <span key={i} className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-xs">{tag}</span>
-                                ))}
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
