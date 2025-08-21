@@ -396,6 +396,40 @@ const DayViewPage = () => {
     }
   };
 
+  // حفظ أو تحديث مورد
+  const handleSaveResource = async () => {
+    if (!resourceForm.title.trim() || !resourceForm.url.trim()) return;
+    
+    try {
+      if (resourceModal.resource) {
+        // تحديث مورد موجود
+        await updateResource(resourceModal.resource.id, {
+          title: resourceForm.title.trim(),
+          url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
+          type: resourceForm.type,
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        // إضافة مورد جديد
+        await addResource({
+          title: resourceForm.title.trim(),
+          url: resourceForm.url?.startsWith('http') ? resourceForm.url : `https://${resourceForm.url}`,
+          type: resourceForm.type,
+          weekId: selectedWeek.week,
+          dayKey: selectedDay.key,
+          phaseId: selectedWeek.phase,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      setResourceModal({ isOpen: false, resource: null });
+      setResourceForm({ title: '', url: '', type: 'article' });
+    } catch (error) {
+      console.error('Error saving resource:', error);
+      alert(language === 'ar' ? 'حدث خطأ أثناء حفظ المورد' : 'Error occurred while saving the resource');
+    }
+  };
+
   // تحديث مورد موجود
   const handleUpdateResource = async () => {
     if (!resourceModal.resource || !resourceForm.title.trim() || !resourceForm.url.trim()) return;
@@ -1807,6 +1841,75 @@ const DayViewPage = () => {
           {/* تم إزالة أزرار التنقل حسب الطلب */}
         </motion.div>
       </div>
+
+      {/* Resource Modal */}
+      <Modal
+        isOpen={resourceModal.isOpen}
+        onClose={() => setResourceModal({ isOpen: false, resource: null })}
+        title={resourceModal.resource ? (language === 'ar' ? 'تعديل المورد' : 'Edit Resource') : (language === 'ar' ? 'إضافة مورد جديد' : 'Add New Resource')}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'عنوان المورد' : 'Resource Title'}
+            </label>
+            <input
+              type="text"
+              value={resourceForm.title}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder={language === 'ar' ? 'أدخل عنوان المورد' : 'Enter resource title'}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'رابط المورد' : 'Resource URL'}
+            </label>
+            <input
+              type="url"
+              value={resourceForm.url}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, url: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder={language === 'ar' ? 'أدخل رابط المورد' : 'Enter resource URL'}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {language === 'ar' ? 'نوع المورد' : 'Resource Type'}
+            </label>
+            <select
+              value={resourceForm.type}
+              onChange={(e) => setResourceForm(prev => ({ ...prev, type: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="article">{language === 'ar' ? 'مقال' : 'Article'}</option>
+              <option value="video">{language === 'ar' ? 'فيديو' : 'Video'}</option>
+              <option value="document">{language === 'ar' ? 'مستند' : 'Document'}</option>
+              <option value="tool">{language === 'ar' ? 'أداة' : 'Tool'}</option>
+              <option value="course">{language === 'ar' ? 'دورة' : 'Course'}</option>
+              <option value="book">{language === 'ar' ? 'كتاب' : 'Book'}</option>
+            </select>
+          </div>
+          
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => setResourceModal({ isOpen: false, resource: null })}
+            >
+              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSaveResource}
+              disabled={!resourceForm.title.trim() || !resourceForm.url.trim()}
+            >
+              {resourceModal.resource ? (language === 'ar' ? 'حفظ التغييرات' : 'Save Changes') : (language === 'ar' ? 'إضافة المورد' : 'Add Resource')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </PageLayout>
   );
 };
