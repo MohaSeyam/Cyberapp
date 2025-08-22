@@ -316,15 +316,7 @@ const NotesPage = () => {
                                 ) : null;
                               })()}
                               
-                              {/* آخر تعديل فقط */}
-                              {lastModified && (
-                                <div className="flex items-center space-x-1">
-                                  <Clock className="w-4 h-4" />
-                                  <span>
-                                    {safeLanguage === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(lastModified, safeLanguage, true)}
-                                  </span>
-                                </div>
-                              )}
+
                               
                               {/* عدد التاقات */}
                               {safeTags.length > 0 && (
@@ -377,6 +369,16 @@ const NotesPage = () => {
                           )}
                         </div>
                       </div>
+
+                      {/* Footer: Last Modified */}
+                      {lastModified && (
+                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>
+                            {safeLanguage === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(lastModified, safeLanguage, true)}
+                          </span>
+                        </div>
+                      )}
                     </Card>
                   </motion.div>
                 );
