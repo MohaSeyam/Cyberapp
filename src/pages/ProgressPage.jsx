@@ -21,6 +21,35 @@ const ProgressPage = () => {
   const [goalFilter, setGoalFilter] = useState('all'); // all | active | completed
   const [goalSort, setGoalSort] = useState('recent'); // recent | progress_desc | due_asc
   const [goalQuery, setGoalQuery] = useState('');
+  const [selectedPhaseId, setSelectedPhaseId] = useState(() => {
+    try { return localStorage.getItem('progress.selectedPhaseId') || ''; } catch { return ''; }
+  });
+  const [selectedWeekId, setSelectedWeekId] = useState(() => {
+    try { return localStorage.getItem('progress.selectedWeekId') || ''; } catch { return ''; }
+  });
+
+  // Persist filters
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('progress.selectedPhaseId', selectedPhaseId);
+      localStorage.setItem('progress.selectedWeekId', selectedWeekId);
+    } catch {}
+  }, [selectedPhaseId, selectedWeekId]);
+
+  // Derive filtered plan/progress by phase/week
+  const filteredPlan = React.useMemo(() => {
+    let list = safePlan;
+    if (selectedPhaseId) list = list.filter(w => String(w.phase) === String(selectedPhaseId));
+    if (selectedWeekId) list = list.filter(w => String(w.week) === String(selectedWeekId));
+    return list;
+  }, [safePlan, selectedPhaseId, selectedWeekId]);
+
+  const filteredProgress = React.useMemo(() => {
+    let list = safeProgress;
+    if (selectedPhaseId) list = list.filter(p => !p.phaseId || String(p.phaseId) === String(selectedPhaseId));
+    if (selectedWeekId) list = list.filter(p => String(p.weekId) === String(selectedWeekId));
+    return list;
+  }, [safeProgress, selectedPhaseId, selectedWeekId]);
   
   // Safe access to useSimpleLocalization
   let localizationData;
@@ -90,7 +119,7 @@ const ProgressPage = () => {
         return isNaN(d.getTime()) ? now : d;
       };
 
-      const normalizedProgress = safeProgress.map(p => ({
+      const normalizedProgress = filteredProgress.map(p => ({
         ...p,
         createdAt: p.createdAt || p.updatedAt || p.timestamp || now.toISOString()
       }));
@@ -195,16 +224,16 @@ const ProgressPage = () => {
         insights: []
       };
     }
-  }, [safeProgress, safeTaskEvaluations, safeNotes, safeJournalEntries, safeResources, selectedPeriod]);
+  }, [filteredProgress, safeTaskEvaluations, safeNotes, safeJournalEntries, safeResources, selectedPeriod]);
 
   // Calculate progress statistics for overview tab
   const progressStats = useMemo(() => {
     // Calculate total tasks and completed tasks
-    const allTasks = safePlan.flatMap(week => 
-      (week?.days || []).flatMap(day => day.tasks || [])
+    const allTasks = filteredPlan.flatMap(week => 
+      week.days.flatMap(day => day.tasks)
     );
     const totalCount = allTasks.length;
-    const completedCount = safeProgress.filter(p => p.done).length;
+    const completedCount = filteredProgress.filter(p => p.done).length;
     const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
     
     // Calculate average rating
@@ -212,7 +241,7 @@ const ProgressPage = () => {
     const averageRating = ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : 0;
     
     // Calculate phase progress - group weeks by phase
-    const phaseGroups = safePlan.reduce((acc, week) => {
+    const phaseGroups = filteredPlan.reduce((acc, week) => {
       const phaseId = week.phase;
       if (!acc[phaseId]) {
         acc[phaseId] = {
@@ -231,7 +260,7 @@ const ProgressPage = () => {
         .flatMap(day => (day?.tasks || []));
       
       const completedPhaseTasks = phaseTasks.filter(task => 
-        safeProgress.some(completed => completed.taskId === task.id && completed.done)
+        filteredProgress.some(completed => completed.taskId === task.id && completed.done)
       );
       
       return {
@@ -243,7 +272,7 @@ const ProgressPage = () => {
     });
 
     // Calculate streak - count completed tasks (since we don't have completion dates)
-    const currentStreak = safeProgress.filter(p => p.done).length;
+    const currentStreak = filteredProgress.filter(p => p.done).length;
 
     return {
       completionRate,
@@ -255,7 +284,7 @@ const ProgressPage = () => {
       notesCount: safeNotes.length,
       journalCount: safeJournalEntries.length
     };
-  }, [safeProgress, safePlan, safeTaskEvaluations, safeNotes, safeJournalEntries]);
+  }, [filteredPlan, filteredProgress, safeTaskEvaluations, safeNotes, safeJournalEntries]);
 
   // Helper functions for analytics
   function calculateStreak(progressData) {
@@ -499,10 +528,10 @@ const ProgressPage = () => {
       title={language === 'ar' ? 'الأهداف والتقدم' : 'Goals & Progress'}
       subtitle={language === 'ar' ? 'تتبع تقدمك في التعلم' : 'Track your learning progress'}
     >
-      {/* Tabs */}
+      {/* Tabs and Filters */}
       <div className="mb-6">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav className="-mb-px flex flex-wrap items-center gap-3 md:space-x-8" aria-label="Tabs">
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -533,6 +562,33 @@ const ProgressPage = () => {
             >
               {language === 'ar' ? 'الأهداف' : 'Goals'}
             </button>
+
+            {/* Phase/Week Filters */}
+            <div className="ml-auto flex items-center gap-2 py-2">
+              <select
+                value={selectedPhaseId}
+                onChange={(e) => { setSelectedPhaseId(e.target.value); setSelectedWeekId(''); }}
+                className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                title={language === 'ar' ? 'اختيار المرحلة' : 'Select Phase'}
+              >
+                <option value="">{language === 'ar' ? 'كل المراحل' : 'All Phases'}</option>
+                {Array.from(new Set(safePlan.map(w => w.phase))).map(pid => (
+                  <option key={pid} value={pid}>{language === 'ar' ? `المرحلة ${pid}` : `Phase ${pid}`}</option>
+                ))}
+              </select>
+              <select
+                value={selectedWeekId}
+                onChange={(e) => setSelectedWeekId(e.target.value)}
+                disabled={!selectedPhaseId}
+                className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                title={language === 'ar' ? 'اختيار الأسبوع' : 'Select Week'}
+              >
+                <option value="">{language === 'ar' ? 'كل الأسابيع' : 'All Weeks'}</option>
+                {safePlan.filter(w => !selectedPhaseId || String(w.phase) === String(selectedPhaseId)).map(w => (
+                  <option key={w.week} value={w.week}>{language === 'ar' ? `الأسبوع ${w.week}` : `Week ${w.week}`}</option>
+                ))}
+              </select>
+            </div>
           </nav>
         </div>
       </div>
@@ -666,7 +722,7 @@ const ProgressPage = () => {
           </div>
           
           <div className="space-y-4">
-            {safeProgress.filter(p => p.done).slice(0, 5).map((progressItem, index) => {
+            {filteredProgress.filter(p => p.done).slice(0, 5).map((progressItem, index) => {
               // Find the corresponding task from the plan
               const week = safePlan.find(w => String(w.week) === String(progressItem.weekId));
               const day = week?.days?.find(d => d.key === progressItem.dayKey);
@@ -693,7 +749,7 @@ const ProgressPage = () => {
               );
             })}
             
-            {safeProgress.length === 0 && (
+            {filteredProgress.length === 0 && (
               <div className="text-center py-8">
                 <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-500 dark:text-gray-400">
