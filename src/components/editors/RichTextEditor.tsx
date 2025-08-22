@@ -41,6 +41,21 @@ const editorStyles = `
     font-family: inherit;
   }
 
+  /* Table selection highlight */
+  .rich-text-editor .ProseMirror .selectedCell {
+    position: relative;
+    background-color: rgba(59, 130, 246, 0.12);
+  }
+  .rich-text-editor .ProseMirror .column-resize-handle {
+    position: absolute;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: rgba(59, 130, 246, 0.6);
+    pointer-events: none;
+  }
+
   /* Sticky toolbar + scrollable editor shell */
   .rich-text-editor .editor-shell {
     display: flex;
@@ -70,16 +85,16 @@ const editorStyles = `
   /* Page-like frame */
   .rich-text-editor .page-frame {
     display: block;
-    max-width: 794px; /* ~A4 width at ~96dpi */
+    max-width: var(--page-width, 794px);
     margin: 24px auto;
-    padding: 48px 64px; /* top/bottom, left/right margins */
+    padding: var(--page-pad-v, 48px) var(--page-pad-h, 64px);
     background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.08);
   }
   .dark .rich-text-editor .page-frame {
     background: #111827;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
   }
   .rich-text-editor .page-frame.paged .ProseMirror {
     padding: 0; /* margins provided by frame */
@@ -91,6 +106,15 @@ const editorStyles = `
     background-size: 100% 1122px;
     background-repeat: repeat-y;
   }
+
+  /* Sizes */
+  .rich-text-editor .size-a4 { --page-width: 794px; }
+  .rich-text-editor .size-letter { --page-width: 816px; }
+
+  /* Margins */
+  .rich-text-editor .margin-normal { --page-pad-v: 48px; --page-pad-h: 64px; }
+  .rich-text-editor .margin-narrow { --page-pad-v: 32px; --page-pad-h: 40px; }
+  .rich-text-editor .margin-wide { --page-pad-v: 64px; --page-pad-h: 80px; }
 
   .rich-text-editor .ProseMirror h1 {
     font-size: 2rem;
@@ -459,7 +483,7 @@ const colors = [
 
 
 // Enhanced Toolbar Component
-const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePaged, paged }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error'; onTogglePaged: () => void; paged: boolean }) => {
+const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePaged, paged, pageSize, setPageSize, pageMargin, setPageMargin }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error'; onTogglePaged: () => void; paged: boolean; pageSize: string; setPageSize: (v: string) => void; pageMargin: string; setPageMargin: (v: string) => void }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -1097,6 +1121,25 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePag
           >
             <FileText size={14} />
           </button>
+          <select
+            value={pageSize}
+            onChange={(e) => setPageSize(e.target.value)}
+            className="px-2 py-1 text-xs bg-transparent border border-gray-200 dark:border-gray-700 rounded"
+            title={lang === 'ar' ? 'حجم الصفحة' : 'Page Size'}
+          >
+            <option value="a4">A4</option>
+            <option value="letter">Letter</option>
+          </select>
+          <select
+            value={pageMargin}
+            onChange={(e) => setPageMargin(e.target.value)}
+            className="px-2 py-1 text-xs bg-transparent border border-gray-200 dark:border-gray-700 rounded"
+            title={lang === 'ar' ? 'الهوامش' : 'Margins'}
+          >
+            <option value="normal">{lang === 'ar' ? 'عادي' : 'Normal'}</option>
+            <option value="narrow">{lang === 'ar' ? 'ضيق' : 'Narrow'}</option>
+            <option value="wide">{lang === 'ar' ? 'واسع' : 'Wide'}</option>
+          </select>
         </div>
 
         {/* Save Status */}
@@ -1123,6 +1166,8 @@ export default function RichTextEditor({
   const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
   const [paged, setPaged] = useState<boolean>(true);
   const editorHeight = '70vh';
+  const [pageSize, setPageSize] = useState<string>('a4');
+  const [pageMargin, setPageMargin] = useState<string>('normal');
 
   const handleAutoSave = (newContent: string) => {
     if (autoSave && onSave && newContent !== lastSavedContent) {
@@ -1262,10 +1307,10 @@ export default function RichTextEditor({
   return (
     <>
       <style>{editorStyles}</style>
-      <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+      <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'} size-${pageSize} margin-${pageMargin}`}>
         <div className="editor-shell" style={{ height: editorHeight }}>
           {showToolbar && (
-            <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} onTogglePaged={() => setPaged(p => !p)} paged={paged} />
+            <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} onTogglePaged={() => setPaged(p => !p)} paged={paged} pageSize={pageSize} setPageSize={setPageSize} pageMargin={pageMargin} setPageMargin={setPageMargin} />
           )}
           <div className="editor-scroll">
             <div className={`page-frame ${paged ? 'paged' : ''}`}>
