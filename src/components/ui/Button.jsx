@@ -26,12 +26,12 @@ const Button = ({
 
   const variantClasses = {
     primary:
-      'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600',
+      'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:ring-2 focus:ring-blue-500',
     outline:
-      'border border-gray-300 dark:border-gray-600 bg-transparent',
-    ghost: 'bg-transparent',
+      'border border-gray-300 dark:border-gray-600 bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700',
+    ghost: 'bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800',
     danger:
-      'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600'
+      'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 focus:ring-2 focus:ring-red-500'
   };
 
   // في حال الاتجاه RTL، نعكس المسافات
@@ -104,6 +104,7 @@ const Button = ({
     'rounded-2xl',
     sizeClasses[size] || sizeClasses.md,
     variantClasses[variant] || variantClasses.primary,
+    'transition-colors duration-200',
     className
   ]
     .filter(Boolean)

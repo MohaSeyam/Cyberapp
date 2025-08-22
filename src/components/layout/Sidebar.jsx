@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       path: '/progress',
       icon: BarChart3,
-      label: safeLanguage === 'ar' ? 'التقدم' : 'Progress'
+      label: safeLanguage === 'ar' ? 'الأهداف والتقدم' : 'Goals & Progress'
     },
     {
       path: '/notes',
@@ -87,7 +87,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       <aside 
         className={`fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-full w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : isRTL ? 'translate-x-full' : '-translate-x-full'
-        } lg:static lg:z-auto`}
+        } lg:static lg:z-auto sidebar`}
         dir={direction}
         style={{ direction }}
       >

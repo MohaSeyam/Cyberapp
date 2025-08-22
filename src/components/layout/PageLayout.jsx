@@ -37,24 +37,19 @@ const PageLayout = ({
   const fontSize = localStorage.getItem('fontSize') || 'md';
   const fontSizeClass = `text-size-${fontSize}`;
 
-  // Close sidebar when screen size changes to large
+  // Ensure sidebar closed on small screens; do not auto-open on large screens
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        // Don't auto-close on large screens, just ensure it's visible
-        setSidebarOpen(true);
-      } else {
-        // Close on small screens
+      if (window.innerWidth < 1024) {
         setSidebarOpen(false);
       }
     };
-
-    // Set initial state based on screen size
     handleResize();
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const mainPadding = showBottomBar ? `pb-20 lg:pb-0 ${sidebarOpen ? 'lg:pl-64' : ''}` : '';
 
   return (
     <div 
@@ -75,7 +70,7 @@ const PageLayout = ({
       {showBottomBar && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
 
       {/* Main Content */}
-      <main className={`${showHeader ? 'pt-20' : 'pt-4'} ${showBottomBar ? 'pb-20 lg:pb-0 lg:pl-64' : ''}`}>
+      <main className={`${showHeader ? 'pt-20' : 'pt-4'} ${mainPadding}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Header */}
           {(title || subtitle) && (
@@ -109,6 +104,8 @@ const PageLayout = ({
           </motion.div>
         </div>
       </main>
+
+
 
       {/* Bottom Navigation - Only on small screens */}
       {showBottomBar && (

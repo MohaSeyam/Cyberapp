@@ -59,6 +59,7 @@ const ResourcesPage = () => {
     dayKey: '',
     phaseId: ''
   });
+  const [sortBy, setSortBy] = useState('recent'); // recent | title
 
   // URL helpers
   const normalizeUrl = (rawUrl) => {
@@ -133,15 +134,22 @@ const ResourcesPage = () => {
 
   // تصفية الموارد
   const filteredResources = useMemo(() => {
-    return allResources.filter(resource => {
+    const list = allResources.filter(resource => {
       const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (resource.description && resource.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesType = selectedType === 'all' || resource.type === selectedType;
       const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
-      
       return matchesSearch && matchesType && matchesCategory;
     });
-  }, [allResources, searchTerm, selectedType, selectedCategory]);
+    // sorting
+    if (sortBy === 'recent') {
+      return list.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+    }
+    if (sortBy === 'title') {
+      return list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    }
+    return list;
+  }, [allResources, searchTerm, selectedType, selectedCategory, sortBy]);
 
   // الحصول على أنواع الموارد الفريدة
   const resourceTypes = useMemo(() => {
@@ -281,8 +289,8 @@ const ResourcesPage = () => {
           </div>
 
           {/* Search and Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="relative md:col-span-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
@@ -321,18 +329,15 @@ const ResourcesPage = () => {
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
-            
-            <Button
-              variant="outline"
-              icon={<Filter className="w-4 h-4" />}
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedType('all');
-                setSelectedCategory('all');
-              }}
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              {language === 'ar' ? 'إعادة تعيين' : 'Reset'}
-            </Button>
+              <option value="recent">{language === 'ar' ? 'الأحدث أولاً' : 'Most Recent'}</option>
+              <option value="title">{language === 'ar' ? 'بالعنوان (أ-ي)' : 'By Title (A-Z)'}</option>
+            </select>
           </div>
         </motion.div>
 
@@ -376,7 +381,7 @@ const ResourcesPage = () => {
                           size="sm"
                           variant="ghost"
                           icon={<Edit2 className="w-4 h-4" />}
-                          onClick={(e) => { e.stopPropagation(); openEditModal(resource); }}
+                          onClick={(e) => { e.stopPropagation(); openEditModal(resource.source === 'plan' ? { ...resource, isPlanResource: true } : resource); }}
                           title={language === 'ar' ? 'تعديل المورد' : 'Edit resource'}
                         />
                         <Button

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye, Target, Clock
+  Plus, Search, Filter, Tag, Calendar, FileText, Edit, Trash2, Eye, Target, Clock, Network
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -10,6 +10,8 @@ import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import MindMap from '../components/ui/MindMap';
+import { formatGregorianDate } from '../utils/date';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -76,6 +78,16 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showMindMap, setShowMindMap] = useState(false);
+  const [mindMapData, setMindMapData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mindMapData');
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Error loading mind map data:', error);
+      return null;
+    }
+  });
 
   // البحث عن معلومات اليوم المرتبط بالملاحظة
   const getDayInfo = (note) => {
@@ -91,32 +103,6 @@ const NotesPage = () => {
       console.error('Error getting day info:', error);
     }
     return null;
-  };
-
-  // تنسيق التاريخ باللغة العربية
-  const formatDate = (dateString, language) => {
-    try {
-      const date = new Date(dateString);
-      if (language === 'ar') {
-        return date.toLocaleDateString('ar-SA', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } else {
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      }
-    } catch (error) {
-      return dateString;
-    }
   };
 
   // Get all unique tags with safety checks
@@ -209,19 +195,16 @@ const NotesPage = () => {
     >
       <div className="max-w-4xl mx-auto py-10 space-y-6">
         <motion.div {...animations.fadeIn}>
-          {/* Header */}
+          {/* Header actions only (title handled by PageLayout) */}
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {safeLanguage === 'ar' ? 'الملاحظات' : 'Notes'}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {safeLanguage === 'ar' 
-                  ? `${safeNotes.length} ملاحظة إجمالاً`
-                  : `${safeNotes.length} total notes`
-                }
-              </p>
-            </div>
+            <Button
+              variant="outline"
+              icon={<Network />}
+              onClick={() => setShowMindMap(true)}
+            >
+              {safeLanguage === 'ar' ? 'خريطة المفاهيم' : 'Mind Map'}
+            </Button>
+            
             <Button
               variant="primary"
               icon={<Plus />}
@@ -289,13 +272,12 @@ const NotesPage = () => {
               </Card>
             ) : (
               filteredNotes.map(note => {
-                // Additional safety check for each note
                 if (!note || typeof note !== 'object') return null;
                 
                 const safeTitle = note.title || '';
                 const safeContent = note.content || '';
                 const safeTags = Array.isArray(note.tags) ? note.tags : [];
-                const safeDate = note.updatedAt || note.createdAt || new Date().toISOString();
+                const lastModified = note.updatedAt || note.createdAt;
                 
                 return (
                   <motion.div
@@ -305,7 +287,7 @@ const NotesPage = () => {
                     transition={{ duration: 0.3 }}
                   >
                     <Card className="p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer" onClick={() => handleNavigation(`/notes/${note.id}`)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigation(`/notes/${note.id}`); } }} tabIndex={0} role="button" aria-label={safeLanguage === 'ar' ? `عرض الملاحظة ${safeTitle}` : `View note ${safeTitle}`}>
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify_between">
                         <div className="flex-1 min-w-0">
                           {/* Title */}
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 truncate">
@@ -334,25 +316,7 @@ const NotesPage = () => {
                                 ) : null;
                               })()}
                               
-                              {/* تاريخ الإنشاء */}
-                              {note.createdAt && (
-                                <div className="flex items-center space-x-1">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>
-                                    {formatDate(note.createdAt, safeLanguage)}
-                                  </span>
-                                </div>
-                              )}
-                              
-                              {/* تاريخ التعديل */}
-                              {note.updatedAt && note.updatedAt !== note.createdAt && (
-                                <div className="flex items-center space-x-1">
-                                  <Clock className="w-4 h-4" />
-                                  <span>
-                                    {safeLanguage === 'ar' ? 'تم التعديل:' : 'Modified:'} {formatDate(note.updatedAt, safeLanguage)}
-                                  </span>
-                                </div>
-                              )}
+
                               
                               {/* عدد التاقات */}
                               {safeTags.length > 0 && (
@@ -365,7 +329,6 @@ const NotesPage = () => {
 
                             {/* Actions */}
                             <div className="flex items-center space-x-2">
-
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -406,6 +369,16 @@ const NotesPage = () => {
                           )}
                         </div>
                       </div>
+
+                      {/* Footer: Last Modified */}
+                      {lastModified && (
+                        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>
+                            {safeLanguage === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(lastModified, safeLanguage, true)}
+                          </span>
+                        </div>
+                      )}
                     </Card>
                   </motion.div>
                 );
@@ -442,6 +415,19 @@ const NotesPage = () => {
               </div>
             </div>
           </Modal>
+
+          {/* Mind Map Modal */}
+          {showMindMap && (
+            <MindMap
+              data={mindMapData}
+              onSave={(data) => {
+                setMindMapData(data);
+                localStorage.setItem('mindMapData', JSON.stringify(data));
+                setShowMindMap(false);
+              }}
+              onClose={() => setShowMindMap(false)}
+            />
+          )}
         </motion.div>
       </div>
     </PageLayout>

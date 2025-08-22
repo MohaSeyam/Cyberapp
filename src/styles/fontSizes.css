@@ -15,6 +15,11 @@
   font-size: 1.25rem; /* 20px */
 }
 
+/* Body font-size utilities (used by App.jsx) */
+.font-size-sm { font-size: 14px !important; }
+.font-size-md { font-size: 16px !important; }
+.font-size-lg { font-size: 19px !important; }
+
 /* Apply to specific elements */
 .text-size-small h1 { font-size: 1.5rem; }
 .text-size-small h2 { font-size: 1.25rem; }

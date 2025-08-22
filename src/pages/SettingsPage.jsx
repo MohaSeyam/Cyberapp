@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Settings, Globe, Moon, Sun, Palette, Bell, Shield, 
-  User, Info, HelpCircle, ExternalLink
+  User
 } from 'lucide-react';
 import { useSimpleApp } from '../context/SimpleAppContext';
 import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
@@ -134,16 +134,6 @@ const SettingsPage = () => {
               >
                 <Moon className="w-5 h-5" />
               </button>
-              <button
-                onClick={() => handleThemeChange('system')}
-                className={`p-2 rounded-lg transition-colors ${
-                  currentTheme === 'system'
-                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                <Globe className="w-5 h-5" />
-              </button>
             </div>
           </SettingItem>
 
@@ -162,8 +152,6 @@ const SettingsPage = () => {
             </select>
           </SettingItem>
         </SettingSection>
-
-
 
         {/* Notifications */}
         <SettingSection
@@ -190,38 +178,7 @@ const SettingsPage = () => {
             </label>
           </SettingItem>
         </SettingSection>
-
-
-
-        {/* About */}
-        <SettingSection
-          title={safeLanguage === 'ar' ? 'حول التطبيق' : 'About'}
-          icon={<Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />}
-        >
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'الإصدار' : 'Version'}
-            description="1.0.0"
-          >
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              v1.0.0
-            </span>
-          </SettingItem>
-
-          <SettingItem
-            label={safeLanguage === 'ar' ? 'المساعدة' : 'Help'}
-            description={safeLanguage === 'ar' ? 'دليل الاستخدام والدعم' : 'User guide and support'}
-          >
-            <Button
-              variant="ghost"
-              icon={<HelpCircle />}
-              onClick={() => window.open('#', '_blank')}
-            >
-              {safeLanguage === 'ar' ? 'مساعدة' : 'Help'}
-            </Button>
-          </SettingItem>
-        </SettingSection>
       </motion.div>
-
 
     </PageLayout>
   );

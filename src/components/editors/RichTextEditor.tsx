@@ -28,7 +28,7 @@ import {
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, 
   Image as ImageIcon, Upload, Minus, Table as TableIcon, Palette, Type, 
-  ChevronDown, X, Plus
+  ChevronDown, X, Plus, FileText
 } from "lucide-react";
 
 // Custom CSS for rich text editor
@@ -40,6 +40,81 @@ const editorStyles = `
     line-height: 1.6;
     font-family: inherit;
   }
+
+  /* Table selection highlight */
+  .rich-text-editor .ProseMirror .selectedCell {
+    position: relative;
+    background-color: rgba(59, 130, 246, 0.12);
+  }
+  .rich-text-editor .ProseMirror .column-resize-handle {
+    position: absolute;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: rgba(59, 130, 246, 0.6);
+    pointer-events: none;
+  }
+
+  /* Sticky toolbar + scrollable editor shell */
+  .rich-text-editor .editor-shell {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: #fff;
+  }
+  .dark .rich-text-editor .editor-shell {
+    border-color: #374151;
+    background: #111827;
+  }
+  .rich-text-editor .toolbar-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: inherit;
+  }
+  .rich-text-editor .editor-scroll {
+    flex: 1 1 auto;
+    overflow: auto;
+    background: #f9fafb;
+  }
+  .dark .rich-text-editor .editor-scroll { background: #0f172a; }
+
+  /* Page-like frame */
+  .rich-text-editor .page-frame {
+    display: block;
+    max-width: var(--page-width, 794px);
+    margin: 24px auto;
+    padding: var(--page-pad-v, 48px) var(--page-pad-h, 64px);
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  }
+  .dark .rich-text-editor .page-frame {
+    background: #111827;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+  }
+  .rich-text-editor .page-frame.paged .ProseMirror {
+    padding: 0; /* margins provided by frame */
+  }
+
+  /* optional visual separators every ~A4 height to hint pages */
+  .rich-text-editor .page-frame.paged .ProseMirror {
+    background-image: linear-gradient(to bottom, transparent calc(1122px - 2px), rgba(0,0,0,0.06) calc(1122px - 2px), rgba(0,0,0,0.06) 1122px, transparent 1122px);
+    background-size: 100% 1122px;
+    background-repeat: repeat-y;
+  }
+
+  /* Sizes */
+  .rich-text-editor .size-a4 { --page-width: 794px; }
+  .rich-text-editor .size-letter { --page-width: 816px; }
+
+  /* Margins */
+  .rich-text-editor .margin-normal { --page-pad-v: 48px; --page-pad-h: 64px; }
+  .rich-text-editor .margin-narrow { --page-pad-v: 32px; --page-pad-h: 40px; }
+  .rich-text-editor .margin-wide { --page-pad-v: 64px; --page-pad-h: 80px; }
 
   .rich-text-editor .ProseMirror h1 {
     font-size: 2rem;
@@ -408,13 +483,14 @@ const colors = [
 
 
 // Enhanced Toolbar Component
-const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
+const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePaged, paged, pageSize, setPageSize, pageMargin, setPageMargin }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error'; onTogglePaged: () => void; paged: boolean; pageSize: string; setPageSize: (v: string) => void; pageMargin: string; setPageMargin: (v: string) => void }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showFontFamily, setShowFontFamily] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
+  const [refreshTick, setRefreshTick] = useState(0);
   
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -442,6 +518,19 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, []);
+
+  // Re-render toolbar when selection changes to refresh editor.isActive checks
+  useEffect(() => {
+    if (!editor) return;
+    const onSel = () => setRefreshTick((t) => t + 1);
+    const onTxn = () => setRefreshTick((t) => t + 1);
+    editor.on('selectionUpdate', onSel);
+    editor.on('transaction', onTxn);
+    return () => {
+      editor.off('selectionUpdate', onSel);
+      editor.off('transaction', onTxn);
+    };
+  }, [editor]);
   
   if (!editor) return null;
   
@@ -601,7 +690,7 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
   });
 
   return (
-    <div className={`bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-3 ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+    <div className={`bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-0 ${lang === 'ar' ? 'rtl' : 'ltr'} toolbar-sticky`}>
       <div className={`flex flex-wrap gap-1 items-center justify-start overflow-x-auto scrollbar-hide ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
         {/* Text Formatting */}
         <div className={`flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
@@ -983,6 +1072,34 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
                 <span className="text-xs">→</span>
               </button>
               <button
+                onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'تبديل صف الترويسة' : 'Toggle Header Row'}
+              >
+                <span className="text-xs">Hdr-R</span>
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleHeaderColumn().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'تبديل عمود الترويسة' : 'Toggle Header Column'}
+              >
+                <span className="text-xs">Hdr-C</span>
+              </button>
+              <button
+                onClick={() => editor.chain().focus().mergeCells().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'دمج الخلايا' : 'Merge Cells'}
+              >
+                <span className="text-xs">Merge</span>
+              </button>
+              <button
+                onClick={() => editor.chain().focus().splitCell().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'فصل الخلية' : 'Split Cell'}
+              >
+                <span className="text-xs">Split</span>
+              </button>
+              <button
                 onClick={deleteRow}
                 className="p-1.5 rounded text-xs hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
                 title={lang === 'ar' ? 'حذف الصف' : 'Delete Row'}
@@ -1007,6 +1124,38 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
           )}
         </div>
 
+        {/* Page layout toggle */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button
+            onClick={onTogglePaged}
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              paged ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title={lang === 'ar' ? 'تبديل عرض الصفحات' : 'Toggle Page Layout'}
+          >
+            <FileText size={14} />
+          </button>
+          <select
+            value={pageSize}
+            onChange={(e) => setPageSize(e.target.value)}
+            className="px-2 py-1 text-xs bg-transparent border border-gray-200 dark:border-gray-700 rounded"
+            title={lang === 'ar' ? 'حجم الصفحة' : 'Page Size'}
+          >
+            <option value="a4">A4</option>
+            <option value="letter">Letter</option>
+          </select>
+          <select
+            value={pageMargin}
+            onChange={(e) => setPageMargin(e.target.value)}
+            className="px-2 py-1 text-xs bg-transparent border border-gray-200 dark:border-gray-700 rounded"
+            title={lang === 'ar' ? 'الهوامش' : 'Margins'}
+          >
+            <option value="normal">{lang === 'ar' ? 'عادي' : 'Normal'}</option>
+            <option value="narrow">{lang === 'ar' ? 'ضيق' : 'Narrow'}</option>
+            <option value="wide">{lang === 'ar' ? 'واسع' : 'Wide'}</option>
+          </select>
+        </div>
+
         {/* Save Status */}
         {saveStatus && <SaveStatus status={saveStatus} />}
       </div>
@@ -1029,6 +1178,10 @@ export default function RichTextEditor({
   const [lastSavedContent, setLastSavedContent] = useState(content);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
   const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [paged, setPaged] = useState<boolean>(true);
+  const editorHeight = '70vh';
+  const [pageSize, setPageSize] = useState<string>('a4');
+  const [pageMargin, setPageMargin] = useState<string>('normal');
 
   const handleAutoSave = (newContent: string) => {
     if (autoSave && onSave && newContent !== lastSavedContent) {
@@ -1168,19 +1321,19 @@ export default function RichTextEditor({
   return (
     <>
       <style>{editorStyles}</style>
-      <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
-        {showToolbar && (
-          <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} />
-        )}
-        
-        <div 
-          className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden"
-          style={{ minHeight }}
-        >
-          <EditorContent 
-            editor={editor} 
-            className={`focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`}
-          />
+      <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'} size-${pageSize} margin-${pageMargin}`}>
+        <div className="editor-shell" style={{ height: editorHeight }}>
+          {showToolbar && (
+            <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} onTogglePaged={() => setPaged(p => !p)} paged={paged} pageSize={pageSize} setPageSize={setPageSize} pageMargin={pageMargin} setPageMargin={setPageMargin} />
+          )}
+          <div className="editor-scroll">
+            <div className={`page-frame ${paged ? 'paged' : ''}`}>
+              <EditorContent 
+                editor={editor} 
+                className={`focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>

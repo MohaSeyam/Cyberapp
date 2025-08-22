@@ -3,6 +3,7 @@ import { Settings, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSimpleLocalization } from '../../context/SimpleLocalizationContext';
 import { useSimpleApp } from '../../context/SimpleAppContext';
+
 import ThemeToggle from '../ui/ThemeToggle';
 
 const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
@@ -15,22 +16,9 @@ const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
   const safeLanguage = language || 'ar';
   const safeTheme = theme || 'light';
 
-  const getPageTitle = () => {
-    const path = location.pathname;
-    
-    if (path === '/') return safeLanguage === 'ar' ? 'الرئيسية' : 'Home';
-    if (path === '/phases') return safeLanguage === 'ar' ? 'المراحل' : 'Phases';
-    if (path === '/progress') return safeLanguage === 'ar' ? 'التقدم' : 'Progress';
-    if (path === '/notes') return safeLanguage === 'ar' ? 'الملاحظات' : 'Notes';
-    if (path === '/journal') return safeLanguage === 'ar' ? 'المدونة' : 'Journal';
-    if (path === '/settings') return safeLanguage === 'ar' ? 'الإعدادات' : 'Settings';
-    
-    return safeLanguage === 'ar' ? 'التطبيق' : 'App';
-  };
-
   return (
     <header 
-      className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+      className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 top-bar"
       dir={direction}
       style={{ direction }}
     >
@@ -62,12 +50,8 @@ const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
             </button>
           </div>
 
-          {/* Page Title */}
-          <div className="flex-1 text-center">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {getPageTitle()}
-            </h1>
-          </div>
+          {/* Spacer to preserve layout (no page title) */}
+          <div className="flex-1" />
 
           {/* Actions */}
           <div className="flex items-center space-x-2">
@@ -92,6 +76,8 @@ const TopBar = ({ onSidebarToggle, sidebarOpen }) => {
                 {safeLanguage === 'ar' ? 'EN' : 'عربي'}
               </span>
             </button>
+
+
 
             {/* Enhanced Theme Toggle */}
             <ThemeToggle />
