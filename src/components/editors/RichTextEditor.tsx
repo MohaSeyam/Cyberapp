@@ -28,7 +28,7 @@ import {
   Heading1, Heading2, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   Code as CodeIcon, Highlighter, Quote, Link as LinkIcon, Save, CheckCircle, AlertCircle, 
   Image as ImageIcon, Upload, Minus, Table as TableIcon, Palette, Type, 
-  ChevronDown, X, Plus
+  ChevronDown, X, Plus, FileText
 } from "lucide-react";
 
 // Custom CSS for rich text editor
@@ -39,6 +39,57 @@ const editorStyles = `
     padding: 1rem;
     line-height: 1.6;
     font-family: inherit;
+  }
+
+  /* Sticky toolbar + scrollable editor shell */
+  .rich-text-editor .editor-shell {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: #fff;
+  }
+  .dark .rich-text-editor .editor-shell {
+    border-color: #374151;
+    background: #111827;
+  }
+  .rich-text-editor .toolbar-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: inherit;
+  }
+  .rich-text-editor .editor-scroll {
+    flex: 1 1 auto;
+    overflow: auto;
+    background: #f9fafb;
+  }
+  .dark .rich-text-editor .editor-scroll { background: #0f172a; }
+
+  /* Page-like frame */
+  .rich-text-editor .page-frame {
+    display: block;
+    max-width: 794px; /* ~A4 width at ~96dpi */
+    margin: 24px auto;
+    padding: 48px 64px; /* top/bottom, left/right margins */
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  }
+  .dark .rich-text-editor .page-frame {
+    background: #111827;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  }
+  .rich-text-editor .page-frame.paged .ProseMirror {
+    padding: 0; /* margins provided by frame */
+  }
+
+  /* optional visual separators every ~A4 height to hint pages */
+  .rich-text-editor .page-frame.paged .ProseMirror {
+    background-image: linear-gradient(to bottom, transparent calc(1122px - 2px), rgba(0,0,0,0.06) calc(1122px - 2px), rgba(0,0,0,0.06) 1122px, transparent 1122px);
+    background-size: 100% 1122px;
+    background-repeat: repeat-y;
   }
 
   .rich-text-editor .ProseMirror h1 {
@@ -408,7 +459,7 @@ const colors = [
 
 
 // Enhanced Toolbar Component
-const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error' }) => {
+const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePaged, paged }: { editor: any; lang?: Language; saveStatus?: 'saving' | 'saved' | 'error'; onTogglePaged: () => void; paged: boolean }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -601,7 +652,7 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
   });
 
   return (
-    <div className={`bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-3 ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+    <div className={`bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-0 ${lang === 'ar' ? 'rtl' : 'ltr'} toolbar-sticky`}>
       <div className={`flex flex-wrap gap-1 items-center justify-start overflow-x-auto scrollbar-hide ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
         {/* Text Formatting */}
         <div className={`flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
@@ -1035,6 +1086,19 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
           )}
         </div>
 
+        {/* Page layout toggle */}
+        <div className="flex items-center gap-1 bg-white dark:bg-gray-900 rounded-md p-1 border border-gray-200 dark:border-gray-600">
+          <button
+            onClick={onTogglePaged}
+            className={`p-1.5 rounded text-xs transition-all duration-200 ${
+              paged ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title={lang === 'ar' ? 'تبديل عرض الصفحات' : 'Toggle Page Layout'}
+          >
+            <FileText size={14} />
+          </button>
+        </div>
+
         {/* Save Status */}
         {saveStatus && <SaveStatus status={saveStatus} />}
       </div>
@@ -1057,6 +1121,8 @@ export default function RichTextEditor({
   const [lastSavedContent, setLastSavedContent] = useState(content);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
   const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [paged, setPaged] = useState<boolean>(true);
+  const editorHeight = '70vh';
 
   const handleAutoSave = (newContent: string) => {
     if (autoSave && onSave && newContent !== lastSavedContent) {
@@ -1197,18 +1263,18 @@ export default function RichTextEditor({
     <>
       <style>{editorStyles}</style>
       <div className={`rich-text-editor ${className} ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
-        {showToolbar && (
-          <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} />
-        )}
-        
-        <div 
-          className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden"
-          style={{ minHeight }}
-        >
-          <EditorContent 
-            editor={editor} 
-            className={`focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`}
-          />
+        <div className="editor-shell" style={{ height: editorHeight }}>
+          {showToolbar && (
+            <EditorToolbar editor={editor} lang={lang} saveStatus={saveStatus} onTogglePaged={() => setPaged(p => !p)} paged={paged} />
+          )}
+          <div className="editor-scroll">
+            <div className={`page-frame ${paged ? 'paged' : ''}`}>
+              <EditorContent 
+                editor={editor} 
+                className={`focus:outline-none ${lang === 'ar' ? 'rtl text-right' : 'ltr text-left'}`}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>
