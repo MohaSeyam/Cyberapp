@@ -146,21 +146,7 @@ const JournalEditPage = () => {
             />
           </div>
 
-          {/* Date فقط */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {language === 'ar' ? 'التاريخ' : 'Date'}
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-          </div>
+          {/* Removed date input */}
 
           {/* Tags */}
           <div className="mb-6">
@@ -223,29 +209,7 @@ const JournalEditPage = () => {
             />
           </div>
 
-          {/* Meta Information */}
-          {existingEntry && (
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {language === 'ar' ? 'تم الإنشاء:' : 'Created:'} {new Date(existingEntry.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                    </span>
-                  </div>
-                  {existingEntry.updatedAt && (
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {language === 'ar' ? 'آخر تحديث:' : 'Last updated:'} {new Date(existingEntry.updatedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Removed meta date display */}
         </Card>
       </motion.div>
     </PageLayout>

@@ -231,29 +231,7 @@ const NoteEditPage = () => {
             />
           </div>
 
-          {/* Meta Information */}
-          {existingNote && (
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {language === 'ar' ? 'تم الإنشاء:' : 'Created:'} {new Date(existingNote.createdAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                    </span>
-                  </div>
-                  {existingNote.updatedAt && (
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {language === 'ar' ? 'آخر تحديث:' : 'Last updated:'} {new Date(existingNote.updatedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Removed meta date display */}
         </Card>
       </motion.div>
     </PageLayout>
