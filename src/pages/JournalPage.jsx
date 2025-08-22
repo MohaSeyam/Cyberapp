@@ -195,14 +195,6 @@ const JournalPage = () => {
                               ) : null;
                             })()}
                             
-                            {/* آخر تعديل فقط */}
-                            <div className="flex items-center space-x-1">
-                              <Clock className="w-4 h-4" />
-                              <span>
-                                {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(entry.updatedAt || entry.createdAt, language, true)}
-                              </span>
-                            </div>
-                            
                           </div>
                         </div>
                       </div>
@@ -234,6 +226,16 @@ const JournalPage = () => {
                           {language === 'ar' ? 'حذف' : 'Delete'}
                         </Button>
                       </div>
+
+                      {/* Footer: Last Modified */}
+                      {(entry.updatedAt || entry.createdAt) && (
+                        <div className="mt-4 pt-3 border-top border-gray-100 dark:border-gray-700 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>
+                            {language === 'ar' ? 'آخر تعديل:' : 'Last Modified:'} {formatGregorianDate(entry.updatedAt || entry.createdAt, language, true)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
