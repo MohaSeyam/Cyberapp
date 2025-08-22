@@ -999,7 +999,7 @@ const ProgressPage = () => {
               </div>
               
               <div className="space-y-3">
-                {analytics.insights.slice(0, 3).map((insight, index) => (
+                {(analytics.insights || []).slice(0, 3).map((insight, index) => (
                   <div
                     key={index}
                     className={`p-3 rounded-lg border ${
