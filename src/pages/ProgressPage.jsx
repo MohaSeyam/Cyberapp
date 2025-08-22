@@ -10,6 +10,8 @@ import { useSimpleLocalization } from '../context/SimpleLocalizationContext';
 import PageLayout from '../components/layout/PageLayout';
 import Card from '../components/ui/Card';
 import { useNavigate } from 'react-router-dom';
+import OverviewTab from '../components/progress/OverviewTab';
+import AnalyticsTab from '../components/progress/AnalyticsTab';
 import GoalEditorModal from '../components/GoalEditorModal';
 
 const ProgressPage = () => {
@@ -35,6 +37,14 @@ const ProgressPage = () => {
       localStorage.setItem('progress.selectedWeekId', selectedWeekId);
     } catch {}
   }, [selectedPhaseId, selectedWeekId]);
+
+  // Reset week filter if not valid under selected phase
+  React.useEffect(() => {
+    const weeksForPhase = safePlan.filter(w => !selectedPhaseId || String(w.phase) === String(selectedPhaseId)).map(w => String(w.week));
+    if (selectedWeekId && !weeksForPhase.includes(String(selectedWeekId))) {
+      setSelectedWeekId('');
+    }
+  }, [selectedPhaseId, selectedWeekId, safePlan]);
 
   // Derive filtered plan/progress by phase/week
   const filteredPlan = React.useMemo(() => {
@@ -572,7 +582,7 @@ const ProgressPage = () => {
                 title={language === 'ar' ? 'اختيار المرحلة' : 'Select Phase'}
               >
                 <option value="">{language === 'ar' ? 'كل المراحل' : 'All Phases'}</option>
-                {Array.from(new Set(safePlan.map(w => w.phase))).map(pid => (
+                {Array.from(new Set((safePlan || []).map(w => w.phase))).map(pid => (
                   <option key={pid} value={pid}>{language === 'ar' ? `المرحلة ${pid}` : `Phase ${pid}`}</option>
                 ))}
               </select>
@@ -584,7 +594,7 @@ const ProgressPage = () => {
                 title={language === 'ar' ? 'اختيار الأسبوع' : 'Select Week'}
               >
                 <option value="">{language === 'ar' ? 'كل الأسابيع' : 'All Weeks'}</option>
-                {safePlan.filter(w => !selectedPhaseId || String(w.phase) === String(selectedPhaseId)).map(w => (
+                {(safePlan || []).filter(w => !selectedPhaseId || String(w.phase) === String(selectedPhaseId)).map(w => (
                   <option key={w.week} value={w.week}>{language === 'ar' ? `الأسبوع ${w.week}` : `Week ${w.week}`}</option>
                 ))}
               </select>
