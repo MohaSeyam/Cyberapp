@@ -685,7 +685,7 @@ const ProgressPage = () => {
           </div>
           
           <div className="space-y-6">
-            {progressStats.phaseProgress.map((phase, index) => (
+            {(progressStats.phaseProgress || []).map((phase, index) => (
               <motion.div
                 key={phase.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -722,7 +722,7 @@ const ProgressPage = () => {
           </div>
           
           <div className="space-y-4">
-            {filteredProgress.filter(p => p.done).slice(0, 5).map((progressItem, index) => {
+            {(filteredProgress || []).filter(p => p.done).slice(0, 5).map((progressItem, index) => {
               // Find the corresponding task from the plan
               const week = safePlan.find(w => String(w.week) === String(progressItem.weekId));
               const day = week?.days?.find(d => d.key === progressItem.dayKey);
