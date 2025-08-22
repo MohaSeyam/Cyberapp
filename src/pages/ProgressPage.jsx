@@ -230,7 +230,7 @@ const ProgressPage = () => {
   const progressStats = useMemo(() => {
     // Calculate total tasks and completed tasks
     const allTasks = filteredPlan.flatMap(week => 
-      week.days.flatMap(day => day.tasks)
+      (week?.days || []).flatMap(day => (day?.tasks || []))
     );
     const totalCount = allTasks.length;
     const completedCount = filteredProgress.filter(p => p.done).length;
