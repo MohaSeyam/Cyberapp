@@ -58,11 +58,12 @@ const PhaseWeeksPage = () => {
 
   // Calculate week completion
   const getWeekCompletion = (weekNumber) => {
-    const week = (planData || []).find(w => w.week === weekNumber && w.phase === parseInt(phaseId));
-    if (!week || !week.days) return { percentage: 0, completed: 0, total: 0 };
-    const totalTasks = week.days.reduce((total, day) => total + (day.tasks ? day.tasks.length : 0), 0);
+    const phaseIdInt = parseInt(phaseId);
+    const week = (planData || []).find(w => String(w.week) === String(weekNumber) && String(w.phase) === String(phaseIdInt));
+    if (!week || !Array.isArray(week.days)) return { percentage: 0, completed: 0, total: 0 };
+    const totalTasks = week.days.reduce((total, day) => total + (Array.isArray(day.tasks) ? day.tasks.length : 0), 0);
     if (totalTasks === 0) return { percentage: 0, completed: 0, total: 0 };
-    const weekProgress = safeProgress.filter(p => p.weekId === weekNumber && p.phaseId === parseInt(phaseId));
+    const weekProgress = safeProgress.filter(p => String(p.weekId) === String(weekNumber) && (p.phaseId == null || String(p.phaseId) === String(phaseIdInt)));
     const completedTasks = weekProgress.filter(p => p.done).length;
     return {
       percentage: Math.round((completedTasks / totalTasks) * 100),
