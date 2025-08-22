@@ -1079,16 +1079,16 @@ const ProgressPage = () => {
               </h2>
               
               <div className="grid grid-cols-7 gap-2">
-                {analytics.trends.map((day, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      {new Date(day.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { 
-                        weekday: 'short' 
-                      })}
-                    </div>
+                              {(analytics.trends || []).map((day, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    {new Date(day?.date || Date.now()).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { 
+                      weekday: 'short' 
+                    })}
+                  </div>
                     <div className="bg-blue-100 dark:bg-blue-900/20 rounded p-2">
                       <div className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                        {day.tasks}
+                        {day?.tasks ?? 0}
                       </div>
                       <div className="text-xs text-blue-600 dark:text-blue-400">
                         {language === 'ar' ? 'مهام' : 'tasks'}
