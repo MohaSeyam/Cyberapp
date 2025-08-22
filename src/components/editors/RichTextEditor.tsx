@@ -983,6 +983,34 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus }: { editor:
                 <span className="text-xs">→</span>
               </button>
               <button
+                onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'تبديل صف الترويسة' : 'Toggle Header Row'}
+              >
+                <span className="text-xs">Hdr-R</span>
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleHeaderColumn().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'تبديل عمود الترويسة' : 'Toggle Header Column'}
+              >
+                <span className="text-xs">Hdr-C</span>
+              </button>
+              <button
+                onClick={() => editor.chain().focus().mergeCells().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'دمج الخلايا' : 'Merge Cells'}
+              >
+                <span className="text-xs">Merge</span>
+              </button>
+              <button
+                onClick={() => editor.chain().focus().splitCell().run()}
+                className="p-1.5 rounded text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={lang === 'ar' ? 'فصل الخلية' : 'Split Cell'}
+              >
+                <span className="text-xs">Split</span>
+              </button>
+              <button
                 onClick={deleteRow}
                 className="p-1.5 rounded text-xs hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
                 title={lang === 'ar' ? 'حذف الصف' : 'Delete Row'}

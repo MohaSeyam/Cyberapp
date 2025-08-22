@@ -162,10 +162,7 @@ const PhaseWeeksPage = () => {
                 <Star className="w-4 h-4" />
                 <span>{currentPhase.difficulty}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                <span>{currentPhase.weeks.length} {language === 'ar' ? 'أسابيع' : 'weeks'}</span>
-              </div>
+              
             </div>
           </div>
         </div>

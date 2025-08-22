@@ -87,8 +87,10 @@ export default function NoteViewPage() {
   // دالة مساعدة لعرض اسم اليوم باللغة المطلوبة
   const getDayName = (day) => {
     try {
-      if (!day?.day) return language === 'ar' ? 'اليوم' : 'Day';
-      return day.day[language] || day.day.ar || day.day.en || (language === 'ar' ? 'اليوم' : 'Day');
+      if (!day) return language === 'ar' ? 'اليوم' : 'Day';
+      const title = day.title || day.day;
+      if (!title) return language === 'ar' ? 'اليوم' : 'Day';
+      return title[language] || title.ar || title.en || (language === 'ar' ? 'اليوم' : 'Day');
     } catch (error) {
       console.error('Error in getDayName:', error);
       return language === 'ar' ? 'اليوم' : 'Day';
