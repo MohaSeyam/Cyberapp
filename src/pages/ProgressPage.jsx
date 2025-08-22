@@ -80,88 +80,121 @@ const ProgressPage = () => {
 
   // Calculate comprehensive analytics
   const analytics = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Filter data based on selected period
-    const getFilteredData = (data, dateField) => {
-      const filtered = data.filter(item => {
-        const itemDate = new Date(item[dateField] || item.createdAt || item.timestamp);
-        if (selectedPeriod === 'week') {
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          return itemDate >= weekAgo;
-        } else if (selectedPeriod === 'month') {
-          return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
-        } else if (selectedPeriod === 'year') {
-          return itemDate.getFullYear() === currentYear;
-        }
-        return true; // all time
+    try {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      const normalizeDate = (value) => {
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? now : d;
+      };
+
+      const normalizedProgress = safeProgress.map(p => ({
+        ...p,
+        createdAt: p.createdAt || p.updatedAt || p.timestamp || now.toISOString()
+      }));
+      const normalizedEvaluations = safeTaskEvaluations.map(e => ({
+        ...e,
+        timestamp: e.timestamp || e.createdAt || now.toISOString()
+      }));
+
+      // Filter data based on selected period
+      const getFilteredData = (data, dateField) => {
+        const filtered = data.filter(item => {
+          const itemDate = normalizeDate(item[dateField] || item.createdAt || item.timestamp);
+          if (selectedPeriod === 'week') {
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return itemDate >= weekAgo;
+          } else if (selectedPeriod === 'month') {
+            return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
+          } else if (selectedPeriod === 'year') {
+            return itemDate.getFullYear() === currentYear;
+          }
+          return true; // all time
+        });
+        return filtered;
+      };
+
+      // Progress analytics
+      const filteredProgress = getFilteredData(normalizedProgress, 'createdAt');
+      const completedTasks = filteredProgress.filter(p => p.done).length;
+      const totalTasks = filteredProgress.length;
+      const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+      // Evaluation analytics
+      const filteredEvaluations = getFilteredData(normalizedEvaluations, 'timestamp');
+      const averageRating = filteredEvaluations.length > 0 
+        ? filteredEvaluations.reduce((sum, ev) => sum + (ev.rating || 0), 0) / filteredEvaluations.length 
+        : 0;
+      const averageUnderstanding = filteredEvaluations.length > 0
+        ? filteredEvaluations.reduce((sum, ev) => sum + (ev.understanding || 0), 0) / filteredEvaluations.length
+        : 0;
+
+      // Content analytics
+      const filteredNotes = getFilteredData(safeNotes, 'createdAt');
+      const filteredJournals = getFilteredData(safeJournalEntries, 'createdAt');
+      const filteredResources = getFilteredData(safeResources, 'createdAt');
+
+      // Study patterns
+      const studyDays = new Set(filteredProgress.map(p => 
+        normalizeDate(p.createdAt).toDateString()
+      )).size;
+      
+      const totalStudyTime = filteredProgress.length * 25; // Assuming 25 minutes per task
+      const averageTasksPerDay = studyDays > 0 ? filteredProgress.length / studyDays : 0;
+
+      // Streak calculation
+      const streak = calculateStreak(normalizedProgress);
+
+      // Performance trends
+      const trends = calculateTrends(normalizedProgress, normalizedEvaluations);
+
+      // Learning insights
+      const insights = generateInsights({
+        completionRate,
+        averageRating,
+        averageUnderstanding,
+        studyDays,
+        totalStudyTime,
+        averageTasksPerDay,
+        streak,
+        trends
       });
-      return filtered;
-    };
 
-    // Progress analytics
-    const filteredProgress = getFilteredData(safeProgress, 'createdAt');
-    const completedTasks = filteredProgress.filter(p => p.done).length;
-    const totalTasks = filteredProgress.length;
-    const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-    // Evaluation analytics
-    const filteredEvaluations = getFilteredData(safeTaskEvaluations, 'timestamp');
-    const averageRating = filteredEvaluations.length > 0 
-      ? filteredEvaluations.reduce((sum, ev) => sum + (ev.rating || 0), 0) / filteredEvaluations.length 
-      : 0;
-    const averageUnderstanding = filteredEvaluations.length > 0
-      ? filteredEvaluations.reduce((sum, ev) => sum + (ev.understanding || 0), 0) / filteredEvaluations.length
-      : 0;
-
-    // Content analytics
-    const filteredNotes = getFilteredData(safeNotes, 'createdAt');
-    const filteredJournals = getFilteredData(safeJournalEntries, 'createdAt');
-    const filteredResources = getFilteredData(safeResources, 'createdAt');
-
-    // Study patterns
-    const studyDays = new Set(filteredProgress.map(p => 
-      new Date(p.createdAt).toDateString()
-    )).size;
-    
-    const totalStudyTime = filteredProgress.length * 25; // Assuming 25 minutes per task
-    const averageTasksPerDay = studyDays > 0 ? filteredProgress.length / studyDays : 0;
-
-    // Streak calculation
-    const streak = calculateStreak(safeProgress);
-
-    // Performance trends
-    const trends = calculateTrends(safeProgress, safeTaskEvaluations);
-
-    // Learning insights
-    const insights = generateInsights({
-      completionRate,
-      averageRating,
-      averageUnderstanding,
-      studyDays,
-      totalStudyTime,
-      averageTasksPerDay,
-      streak,
-      trends
-    });
-
-    return {
-      completionRate: Math.round(completionRate * 10) / 10,
-      averageRating: Math.round(averageRating * 10) / 10,
-      averageUnderstanding: Math.round(averageUnderstanding * 10) / 10,
-      totalTasks: completedTasks,
-      totalNotes: filteredNotes.length,
-      totalJournals: filteredJournals.length,
-      totalResources: filteredResources.length,
-      studyDays,
-      totalStudyTime,
-      averageTasksPerDay: Math.round(averageTasksPerDay * 10) / 10,
-      streak,
-      trends,
-      insights
-    };
+      return {
+        completionRate: Math.round(completionRate * 10) / 10,
+        averageRating: Math.round(averageRating * 10) / 10,
+        averageUnderstanding: Math.round(averageUnderstanding * 10) / 10,
+        totalTasks: completedTasks,
+        totalNotes: filteredNotes.length,
+        totalJournals: filteredJournals.length,
+        totalResources: filteredResources.length,
+        studyDays,
+        totalStudyTime,
+        averageTasksPerDay: Math.round(averageTasksPerDay * 10) / 10,
+        streak,
+        trends,
+        insights
+      };
+    } catch (error) {
+      console.error('Analytics computation error:', error);
+      return {
+        completionRate: 0,
+        averageRating: 0,
+        averageUnderstanding: 0,
+        totalTasks: 0,
+        totalNotes: 0,
+        totalJournals: 0,
+        totalResources: 0,
+        studyDays: 0,
+        totalStudyTime: 0,
+        averageTasksPerDay: 0,
+        streak: 0,
+        trends: Array.from({ length: 7 }, (_, i) => ({ date: new Date().toDateString(), tasks: 0, evaluations: 0 })),
+        insights: []
+      };
+    }
   }, [safeProgress, safeTaskEvaluations, safeNotes, safeJournalEntries, safeResources, selectedPeriod]);
 
   // Calculate progress statistics for overview tab
