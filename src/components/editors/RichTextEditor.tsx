@@ -490,6 +490,7 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePag
   const [showFontFamily, setShowFontFamily] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
+  const [refreshTick, setRefreshTick] = useState(0);
   
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -517,6 +518,19 @@ const EditorToolbar = React.memo(({ editor, lang = 'ar', saveStatus, onTogglePag
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, []);
+
+  // Re-render toolbar when selection changes to refresh editor.isActive checks
+  useEffect(() => {
+    if (!editor) return;
+    const onSel = () => setRefreshTick((t) => t + 1);
+    const onTxn = () => setRefreshTick((t) => t + 1);
+    editor.on('selectionUpdate', onSel);
+    editor.on('transaction', onTxn);
+    return () => {
+      editor.off('selectionUpdate', onSel);
+      editor.off('transaction', onTxn);
+    };
+  }, [editor]);
   
   if (!editor) return null;
   
